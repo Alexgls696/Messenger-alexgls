@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Ошибка сети:', error);
-            showError('Не удалось подключиться к серверу аутентификации.');
+            showError(`Не удалось подключиться к серверу аутентификации. ${API_BASE_URL}`);
         } finally {
             if (!localStorage.getItem('accessToken')) {
                 loginButton.disabled = false;
