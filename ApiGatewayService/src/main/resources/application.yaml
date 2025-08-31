@@ -3,6 +3,7 @@ server:
 
 frontend:
   url: http://localhost:8090
+  port: 8090
 
 spring:
   application:

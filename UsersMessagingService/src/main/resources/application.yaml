@@ -12,6 +12,8 @@ spring:
 
 frontend:
   url: http://localhost:8090
+  port: 8090
+
 
 services:
   auth-service: http://localhost:8085

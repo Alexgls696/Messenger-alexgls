@@ -20,6 +20,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,11 +30,19 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
+
+    private final String localHostAddress;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
+
+    public SecurityConfig(@Value("${frontend.port}") Integer frontendPort) throws UnknownHostException {
+        try {
+            localHostAddress = "http://" + InetAddress.getLocalHost().getHostAddress() + ":" + frontendPort;
+        } catch (UnknownHostException exception) {
+            throw new UnknownHostException("Не удалось определить адрес хоста");
+        }
+    }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -62,7 +72,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontendUrl, "http://192.168.0.103:8090"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8090", localHostAddress));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

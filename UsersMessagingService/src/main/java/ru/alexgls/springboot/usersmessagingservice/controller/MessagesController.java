@@ -28,6 +28,9 @@ public class MessagesController {
     @MessageMapping("/chat.send")
     public void sendChatMessage(@Payload ChatMessage chatMessage, Principal principal) {
         log.info("Try to send message to kafka: {}", chatMessage);
+        if(chatMessage.getContent().isEmpty() && chatMessage.getAttachments().isEmpty()){
+            return;
+        }
         messagingService.sendMessage(chatMessage, principal);
     }
 

@@ -1,5 +1,6 @@
 package ru.alexgls.springboot.usersmessagingservice.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.alexgls.springboot.usersmessagingservice.client.AuthServiceClient;
 
 import lombok.RequiredArgsConstructor;
@@ -10,16 +11,28 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 
 @Configuration
 @EnableWebSocketMessageBroker
-@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final AuthServiceClient authServiceClient;
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
+    private AuthServiceClient authServiceClient;
+
+    private final String localHostAddress;
+
+    @Autowired
+    public WebSocketConfig(AuthServiceClient authServiceClient, @Value("${frontend.port}") Integer frontendPort) throws UnknownHostException {
+        this.authServiceClient = authServiceClient;
+        try {
+            localHostAddress = "http://" + InetAddress.getLocalHost().getHostAddress() + ":" + frontendPort;
+        } catch (UnknownHostException exception) {
+            throw new UnknownHostException("Не удалось определить адрес хоста");
+        }
+    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -31,7 +44,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOrigins(frontendUrl,"http://192.168.0.103:8090")
+                .setAllowedOrigins("http://localhost:8090", localHostAddress)
                 .addInterceptors(new JwtHandshakeInterceptor(authServiceClient))
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
