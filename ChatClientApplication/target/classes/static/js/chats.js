@@ -415,17 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const fragment = document.createDocumentFragment();
         for (const msg of messages) {
             const isSentByMe = msg.senderId === currentUserId;
-            const msgDiv = await createMessageElement(msg, isSentByMe);
+            const msgDiv = createMessageElement(msg, isSentByMe);
             fragment.appendChild(msgDiv);
         }
 
-        messagesEl.appendChild(fragment); // Добавляем сообщения в DOM
+        messagesEl.appendChild(fragment); // Добавляем все сообщения в DOM за одну операцию
         messagesEl.scrollTop = messagesEl.scrollHeight; // Прокручиваем вниз
     }
 
 
 
-    async function createMessageElement(msg, isSentByMe) {
+    function createMessageElement(msg, isSentByMe) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
         msgDiv.dataset.messageId = msg.id;
@@ -438,38 +438,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (msg.attachments && msg.attachments.length > 0) {
             attachmentsHtml = '<div class="attachments-container">';
 
-            const attachmentItemsHtml = await Promise.all(msg.attachments.map(async (att) => {
-                const getLinkUrl = `${API_BASE_URL}/api/storage/download/by-id?id=${att.fileId}`;
+            const attachmentItemsHtml = msg.attachments.map(att => {
+                const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
 
-                try {
-                    const realDownloadUrl = await apiFetch(getLinkUrl);
-
-                    if (att.mimeType && att.mimeType.startsWith('image/')) {
-                        // Для изображений создаем элемент с ленивой загрузкой
-                        return `
+                if (att.mimeType && att.mimeType.startsWith('image/')) {
+                    // Просто создаем HTML-заготовку. URL на прокси кладется в data-src.
+                    return `
                     <div class="attachment-item image-attachment">
-                        <a href="${realDownloadUrl.href}" target="_blank" rel="noopener noreferrer">
-                            <div class="skeleton skeleton-tile"></div> <!-- Скелетон для изображения -->
-                            <img src="${realDownloadUrl.href}" alt="Вложение" class="attachment-image lazy-load" data-src="${realDownloadUrl.href}">
+                        <a href="${proxyUrl}" target="_blank" rel="noopener noreferrer">
+                            <div class="skeleton skeleton-tile"></div>
+                            <img class="attachment-image lazy-load" data-src="${proxyUrl}">
                         </a>
                     </div>`;
-                    } else {
-                        // Для других типов файлов отображаем стандартную ссылку для скачивания
-                        return `
+                } else {
+                    // Для обычных файлов ссылка на прокси работает сразу на скачивание.
+                    const fileName = att.fileName || 'file';
+                    return `
                     <div class="attachment-item file-attachment">
                         <div class="file-icon">📁</div>
                         <div class="file-info">
                             <span class="file-name">${msg.content || 'Файл'}</span>
-                            <a href="${realDownloadUrl.href}" class="file-download-link" download>Скачать</a>
+                            <a href="${proxyUrl}" class="file-download-link" download="${fileName}">Скачать</a>
                         </div>
                     </div>`;
-                    }
-                } catch (error) {
-                    // В случае ошибки при загрузке файла
-                    console.error(`Не удалось получить ссылку для вложения (fileId: ${att.fileId}):`, error);
-                    return `<div class="attachment-item file-attachment error">Не удалось загрузить вложение</div>`;
                 }
-            }));
+            });
 
             attachmentsHtml += attachmentItemsHtml.join('');
             attachmentsHtml += '</div>';
@@ -483,34 +476,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusClass = isSentByMe && msg.read ? 'read' : '';
 
         msgDiv.innerHTML = `
-    ${senderHtml}
-    ${attachmentsHtml}
-    ${contentHtml}
-    <div class="message-meta">
-        <span>${formatDate(msg.createdAt)}</span>
-        <span class="message-status ${statusClass}">${statusText}</span>
-    </div>
-    `;
+            ${senderHtml}
+            ${attachmentsHtml}
+            ${contentHtml}
+            <div class="message-meta">
+                <span>${formatDate(msg.createdAt)}</span>
+                <span class="message-status ${statusClass}">${statusText}</span>
+            </div>`;
 
-        // Подключаем IntersectionObserver для ленивой загрузки изображений
-        const images = msgDiv.querySelectorAll('.lazy-load');
-        images.forEach(img => {
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const image = entry.target;
-                        image.src = image.getAttribute('data-src');
-                        image.onload = () => {
-                            const skeleton = image.previousElementSibling;
-                            if (skeleton) skeleton.remove(); // Убираем скелетон
-                        };
-                        observer.disconnect(); // Отключаем observer после загрузки изображения
-                    }
-                });
-            });
-
-            observer.observe(img);
-        });
+        // 4. Находим все "ленивые" изображения в созданном сообщении...
+        const imagesToLazyLoad = msgDiv.querySelectorAll('img.lazy-load');
+        // ...и говорим нашему единому observer'у начать за ними следить.
+        imagesToLazyLoad.forEach(img => imageObserver.observe(img));
 
         return msgDiv;
     }
@@ -522,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const wasScrolledToBottom = messagesEl.scrollHeight - messagesEl.clientHeight <= messagesEl.scrollTop + 1;
 
-        const msgDiv = await createMessageElement(msg, isSentByMe);
+        const msgDiv =  createMessageElement(msg, isSentByMe);
 
         // Добавляем сообщение в начало или в конец
         if (prepend) {
@@ -536,6 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
     }
+
 
 
     async function startChatWithUser(user) {
@@ -555,6 +533,53 @@ document.addEventListener('DOMContentLoaded', () => {
             openChat(chat);
         } catch (error) {
             alert(`Не удалось создать чат: ${error.message}`);
+        }
+    }
+
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            // Если изображение попало в зону видимости
+            if (entry.isIntersecting) {
+                const image = entry.target;
+                // Запускаем асинхронную функцию загрузки
+                lazyLoadImage(image);
+                // Прекращаем наблюдение за этим изображением, чтобы не загружать его повторно
+                observer.unobserve(image);
+            }
+        });
+    });
+
+    async function lazyLoadImage(imageElement) {
+        const proxyUrl = imageElement.dataset.src; // Берем URL из data-src
+        if (!proxyUrl) return;
+
+        const accessToken = localStorage.getItem('accessToken');
+        const skeleton = imageElement.closest('.image-attachment')?.querySelector('.skeleton');
+
+        try {
+            const response = await fetch(proxyUrl, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (!response.ok) throw new Error(`Network error: ${response.status}`);
+
+            const fileBlob = await response.blob();
+            const objectUrl = URL.createObjectURL(fileBlob);
+
+            imageElement.src = objectUrl; // Устанавливаем реальный src
+
+            // После успешной загрузки изображения в тег...
+            imageElement.onload = () => {
+                if (skeleton) skeleton.remove(); // ...убираем скелетон...
+                // ...и освобождаем память, занятую Blob'ом
+                URL.revokeObjectURL(objectUrl);
+            };
+            imageElement.onerror = () => {
+                if (skeleton) skeleton.innerHTML = '⚠️'; // Показываем ошибку, если картинка не загрузилась
+            }
+
+        } catch (error) {
+            console.error(`Failed to lazy-load image from ${proxyUrl}:`, error);
+            if (skeleton) skeleton.innerHTML = '⚠️'; // Показываем ошибку
         }
     }
 
@@ -762,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     for (const msg of messages) {
                         const isSentByMe = msg.senderId === currentUserId;
-                        const msgDiv = await createMessageElement(msg, isSentByMe);
+                        const msgDiv =  createMessageElement(msg, isSentByMe);
                         fragment.appendChild(msgDiv); // Добавляем в конец буфера, сохраняя порядок
                     }
 

@@ -21,7 +21,6 @@ import reactor.core.publisher.Mono;
 
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -49,7 +48,8 @@ public class SecurityConfig {
                         .pathMatchers(
                                 "/auth/**",
                                 "/.well-known/jwks.json",
-                                "/ws-chat/**"
+                                "/ws-chat/**",
+                                "/api/storage/proxy/download/**"
                         ).permitAll()
                         .anyExchange().authenticated()
                 )

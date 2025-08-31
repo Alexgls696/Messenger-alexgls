@@ -11,7 +11,13 @@
         <option value="$PROJECT_DIR$/MediaContentStorageService/pom.xml" />
         <option value="$PROJECT_DIR$/InDatabaseContentStorageService/pom.xml" />
         <option value="$PROJECT_DIR$/ApiGatewayService/pom.xml" />
+        <option value="$PROJECT_DIR$/MediaContentProxyService/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/MediaContentProxyService/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">

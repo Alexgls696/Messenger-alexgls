@@ -4,61 +4,74 @@ import com.alexgls.springboot.client.response.DownloadFileResponse;
 import com.alexgls.springboot.client.response.UploadFilePathResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class YandexDriveStorageRestClient {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
 
     private void exceptionMessage(Exception exception) {
         log.warn("При работе с yandex client возникло исключение {}", exception.getMessage());
     }
 
-    public UploadFilePathResponse getUploadFilePathUrl(String path) {
+    public Mono<UploadFilePathResponse> getUploadFilePathUrl(String path) {
         try {
-            return restClient
+            return webClient
                     .get()
                     .uri(path)
                     .retrieve()
-                    .body(UploadFilePathResponse.class);
+                    .bodyToMono(UploadFilePathResponse.class);
         } catch (Exception exception) {
             exceptionMessage(exception);
             throw exception;
         }
     }
 
-    public ResponseEntity<Void> uploadFile(String path, byte[] bytes) {
+
+    public Mono<ResponseEntity<Void>> uploadFile(String path, FilePart filePart) {
+        return filePart.content()
+                .collectList()
+                .flatMap(dataBuffers -> {
+                    Flux<DataBuffer> body = Flux.fromIterable(dataBuffers);
+                    return webClient
+                            .put()
+                            .uri(path)
+                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                            .header("Content-Length", String.valueOf(getTotalSize(dataBuffers)))
+                            .body(BodyInserters.fromDataBuffers(body))
+                            .retrieve()
+                            .toBodilessEntity();
+                });
+    }
+
+    public Mono<DownloadFileResponse> getDownloadFileUrl(String path) {
         try {
-            return restClient
-                    .put()
+            return webClient
+                    .get()
                     .uri(path)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(bytes)
                     .retrieve()
-                    .toBodilessEntity();
+                    .bodyToMono(DownloadFileResponse.class);
         } catch (Exception exception) {
             exceptionMessage(exception);
             throw exception;
         }
     }
 
-    public DownloadFileResponse getDownloadFileUrl(String path) {
-        try {
-            return restClient
-                    .get()
-                    .uri(path)
-                    .retrieve()
-                    .body(DownloadFileResponse.class);
-        } catch (Exception exception) {
-            exceptionMessage(exception);
-            throw exception;
-        }
+    private long getTotalSize(List<DataBuffer> dataBuffers) {
+        return dataBuffers.stream()
+                .mapToLong(DataBuffer::readableByteCount)
+                .sum();
     }
 
 }

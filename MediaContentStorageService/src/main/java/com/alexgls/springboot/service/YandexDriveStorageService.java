@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -35,34 +37,42 @@ public class YandexDriveStorageService implements StorageService {
     private String applicationPath;
 
     @Override
-    public CreateFileResponse uploadImage(MultipartFile file) {
+    public Mono<CreateFileResponse> uploadImage(FilePart file) {
         StringBuilder pathBuilder = new StringBuilder();
-        String filepathToDatabase = getFilePath(file.getOriginalFilename());
+        String filepathToDatabase = getFilePath(file.filename());
         pathBuilder.append(baseUrl).append("/upload?path=").append(filepathToDatabase);
-        UploadFilePathResponse uploadPathResponse = yandexDriveRestClient.getUploadFilePathUrl(pathBuilder.toString());
-        log.info("upload path from yandex {}", uploadPathResponse);
-        saveFileToYandexDrive(file, uploadPathResponse);
-        log.info("Saving path to database... {}", filepathToDatabase);
-        ChatImage chatImage = inDatabaseStorageServiceRestClient.saveChatImage(new CreateFileMetadataRequest(filepathToDatabase,file.getName()));
-        return new CreateFileResponse(chatImage.getId(), filepathToDatabase, Timestamp.from(Instant.now()));
+        Mono<UploadFilePathResponse> uploadPathResponseMono = yandexDriveRestClient.getUploadFilePathUrl(pathBuilder.toString());
+        Mono<ChatImage> chatImageMono = inDatabaseStorageServiceRestClient.saveChatImage(new CreateFileMetadataRequest(filepathToDatabase, file.filename()));
+
+        return Mono.zip(uploadPathResponseMono, chatImageMono)
+                .flatMap(tuple -> {
+                    UploadFilePathResponse uploadFilePathResponse = tuple.getT1();
+                    ChatImage chatImageFromDatabase = tuple.getT2();
+                    log.info("upload path from yandex {}", uploadFilePathResponse);
+                    log.info("Saving path to database... {}", filepathToDatabase);
+                    return saveFileToYandexDrive(file, uploadFilePathResponse)
+                            .then(Mono.fromCallable(() -> new CreateFileResponse(chatImageFromDatabase.getId(), filepathToDatabase, Timestamp.from(Instant.now()))));
+                });
     }
 
     @Override
-    public String getDownLoadFilePath(String path) {
+    public Mono<String> getDownLoadFilePath(String path) {
         return findFileHrefInYandex(path);
     }
 
     @Override
-    public String getDownloadPathById(int id) {
-        String path = inDatabaseStorageServiceRestClient.findChatImageById(id).getPath();
-        return findFileHrefInYandex(path);
+    public Mono<String> getDownloadPathById(int id) {
+        return inDatabaseStorageServiceRestClient.findChatImageById(id)
+                .flatMap(chatImage -> findFileHrefInYandex(chatImage.getPath()));
     }
 
-    private String findFileHrefInYandex(String path) {
+    private Mono<String> findFileHrefInYandex(String path) {
         path = baseUrl + "/download?path=" + path;
-        DownloadFileResponse downloadFileResponse = yandexDriveRestClient.getDownloadFileUrl(path);
-        log.info("download file url from yandex {}", downloadFileResponse);
-        return downloadFileResponse.href();
+        return yandexDriveRestClient.getDownloadFileUrl(path)
+                .map(result -> {
+                    log.info("download file url from yandex {}", result);
+                    return result.href();
+                });
     }
 
     private String getFilePath(String fileName) {
@@ -72,18 +82,11 @@ public class YandexDriveStorageService implements StorageService {
         return applicationPath + "/images/" + randomFileName;
     }
 
-    private void saveFileToYandexDrive(MultipartFile file, UploadFilePathResponse response) {
-        try {
-            byte[] fileBytes = file.getBytes();
-            ResponseEntity<Void> fileUploadResult = yandexDriveRestClient.uploadFile(response.getHref(), fileBytes);
-            if (fileUploadResult.getStatusCode().is2xxSuccessful()) {
-                log.info("Upload file success");
-            } else {
-                log.warn("Upload file failed, code: {}, href: {}", fileUploadResult.getStatusCode(), response.getHref());
-            }
-        } catch (IOException ioException) {
-            log.info("Error with work fileBytes {}", ioException.getMessage());
-        }
+    private Mono<Void> saveFileToYandexDrive(FilePart file, UploadFilePathResponse response) {
+        return yandexDriveRestClient.uploadFile(response.getHref(), file)
+                .doOnSuccess(unused -> log.info("Upload file success to href: {}", response.getHref()))
+                .doOnError(error -> log.warn("Upload file failed, href: {}, error: {}",
+                        response.getHref(), error.getMessage())).then();
     }
 
 

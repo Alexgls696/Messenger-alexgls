@@ -2,9 +2,10 @@ package com.alexgls.springboot.client;
 
 import com.alexgls.springboot.dto.ChatImage;
 import com.alexgls.springboot.dto.CreateFileMetadataRequest;
+import reactor.core.publisher.Mono;
 
 public interface InDatabaseStorageServiceRestClient {
-    ChatImage findChatImageById(int id);
+    Mono<ChatImage> findChatImageById(int id);
 
-    ChatImage saveChatImage(CreateFileMetadataRequest createFileMetadataRequest);
+    Mono<ChatImage> saveChatImage(CreateFileMetadataRequest createFileMetadataRequest);
 }

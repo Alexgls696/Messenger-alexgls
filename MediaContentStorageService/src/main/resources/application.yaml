@@ -13,8 +13,18 @@ spring:
         jwt:
           jwk-set-uri: http://localhost:8085/.well-known/jwks.json
 
-frontend:
-  url: http://localhost:8090
-
 services:
   in-database-image-service: http://localhost:8089
+
+webclient:
+  timeout: 10
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          reactive:
+            function:
+              client:
+                ExchangeFunctions: TRACE

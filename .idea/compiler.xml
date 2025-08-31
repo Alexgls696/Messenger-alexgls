@@ -16,12 +16,16 @@
         <module name="MediaContentStorageService" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="MediaContentProxyService" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ApiGatewayService" options="-parameters" />
       <module name="AuthService" options="-parameters" />
       <module name="InDatabaseContentStorageService" options="-parameters" />
+      <module name="MediaContentProxyService" options="-parameters" />
       <module name="MediaContentStorageService" options="-parameters" />
       <module name="MessageStorageService" options="-parameters" />
       <module name="RatingLogClientApplication" options="-parameters" />
