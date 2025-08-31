@@ -1,39 +1,47 @@
 /* Сброс и базовые стили */
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Убирает синюю подсветку при тапе на мобильных */
+}
+
+html, body {
+    height: 100%;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: #f5f7fa;
     margin: 0;
-    padding: 10px;
     color: #333;
-    height: 100vh;
     display: flex;
     flex-direction: column;
+    /* Убираем padding для body, чтобы контейнер мог занимать всю ширину на мобильных */
+    padding: 0;
 }
 
 .container {
-    max-width: 95%;
     width: 100%;
-    height: calc(100vh - 80px);
+    max-width: 1400px; /* Немного увеличим для больших экранов */
+    height: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
+    padding: 10px; /* Добавляем padding сюда */
 }
 
 .main-header {
     display: flex;
-    justify-content: center; /* Центрирует H1 */
+    justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
-    position: relative; /* Важно для позиционирования кнопок */
+    margin-bottom: 15px;
+    position: relative;
     flex-shrink: 0;
+    padding: 10px 0;
 }
 
 .main-header h1 {
     margin: 0;
+    font-size: 1.5em;
     font-weight: 700;
     color: #2c3e50;
     text-align: center;
@@ -51,20 +59,19 @@ body {
     display: flex;
     gap: 20px;
     flex-grow: 1;
-    min-height: 500px;
+    min-height: 0;
     width: 100%;
 }
 
 .chat-list {
     list-style: none;
     padding: 0;
-    width: 25%;
-    min-width: 280px;
+    width: 320px; /* Фиксированная ширина для десктопа */
+    flex-shrink: 0; /* Не сжиматься */
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
     overflow-y: auto;
-    max-height: 100%;
     border: 1px solid #ddd;
     margin: 0;
     display: flex;
@@ -122,16 +129,15 @@ body {
 }
 
 .chat-window {
-    flex: 1;
-    width: 75%;
+    flex-grow: 1; /* Растягиваться на всю доступную ширину */
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
     display: flex;
     flex-direction: column;
-    max-height: 100%;
     border: 1px solid #ddd;
-    transition: opacity 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Добавляем transition для transform */
+    min-width: 0; /* Важно для работы flex-box */
 }
 
 .chat-window.hidden {
@@ -172,7 +178,7 @@ body {
 }
 
 .messages {
-    padding: 20px;
+    padding: 15px; /* Немного уменьшим padding */
     flex-grow: 1;
     overflow-y: auto;
     display: flex;
@@ -183,7 +189,7 @@ body {
 .message {
     padding: 10px 15px;
     border-radius: 18px;
-    max-width: 70%;
+    max-width: 80%; /* Немного увеличим для мобильных */
     display: flex;
     flex-direction: column;
 }
@@ -240,10 +246,10 @@ body {
 
 .message-form {
     display: flex;
-    padding: 15px;
+    align-items: center; /* Выравниваем элементы по центру */
+    padding: 10px;
     border-top: 1px solid #eee;
     background: #f9f9f9;
-    border-radius: 0 0 8px 8px;
     flex-shrink: 0;
 }
 
@@ -440,33 +446,46 @@ body {
 
 /* Контейнер для превью перед отправкой */
 .attachment-preview-container {
-    padding: 0 15px 10px 15px;
-    background: #f9f9f9;
-    border-top: 1px solid #eee;
+    padding: 10px 15px; /* Увеличим отступ сверху для красоты */
+    background: #f0f4f8; /* Немного изменим фон для контраста */
+    border-top: 1px solid #ddd;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    border-radius: 0 0 8px 8px; /* Скругляем нижние углы, если форма сверху */
+    overflow-y: auto; /* Добавляем скролл, если превью много */
+    max-height: 120px; /* Ограничиваем высоту, чтобы не занимало много места */
 }
 
 /* Отдельный элемент превью */
 .attachment-preview-item {
     position: relative;
     padding: 5px;
-    background: #e9e9e9;
+    background: #fff;
+    border: 1px solid #ddd;
     border-radius: 6px;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.9em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    /* Ограничиваем максимальную ширину элемента, чтобы длинные имена файлов не ломали верстку */
+    max-width: 200px;
 }
 
-/* Превью для изображений */
-.attachment-preview-item img {
+.attachment-preview-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attachment-preview-container .attachment-preview-item img {
     height: 40px;
     width: 40px;
-    object-fit: cover;
+    min-width: 40px; /* Гарантирует, что ширина не станет меньше */
+    flex-shrink: 0;  /* Запрещает изображению сжиматься внутри flex-контейнера */
+    object-fit: cover; /* Сохраняет пропорции, обрезая лишнее */
     border-radius: 4px;
+    background-color: #e9ecef; /* Фон на случай, если картинка грузится */
 }
 
 /* Индикатор загрузки */
@@ -483,25 +502,28 @@ body {
 /* Кнопка удаления превью */
 .remove-attachment-btn {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #333;
+    top: -8px;
+    right: -8px;
+    background: #555;
     color: white;
-    border: none;
+    border: 2px solid #f0f4f8; /* Рамка в цвет фона, чтобы кнопка "отделялась" */
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    line-height: 18px;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 16px; /* Корректируем для центрирования крестика */
     text-align: center;
     cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s, transform 0.2s;
+    opacity: 0.9;
+    transition: all 0.2s;
+    z-index: 1;
 }
 
 .remove-attachment-btn:hover {
     opacity: 1;
     transform: scale(1.1);
+    background: #e74c3c;
 }
 
 /* --- СТИЛИ ДЛЯ ВЛОЖЕНИЙ ВНУТРИ СООБЩЕНИЙ --- */
@@ -944,5 +966,6 @@ body {
         background-color: #f3f3f3;
     }
 }
+
 
 

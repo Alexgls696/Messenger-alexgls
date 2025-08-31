@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInput = document.getElementById('messageInput');
     const userSearchModal = document.getElementById('userSearchModal');
     const logoutBtn = document.getElementById('logoutBtn');
+    const backToListBtn = document.getElementById('backToListBtn');
 
     const findUserBtn = document.getElementById('findUserBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -47,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
 
-    const WEB_SOCKET_API_URL = 'http://localhost:8086';
+    console.log(API_BASE_URL)
+    const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
 
     const chatManager = {
         stompClient: null,
@@ -228,6 +230,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function closeActiveChat() {
+        document.body.classList.remove('chat-active');
+
+        chatWindowEl.classList.add('hidden');
+
+        // Сбрасываем активный чат
+        activeChatId = null;
+        [...chatListEl.children].forEach(li => li.classList.remove('active'));
+    }
+
     async function loadAndShowUsers() {
         userListContainer.innerHTML = '<p class="placeholder">Загрузка пользователей...</p>';
         userSearchModal.classList.remove('hidden');
@@ -349,9 +361,11 @@ document.addEventListener('DOMContentLoaded', () => {
             li.classList.toggle('active', li.dataset.chatId == activeChatId);
         });
 
+        chatWindowEl.classList.remove('hidden');
+        document.body.classList.add('chat-active');
+
         chatTitleEl.textContent = 'Загрузка...';
         messagesEl.innerHTML = '<p class="placeholder">Загрузка данных...</p>';
-        chatWindowEl.classList.remove('hidden');
 
         try {
             const [chatDetailsResult, messages] = await Promise.all([
@@ -422,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesEl.appendChild(fragment); // Добавляем все сообщения в DOM за одну операцию
         messagesEl.scrollTop = messagesEl.scrollHeight; // Прокручиваем вниз
     }
-
 
 
     function createMessageElement(msg, isSentByMe) {
@@ -499,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const wasScrolledToBottom = messagesEl.scrollHeight - messagesEl.clientHeight <= messagesEl.scrollTop + 1;
 
-        const msgDiv =  createMessageElement(msg, isSentByMe);
+        const msgDiv = createMessageElement(msg, isSentByMe);
 
         // Добавляем сообщение в начало или в конец
         if (prepend) {
@@ -513,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
     }
-
 
 
     async function startChatWithUser(user) {
@@ -535,6 +547,16 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Не удалось создать чат: ${error.message}`);
         }
     }
+
+    const attachmentObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const mediaElement = entry.target;
+                lazyLoadAttachmentMedia(mediaElement);
+                observer.unobserve(mediaElement);
+            }
+        });
+    });
 
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -558,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(proxyUrl, {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
+                headers: {'Authorization': `Bearer ${accessToken}`}
             });
             if (!response.ok) throw new Error(`Network error: ${response.status}`);
 
@@ -580,6 +602,49 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(`Failed to lazy-load image from ${proxyUrl}:`, error);
             if (skeleton) skeleton.innerHTML = '⚠️'; // Показываем ошибку
+        }
+    }
+
+    async function lazyLoadAttachmentMedia(mediaElement) {
+        const proxyUrl = mediaElement.dataset.src;
+        if (!proxyUrl) return;
+
+        const accessToken = localStorage.getItem('accessToken');
+        const container = mediaElement.closest('.attachment-item');
+        const skeleton = container?.querySelector('.skeleton');
+
+        try {
+            const response = await fetch(proxyUrl, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (!response.ok) throw new Error(`Network error: ${response.status}`);
+
+            const fileBlob = await response.blob();
+            const objectUrl = URL.createObjectURL(fileBlob);
+
+            mediaElement.src = objectUrl;
+
+            // Обрабатываем успешную загрузку для разных типов медиа
+            const onMediaLoaded = () => {
+                if (skeleton) skeleton.remove(); // Убираем скелетон
+                mediaElement.style.opacity = '1'; // Плавно показываем элемент
+                // Важно освободить память после того, как медиа готово к показу
+                setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+            };
+
+            if (mediaElement.tagName === 'VIDEO') {
+                mediaElement.onloadeddata = onMediaLoaded;
+            } else {
+                mediaElement.onload = onMediaLoaded;
+            }
+
+            mediaElement.onerror = () => {
+                if (skeleton) skeleton.innerHTML = '⚠️';
+            }
+
+        } catch (error) {
+            console.error(`Failed to lazy-load attachment from ${proxyUrl}:`, error);
+            if (skeleton) skeleton.innerHTML = '⚠️';
         }
     }
 
@@ -629,17 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Загрузка вложений
     async function loadAttachments(type) {
-        // Рисуем скелетон
         if (type === "IMAGE" || type === "VIDEO") {
-            attachmentsContent.innerHTML = `
-      <div class="skeleton-grid">
-        ${Array(12).fill('<div class="skeleton skeleton-tile"></div>').join("")}
-      </div>`;
+            attachmentsContent.innerHTML = `<div class="skeleton-grid">${Array(12).fill('<div class="skeleton skeleton-tile"></div>').join("")}</div>`;
         } else {
-            attachmentsContent.innerHTML = `
-      <div class="skeleton-list">
-        ${Array(6).fill('<div class="skeleton skeleton-row"></div>').join("")}
-      </div>`;
+            attachmentsContent.innerHTML = `<div class="skeleton-list">${Array(6).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
         }
 
         try {
@@ -651,42 +709,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const items = await Promise.all(attachments.map(async att => {
-                const getLinkUrl = `${API_BASE_URL}/api/storage/download/by-id?id=${att.fileId}`;
-                try {
-                    const realDownloadUrl = await apiFetch(getLinkUrl);
-                    if (type === "IMAGE") {
-                        return `<div class="attachment-item">
-                    <a href="${realDownloadUrl.href}" target="_blank">
-                      <img src="${realDownloadUrl.href}" alt="Изображение">
-                    </a>
-                  </div>`;
-                    } else if (type === "VIDEO") {
-                        return `<div class="attachment-item">
-                    <video src="${realDownloadUrl.href}" controls></video>
-                  </div>`;
-                    } else if (type === "AUDIO") {
-                        return `<div class="attachment-list-item">
-                    <audio controls src="${realDownloadUrl.href}"></audio>
-                    <a href="${realDownloadUrl.href}" download>Скачать</a>
-                  </div>`;
-                    } else {
-                        return `<div class="attachment-list-item">
-                    <span>${att.mimeType || "Файл"}</span>
-                    <a href="${realDownloadUrl.href}" download>Скачать</a>
-                  </div>`;
-                    }
-                } catch {
-                    return `<div class="attachment-list-item error">Ошибка загрузки файла</div>`;
-                }
-            }));
+            // Шаг 3: СИНХРОННО генерируем HTML-каркас. Больше нет await Promise.all!
+            const itemsHtml = attachments.map(att => {
+                // Ссылка на ваш прокси, который вернет файл
+                const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
+                const fileName = att.fileName || 'file';
 
-            // Отображаем грид или список
+                if (type === "IMAGE") {
+                    // Генерируем "заготовку": скелетон + img с data-src
+                    return `<div class="attachment-item">
+                                <a href="${proxyUrl}" target="_blank">
+                                    <div class="skeleton skeleton-tile"></div>
+                                    <img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">
+                                </a>
+                            </div>`;
+                } else if (type === "VIDEO") {
+                    // То же самое для видео
+                    return `<div class="attachment-item">
+                                <div class="skeleton skeleton-tile"></div>
+                                <video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>
+                            </div>`;
+                } else if (type === "AUDIO") {
+                    // Аудио и файлы не требуют ленивой загрузки, так как у них есть свои элементы управления
+                    return `<div class="attachment-list-item">
+                                <audio controls src="${proxyUrl}"></audio>
+                                <a href="${proxyUrl}" download="${fileName}">Скачать</a>
+                            </div>`;
+                } else {
+                    return `<div class="attachment-list-item">
+                                <span>${att.mimeType || "Файл"}</span>
+                                <a href="${proxyUrl}" download="${fileName}">Скачать</a>
+                            </div>`;
+                }
+            }).join('');
+
+            // Шаг 4: Вставляем сгенерированный HTML в DOM
             if (type === "IMAGE" || type === "VIDEO") {
-                attachmentsContent.innerHTML = `<div class="attachments-grid">${items.join("")}</div>`;
+                attachmentsContent.innerHTML = `<div class="attachments-grid">${itemsHtml}</div>`;
             } else {
-                attachmentsContent.innerHTML = `<div class="attachments-list">${items.join("")}</div>`;
+                attachmentsContent.innerHTML = `<div class="attachments-list">${itemsHtml}</div>`;
             }
+
+            // Шаг 5: Находим все "ленивые" элементы и говорим наблюдателю начать за ними следить
+            const mediaToLazyLoad = attachmentsContent.querySelectorAll('.lazy-load-attachment');
+            mediaToLazyLoad.forEach(media => attachmentObserver.observe(media));
+
         } catch (e) {
             console.error("Ошибка загрузки вложений:", e);
             attachmentsContent.innerHTML = "<p>Не удалось загрузить вложения</p>";
@@ -787,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     for (const msg of messages) {
                         const isSentByMe = msg.senderId === currentUserId;
-                        const msgDiv =  createMessageElement(msg, isSentByMe);
+                        const msgDiv = createMessageElement(msg, isSentByMe);
                         fragment.appendChild(msgDiv); // Добавляем в конец буфера, сохраняя порядок
                     }
 
@@ -889,6 +956,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadAttachments(tab.dataset.type);
         });
     });
+
+    backToListBtn.addEventListener('click', closeActiveChat);
 
     // =================================================================
     // ИНИЦИАЛИЗАЦИЯ

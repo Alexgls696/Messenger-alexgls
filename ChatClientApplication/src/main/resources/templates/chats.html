@@ -1,95 +1,130 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <title>Список чатов пользователя</title>
-    <link rel="stylesheet" href="/css/chats.css" />
+    <meta charset="UTF-8">
+    <!-- КРИТИЧЕСКИ ВАЖНО для мобильной адаптации -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <!-- Подключаем ваши стили -->
+    <link rel="stylesheet" href="/css/chats.css">
     <link rel="stylesheet" href="/css/chats_mobile.css">
 </head>
 <body>
+
+<!-- Главный контейнер приложения -->
 <div class="container">
-    <div class="main-header">
+
+    <!-- Верхняя шапка с заголовком и кнопками -->
+    <header class="main-header">
         <div class="header-buttons left">
-            <button id="logoutBtn" class="header-action-btn logout-btn">Выйти</button>
-        </div>
-
-        <h1>Ваши чаты</h1>
-
-        <div class="header-buttons right">
             <button id="findUserBtn" class="header-action-btn find-user-btn">Найти пользователя</button>
         </div>
-    </div>
-    <div id="status" class="status">Загрузка...</div>
-    <div class="chat-wrapper">
-        <ul id="chatList" class="chat-list"></ul>
+        <h1>Чат</h1>
+        <div class="header-buttons right">
+            <button id="logoutBtn" class="header-action-btn logout-btn">Выйти</button>
+        </div>
+    </header>
+
+    <!-- Элемент для отображения статуса (например, "Загрузка...") -->
+    <div id="status" class="status"></div>
+
+    <!-- Основная рабочая область, содержащая список чатов и окно чата -->
+    <main class="chat-wrapper">
+
+        <!-- 1. Список чатов (слева на десктопе) -->
+        <ul id="chatList" class="chat-list">
+            <!-- Сюда JavaScript будет добавлять элементы <li> для каждого чата -->
+        </ul>
+
+        <!-- 2. Окно активного чата (справа на десктопе, скрыто по умолчанию) -->
         <section id="chatWindow" class="chat-window hidden">
-            <div id="attachmentsModal" class="modal hidden">
-                <div class="modal-content attachments-modal">
-                    <header class="modal-header">
-                        <h2>Вложения</h2>
-                        <button id="closeAttachmentsBtn" class="close-btn" title="Закрыть">×</button>
-                    </header>
 
-                    <div class="attachments-tabs">
-                        <button data-type="IMAGE" class="tab-btn active">Изображения</button>
-                        <button data-type="VIDEO" class="tab-btn">Видео</button>
-                        <button data-type="AUDIO" class="tab-btn">Аудио</button>
-                        <button data-type="FILE" class="tab-btn">Файлы</button>
-                    </div>
-
-                    <div id="attachmentsContent" class="attachments-content">
-                        <!-- Загрузчик / вложения -->
-                    </div>
+            <!-- Шапка активного чата -->
+            <div class="chat-window__header">
+                <!-- Кнопка "Назад" для мобильной версии -->
+                <button class="back-btn" id="backToListBtn">&larr;</button>
+                <h2 id="chatTitle">Выберите чат</h2>
+                <div>
+                    <button id="attachmentsBtn" class="attachments-btn">📄</button>
+                    <!-- Кнопка "Закрыть" для десктопной версии -->
+                    <button class="close-btn" id="closeChatBtn">&times;</button>
                 </div>
             </div>
 
-
-            <header class="chat-window__header">
-                <button id="closeChatBtn" class="close-btn" title="Закрыть чат">×</button>
-                <h2 id="chatTitle">Чат</h2>
-                <button id="attachmentsBtn" class="attachments-btn" title="Вложения">Вложения 📂</button>
-            </header>
+            <!-- Контейнер для сообщений -->
             <div id="messages" class="messages">
-                <p class="placeholder">Выберите чат, чтобы начать общение</p>
+                <p class="placeholder">Загрузка сообщений...</p>
             </div>
-            <form id="messageForm" class="message-form">
-                <button type="button" id="attachFileBtn" class="attach-btn" title="Прикрепить файл">📎</button>
-                <input type="file" id="fileInput" hidden />
 
-                <input
-                        type="text"
-                        id="messageInput"
-                        class="message-input"
-                        placeholder="Введите сообщение..."
-                        autocomplete="off"
-                />
-                <button type="submit" id="sendBtn" class="send-btn">Отправить</button>
-            </form>
+            <!-- Контейнер для превью вложений перед отправкой -->
             <div id="attachmentPreviewContainer" class="attachment-preview-container"></div>
-        </section>
-    </div>
-</div>
+
+            <!-- Форма для отправки нового сообщения -->
+            <form id="messageForm" class="message-form">
+                <!-- Скрытый input для выбора файлов -->
+                <input type="file" id="fileInput" hidden multiple>
+                <!-- Кнопка-скрепка для вызова input'а -->
+                <button type="button" id="attachFileBtn" class="attach-btn">📎</button>
+                <!-- Поле для ввода текста сообщения -->
+                <textarea id="messageInput" class="message-input" placeholder="Введите сообщение..." rows="1"></textarea>
+                <!-- Кнопка отправки -->
+                <button type="submit" class="send-btn">Отправить</button>
+            </form>
+
+        </section> <!-- Конец .chat-window -->
+
+    </main> <!-- Конец .chat-wrapper -->
+
+</div> <!-- Конец .container -->
+
+
+<!-- ========================================================== -->
+<!-- ================ МОДАЛЬНЫЕ ОКНА ============================ -->
+<!-- ========================================================== -->
 
 <!-- Модальное окно для поиска пользователей -->
 <div id="userSearchModal" class="modal hidden">
     <div class="modal-content">
-        <header class="modal-header">
-            <h2>Начать новый чат</h2>
-            <button id="closeModalBtn" class="close-btn" title="Закрыть окно поиска">×</button>
-        </header>
+        <div class="modal-header">
+            <h2>Найти пользователя</h2>
+            <button id="closeModalBtn" class="close-btn">&times;</button>
+        </div>
         <div id="userListContainer" class="user-list-container">
-            <!-- Сюда будет загружаться список пользователей -->
+            <!-- Сюда JavaScript будет добавлять список пользователей -->
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра всех вложений в чате -->
+<div id="attachmentsModal" class="modal hidden">
+    <div class="modal-content attachments-modal">
+        <div class="modal-header">
+            <h2>Вложения в чате</h2>
+            <button id="closeAttachmentsBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="attachments-tabs">
+            <button class="tab-btn active" data-type="IMAGE">Изображения</button>
+            <button class="tab-btn" data-type="VIDEO">Видео</button>
+            <button class="tab-btn" data-type="AUDIO">Аудио</button>
+            <button class="tab-btn" data-type="DOCUMENT">Файлы</button>
+        </div>
+        <div id="attachmentsContent" class="attachments-content">
+            <!-- Сюда JavaScript будет загружать вложения -->
         </div>
     </div>
 </div>
 
 
-<!-- Подключение библиотек -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<!-- ========================================================== -->
+<!-- ==================== СКРИПТЫ ============================= -->
+<!-- ========================================================== -->
 
-<!-- Основные скрипты -->
-<script src="/js/apiClient.js"></script>
+<!-- Библиотеки для WebSocket (Stomp.js и SockJS) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<!-- Ваш основной скрипт приложения -->
+<script src="/js/apiClient.js"></script> <!-- Если у вас есть отдельный файл для apiFetch -->
 <script src="/js/chats.js"></script>
 
 </body>

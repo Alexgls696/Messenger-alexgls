@@ -1,302 +1,126 @@
-/* ===== АДАПТИВ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ ===== */
+@media (max-width: 800px) {
 
-@media (max-width: 1024px) {
-    .chat-list {
-        width: 35%;
-        min-width: 220px;
-    }
-    .chat-window {
-        width: 65%;
-    }
-}
-
-@media (max-width: 768px) {
     body {
-        padding: 0;
-        height: 100vh;
-        overflow: hidden;
+        /* Убираем возможность "отскакивания" страницы при скролле до края */
+        overscroll-behavior-y: contain;
     }
 
     .container {
-        max-width: 100%;
-        height: 100vh;
         padding: 0;
+        height: 100%;
+        max-height: 100vh; /* Занимаем всю высоту экрана */
     }
 
     .main-header {
-        padding: 10px 15px;
-        margin-bottom: 10px;
-        position: sticky;
-        top: 0;
-        background: #f5f7fa;
-        z-index: 100;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 0;
+        padding: 15px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+    }
+
+    .header-buttons {
+        /* Упрощаем позиционирование кнопок */
+        position: static;
+        transform: none;
+        display: flex;
+        gap: 10px;
     }
 
     .main-header h1 {
-        font-size: 1.4em;
-        padding: 0 40px; /* Оставляем место для кнопок */
-    }
-
-    .header-action-btn {
-        padding: 8px 14px;
-        font-size: 0.8em;
-    }
-
-    .status {
-        margin-bottom: 10px;
-        padding: 0 10px;
-        font-size: 0.9em;
-    }
-
-    .chat-wrapper {
-        flex-direction: column;
-        height: calc(100vh - 120px);
-        gap: 0;
-        width: 100%;
-    }
-
-    .chat-list {
-        width: 100%;
-        max-height: 40%;
-        border-radius: 0;
-        border: none;
-        border-bottom: 1px solid #ddd;
-        flex-shrink: 0;
-    }
-
-    .chat-list.hidden {
-        display: none;
-    }
-
-    .chat-window {
-        width: 100%;
-        height: 60%;
-        max-height: 60%;
-        border-radius: 0;
-        border: none;
+        /* Заголовок теперь занимает центральное место */
         flex-grow: 1;
     }
 
-    .chat-window.hidden {
-        display: none;
-    }
-
-    .chat-list li {
-        padding: 12px 15px;
-    }
-
-    .chat-title {
-        font-size: 1em;
-    }
-
-    .last-message {
-        font-size: 0.85em;
-    }
-
-    /* Улучшенное отображение сообщений на мобильных */
-    .message {
-        max-width: 85%;
-        padding: 8px 12px;
-    }
-
-    .messages {
-        padding: 15px 10px;
-    }
-
-    .message-form {
-        padding: 10px;
-    }
-
-    .message-input {
-        padding: 8px 12px;
-        font-size: 0.9em;
-    }
-
-    .send-btn {
-        padding: 8px 16px;
-    }
-
-    /* Адаптив для модального окна вложений */
-    .modal-content.attachments-modal {
-        width: 95vw;
-        height: 85vh;
-        border-radius: 12px;
-    }
-
-    .attachments-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 8px;
-    }
-
-    .attachment-item img,
-    .attachment-item video {
-        height: 100px;
-    }
-
-    /* Кнопка "Назад к чатам" для мобильных */
-    .back-to-chats {
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: 15px;
-        transform: translateY(-50%);
-        background: #3498db;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        font-size: 1.2em;
-        cursor: pointer;
-        z-index: 101;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    .back-to-chats:hover {
-        background: #2980b9;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-header h1 {
-        font-size: 1.2em;
-        padding: 0 35px;
-    }
-
-    .header-action-btn {
-        padding: 6px 10px;
-        font-size: 0.75em;
-    }
-
     .chat-wrapper {
-        height: calc(100vh - 110px);
+        flex-direction: row; /* Остается row для свайп-эффекта */
+        gap: 0;
+        height: 100%;
+        overflow-x: hidden; /* Скрываем горизонтальный скролл */
+        position: relative; /* Для позиционирования окон */
+    }
+
+    /* Оба окна теперь занимают 100% ширины и высоты */
+    .chat-list, .chat-window {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        border-radius: 0;
+        border: none;
+        position: absolute; /* Позиционируем абсолютно внутри wrapper'а */
+        top: 0;
+        left: 0;
+        transition: transform 0.3s ease-in-out;
     }
 
     .chat-list {
-        max-height: 35%;
+        /* Список чатов видим по умолчанию */
+        transform: translateX(0);
+        z-index: 10;
     }
 
     .chat-window {
-        height: 65%;
-        max-height: 65%;
+        /* Окно чата по умолчанию скрыто за правым краем экрана */
+        transform: translateX(100%);
+        z-index: 20;
+    }
+
+    /* Класс, который будет добавляться через JS для показа окна чата */
+    body.chat-active .chat-list {
+        /* Сдвигаем список чатов влево */
+        transform: translateX(-100%);
+    }
+
+    body.chat-active .chat-window {
+        /* Показываем окно чата */
+        transform: translateX(0);
     }
 
     .chat-window__header {
-        padding: 12px 15px;
+        /* Добавляем кнопку "Назад" */
+        position: relative;
+    }
+
+    /* Кнопка "Назад", которая будет видна только на мобильных */
+    .back-btn {
+        display: block; /* Показываем кнопку */
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #555;
+        cursor: pointer;
+        padding: 5px;
     }
 
     .chat-window__header h2 {
-        font-size: 1.1em;
+        /* Центрируем заголовок */
+        width: 100%;
+        text-align: center;
+        padding: 0 30px; /* Оставляем место для кнопок */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .message {
-        max-width: 90%;
+    /* Прячем десктопную кнопку закрытия */
+    .close-btn {
+        display: none;
     }
 
-    .attachment-preview-container {
-        padding: 0 10px 8px 10px;
-    }
-
-    .attachment-preview-item {
-        font-size: 0.8em;
-    }
-
-    .attachment-preview-item img {
-        height: 35px;
-        width: 35px;
-    }
-
-    /* Улучшенное отображение вложений в сообщениях */
-    .attachment-item.image-attachment {
-        max-width: 200px;
-    }
-
-    .attachments-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    }
-
-    .attachment-item img,
-    .attachment-item video {
-        height: 80px;
+    /* Модальные окна делаем на весь экран */
+    .modal-content {
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
     }
 }
 
-/* Стиль для кнопки "Назад к чатам" (по умолчанию скрыта) */
-.back-to-chats {
-    display: none;
-}
-
-/* Портретная ориентация */
-@media (max-width: 768px) and (orientation: portrait) {
-    .chat-list {
-        max-height: 35%;
-    }
-
-    .chat-window {
-        height: 65%;
-        max-height: 65%;
-    }
-}
-
-/* Альбомная ориентация */
-@media (max-width: 768px) and (orientation: landscape) {
-    .chat-wrapper {
-        flex-direction: row;
-        height: calc(100vh - 80px);
-    }
-
-    .chat-list {
-        width: 40%;
-        max-height: 100%;
-        border-right: 1px solid #ddd;
-        border-bottom: none;
-    }
-
-    .chat-window {
-        width: 60%;
-        height: 100%;
-        max-height: 100%;
-    }
-
-    .main-header h1 {
-        font-size: 1.3em;
-    }
-
-    .back-to-chats {
-        display: none !important;
-    }
-}
-
-/* Улучшение для очень высоких устройств */
-@media (max-width: 768px) and (min-height: 1000px) {
-    .chat-list {
-        max-height: 30%;
-    }
-
-    .chat-window {
-        height: 70%;
-        max-height: 70%;
-    }
-}
-
-/* Улучшение касаний (тач-дружественные элементы) */
-@media (hover: none) and (pointer: coarse) {
-    .chat-list li {
-        padding: 15px 20px; /* Увеличиваем область клика */
-    }
-
-    .send-btn,
-    .attach-btn,
-    .header-action-btn {
-        min-height: 44px; /* Минимальный размер для удобного касания */
-        min-width: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .message-input {
-        padding: 12px 15px; /* Увеличиваем поле ввода для удобства */
-    }
+/* Дополнительный класс-хелпер, который нужно добавить в HTML */
+.back-btn {
+    display: none; /* Скрыт по умолчанию на десктопе */
 }
