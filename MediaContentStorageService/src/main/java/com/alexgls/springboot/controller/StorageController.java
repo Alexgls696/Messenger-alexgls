@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Objects;
 
+//    http://localhost:8080/api/storage/upload
+
 @RestController
 @RequestMapping("/api/storage")
 @RequiredArgsConstructor

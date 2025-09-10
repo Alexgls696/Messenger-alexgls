@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const files = e.target.files;
         if (files && files.length > 0) {
             [...files].forEach(file => addAttachmentToPreview(file));
-            fileInput.value = ''; // сбрасываем input
+            fileInput.value = '';
         }
     });
 

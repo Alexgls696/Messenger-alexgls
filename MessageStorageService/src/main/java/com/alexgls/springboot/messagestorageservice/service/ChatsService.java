@@ -59,6 +59,8 @@ public class ChatsService {
                 .switchIfEmpty(Mono.defer(() -> {
                     Chat newChat = new Chat();
                     newChat.setType("PRIVATE");
+                    newChat.setCreatedAt(Timestamp.from(Instant.now()));
+                    newChat.setUpdatedAt(Timestamp.from(Instant.now()));
                     return chatsRepository.save(newChat)
                             .flatMap(savedChat -> {
                                 Participants p1 = new Participants();
@@ -104,8 +106,8 @@ public class ChatsService {
         return chatsRepository.findRecipientIdsByChatId(chatId, senderId);
     }
 
-    public Mono<Void>updateLastMessageToChat(int chatId, long messageId){
-        return chatsRepository.updateLastMessageId(chatId,messageId);
+    public Mono<Void> updateLastMessageToChat(int chatId, long messageId) {
+        return chatsRepository.updateLastMessageId(chatId, messageId);
     }
 
 }

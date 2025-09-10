@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class ImagesServiceImpl implements ImagesService {
+public class FilesServiceImpl implements FilesService {
 
     private final ImagesRepository imagesRepository;
 

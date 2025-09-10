@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
-
-
     @Query(value = """
             SELECT c.* FROM chats c
             JOIN participants p ON p.chat_id = c.chat_id 
@@ -38,7 +36,6 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
             "    GROUP BY chat_id\n" +
             "    HAVING COUNT(user_id) = 2\n" +
             "  );")
-
     Mono<Integer> findChatIdByParticipantsIdForPrivateChats(@Param("senderId") int senderId,
                                           @Param("receiverId") int receiverId);
 
@@ -49,7 +46,7 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
     Flux<Integer>findRecipientIdsByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
     @Modifying
-    @Query(value = "update chats set last_message_id = :lastMessageId where chat_id = :chatId")
+    @Query(value = "update chats set last_message_id = :lastMessageId, updated_at = now() where chat_id = :chatId")
     Mono<Void>updateLastMessageId(@Param("chatId") int chatId, @Param("lastMessageId") long lastMessageId);
 
 

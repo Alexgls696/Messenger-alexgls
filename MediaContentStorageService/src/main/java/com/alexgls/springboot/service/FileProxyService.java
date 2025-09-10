@@ -1,18 +1,25 @@
 package com.alexgls.springboot.service;
 
+import com.alexgls.springboot.client.InDatabaseStorageServiceRestClient;
+import com.alexgls.springboot.dto.ChatImage;
+import com.alexgls.springboot.util.FilenameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -35,18 +42,17 @@ public class FileProxyService {
     );
 
     public Mono<ResponseEntity<Flux<DataBuffer>>> downloadAndStreamFileById(Integer id) {
-        return storageService.getDownloadPathById(id)
-                .flatMap(this::streamFileFromUrl);
+        return storageService.getFileMetadataById(id)
+                .flatMap(fileData -> streamFileFromUrl(fileData.getPath(), fileData.getFilename()));
     }
 
     public Mono<ResponseEntity<Flux<DataBuffer>>> downloadAndStreamFileByPath(String path) {
         return storageService.getDownLoadFilePath(path)
-                .flatMap(this::streamFileFromUrl);
+                .flatMap(resultPath -> streamFileFromUrl(resultPath, null));
     }
 
-    private Mono<ResponseEntity<Flux<DataBuffer>>> streamFileFromUrl(String url) {
+    private Mono<ResponseEntity<Flux<DataBuffer>>> streamFileFromUrl(String url, final String filename) {
         String browserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
-
         return webClient
                 .get()
                 .uri(URI.create(url))
@@ -54,19 +60,19 @@ public class FileProxyService {
                 .retrieve()
                 .toEntityFlux(DataBuffer.class)
                 .map(finalResponseEntity -> {
-
                     HttpHeaders headersForClient = new HttpHeaders();
-
                     finalResponseEntity.getHeaders().forEach((name, values) -> {
                         if (WHITELISTED_HEADERS.contains(name.toLowerCase())) {
                             headersForClient.addAll(name, values);
                         }
                     });
-
+                    if (!Objects.isNull(filename)) {
+                        String contentDisposition = createContentDispositionHeader(filename);
+                        headersForClient.set(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+                    }
                     if (!headersForClient.containsKey(HttpHeaders.CONTENT_TYPE)) {
                         headersForClient.setContentType(MediaType.APPLICATION_OCTET_STREAM);
                     }
-
                     return ResponseEntity
                             .status(finalResponseEntity.getStatusCode())
                             .headers(headersForClient)
@@ -74,28 +80,19 @@ public class FileProxyService {
                 });
     }
 
-    private Mono<ResponseEntity<Flux<DataBuffer>>> buildProxyResponse(ClientResponse clientResponse) {
-        if (clientResponse.statusCode().isError()) {
-            log.warn("Remote server returned an error: {}", clientResponse.statusCode());
-            return Mono.just(ResponseEntity.status(clientResponse.statusCode()).build());
+    private String createContentDispositionHeader(String filename) {
+        String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
+                .replace("+", "%20");
+
+        String asciiFallback = filename
+                .replaceAll("[^A-Za-z0-9.\\-]", "_")
+                .replaceAll("_+", "_");
+        if (asciiFallback.isBlank()) {
+            asciiFallback = "download.txt";
         }
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-
-        clientResponse.headers().asHttpHeaders().forEach((name, values) -> {
-            if (WHITELISTED_HEADERS.contains(name.toLowerCase())) {
-                responseHeaders.addAll(name, values);
-            }
-        });
-
-        // Если по какой-то причине Content-Type не пришел, ставим заглушку
-        if (!responseHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
-            responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        }
-
-        return Mono.just(ResponseEntity
-                .status(clientResponse.statusCode())
-                .headers(responseHeaders) // Используем наши отфильтрованные заголовки
-                .body(clientResponse.bodyToFlux(DataBuffer.class)));
+        return "attachment; filename*=UTF-8''" + encodedFilename +
+                "; filename=\"" + asciiFallback + "\"";
     }
+
 }

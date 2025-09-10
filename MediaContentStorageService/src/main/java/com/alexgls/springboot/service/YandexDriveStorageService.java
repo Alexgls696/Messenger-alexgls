@@ -66,6 +66,19 @@ public class YandexDriveStorageService implements StorageService {
                 .flatMap(chatImage -> findFileHrefInYandex(chatImage.getPath()));
     }
 
+    @Override
+    public Mono<ChatImage> getFileMetadataById(int id) {
+        Mono<ChatImage> chatImageMono = inDatabaseStorageServiceRestClient.findChatImageById(id);
+        return chatImageMono
+                .flatMap(chatImage ->
+                        findFileHrefInYandex(chatImage.getPath())
+                                .map(href -> {
+                                    chatImage.setPath(href);
+                                    return chatImage;
+                                })
+                );
+    }
+
     private Mono<String> findFileHrefInYandex(String path) {
         path = baseUrl + "/download?path=" + path;
         return yandexDriveRestClient.getDownloadFileUrl(path)

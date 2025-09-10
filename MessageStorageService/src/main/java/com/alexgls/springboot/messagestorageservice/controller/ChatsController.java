@@ -40,9 +40,7 @@ public class ChatsController {
             Authentication authentication) {
 
         Integer userId = getSenderId(authentication);
-
         log.info("Find chats by user id: {}", userId);
-
         if (page < 0) {
             return Flux.error(new IllegalArgumentException("Page number cannot be negative"));
         }

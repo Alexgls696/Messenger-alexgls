@@ -1,5 +1,6 @@
 package com.alexgls.springboot.service;
 
+import com.alexgls.springboot.dto.ChatImage;
 import com.alexgls.springboot.dto.CreateFileResponse;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,5 +12,7 @@ public interface StorageService {
     Mono<String> getDownLoadFilePath(String path);
 
     Mono<String> getDownloadPathById(int id);
+
+    Mono<ChatImage> getFileMetadataById(int id);
 }
 
