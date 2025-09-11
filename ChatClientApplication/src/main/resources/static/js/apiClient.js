@@ -58,7 +58,6 @@ async function handleTokenRefresh() {
 
     isRefreshing = true;
 
-    // Создаем промис, который будут ждать все "зависшие" запросы
     refreshPromise = new Promise(async (resolve, reject) => {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {

@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             this.retryCount++;
             const delay = 1000 * this.retryCount;
+            handleTokenRefresh()
             console.error(`Соединение потеряно. Повторная попытка через ${delay}ms...`, error);
             setTimeout(() => this.connect(), delay);
         },
@@ -614,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(proxyUrl, {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
+                headers: {'Authorization': `Bearer ${accessToken}`}
             });
             if (!response.ok) throw new Error(`Network error: ${response.status}`);
 

@@ -1,6 +1,6 @@
 // Файл: apiClient.js
 
-const REFRESH_API_URL = 'http://localhost:8085/auth/refresh';
+const REFRESH_API_URL = 'http://localhost:8080/auth/refresh';
 let isRefreshing = false;
 let refreshPromise = null;
 
@@ -58,7 +58,6 @@ async function handleTokenRefresh() {
 
     isRefreshing = true;
 
-    // Создаем промис, который будут ждать все "зависшие" запросы
     refreshPromise = new Promise(async (resolve, reject) => {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
