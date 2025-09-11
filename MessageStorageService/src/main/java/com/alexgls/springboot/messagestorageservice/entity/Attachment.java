@@ -31,4 +31,7 @@ public class Attachment {
 
     @Column(value = "logic_type")
     private MessageType logicType;
+
+    @Column(value = "filename")
+    private String fileName;
 }

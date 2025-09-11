@@ -13,4 +13,5 @@ public class Attachment {
     private Long messageId;
     private Long fileId;
     private String mimeType;
+    private String fileName;
 }

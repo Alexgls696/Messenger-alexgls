@@ -2,7 +2,7 @@ jwt:
   secret: 4eaee43cfe4d9d08e6391dab67baf143
   expiration: 900000 # 15 мин
   refresh:
-    expirationMs: 3600000 #1 час
+    expirationMs: 604800000 #7 суток
 
 server:
   port: 8085

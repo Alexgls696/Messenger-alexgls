@@ -114,6 +114,7 @@ public class MessagesService {
                     attachment.setFileId(payload.fileId());
                     attachment.setMimeType(payload.mimeType());
                     attachment.setChatId(chatId);
+                    attachment.setFileName(payload.fileName());
                     attachment.setLogicType(MessageType.fromMimeType(payload.mimeType()));
                     return attachment;
                 }).toList();

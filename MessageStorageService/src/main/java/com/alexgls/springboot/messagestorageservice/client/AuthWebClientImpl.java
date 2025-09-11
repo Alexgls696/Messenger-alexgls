@@ -15,15 +15,12 @@ public class AuthWebClientImpl implements AuthWebClient {
 
     @Override
     public Mono<GetUserDto> findUserById(int id, String token) {
-        try {
-            return webClient
-                    .get()
-                    .uri("api/users/{id}", id)
-                    .header(HttpHeaders.AUTHORIZATION,"Bearer %s".formatted(token))
-                    .retrieve()
-                    .bodyToMono(GetUserDto.class);
-        }catch (WebClientResponseException.NotFound exception){
-            return Mono.error(new NoSuchUserException("User with id %d not found".formatted(id)));
-        }
+        return webClient
+                .get()
+                .uri("api/users/{id}", id)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token))
+                .retrieve()
+                .bodyToMono(GetUserDto.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, exception -> Mono.error(new NoSuchUserException("User with id %d not found".formatted(id))));
     }
 }

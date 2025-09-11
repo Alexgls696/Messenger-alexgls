@@ -29,4 +29,15 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(problemDetail));
     }
+
+    @ExceptionHandler(NoSuchUserException.class)
+    public Mono<ResponseEntity<ProblemDetail>> handleNoSuchUserException(NoSuchUserException exception, Locale locale) {
+        log.warn("Handle NoSuchUserException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.user_not_found", new Object[0], "error.user_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail));
+    }
 }

@@ -7,6 +7,7 @@ import com.alexgls.springboot.client.response.UploadFilePathResponse;
 import com.alexgls.springboot.dto.ChatImage;
 import com.alexgls.springboot.dto.CreateFileMetadataRequest;
 import com.alexgls.springboot.dto.CreateFileResponse;
+import com.alexgls.springboot.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,15 +45,14 @@ public class YandexDriveStorageService implements StorageService {
         Mono<UploadFilePathResponse> uploadPathResponseMono = yandexDriveRestClient.getUploadFilePathUrl(pathBuilder.toString());
         Mono<ChatImage> chatImageMono = inDatabaseStorageServiceRestClient.saveChatImage(new CreateFileMetadataRequest(filepathToDatabase, file.filename()));
 
-        return Mono.zip(uploadPathResponseMono, chatImageMono)
-                .flatMap(tuple -> {
-                    UploadFilePathResponse uploadFilePathResponse = tuple.getT1();
-                    ChatImage chatImageFromDatabase = tuple.getT2();
-                    log.info("upload path from yandex {}", uploadFilePathResponse);
+        return uploadPathResponseMono
+                .flatMap(response -> {
+                    log.info("upload path from yandex {}", response);
                     log.info("Saving path to database... {}", filepathToDatabase);
-                    return saveFileToYandexDrive(file, uploadFilePathResponse)
-                            .then(Mono.fromCallable(() -> new CreateFileResponse(chatImageFromDatabase.getId(), filepathToDatabase, Timestamp.from(Instant.now()))));
-                });
+                    return saveFileToYandexDrive(file, response)
+                            .then(chatImageMono)
+                            .map(chatImage -> new CreateFileResponse(chatImage.getId(), filepathToDatabase, Timestamp.from(Instant.now())));
+                }).switchIfEmpty(Mono.defer(() -> Mono.error(new FileUploadException("Не удалось загрузить файл: " + file.filename()))));
     }
 
     @Override

@@ -1,23 +1,42 @@
 package ru.alexgls.springboot.exception_handler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
+import ru.alexgls.springboot.exceptions.NoSuchUserException;
 
+import java.util.Locale;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private final MessageSource messageSource;
+
     @ExceptionHandler(RuntimeException.class)
-    public Mono<ResponseEntity<?>>handleRuntimeException(RuntimeException exception) {
+    public Mono<ResponseEntity<?>> handleRuntimeException(RuntimeException exception) {
         log.warn("Возникло исключение: {}", exception.getMessage());
         return Mono.just(ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Ошибка. " + exception.getMessage())));
+    }
+
+    @ExceptionHandler(NoSuchUserException.class)
+    public Mono<ResponseEntity<ProblemDetail>> handleNoSuchUserException(NoSuchUserException exception, Locale locale) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.user_not_found", new Object[0], "error.user_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail));
     }
 }

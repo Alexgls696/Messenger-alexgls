@@ -268,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await apiFetch(`${API_BASE_URL}/api/chats/find-by-id/${chatListPage}`);
             statusEl.textContent = '';
             if (Array.isArray(data) && data.length > 0) {
+                console.log(data);
                 const chatItemsPromises = data.map(chat => createChatItem(chat));
                 const chatItems = await Promise.all(chatItemsPromises);
                 chatItems.forEach(li => chatListEl.appendChild(li));
@@ -383,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 })(),
                 loadMessages(chat.chatId, messagePage)
             ]);
-            console.log(messages);
             renderMessages(messages);
 
             const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
@@ -470,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="attachment-item file-attachment">
                         <div class="file-icon">📁</div>
                         <div class="file-info">
-                            <span class="file-name">${msg.content || 'Файл'}</span>
+                            <span class="file-name">${fileName || 'Файл'}</span>
                             <a href="${proxyUrl}" class="file-download-link" download="${fileName}">Скачать</a>
                         </div>
                     </div>`;
@@ -714,7 +714,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ссылка на ваш прокси, который вернет файл
                 const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                 const fileName = att.fileName || 'file';
-
+                console.log(att);
+                console.log(fileName)
                 if (type === "IMAGE") {
                     // Генерируем "заготовку": скелетон + img с data-src
                     return `<div class="attachment-item">
@@ -737,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>`;
                 } else {
                     return `<div class="attachment-list-item">
-                                <span>${att.mimeType || "Файл"}</span>
+                                <span>${fileName || "Файл"}</span>
                                 <a href="${proxyUrl}" download="${fileName}">Скачать</a>
                             </div>`;
                 }
@@ -890,13 +891,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`},
                     body: formData
                 });
-
                 if (!response.ok) throw new Error("Ошибка при загрузке");
 
                 const result = await response.json(); // { id: ... }
                 uploadedAttachments.push({
                     mimeType: att.mimeType,
-                    fileId: result.id
+                    fileId: result.id,
+                    fileName: att.file.name
                 });
 
             } catch (err) {
