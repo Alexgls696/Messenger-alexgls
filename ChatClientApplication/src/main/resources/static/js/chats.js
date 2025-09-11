@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeAttachmentsBtn = document.getElementById("closeAttachmentsBtn");
     const attachmentsTabs = document.querySelectorAll(".attachments-tabs .tab-btn");
     const attachmentsContent = document.getElementById("attachmentsContent");
+
+    const usernameContent = document.getElementById('username');
     let pendingAttachments = [];
 
 
@@ -47,8 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const httpProtocol = 'http:'; // Для локальной разработки
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
-
-    console.log(API_BASE_URL)
     const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
 
     const chatManager = {
@@ -268,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await apiFetch(`${API_BASE_URL}/api/chats/find-by-id/${chatListPage}`);
             statusEl.textContent = '';
             if (Array.isArray(data) && data.length > 0) {
-                console.log(data);
                 const chatItemsPromises = data.map(chat => createChatItem(chat));
                 const chatItems = await Promise.all(chatItemsPromises);
                 chatItems.forEach(li => chatListEl.appendChild(li));
@@ -714,8 +713,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ссылка на ваш прокси, который вернет файл
                 const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                 const fileName = att.fileName || 'file';
-                console.log(att);
-                console.log(fileName)
                 if (type === "IMAGE") {
                     // Генерируем "заготовку": скелетон + img с data-src
                     return `<div class="attachment-item">
@@ -969,6 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
             currentUserId = me.id;
             participantCache[me.id] = `${me.name} ${me.surname}`;
+            usernameContent.textContent = `${me.surname} ${me.name}`;
 
             statusEl.textContent = 'Загрузка чатов...';
             loadChats();

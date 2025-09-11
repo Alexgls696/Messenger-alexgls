@@ -18,7 +18,7 @@
         <div class="header-buttons left">
             <button id="findUserBtn" class="header-action-btn find-user-btn">Найти пользователя</button>
         </div>
-        <h1>Чат</h1>
+        <h3 id="username"></h3>
         <div class="header-buttons right">
             <button id="logoutBtn" class="header-action-btn logout-btn">Выйти</button>
         </div>
@@ -65,7 +65,8 @@
                 <!-- Кнопка-скрепка для вызова input'а -->
                 <button type="button" id="attachFileBtn" class="attach-btn">📎</button>
                 <!-- Поле для ввода текста сообщения -->
-                <textarea id="messageInput" class="message-input" placeholder="Введите сообщение..." rows="1"></textarea>
+                <textarea id="messageInput" class="message-input" placeholder="Введите сообщение..."
+                          rows="1"></textarea>
                 <!-- Кнопка отправки -->
                 <button type="submit" class="send-btn">Отправить</button>
             </form>
@@ -112,10 +113,11 @@
 </div>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
 
-<!-- Ваш основной скрипт приложения -->
+<script src="/js/lib/sockjs.min.js"></script>
+<script src="/js/lib/stomp.min.js"></script>
 <script src="/js/apiClient.js"></script> <!-- Если у вас есть отдельный файл для apiFetch -->
 <script src="/js/chats.js"></script>
 
