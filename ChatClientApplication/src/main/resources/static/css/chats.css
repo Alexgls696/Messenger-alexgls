@@ -188,6 +188,7 @@ body {
 }
 
 .message {
+    position: relative;
     padding: 10px 15px;
     border-radius: 18px;
     max-width: 80%; /* Немного увеличим для мобильных */
@@ -896,6 +897,75 @@ body {
     0% { background-color: #f7f7f7; }
     50% { background-color: #e2e2e2; }
     100% { background-color: #f7f7f7; }
+}
+
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 5px 0;
+    min-width: 160px;
+    /* Анимация появления */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+}
+
+.context-menu:not(.hidden) {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.context-menu.hidden {
+    display: none;
+}
+
+.context-menu-item {
+    padding: 10px 15px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.context-menu-item:hover {
+    background-color: #f0f4f8;
+}
+
+/* Стилизация для опции "Удалить у всех", чтобы она была более заметной/опасной */
+.context-menu-item[data-action="delete-for-all"] {
+    color: #e74c3c; /* Красный цвет */
+}
+
+/* Анимация удаления сообщения */
+.message.deleted-animation {
+    animation: fadeOutAndShrink 0.4s ease-out forwards;
+    transform-origin: center;
+}
+
+@keyframes fadeOutAndShrink {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        max-height: 200px; /* Начальная высота (можно увеличить при необходимости) */
+        margin-bottom: 12px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+        max-height: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+    }
 }
 
 

@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameContent = document.getElementById('username');
     let pendingAttachments = [];
 
+    const contextMenu = document.createElement('div');
+    contextMenu.id = 'messageContextMenu';
+    contextMenu.className = 'context-menu hidden';
+    document.body.appendChild(contextMenu);
+    let contextMessageInfo = null;
+
 
     // --- Состояние приложения ---
     let activeChatId = null;
@@ -135,6 +141,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Ошибка обработки уведомления о прочтении:', error);
                 }
             });
+
+            this.stompClient.subscribe(`/user/queue/delete-event`, (message) => {
+                try {
+                    const deleteInfo = JSON.parse(message.body);
+                    // Если удаление произошло в текущем активном чате
+                    if (deleteInfo.chatId === activeChatId) {
+                        handleMessageDeletion(deleteInfo.messagesId);
+                    }
+                } catch (error) {
+                    console.error('Ошибка обработки события удаления:', error);
+                }
+            });
         },
 
         onConnectError: function (error) {
@@ -182,6 +200,80 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
     };
+
+    function handleMessageDeletion(messageIds) {
+        if (!Array.isArray(messageIds)) return;
+
+        messageIds.forEach(id => {
+            const msgEl = document.querySelector(`.message[data-message-id='${id}']`);
+            if (msgEl) {
+                // Добавляем анимацию исчезновения
+                msgEl.classList.add('deleted-animation');
+                // Удаляем элемент из DOM после завершения анимации
+                setTimeout(() => {
+                    msgEl.remove();
+                    // Если сообщений не осталось, показываем плейсхолдер
+                    if (messagesEl.children.length === 0) {
+                        messagesEl.innerHTML = '<p class="placeholder">Сообщений пока нет.</p>';
+                    }
+                }, 400); // Длительность анимации
+            }
+        });
+    }
+
+    async function deleteMessages(messageIds, forAll) {
+        if (!messageIds || messageIds.length === 0 || !activeChatId) return;
+
+        const payload = {
+            messagesId: messageIds,
+            senderId: currentUserId,
+            chatId: activeChatId,
+            forAll: forAll
+        };
+
+        try {
+            await apiFetch(`${API_BASE_URL}/api/messages`, {
+                method: 'DELETE',
+                body: JSON.stringify(payload)
+            });
+            hideContextMenu();
+
+
+            if (!forAll) {
+                handleMessageDeletion(messageIds);
+            }
+
+        } catch (error) {
+            console.error('Ошибка при удалении сообщения:', error);
+        }
+    }
+
+    function showContextMenu(event, messageElement) {
+        event.preventDefault(); // Отменяем стандартное контекстное меню браузера
+
+        const messageId = parseInt(messageElement.dataset.messageId);
+        const isSentByMe = messageElement.classList.contains('sent');
+
+        contextMessageInfo = {
+            messageId: messageId,
+            isSentByMe: isSentByMe
+        };
+
+        let menuItems = `<div class="context-menu-item" data-action="delete-for-me">Удалить у себя</div>`;
+        if (isSentByMe) {
+            menuItems += `<div class="context-menu-item" data-action="delete-for-all">Удалить у всех</div>`;
+        }
+
+        contextMenu.innerHTML = menuItems;
+        contextMenu.style.top = `${event.pageY}px`;
+        contextMenu.style.left = `${event.pageX}px`;
+        contextMenu.classList.remove('hidden');
+    }
+
+    function hideContextMenu() {
+        contextMenu.classList.add('hidden');
+        contextMessageInfo = null;
+    }
 
     async function updateOrFetchChatInList(newMsg) {
         const chatId = newMsg.chatId;
@@ -442,6 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
         msgDiv.dataset.messageId = msg.id;
+
+        msgDiv.addEventListener('contextmenu', (event) => {
+            showContextMenu(event, msgDiv);
+        });
 
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
@@ -954,6 +1050,25 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add("active");
             loadAttachments(tab.dataset.type);
         });
+    });
+
+    window.addEventListener('click', (event) => {
+        // Если клик не по меню, скрываем его
+        if (!contextMenu.contains(event.target)) {
+            hideContextMenu();
+        }
+    });
+
+    contextMenu.addEventListener('click', (event) => {
+        const action = event.target.dataset.action;
+        if (action && contextMessageInfo) {
+            const { messageId } = contextMessageInfo;
+            if (action === 'delete-for-me') {
+                deleteMessages([messageId], false);
+            } else if (action === 'delete-for-all') {
+                deleteMessages([messageId], true);
+            }
+        }
     });
 
     backToListBtn.addEventListener('click', closeActiveChat);

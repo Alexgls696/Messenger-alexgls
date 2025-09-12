@@ -53,10 +53,17 @@ public class MessageStorageServiceKafkaListener {
     @KafkaListener(topics = "delete-message-topic", groupId = "delete-message-group", containerFactory = "kafkaDeleteMessagesConsumerFactory")
     public void listenDeleteMessage(DeleteMessageResponse deleteMessageResponse) {
         log.info("Received a delete message event: {}", deleteMessageResponse);
-        for (var recipientId : deleteMessageResponse.recipientsId()) {
-            log.info("Deleting messages with for user with id {}", recipientId);
-            DeleteMessageResponseToUser deleteMessageResponseToUser = new DeleteMessageResponseToUser(deleteMessageResponse.messagesId(),deleteMessageResponse.senderId(),deleteMessageResponse.chatId());
-            messagingTemplate.convertAndSendToUser(String.valueOf(recipientId), "/queue/delete-event", deleteMessageResponseToUser);
+        DeleteMessageResponseToUser deleteMessageResponseToUser = new DeleteMessageResponseToUser(deleteMessageResponse.messagesId(),
+                deleteMessageResponse.senderId(),
+                deleteMessageResponse.chatId());
+        if (deleteMessageResponse.forAll()) {
+            for (var recipientId : deleteMessageResponse.recipientsId()) {
+                log.info("Deleting messages with for user with id {}", recipientId);
+                messagingTemplate.convertAndSendToUser(String.valueOf(recipientId), "/queue/delete-event", deleteMessageResponseToUser);
+            }
+        } else {
+            messagingTemplate.convertAndSendToUser(String.valueOf(deleteMessageResponse.senderId()), "/queue/delete-event", deleteMessageResponseToUser);
         }
+
     }
 }
