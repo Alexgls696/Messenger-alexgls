@@ -2,14 +2,15 @@ package com.alexgls.springboot.messagestorageservice.service;
 
 import com.alexgls.springboot.messagestorageservice.dto.*;
 import com.alexgls.springboot.messagestorageservice.entity.Attachment;
-import com.alexgls.springboot.messagestorageservice.entity.Chat;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.entity.MessageType;
+import com.alexgls.springboot.messagestorageservice.exceptions.DeleteMessageAccessDeniedException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservice.repository.AttachmentRepository;
 import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
+import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -31,9 +33,10 @@ public class MessagesService {
     private final MessagesRepository messagesRepository;
     private final ChatsService chatsService;
     private final AttachmentRepository attachmentRepository;
+    private final ParticipantsService participantsService;
 
-    public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize) {
-        return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize)
+    public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
+        return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize, currentUserId)
                 .flatMap(message -> {
                     Mono<List<Attachment>> attachments = attachmentRepository.findAllByMessageId(message.getId()).collectList();
                     return Mono.zip(Mono.just(message), attachments)
@@ -123,8 +126,39 @@ public class MessagesService {
                 .collectList();
     }
 
-    public Mono<Void> deleteById(long id) {
-        return messagesRepository.deleteById(id);
+    public Mono<DeleteMessageResponse> deleteById(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
+        return messagesRepository.findAllById(deleteMessageRequest.messagesId())
+                .collectList()
+                .flatMap(list -> {
+                    if (deleteMessageRequest.forAll()) {
+                        List<Long> messagesIdsToDeleteList = new ArrayList<>();
+                        for (var message : list) {
+                            if (message.getSenderId() == currentUserId) {
+                                messagesIdsToDeleteList.add(message.getId());
+                            } else {
+                                return Mono.error(new DeleteMessageAccessDeniedException("Данный пользователь не может выполнить это действие."));
+                            }
+                        }
+                        return messagesRepository.deleteAllById(messagesIdsToDeleteList)
+                                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
+                    } else {
+                        List<Message> messagesDeletedToCurrentUserList = list
+                                .stream()
+                                .peek(message -> message.setDeletedForUserId(currentUserId))
+                                .toList();
+                        return messagesRepository.saveAll(messagesDeletedToCurrentUserList)
+                                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
+                    }
+                });
     }
 
+    private Mono<DeleteMessageResponse> generateDeleteMessageResponseWithChatMembers(DeleteMessageRequest deleteMessageRequest) {
+        return participantsService.findUserIdsByChatId(deleteMessageRequest.chatId())
+                .collectList()
+                .map(membersIdsList -> new DeleteMessageResponse(deleteMessageRequest.messagesId(),
+                        membersIdsList,
+                        deleteMessageRequest.senderId(),
+                        deleteMessageRequest.chatId(),
+                        deleteMessageRequest.forAll()));
+    }
 }

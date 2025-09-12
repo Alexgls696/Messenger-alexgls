@@ -1,9 +1,6 @@
 package com.alexgls.springboot.messagestorageservice.kafka;
 
-import com.alexgls.springboot.messagestorageservice.dto.CreateMessagePayload;
-import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
-import com.alexgls.springboot.messagestorageservice.dto.ReadMessagePayload;
-import com.alexgls.springboot.messagestorageservice.dto.UpdateMessagePayload;
+import com.alexgls.springboot.messagestorageservice.dto.*;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -85,6 +82,16 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    public ProducerFactory<String, DeleteMessageResponse> deleteMessageProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        JsonSerializer<DeleteMessageResponse> jsonSerializer = new JsonSerializer<>();
+        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
+    }
+
+    @Bean
     public KafkaTemplate<String, MessageDto> kafkaTemplate() {
         return new KafkaTemplate<>(messageProducerFactory());
     }
@@ -92,6 +99,11 @@ public class KafkaConfiguration {
     @Bean
     public KafkaTemplate<String, ReadMessagePayload> readMessagePayloadKafkaTemplate() {
         return new KafkaTemplate<>(readMessagePayloadProducerFactory());
+    }
+
+    @Bean
+    public KafkaTemplate<String, DeleteMessageResponse> deleteMessageKafkaTemplate() {
+        return new KafkaTemplate<>(deleteMessageProducerFactory());
     }
 
     @Bean
@@ -105,6 +117,13 @@ public class KafkaConfiguration {
     public NewTopic readMessagesTopic() {
         return TopicBuilder
                 .name("read-message-topic")
+                .build();
+    }
+
+    @Bean
+    public NewTopic deleteMessagesTopic() {
+        return TopicBuilder
+                .name("delete-message-topic")
                 .build();
     }
 

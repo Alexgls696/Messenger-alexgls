@@ -40,4 +40,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail));
     }
+
+    @ExceptionHandler(DeleteMessageAccessDeniedException.class)
+    public Mono<ResponseEntity<ProblemDetail>> handleDeleteMessageAccessDeniedException(DeleteMessageAccessDeniedException exception, Locale locale) {
+        log.warn("Handle DeleteMessageAccessDeniedException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.OK,
+                messageSource.getMessage("errors.access_denied", new Object[0], "errors.access_denied", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.OK)
+                .body(problemDetail));
+    }
 }

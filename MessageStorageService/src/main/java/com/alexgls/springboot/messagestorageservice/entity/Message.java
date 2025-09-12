@@ -45,9 +45,12 @@ public class Message {
     @Column(value = "read_at")
     private Timestamp readAt;
 
+    @Column(value = "deleted_for_user_id")
+    private int deletedForUserId;
+
     @Transient
     private int recipientId;
 
     @Transient
-    private List<Attachment>attachments;
+    private List<Attachment> attachments;
 }

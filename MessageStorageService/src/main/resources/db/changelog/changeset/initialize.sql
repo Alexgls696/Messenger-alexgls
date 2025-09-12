@@ -23,15 +23,16 @@ create table participants
 
 create table messages
 (
-    message_id   bigint primary key generated always as identity,
-    chat_id      integer references chats (chat_id),
-    sender_id    integer,
-    content      text,
-    created_at   timestamp,
-    updated_at   timestamp,
-    is_read      boolean,
-    read_at      timestamp,
-    message_type varchar(32)
+    message_id          bigint primary key generated always as identity,
+    chat_id             integer references chats (chat_id),
+    sender_id           integer,
+    content             text,
+    created_at          timestamp,
+    updated_at          timestamp,
+    is_read             boolean,
+    read_at             timestamp,
+    message_type        varchar(32),
+    deleted_for_user_id integer
 );
 
 create table attachments
