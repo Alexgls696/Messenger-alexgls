@@ -30,8 +30,9 @@ public class ChatsController {
     private Integer pageSize;
 
     @GetMapping("/{id}")
-    public Mono<ChatDto> getChatById(@PathVariable int id) {
-        return chatsService.findById(id);
+    public Mono<ChatDto> getChatById(@PathVariable int id, Authentication authentication) {
+        int userId = getSenderId(authentication);
+        return chatsService.findById(id, userId);
     }
 
     @GetMapping("/find-by-id/{page}")

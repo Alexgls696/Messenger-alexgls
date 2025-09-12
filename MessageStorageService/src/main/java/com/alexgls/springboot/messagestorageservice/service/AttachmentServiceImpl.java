@@ -35,4 +35,6 @@ public class AttachmentServiceImpl implements AttachmentService {
                     return Flux.error(() -> new AccessDeniedException("Вы не состоите в данном чате."));
                 });
     }
+
+
 }

@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const pendingEl = document.querySelector(`[data-temp-id='${newMsg.tempId}']`);
                             if (pendingEl) {
                                 const finalEl = await createMessageElement(newMsg, isSentByMe);
-                                pendingEl.replaceWith(finalEl);  // Заменяем элемент
+                                pendingEl.replaceWith(finalEl);
                                 return;
                             }
                         }
@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.stompClient.subscribe(`/user/queue/delete-event`, (message) => {
                 try {
                     const deleteInfo = JSON.parse(message.body);
-                    // Если удаление произошло в текущем активном чате
                     if (deleteInfo.chatId === activeChatId) {
                         handleMessageDeletion(deleteInfo.messagesId);
                     }
@@ -207,9 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageIds.forEach(id => {
             const msgEl = document.querySelector(`.message[data-message-id='${id}']`);
             if (msgEl) {
-                // Добавляем анимацию исчезновения
                 msgEl.classList.add('deleted-animation');
-                // Удаляем элемент из DOM после завершения анимации
                 setTimeout(() => {
                     msgEl.remove();
                     // Если сообщений не осталось, показываем плейсхолдер
@@ -236,15 +233,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'DELETE',
                 body: JSON.stringify(payload)
             });
-            hideContextMenu();
-
-
             if (!forAll) {
                 handleMessageDeletion(messageIds);
             }
 
         } catch (error) {
             console.error('Ошибка при удалении сообщения:', error);
+        } finally {
+            hideContextMenu()
         }
     }
 
@@ -1053,7 +1049,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('click', (event) => {
-        // Если клик не по меню, скрываем его
         if (!contextMenu.contains(event.target)) {
             hideContextMenu();
         }
@@ -1062,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contextMenu.addEventListener('click', (event) => {
         const action = event.target.dataset.action;
         if (action && contextMessageInfo) {
-            const { messageId } = contextMessageInfo;
+            const {messageId} = contextMessageInfo;
             if (action === 'delete-for-me') {
                 deleteMessages([messageId], false);
             } else if (action === 'delete-for-all') {

@@ -2,6 +2,7 @@ package com.alexgls.springboot.messagestorageservice.service;
 
 import com.alexgls.springboot.messagestorageservice.dto.*;
 import com.alexgls.springboot.messagestorageservice.entity.Attachment;
+import com.alexgls.springboot.messagestorageservice.entity.DeletedMessage;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.entity.MessageType;
 import com.alexgls.springboot.messagestorageservice.exceptions.DeleteMessageAccessDeniedException;
@@ -9,21 +10,20 @@ import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientEx
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservice.repository.AttachmentRepository;
+import com.alexgls.springboot.messagestorageservice.repository.DeletedMessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
-import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ import java.util.List;
 public class MessagesService {
 
     private final MessagesRepository messagesRepository;
+    private final DeletedMessagesRepository deletedMessagesRepository;
     private final ChatsService chatsService;
     private final AttachmentRepository attachmentRepository;
     private final ParticipantsService participantsService;
@@ -77,9 +78,7 @@ public class MessagesService {
                                 Message savedMessage = tuple.getT1();
                                 Integer recipientId = tuple.getT2();
                                 savedMessage.setRecipientId(recipientId);
-                                Mono<Void> updateLastMessageInChatMono = chatsService.updateLastMessageToChat(createMessagePayload.chatId(), savedMessage.getId());
-                                return updateLastMessageInChatMono
-                                        .then(Mono.defer(() -> saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())))
+                                return saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
                                         .map(savedAttachments -> {
                                             MessageDto dto = MessageMapper.toMessageDto(savedMessage);
                                             dto.setAttachments(savedAttachments);
@@ -105,11 +104,11 @@ public class MessagesService {
         return message;
     }
 
-    private Mono<List<Attachment>> saveAttachmentsPayloadsToDatabase(List<CreateAttachmentPayload> attachmentPayloads, long messageId, int chatId) {
+    @Transactional
+    public Mono<List<Attachment>> saveAttachmentsPayloadsToDatabase(List<CreateAttachmentPayload> attachmentPayloads, long messageId, int chatId) {
         if (attachmentPayloads == null || attachmentPayloads.isEmpty()) {
             return Mono.just(Collections.emptyList());
         }
-
         List<Attachment> attachments = attachmentPayloads.stream()
                 .map(payload -> {
                     Attachment attachment = new Attachment();
@@ -126,30 +125,74 @@ public class MessagesService {
                 .collectList();
     }
 
+    @Transactional
     public Mono<DeleteMessageResponse> deleteById(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
         return messagesRepository.findAllById(deleteMessageRequest.messagesId())
                 .collectList()
-                .flatMap(list -> {
+                .flatMap(messagesList -> {
                     if (deleteMessageRequest.forAll()) {
-                        List<Long> messagesIdsToDeleteList = new ArrayList<>();
-                        for (var message : list) {
-                            if (message.getSenderId() == currentUserId) {
-                                messagesIdsToDeleteList.add(message.getId());
-                            } else {
-                                return Mono.error(new DeleteMessageAccessDeniedException("Данный пользователь не может выполнить это действие."));
-                            }
-                        }
-                        return messagesRepository.deleteAllById(messagesIdsToDeleteList)
-                                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
+                        return deleteMessageForAll(deleteMessageRequest, messagesList, currentUserId);
                     } else {
-                        List<Message> messagesDeletedToCurrentUserList = list
-                                .stream()
-                                .peek(message -> message.setDeletedForUserId(currentUserId))
-                                .toList();
-                        return messagesRepository.saveAll(messagesDeletedToCurrentUserList)
-                                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
+                        return deleteMessageForCurrentUser(deleteMessageRequest, messagesList, currentUserId);
                     }
                 });
+    }
+
+    @Transactional
+    public Mono<DeleteMessageResponse> deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
+        List<Long> messagesIdsToDeleteList = new ArrayList<>();
+        for (var message : messagesList) {
+            if (message.getSenderId() == currentUserId) {
+                messagesIdsToDeleteList.add(message.getId());
+            } else {
+                return Mono.error(new DeleteMessageAccessDeniedException("Данный пользователь не может выполнить это действие."));
+            }
+        }
+        Mono<Void> deleteAllDeletedMessagesForUsers = deleteAllDeletedMessagesForUsers(deleteMessageRequest);
+        Mono<Void> deleteAllAttachmentsMono = deleteAllAttachmentsByMessageIdMono(messagesIdsToDeleteList);
+        Mono<Void> deleteAllMessagesMono = messagesRepository.deleteAllById(messagesIdsToDeleteList);
+        return deleteAllDeletedMessagesForUsers
+                .then(deleteAllAttachmentsMono)
+                .then(deleteAllMessagesMono)
+                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
+    }
+
+    @Transactional
+    public Mono<DeleteMessageResponse> deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
+        List<DeletedMessage> deletedMessages = messagesList.stream()
+                .map(message -> new DeletedMessage(null, message.getId(), currentUserId))
+                .toList();
+        return deletedMessagesRepository.saveAll(deletedMessages)
+                .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest))
+                .publishOn(Schedulers.boundedElastic())
+                .doOnNext(response -> {
+                    // Запуск асинхронной задачи удаления сообщений
+                    checkAndDeleteFullyDeletedMessages(response.messagesId(), response.chatId())
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .doOnError(error -> log.warn("Delete messages check failed: {}", error.getMessage()))
+                            .subscribe();
+                });
+    }
+
+    public Mono<Void> deleteAllAttachmentsByMessageIdMono(List<Long> messagesIds) {
+        return Flux.fromIterable(messagesIds)
+                .flatMap(attachmentRepository::deleteAllByMessageId)
+                .then(Mono.empty());
+    }
+
+
+    private Mono<Void> deleteAllDeletedMessagesForUsers(DeleteMessageRequest deleteMessageRequest) {
+        return Flux.fromIterable(deleteMessageRequest.messagesId())
+                .flatMap(deletedMessagesRepository::deleteAllByMessageId)
+                .then(Mono.empty());
+    }
+
+
+    @Transactional
+    public Mono<Void> checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
+        return Flux.fromIterable(messageIds)
+                .flatMap(messageId -> deleteMessageIfItDeletedForEveryone(messageId, chatId))
+                .then();
     }
 
     private Mono<DeleteMessageResponse> generateDeleteMessageResponseWithChatMembers(DeleteMessageRequest deleteMessageRequest) {
@@ -160,5 +203,22 @@ public class MessagesService {
                         deleteMessageRequest.senderId(),
                         deleteMessageRequest.chatId(),
                         deleteMessageRequest.forAll()));
+    }
+
+    @Transactional
+    public Mono<Void> deleteMessageIfItDeletedForEveryone(long messageId, int chatId) {
+        return participantsService.findUserIdsByChatId(chatId).collectList()
+                .zipWith(deletedMessagesRepository.findAllUserIdByMessageId(messageId).collect(Collectors.toSet()))
+                .flatMap(tuple -> {
+                    List<Integer> participants = tuple.getT1();
+                    Set<Integer> usersWhoDeleted = tuple.getT2();
+                    if (participants.size() == usersWhoDeleted.size() &&
+                            usersWhoDeleted.containsAll(participants)) {
+                        log.info("All participants deleted message {}, removing completely", messageId);
+                        return deletedMessagesRepository.deleteAllByMessageId(messageId)
+                                .then(messagesRepository.deleteById(messageId));
+                    }
+                    return Mono.empty();
+                });
     }
 }

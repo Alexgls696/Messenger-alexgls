@@ -23,16 +23,15 @@ create table participants
 
 create table messages
 (
-    message_id          bigint primary key generated always as identity,
-    chat_id             integer references chats (chat_id),
-    sender_id           integer,
-    content             text,
-    created_at          timestamp,
-    updated_at          timestamp,
-    is_read             boolean,
-    read_at             timestamp,
-    message_type        varchar(32),
-    deleted_for_user_id integer
+    message_id   bigint primary key generated always as identity,
+    chat_id      integer references chats (chat_id),
+    sender_id    integer,
+    content      text,
+    created_at   timestamp,
+    updated_at   timestamp,
+    is_read      boolean,
+    read_at      timestamp,
+    message_type varchar(32)
 );
 
 create table attachments
@@ -46,7 +45,14 @@ create table attachments
     filename      varchar(256)
 );
 
+create table deleted_messages
+(
+    id         integer primary key generated always as identity,
+    message_id integer references messages (message_id),
+    user_id    integer,
+    constraint unique_message_user unique (message_id, user_id)
+);
+
 create index message_type_index ON messages using hash (message_type);
-
-
---Создание триггера и триггерной функции
+create index idx_deleted_messages_user ON deleted_messages using hash (user_id);
+create index idx_deleted_messages_message ON deleted_messages (message_id);

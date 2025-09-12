@@ -25,7 +25,6 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
             @Param("offset") long offset);
 
 
-
     @Query("SELECT p1.chat_id\n" +
             "FROM participants p1\n" +
             "JOIN participants p2 ON p1.chat_id = p2.chat_id\n" +
@@ -37,17 +36,17 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
             "    HAVING COUNT(user_id) = 2\n" +
             "  );")
     Mono<Integer> findChatIdByParticipantsIdForPrivateChats(@Param("senderId") int senderId,
-                                          @Param("receiverId") int receiverId);
+                                                            @Param("receiverId") int receiverId);
 
     @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id where c.chat_id = :chatId and user_id != :senderId and is_group = false")
-    Mono<Integer>findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
+    Mono<Integer> findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
     @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id where c.chat_id = :chatId and user_id != :senderId and is_group = true")
-    Flux<Integer>findRecipientIdsByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
+    Flux<Integer> findRecipientIdsByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
     @Modifying
     @Query(value = "update chats set last_message_id = :lastMessageId, updated_at = now() where chat_id = :chatId")
-    Mono<Void>updateLastMessageId(@Param("chatId") int chatId, @Param("lastMessageId") long lastMessageId);
+    Mono<Void> updateLastMessageId(@Param("chatId") int chatId, @Param("lastMessageId") long lastMessageId);
 
 
 }

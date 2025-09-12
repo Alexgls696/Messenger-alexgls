@@ -38,7 +38,7 @@ public class ChatsService {
                 .flatMap(chat -> {
                     log.info("Chat {}", chat);
                     ChatDto chatDto = ChatMapper.toDto(chat);
-                    Mono<Message> lastMessageInChat = messagesRepository.findLastMessageByChatId(chat.getChatId());
+                    Mono<Message> lastMessageInChat = messagesRepository.findLastMessageByChatIdAndUserId(chat.getChatId(), userId);
                     return Mono.zip(Mono.just(chatDto), lastMessageInChat)
                             .flatMap(tuple -> {
                                 ChatDto chatdto = tuple.getT1();
@@ -83,11 +83,11 @@ public class ChatsService {
         return chatsRepository.existsById(id);
     }
 
-    public Mono<ChatDto> findById(int id) {
+    public Mono<ChatDto> findById(int id, int currentUserId) {
         return chatsRepository.findById(id)
                 .flatMap(chat -> {
                     ChatDto chatDto = ChatMapper.toDto(chat);
-                    Mono<Message> messageMono = messagesRepository.findLastMessageByChatId(chat.getChatId());
+                    Mono<Message> messageMono = messagesRepository.findLastMessageByChatIdAndUserId(chat.getChatId(), currentUserId);
                     return Mono.zip(Mono.just(chatDto), messageMono)
                             .map(tuple -> {
                                 var chat_dto = tuple.getT1();
