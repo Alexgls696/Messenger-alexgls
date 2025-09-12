@@ -1086,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Ошибка инициализации:", error);
             statusEl.textContent = "Не удалось загрузить данные пользователя. Пожалуйста, войдите снова.";
+            logout();
         }
     }
 
