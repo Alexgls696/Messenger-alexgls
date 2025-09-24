@@ -78,4 +78,8 @@ public class UsersService {
                 .map(UserMapper::toDto);
     }
 
+    public Mono<Boolean> existsByUsernameOrEmail(String username, String email) {
+        return usersRepository.existsByUsernameOrEmail(username, email);
+    }
+
 }

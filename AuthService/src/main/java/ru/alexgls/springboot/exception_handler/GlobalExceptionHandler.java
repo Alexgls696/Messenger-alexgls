@@ -6,10 +6,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
+import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.NoSuchUserException;
 
 import java.util.Locale;
@@ -37,6 +37,16 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("error", exception.getMessage());
         return Mono.just(ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail));
+    }
+
+    @ExceptionHandler(ExistsUserRequestException.class)
+    public Mono<ResponseEntity<ProblemDetail>> handleCheckUsernameOrEmailMethodException(ExistsUserRequestException exception, Locale locale) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                messageSource.getMessage("error.exists_user_request_exception", new Object[0], "error.exists_user_request_exception", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(problemDetail));
     }
 }

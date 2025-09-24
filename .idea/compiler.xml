@@ -14,6 +14,7 @@
         <module name="AuthService" />
         <module name="InDatabaseContentStorageService" />
         <module name="MediaContentStorageService" />
+        <module name="RegistrationService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -29,6 +30,7 @@
       <module name="MediaContentStorageService" options="-parameters" />
       <module name="MessageStorageService" options="-parameters" />
       <module name="RatingLogClientApplication" options="-parameters" />
+      <module name="RegistrationService" options="-parameters" />
       <module name="UsersMessagingService" options="-parameters" />
     </option>
   </component>

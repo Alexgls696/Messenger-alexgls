@@ -93,6 +93,7 @@ public class AuthController {
                 .flatMap(dto -> getLoginResponseByUsername(dto.username()));
     }
 
+
     @PostMapping("/validate")
     public ResponseEntity<JwtValidationResponse> validateJwtToken(@RequestBody JwtValidationRequest tokenRequest) {
         log.info("Try to validate token: {}", tokenRequest);

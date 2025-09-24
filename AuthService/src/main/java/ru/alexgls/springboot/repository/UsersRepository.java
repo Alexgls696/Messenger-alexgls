@@ -10,4 +10,5 @@ import ru.alexgls.springboot.entity.User;
 public interface UsersRepository extends ReactiveCrudRepository<User, Integer> {
     Mono<User> findByUsername(String username);
 
+    Mono<Boolean>existsByUsernameOrEmail(String username, String email);
 }

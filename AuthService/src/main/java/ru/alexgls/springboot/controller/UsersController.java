@@ -4,17 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.alexgls.springboot.dto.ExistsUserRequest;
 import ru.alexgls.springboot.dto.GetUserDto;
+import ru.alexgls.springboot.dto.UserExistsResponse;
+import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.InvalidJwtException;
 import ru.alexgls.springboot.exceptions.NoSuchAuthException;
 import ru.alexgls.springboot.service.UsersService;
 
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -56,6 +57,17 @@ public class UsersController {
             return usersService.findUserDtoById(userId);
         } else {
             return Mono.error(() -> new InvalidJwtException("Jwt is invalid"));
+        }
+    }
+
+    @PostMapping("/exists")
+    public Mono<UserExistsResponse> existsByUsernameOrEmail(@RequestBody ExistsUserRequest existsUserRequest) {
+        try {
+            log.info("Check for exists user with username {} and email {}", existsUserRequest.username(), existsUserRequest.email());
+            return usersService.existsByUsernameOrEmail(existsUserRequest.username(), existsUserRequest.email())
+                    .map(UserExistsResponse::new);
+        } catch (Exception exception) {
+            return Mono.error(() -> new ExistsUserRequestException(exception.getMessage()));
         }
     }
 

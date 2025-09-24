@@ -1,77 +1,146 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('register-form');
-    const registerButton = document.getElementById('register-button');
+    // Получаем все необходимые элементы DOM
+    const loginForm = document.getElementById('login-form');
+    const verifyForm = document.getElementById('verify-form');
+
+    const emailTab = document.getElementById('email-tab');
+    const phoneTab = document.getElementById('phone-tab');
+
+    const contactLabel = document.getElementById('contact-label');
+    const contactInput = document.getElementById('contact-info');
+
+    const getCodeButton = document.getElementById('get-code-button');
+    const verifyButton = document.getElementById('verify-button');
     const messageBox = document.getElementById('message-box');
+    const verifyMessageBox = document.getElementById('verify-message-box');
 
-    const gatewayHost = window.location.hostname; // 'localhost'
-    const gatewayPort = 8080; // Порт вашего Gateway
-    const gatewayAddress = `${gatewayHost}:${gatewayPort}`;
+    const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
-    const httpProtocol = 'http:'; // Для локальной разработки
-    const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`; // Базовый URL для всех REST API
+    // Переменные для хранения состояния
+    let loginMethod = 'email'; // 'email' или 'phone'
+    let loginData = {}; // Для хранения данных пользователя между шагами
 
-    form.addEventListener('submit', async (event) => {
-        // Предотвращаем стандартную отправку формы
-        event.preventDefault();
-
-        // Очищаем предыдущие сообщения и стили
-        messageBox.classList.add('hidden');
-        messageBox.classList.remove('success-message', 'error-message');
+    const clearMessages = () => {
+        messageBox.className = 'message hidden';
         messageBox.textContent = '';
+        verifyMessageBox.className = 'message hidden';
+        verifyMessageBox.textContent = '';
+    };
 
-        // Блокируем кнопку на время запроса
-        registerButton.disabled = true;
-        registerButton.textContent = 'Регистрация...';
+    // --- Логика переключения табов ---
+    const setActiveTab = (method) => {
+        loginMethod = method;
+        clearMessages();
 
-        // Собираем данные из формы в объект
-        const formData = new FormData(form);
-        const userRegisterDto = {
-            name: formData.get('name'),
-            surname: formData.get('surname'),
+        if (method === 'email') {
+            emailTab.classList.add('active');
+            phoneTab.classList.remove('active');
+            contactLabel.textContent = 'Email';
+            contactInput.type = 'email';
+            contactInput.placeholder = 'your@email.com';
+        } else {
+            phoneTab.classList.add('active');
+            emailTab.classList.remove('active');
+            contactLabel.textContent = 'Номер телефона';
+            contactInput.type = 'tel';
+            contactInput.placeholder = '+7 (999) 999-99-99';
+        }
+    };
+
+    emailTab.addEventListener('click', () => setActiveTab('email'));
+    phoneTab.addEventListener('click', () => setActiveTab('phone'));
+
+    // --- Обработчик отправки формы для получения кода (Шаг 1) ---
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearMessages();
+
+        getCodeButton.disabled = true;
+        getCodeButton.textContent = 'Отправка...';
+
+        const formData = new FormData(loginForm);
+        loginData = {
             username: formData.get('username'),
-            password: formData.get('password'),
-            email: formData.get('email')
+            [loginMethod]: formData.get('contact-info') // Динамический ключ: 'email' или 'phone'
         };
 
         try {
-            // Отправляем POST-запрос на сервер
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userRegisterDto),
+            // --- ЗАГЛУШКА API: Запрос на отправку кода ---
+            // В реальном приложении здесь будет fetch(`${API_BASE_URL}/auth/login/initiate`, ...)
+            const response = await new Promise(resolve => {
+                setTimeout(() => {
+                    console.log('Отправка запроса на получение кода (заглушка):', loginData);
+                    resolve({ ok: true }); // Имитируем успешный ответ
+                }, 1000);
             });
+            // --- КОНЕЦ ЗАГЛУШКИ ---
 
-            // Обрабатываем ответ
-            if (response.ok) { // Проверяем успешный статус (например, 200 OK или 201 Created)
-                const jwtResponse = await response.json();
-
-                // Сохраняем токены в локальное хранилище
-                if (jwtResponse.accessToken && jwtResponse.refreshToken) {
-                    localStorage.setItem('accessToken', jwtResponse.accessToken);
-                    localStorage.setItem('refreshToken', jwtResponse.refreshToken);
-
-                    // Переадресовываем на главную страницу
-                    window.location.href = '/index';
-                } else {
-                    throw new Error('Ответ сервера не содержит токенов.');
-                }
+            if (response.ok) {
+                loginForm.classList.add('hidden');
+                verifyForm.classList.remove('hidden');
             } else {
-                // Если статус ответа не "успех", пытаемся получить текст ошибки
-                const errorData = await response.json().catch(() => ({ message: 'Произошла неизвестная ошибка' }));
-                const errorMessage = errorData.message || `Ошибка ${response.status}: ${response.statusText}`;
-                throw new Error(errorMessage);
+                throw new Error('Не удалось отправить код. Проверьте введенные данные.');
             }
         } catch (error) {
-            // Показываем сообщение об ошибке
             messageBox.textContent = error.message || 'Не удалось подключиться к серверу.';
             messageBox.classList.add('error-message');
             messageBox.classList.remove('hidden');
         } finally {
-            // Включаем кнопку обратно в любом случае (кроме успешной переадресации)
-            registerButton.disabled = false;
-            registerButton.textContent = 'Зарегистрироваться';
+            getCodeButton.disabled = false;
+            getCodeButton.textContent = 'Получить код';
+        }
+    });
+
+    // --- Обработчик отправки формы верификации (Шаг 2) ---
+    verifyForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearMessages();
+
+        verifyButton.disabled = true;
+        verifyButton.textContent = 'Проверка...';
+
+        const verificationCode = document.getElementById('verification-code').value;
+        const finalPayload = {
+            ...loginData,
+            code: verificationCode
+        };
+
+        try {
+            // --- ЗАГЛУШКА API: Запрос на проверку кода ---
+            // В реальном приложении здесь будет fetch(`${API_BASE_URL}/auth/login/verify`, ...)
+            const response = await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (verificationCode === "123456") { // "Правильный" код для теста
+                        console.log('Отправка запроса на верификацию (заглушка):', finalPayload);
+                        const jwtResponse = {
+                            accessToken: 'fake-access-token-from-mock-api-123',
+                            refreshToken: 'fake-refresh-token-from-mock-api-456'
+                        };
+                        resolve({ ok: true, json: () => Promise.resolve(jwtResponse) });
+                    } else {
+                        reject(new Error('Неверный код доступа.'));
+                    }
+                }, 1000);
+            });
+            // --- КОНЕЦ ЗАГЛУШКИ ---
+
+            if (response.ok) {
+                const jwtResponse = await response.json();
+                if (jwtResponse.accessToken && jwtResponse.refreshToken) {
+                    localStorage.setItem('accessToken', jwtResponse.accessToken);
+                    localStorage.setItem('refreshToken', jwtResponse.refreshToken);
+                    window.location.href = '/index'; // Переадресация на главную
+                } else {
+                    throw new Error('Ответ сервера не содержит токенов.');
+                }
+            }
+        } catch (error) {
+            verifyMessageBox.textContent = error.message || 'Произошла неизвестная ошибка.';
+            verifyMessageBox.classList.add('error-message');
+            verifyMessageBox.classList.remove('hidden');
+        } finally {
+            verifyButton.disabled = false;
+            verifyButton.textContent = 'Войти';
         }
     });
 });

@@ -3,50 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
+    <title>Вход</title>
     <link href="/css/register.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="register-container">
-    <form id="register-form" class="register-form">
-        <h2>Создать аккаунт</h2>
-        <p class="form-description">Присоединяйтесь к нам! Это быстро и легко.</p>
+    <!-- Шаг 1: Ввод данных для получения кода -->
+    <form id="login-form" class="register-form">
+        <h2>Вход или регистрация</h2>
+        <p class="form-description">Введите имя пользователя и выберите способ получения кода доступа.</p>
+
+        <!-- Переключатель между Email и Телефоном -->
+        <div class="tab-switcher">
+            <button type="button" id="email-tab" class="tab-button active" data-method="email">Email</button>
+            <button type="button" id="phone-tab" class="tab-button" data-method="phone">Телефон</button>
+        </div>
 
         <!-- Поля для ввода данных -->
-        <div class="input-group">
-            <label for="name">Имя</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-
-        <div class="input-group">
-            <label for="surname">Фамилия</label>
-            <input type="text" id="surname" name="surname" required>
-        </div>
-
         <div class="input-group">
             <label for="username">Имя пользователя</label>
             <input type="text" id="username" name="username" required>
         </div>
 
         <div class="input-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-
-        <div class="input-group">
-            <label for="password">Пароль</label>
-            <input type="password" id="password" name="password" required>
+            <label id="contact-label" for="contact-info">Email</label>
+            <input type="email" id="contact-info" name="contact-info" placeholder="your@email.com" required>
         </div>
 
         <!-- Блок для вывода сообщений -->
         <div id="message-box" class="message hidden"></div>
 
-        <button type="submit" id="register-button">Зарегистрироваться</button>
+        <button type="submit" id="get-code-button">Получить код</button>
         <div class="form-link">
-            Уже есть аккаунт? <a href="/login">Войти</a>
+            Проблемы со входом? <a href="/support">Свяжитесь с нами</a>
+        </div>
+    </form>
+
+    <!-- Шаг 2: Ввод кода подтверждения (изначально скрыт) -->
+    <form id="verify-form" class="register-form hidden">
+        <h2>Подтверждение</h2>
+        <p class="form-description">Мы отправили код доступа. Пожалуйста, введите его ниже.</p>
+
+        <div class="input-group">
+            <label for="verification-code">Код доступа</label>
+            <input type="text" id="verification-code" name="verification-code" required>
         </div>
 
+        <!-- Блок для вывода сообщений -->
+        <div id="verify-message-box" class="message hidden"></div>
+
+        <button type="submit" id="verify-button">Войти</button>
     </form>
 </div>
 

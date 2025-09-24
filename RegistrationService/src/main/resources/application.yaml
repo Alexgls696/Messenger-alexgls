@@ -1,0 +1,13 @@
+server:
+  port: 8082
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password: ${REDIS_PASSWORD:AS04SERa1}
+
+services:
+  auth-service: http://localhost:8085

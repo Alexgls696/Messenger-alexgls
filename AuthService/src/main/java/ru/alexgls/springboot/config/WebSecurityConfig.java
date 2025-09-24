@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                         .pathMatchers("/auth/register").permitAll()
                         .pathMatchers("/auth/validate").permitAll()
                         .pathMatchers("/auth/refresh").permitAll()
+                        .pathMatchers("/api/users/exists").permitAll()
                         .pathMatchers(HttpMethod.DELETE, "/auth/remove/**").hasRole("MANAGER")
                         .anyExchange().authenticated()
                 )
