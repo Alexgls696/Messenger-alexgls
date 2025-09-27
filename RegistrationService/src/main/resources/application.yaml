@@ -9,5 +9,10 @@ spring:
       database: 0
       password: ${REDIS_PASSWORD:AS04SERa1}
 
+  mail:
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+
+
 services:
   auth-service: http://localhost:8085

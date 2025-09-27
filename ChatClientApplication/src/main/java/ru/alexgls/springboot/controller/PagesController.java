@@ -21,6 +21,11 @@ public class PagesController {
         return "logout";
     }
 
+    @GetMapping("/setup-profile")
+    public String setupProfile() {
+        return "setup-profile";
+    }
+
     @GetMapping("/register")
     public String register() {
         return "register";

@@ -9,11 +9,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.alexgls.springboot.dto.ExistsUserRequest;
 import ru.alexgls.springboot.dto.GetUserDto;
+import ru.alexgls.springboot.dto.UpdateUserRequest;
 import ru.alexgls.springboot.dto.UserExistsResponse;
 import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.InvalidJwtException;
 import ru.alexgls.springboot.exceptions.NoSuchAuthException;
 import ru.alexgls.springboot.service.UsersService;
+import ru.alexgls.springboot.utils.AuthUtil;
 
 import java.util.Map;
 import java.util.Objects;
@@ -58,6 +60,13 @@ public class UsersController {
         } else {
             return Mono.error(() -> new InvalidJwtException("Jwt is invalid"));
         }
+    }
+
+    @PostMapping("/update")
+    public Mono<Void> updateUser(@RequestBody UpdateUserRequest updateUserRequest, Authentication authentication) {
+        log.info("Update user {}", updateUserRequest);
+        int currentUserId = AuthUtil.getCurrentUserId(authentication);
+        return usersService.updateUserInfo(updateUserRequest, currentUserId);
     }
 
     @PostMapping("/exists")

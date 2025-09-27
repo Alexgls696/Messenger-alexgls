@@ -1,7 +1,7 @@
 yandex:
   baseUrl: https://cloud-api.yandex.net/v1/disk/resources
   application-path: /chat_application
-  oauth-token:  y0__xDP35vDBRjblgMg1_6ogBSr4lVFEiYk8u0pvxDtIO93JeN9-Q
+  oauth-token:  ${YANDEX_OAUTH}
 
 server:
   port: 8088

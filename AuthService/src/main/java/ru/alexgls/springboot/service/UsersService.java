@@ -1,6 +1,7 @@
 package ru.alexgls.springboot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.alexgls.springboot.dto.GetUserDto;
+import ru.alexgls.springboot.dto.UpdateUserRequest;
 import ru.alexgls.springboot.dto.UserRegisterDto;
 import ru.alexgls.springboot.entity.Role;
 import ru.alexgls.springboot.entity.User;
@@ -16,6 +18,8 @@ import ru.alexgls.springboot.exceptions.NoSuchUserRoleException;
 import ru.alexgls.springboot.mapper.UserMapper;
 import ru.alexgls.springboot.repository.UserRolesRepository;
 import ru.alexgls.springboot.repository.UsersRepository;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +75,18 @@ public class UsersService {
                     return userRolesRepository.insertIntoUserRoles(savedUser.getId(), savedRole.getId())
                             .thenReturn(UserMapper.toDto(savedUser));
                 });
+    }
+
+    public Mono<Void> updateUserInfo(UpdateUserRequest updateUserRequest, int currentUserId) {
+        return usersRepository.findById(updateUserRequest.id())
+                .flatMap(foundUser -> {
+                    if (foundUser.getId() != currentUserId) {
+                        return Mono.error(new AccessDeniedException("У вас нет доступа для выполнения данного действия"));
+                    }
+                    foundUser.setSurname(Objects.isNull(updateUserRequest.surname()) ? "" : updateUserRequest.surname());
+                    foundUser.setName(updateUserRequest.name());
+                    return usersRepository.save(foundUser);
+                }).then();
     }
 
     public Flux<GetUserDto> findAllUsers() {

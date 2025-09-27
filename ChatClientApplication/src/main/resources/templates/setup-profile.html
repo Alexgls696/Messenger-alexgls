@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Завершение регистрации</title>
+    <!-- Используем те же стили, что и для страницы входа -->
+    <link href="/css/register.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="register-container">
+    <form id="profile-form" class="register-form">
+        <h2>Завершение регистрации</h2>
+        <p class="form-description">Остался последний шаг! Пожалуйста, укажите ваши данные.</p>
+
+        <!-- Поля для ввода данных -->
+        <div class="input-group">
+            <label for="name">Имя</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="input-group">
+            <label for="surname">Фамилия (необязательно)</label>
+            <input type="text" id="surname" name="surname">
+        </div>
+
+        <div class="input-group">
+            <label for="username">Имя пользователя</label>
+            <!-- Имя пользователя будет подставлено из токена и заблокировано для редактирования -->
+            <input type="text" id="username" name="username" required readonly>
+        </div>
+
+        <!-- Блок для вывода сообщений об ошибках -->
+        <div id="message-box" class="message hidden"></div>
+
+        <button type="submit" id="save-button">Сохранить и войти</button>
+    </form>
+</div>
+
+
+<script src="/js/setup-profile.js"></script>
+
+</body>
+</html>

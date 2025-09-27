@@ -26,7 +26,7 @@ public class VerificationCodeController {
         return verificationService.createVerificationCodeForUser(initializeLoginRequest);
     }
 
-    @GetMapping("/check")
+    @PostMapping("/check")
     public ResponseEntity<?> checkVerificationCode(@RequestBody @Valid CheckCodeRequest checkCodeRequest, BindingResult bindingResult) throws BindException {
         log.info("Checking verification code: {} ", checkCodeRequest);
         if (bindingResult.hasErrors()) {
@@ -40,7 +40,7 @@ public class VerificationCodeController {
         if (Objects.isNull(jwtResponse)) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Неверный код доступа"));
+                    .body(Map.of("error", "Неверный код доступа или срок действия кода истёк"));
         } else {
             return ResponseEntity.ok(jwtResponse);
         }

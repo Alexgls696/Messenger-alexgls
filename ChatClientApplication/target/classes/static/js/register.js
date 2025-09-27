@@ -14,11 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageBox = document.getElementById('message-box');
     const verifyMessageBox = document.getElementById('verify-message-box');
 
-    const API_BASE_URL = `http://${window.location.hostname}:8080`;
+    // --- Константы для API ---
+    const API_BASE_URL = 'http://localhost:8080/api/verification';
+    const INITIATE_URL = `${API_BASE_URL}/create`;
+    const VERIFY_URL = `${API_BASE_URL}/check`;
 
-    // Переменные для хранения состояния
+    // --- Переменные для хранения состояния ---
     let loginMethod = 'email'; // 'email' или 'phone'
-    let loginData = {}; // Для хранения данных пользователя между шагами
+    let operationId = null; // Для хранения ID операции между шагами
 
     const clearMessages = () => {
         messageBox.className = 'message hidden';
@@ -59,27 +62,41 @@ document.addEventListener('DOMContentLoaded', () => {
         getCodeButton.textContent = 'Отправка...';
 
         const formData = new FormData(loginForm);
-        loginData = {
+        const contactValue = formData.get('contact-info');
+
+        // Формируем тело запроса в соответствии с InitializeLoginRequest
+        const requestBody = {
             username: formData.get('username'),
-            [loginMethod]: formData.get('contact-info') // Динамический ключ: 'email' или 'phone'
+            email: loginMethod === 'email' ? contactValue : null,
+            phoneNumber: loginMethod === 'phone' ? contactValue : null
         };
 
         try {
-            // --- ЗАГЛУШКА API: Запрос на отправку кода ---
-            // В реальном приложении здесь будет fetch(`${API_BASE_URL}/auth/login/initiate`, ...)
-            const response = await new Promise(resolve => {
-                setTimeout(() => {
-                    console.log('Отправка запроса на получение кода (заглушка):', loginData);
-                    resolve({ ok: true }); // Имитируем успешный ответ
-                }, 1000);
+            // Отправляем реальный запрос на сервер
+            const response = await fetch(INITIATE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
             });
-            // --- КОНЕЦ ЗАГЛУШКИ ---
 
             if (response.ok) {
-                loginForm.classList.add('hidden');
-                verifyForm.classList.remove('hidden');
+                const data = await response.json(); // Ожидаем { "id": "..." }
+                operationId = data.id; // Сохраняем ID операции
+
+                // Если ID получен, переключаем формы
+                if (operationId) {
+                    loginForm.classList.add('hidden');
+                    verifyForm.classList.remove('hidden');
+                } else {
+                    throw new Error('Сервер не вернул ID операции.');
+                }
             } else {
-                throw new Error('Не удалось отправить код. Проверьте введенные данные.');
+                // Пытаемся получить текст ошибки от сервера
+                const errorData = await response.json().catch(() => ({ message: 'Произошла ошибка на сервере' }));
+                const errorMessage = errorData.message || `Ошибка ${response.status}: ${response.statusText}`;
+                throw new Error(errorMessage);
             }
         } catch (error) {
             messageBox.textContent = error.message || 'Не удалось подключиться к серверу.';
@@ -100,42 +117,41 @@ document.addEventListener('DOMContentLoaded', () => {
         verifyButton.textContent = 'Проверка...';
 
         const verificationCode = document.getElementById('verification-code').value;
-        const finalPayload = {
-            ...loginData,
+
+        // Формируем тело запроса в соответствии с CheckCodeRequest
+        const requestBody = {
+            id: operationId,
             code: verificationCode
         };
 
         try {
-            // --- ЗАГЛУШКА API: Запрос на проверку кода ---
-            // В реальном приложении здесь будет fetch(`${API_BASE_URL}/auth/login/verify`, ...)
-            const response = await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    if (verificationCode === "123456") { // "Правильный" код для теста
-                        console.log('Отправка запроса на верификацию (заглушка):', finalPayload);
-                        const jwtResponse = {
-                            accessToken: 'fake-access-token-from-mock-api-123',
-                            refreshToken: 'fake-refresh-token-from-mock-api-456'
-                        };
-                        resolve({ ok: true, json: () => Promise.resolve(jwtResponse) });
-                    } else {
-                        reject(new Error('Неверный код доступа.'));
-                    }
-                }, 1000);
+            // Отправляем запрос на проверку кода
+            console.log(VERIFY_URL);
+            const response = await fetch(VERIFY_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
             });
-            // --- КОНЕЦ ЗАГЛУШКИ ---
 
             if (response.ok) {
-                const jwtResponse = await response.json();
+                const jwtResponse = await response.json(); // Ожидаем { "accessToken": "...", "refreshToken": "..." }
+
                 if (jwtResponse.accessToken && jwtResponse.refreshToken) {
                     localStorage.setItem('accessToken', jwtResponse.accessToken);
                     localStorage.setItem('refreshToken', jwtResponse.refreshToken);
-                    window.location.href = '/index'; // Переадресация на главную
+                    window.location.href = '/index'; // Успех! Переадресация на главную
                 } else {
                     throw new Error('Ответ сервера не содержит токенов.');
                 }
+            } else {
+                const errorData = await response.json().catch(() => ({ message: 'Произошла ошибка на сервере' }));
+                const errorMessage = errorData.message || 'Неверный код или истек срок действия операции.';
+                throw new Error(errorMessage);
             }
         } catch (error) {
-            verifyMessageBox.textContent = error.message || 'Произошла неизвестная ошибка.';
+            verifyMessageBox.textContent = error.message;
             verifyMessageBox.classList.add('error-message');
             verifyMessageBox.classList.remove('hidden');
         } finally {

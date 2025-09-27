@@ -18,7 +18,6 @@ public class ClientConfig {
     @Value("${yandex.oauth-token}")
     private String oauthToken;
 
-
     @Value("${webclient.timeout:10}")
     private int timeoutSeconds;
 

@@ -1075,6 +1075,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initializeApp() {
         try {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
+            if(me.name === null){
+                window.location.href = 'setup-profile'; return
+            }
             currentUserId = me.id;
             participantCache[me.id] = `${me.name} ${me.surname}`;
             usernameContent.textContent = `${me.surname} ${me.name}`;

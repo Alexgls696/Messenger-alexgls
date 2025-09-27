@@ -1,6 +1,7 @@
 package com.alexgls.springboot.registrationservice.exception_handler;
 
 import com.alexgls.springboot.registrationservice.exception.AuthServiceException;
+import com.alexgls.springboot.registrationservice.exception.SendMailException;
 import com.alexgls.springboot.registrationservice.exception.UserExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthServiceException.class)
     public ResponseEntity<ProblemDetail> handleAuthServiceException(AuthServiceException exception, Locale locale) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, messageSource
-                .getMessage("error.auth_service_error", new Object[0], "auth_service_error", locale));
+                .getMessage("error.auth_service_error", new Object[0], "error.auth_service_error", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(SendMailException.class)
+    public ResponseEntity<ProblemDetail> handleSendMailException(SendMailException exception, Locale locale) {
+        log.warn("Выброшено исключение: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, messageSource
+                .getMessage("error.send_mail_error", new Object[0], "error.send_mail_error", locale));
         problemDetail.setProperty("error", exception.getMessage());
         return ResponseEntity
                 .badRequest()

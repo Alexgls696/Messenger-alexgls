@@ -53,3 +53,9 @@ spring:
               uri: http://localhost:8089
               predicates:
                 - Path=/api/images/**
+
+            # --- 5. Маршрут для сервиса входа и регистрации в БД (:8082) ---
+            - id: registration-service-route
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/verification/**

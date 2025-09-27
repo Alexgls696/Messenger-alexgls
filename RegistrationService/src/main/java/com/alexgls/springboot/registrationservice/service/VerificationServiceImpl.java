@@ -20,6 +20,8 @@ public class VerificationServiceImpl implements VerificationService {
 
     private final AuthServiceClient authServiceClient;
 
+    private final MailSenderService mailSenderService;
+
     @Transactional
     @Override
     public AuthServiceJwtResponse verifyLogin(CheckCodeRequest checkCodeRequest) {
@@ -45,6 +47,7 @@ public class VerificationServiceImpl implements VerificationService {
         boolean exists = authServiceClient.existsUserByUsernameOrEmail(new AuthServiceExistsUserRequest(initializeLoginRequest.username(), initializeLoginRequest.email())).exists();
         if(!exists) {
             InitializeUserData saved = verificationRepository.save(initializeUserData);
+            mailSenderService.sendMessage(initializeUserData.getEmail(),"Ваш код подтверждения ", initializeUserData.getCode());
             return new CreateCodeResponse(saved.getId());
         }
         throw new UserExistsException("Пользователь с введенными вами данными уже существует.");
