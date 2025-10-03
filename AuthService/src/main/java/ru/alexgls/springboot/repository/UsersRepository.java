@@ -1,14 +1,15 @@
 package ru.alexgls.springboot.repository;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import ru.alexgls.springboot.entity.User;
 
-@Repository
-public interface UsersRepository extends ReactiveCrudRepository<User, Integer> {
-    Mono<User> findByUsername(String username);
+import java.util.Optional;
 
-    Mono<Boolean>existsByUsernameOrEmail(String username, String email);
+@Repository
+public interface UsersRepository extends CrudRepository<User, Integer> {
+    Optional<User> findByUsername(String username);
+
+    Boolean existsByUsernameOrEmail(String username, String email);
+
 }

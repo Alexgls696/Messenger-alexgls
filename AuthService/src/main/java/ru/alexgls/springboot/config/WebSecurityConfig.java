@@ -1,38 +1,48 @@
 package ru.alexgls.springboot.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Collection;
-import java.util.List;
-
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Configuration
-@EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableWebSecurity
+@EnableMethodSecurity
+@Slf4j
 public class WebSecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
+
+    @Value("${services.register.secret}")
+    private String registerClientSecret;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,46 +50,73 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> converter) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/auth/login").permitAll()
-                        .pathMatchers("/.well-known/jwks.json").permitAll()
-                        .pathMatchers("/auth/register").permitAll()
-                        .pathMatchers("/auth/validate").permitAll()
-                        .pathMatchers("/auth/refresh").permitAll()
-                        .pathMatchers("/api/users/exists").permitAll()
-                        .pathMatchers(HttpMethod.DELETE, "/auth/remove/**").hasRole("MANAGER")
-                        .anyExchange().authenticated()
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/.well-known/jwks.json").permitAll()
+                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers("/auth/validate").permitAll()
+                        .requestMatchers("/auth/refresh").permitAll()
+                        .requestMatchers("/api/users/exists").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/auth/remove/**").hasRole("MANAGER")
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(server -> server.jwt(jwt -> jwt
                         .jwkSetUri(jwkSetUri)
-                        .jwtAuthenticationConverter(converter)))
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();
     }
 
-
-
     @Bean
-    public Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-        ReactiveJwtAuthenticationConverter converter = new ReactiveJwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new ReactiveGrantedAuthoritiesExtractor());
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new GrantedAuthoritiesExtractor());
         return converter;
     }
 
-    public static class ReactiveGrantedAuthoritiesExtractor implements Converter<Jwt, Flux<GrantedAuthority>> {
+    public static class GrantedAuthoritiesExtractor implements Converter<Jwt, Collection<GrantedAuthority>> {
         @Override
-        public Flux<GrantedAuthority> convert(Jwt jwt) {
+        public Collection<GrantedAuthority> convert(Jwt jwt) {
             Object roles = jwt.getClaims().get("roles");
-            if (!(roles instanceof Collection)) {
-                return Flux.empty();
+            if (!(roles instanceof Collection<?>)) {
+                return Collections.emptyList();
             }
             Collection<String> roleStrings = (Collection<String>) roles;
-            return Flux.fromIterable(roleStrings)
-                    .map(SimpleGrantedAuthority::new);
+            return roleStrings.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
         }
+    }
+
+    @Bean
+    RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate){
+        return new JdbcRegisteredClientRepository(jdbcTemplate);
+    }
+
+    @Bean
+    public CommandLineRunner initClients(RegisteredClientRepository repository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            String clientId = "register-service";
+            if (repository.findByClientId(clientId) == null) {
+                String clientSecret = passwordEncoder.encode(registerClientSecret);
+                RegisteredClient registerClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                        .clientId(clientId)
+                        .clientSecret(clientSecret)
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                        .scope("internal.read")
+                        .scope("internal.write")
+                        .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+                        .build();
+
+                repository.save(registerClient);
+                log.info("Client '{}' created successfully.", clientId);
+            } else {
+                log.info("Client '{}' already exists. Skipping creation.", clientId);
+            }
+        };
     }
 }

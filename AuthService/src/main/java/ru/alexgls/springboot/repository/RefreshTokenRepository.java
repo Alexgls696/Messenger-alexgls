@@ -1,14 +1,15 @@
 package ru.alexgls.springboot.repository;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
 import ru.alexgls.springboot.entity.RefreshToken;
 
-@Repository
-public interface RefreshTokenRepository extends ReactiveCrudRepository<RefreshToken, Long> {
+import java.util.Optional;
 
-    Mono<RefreshToken>findByToken(String token);
-    Mono<Void>deleteByUserId(Integer userId);
-    Mono<Void>deleteByToken(String token);
+@Repository
+public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Long> {
+
+    Optional<RefreshToken> findByToken(String token);
+    void deleteByUserId(Integer userId);
+    void deleteByToken(String token);
 }

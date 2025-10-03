@@ -1,5 +1,6 @@
 package ru.alexgls.springboot.exception_handler;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import reactor.core.publisher.Mono;
 import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.NoSuchUserException;
 
@@ -23,41 +23,41 @@ public class GlobalExceptionHandler {
 
     private final MessageSource messageSource;
 
-    @ExceptionHandler(RuntimeException.class)
-    public Mono<ResponseEntity<?>> handleRuntimeException(RuntimeException exception) {
+   /* @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException exception) {
         log.warn("Возникло исключение: {}", exception.getMessage());
-        return Mono.just(ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Ошибка. " + exception.getMessage())));
-    }
+                .body(Map.of("error", "Ошибка. " + exception.getMessage()));
+    }*/
 
     @ExceptionHandler(NoSuchUserException.class)
-    public Mono<ResponseEntity<ProblemDetail>> handleNoSuchUserException(NoSuchUserException exception, Locale locale) {
+    public ResponseEntity<ProblemDetail> handleNoSuchUserException(NoSuchUserException exception, Locale locale) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
                 messageSource.getMessage("error.user_not_found", new Object[0], "error.user_not_found", locale));
         problemDetail.setProperty("error", exception.getMessage());
-        return Mono.just(ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(problemDetail));
+                .body(problemDetail);
     }
 
     @ExceptionHandler(ExistsUserRequestException.class)
-    public Mono<ResponseEntity<ProblemDetail>> handleCheckUsernameOrEmailMethodException(ExistsUserRequestException exception, Locale locale) {
+    public ResponseEntity<ProblemDetail> handleCheckUsernameOrEmailMethodException(ExistsUserRequestException exception, Locale locale) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
                 messageSource.getMessage("error.exists_user_request_exception", new Object[0], "error.exists_user_request_exception", locale));
         problemDetail.setProperty("error", exception.getMessage());
-        return Mono.just(ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(problemDetail));
+                .body(problemDetail);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public Mono<ResponseEntity<ProblemDetail>> handleAccessDeniedException(AccessDeniedException exception, Locale locale) {
+    public ResponseEntity<ProblemDetail> handleAccessDeniedException(AccessDeniedException exception, Locale locale) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
                 messageSource.getMessage("error.access_denied", new Object[0], "error.access_denied", locale));
         problemDetail.setProperty("error", exception.getMessage());
-        return Mono.just(ResponseEntity
+        return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(problemDetail));
+                .body(problemDetail);
     }
 }

@@ -4,40 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Завершение регистрации</title>
-    <!-- Используем те же стили, что и для страницы входа -->
     <link href="/css/register.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="register-container">
-    <form id="profile-form" class="register-form">
-        <h2>Завершение регистрации</h2>
-        <p class="form-description">Остался последний шаг! Пожалуйста, укажите ваши данные.</p>
+    <!-- Шаг 1: Ввод данных пользователя -->
+    <div id="profile-step">
+        <form id="profile-form" class="register-form">
+            <h2>Завершение регистрации</h2>
+            <p class="form-description">Остался последний шаг! Пожалуйста, укажите ваши данные.</p>
 
-        <!-- Поля для ввода данных -->
-        <div class="input-group">
-            <label for="name">Имя</label>
-            <input type="text" id="name" name="name" required>
-        </div>
+            <div class="input-group">
+                <label for="name">Имя</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-group">
+                <label for="surname">Фамилия (необязательно)</label>
+                <input type="text" id="surname" name="surname">
+            </div>
+            <div class="input-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" name="username" required readonly>
+            </div>
 
-        <div class="input-group">
-            <label for="surname">Фамилия (необязательно)</label>
-            <input type="text" id="surname" name="surname">
-        </div>
+            <div id="profile-message-box" class="message hidden"></div>
+            <button type="submit" id="save-profile-button">Сохранить и продолжить</button>
+        </form>
+    </div>
 
-        <div class="input-group">
-            <label for="username">Имя пользователя</label>
-            <!-- Имя пользователя будет подставлено из токена и заблокировано для редактирования -->
-            <input type="text" id="username" name="username" required readonly>
-        </div>
+    <!-- Шаг 2: Установка пароля (изначально скрыт) -->
+    <div id="password-step" class="hidden">
+        <form id="password-form" class="register-form">
+            <h2>Установите пароль</h2>
+            <p class="form-description">Пароль должен содержать не менее 8 символов.</p>
 
-        <!-- Блок для вывода сообщений об ошибках -->
-        <div id="message-box" class="message hidden"></div>
+            <div class="input-group">
+                <label for="password">Новый пароль</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="input-group">
+                <label for="confirm-password">Подтвердите пароль</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
 
-        <button type="submit" id="save-button">Сохранить и войти</button>
-    </form>
+            <div id="password-message-box" class="message hidden"></div>
+            <button type="submit" id="set-password-button">Завершить регистрацию</button>
+        </form>
+    </div>
 </div>
-
 
 <script src="/js/setup-profile.js"></script>
 

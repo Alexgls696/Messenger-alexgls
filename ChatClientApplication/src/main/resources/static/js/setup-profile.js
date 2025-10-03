@@ -1,99 +1,150 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Получаем элементы DOM
+    // --- Получаем все необходимые элементы DOM ---
+    // Шаг 1: Профиль
+    const profileStep = document.getElementById('profile-step');
     const profileForm = document.getElementById('profile-form');
-    const saveButton = document.getElementById('save-button');
-    const messageBox = document.getElementById('message-box');
+    const saveProfileButton = document.getElementById('save-profile-button');
+    const profileMessageBox = document.getElementById('profile-message-box');
     const usernameInput = document.getElementById('username');
     const nameInput = document.getElementById('name');
     const surnameInput = document.getElementById('surname');
 
-    // Адрес вашего API
-    const API_URL = 'http://localhost:8080/api/users/update';
+    // Шаг 2: Пароль
+    const passwordStep = document.getElementById('password-step');
+    const passwordForm = document.getElementById('password-form');
+    const setPasswordButton = document.getElementById('set-password-button');
+    const passwordMessageBox = document.getElementById('password-message-box');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
 
-    // --- Вспомогательная функция для декодирования JWT ---
-    // Она не проверяет подпись (это задача сервера), а только извлекает данные.
+    // --- Адреса API ---
+    const UPDATE_USER_URL = 'http://localhost:8080/api/users/update';
+    // ВАЖНО: Ваш код использует "/update-password", а не "/set-password". Используем эндпоинт из кода.
+    const SET_PASSWORD_URL = 'http://localhost:8080/api/users/update-password';
+
     const parseJwt = (token) => {
         try {
             return JSON.parse(atob(token.split('.')[1]));
-        } catch (e) {
-            return null;
-        }
+        } catch (e) { return null; }
     };
 
     // --- Основная логика при загрузке страницы ---
     const accessToken = localStorage.getItem('accessToken');
-
     if (!accessToken) {
-        window.location.href = '/login'; // или ваша страница входа
+        window.location.href = '/login';
         return;
     }
 
     const decodedToken = parseJwt(accessToken);
-    console.log(decodedToken);
-    // Если токен невалидный или не содержит нужных данных
     if (!decodedToken || !decodedToken.userId || !decodedToken.sub) {
-        alert('Ошибка авторизации. Пожалуйста, войдите снова.');
-        //localStorage.clear();
-        //window.location.href = '/login';
+        alert('Ошибка авторизации. Не удалось получить данные пользователя из токена. Пожалуйста, войдите снова.');
+        localStorage.clear();
+        window.location.href = '/login';
         return;
     }
 
-    const userId = decodedToken.userId; // Получаем ID из токена
-    usernameInput.value = decodedToken.sub; // 'sub' обычно содержит username
+    const userId = decodedToken.userId;
+    usernameInput.value = decodedToken.sub;
 
-    // --- Обработчик отправки формы ---
+    // --- Обработчик формы профиля (Шаг 1) ---
     profileForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        profileMessageBox.classList.add('hidden');
+        saveProfileButton.disabled = true;
+        saveProfileButton.textContent = 'Сохранение...';
 
-        // Скрываем старые сообщения
-        messageBox.classList.add('hidden');
-        messageBox.textContent = '';
-
-        saveButton.disabled = true;
-        saveButton.textContent = 'Сохранение...';
-
-        // Формируем тело запроса в соответствии с UpdateUserRequest
         const requestBody = {
             id: userId,
             name: nameInput.value,
-            surname: surnameInput.value || '', // Отправляем пустую строку, если поле не заполнено
+            surname: surnameInput.value || '',
             username: usernameInput.value,
         };
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(UPDATE_USER_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Обязательно передаем токен для авторизации запроса
                     'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(requestBody),
             });
 
             if (response.ok) {
-                // Успех! Перенаправляем на главную страницу
-                window.location.href = '/index';
+                // Успех! Не перенаправляем, а переключаемся на шаг установки пароля.
+                profileStep.classList.add('hidden');
+                passwordStep.classList.remove('hidden');
             } else {
-                // Если произошла ошибка, пытаемся извлечь её из тела ответа
                 const errorData = await response.json();
                 let errorMessage = 'Произошла неизвестная ошибка.';
-
-                // Формируем сообщение из полей detail и error, как вы и просили
                 if (errorData.detail || errorData.error) {
                     errorMessage = `${errorData.detail || ''} ${errorData.error || ''}`.trim();
                 }
-
                 throw new Error(errorMessage);
             }
-
         } catch (error) {
-            messageBox.textContent = error.message;
-            messageBox.classList.add('error-message');
-            messageBox.classList.remove('hidden');
+            profileMessageBox.textContent = error.message;
+            profileMessageBox.classList.add('error-message');
+            profileMessageBox.classList.remove('hidden');
         } finally {
-            saveButton.disabled = false;
-            saveButton.textContent = 'Сохранить и войти';
+            saveProfileButton.disabled = false;
+            saveProfileButton.textContent = 'Сохранить и продолжить';
+        }
+    });
+
+    // --- Обработчик формы пароля (Шаг 2) ---
+    passwordForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        passwordMessageBox.classList.add('hidden');
+
+        // Клиентская валидация
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        if (password.length < 8) {
+            passwordMessageBox.textContent = 'Пароль должен быть не менее 8 символов.';
+            passwordMessageBox.classList.add('error-message');
+            passwordMessageBox.classList.remove('hidden');
+            return;
+        }
+        if (password !== confirmPassword) {
+            passwordMessageBox.textContent = 'Пароли не совпадают.';
+            passwordMessageBox.classList.add('error-message');
+            passwordMessageBox.classList.remove('hidden');
+            return;
+        }
+
+        setPasswordButton.disabled = true;
+        setPasswordButton.textContent = 'Завершение...';
+
+        try {
+            const response = await fetch(SET_PASSWORD_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                // Отправляем пароль как обычный текст, а не JSON
+                body: password,
+            });
+
+            if (response.ok) {
+                // Финальный успех! Перенаправляем на главную.
+                window.location.href = '/index';
+            } else {
+                const errorData = await response.json();
+                let errorMessage = 'Произошла неизвестная ошибка.';
+                if (errorData.detail || errorData.error) {
+                    errorMessage = `${errorData.detail || ''} ${errorData.error || ''}`.trim();
+                }
+                throw new Error(errorMessage);
+            }
+        } catch (error) {
+            passwordMessageBox.textContent = error.message;
+            passwordMessageBox.classList.add('error-message');
+            passwordMessageBox.classList.remove('hidden');
+        } finally {
+            setPasswordButton.disabled = false;
+            setPasswordButton.textContent = 'Завершить регистрацию';
         }
     });
 });

@@ -10,14 +10,9 @@ frontend:
   url: http://localhost:8090
 
 spring:
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5435/security_users_db
-    username: alexgls
-    password: AS04SERa1
-
-  liquibase:
+  datasource:
     url: jdbc:postgresql://localhost:5435/security_users_db
-    user: alexgls
+    username: alexgls
     password: AS04SERa1
 
   security:
@@ -25,3 +20,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+
+services:
+  register:
+    secret: ${REGISTER_SECRET:register_secret}
