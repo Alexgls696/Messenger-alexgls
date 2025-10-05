@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash
 @Data
 @AllArgsConstructor
-public class InitializeUserData {
+public class UserData {
     private String id;
     private String code;
     private String username;

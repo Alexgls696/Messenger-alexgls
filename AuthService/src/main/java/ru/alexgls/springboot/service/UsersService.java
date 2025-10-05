@@ -36,7 +36,7 @@ public class UsersService {
 
     public Iterable<GetUserDto> findAllUsers() {
         List<GetUserDto> users = new ArrayList<>();
-        Iterable<User> usersFromDatabase =  usersRepository.findAll();
+        Iterable<User> usersFromDatabase = usersRepository.findAll();
         usersFromDatabase.forEach(user -> users.add(UserMapper.toDto(user)));
         return users;
     }
@@ -51,7 +51,13 @@ public class UsersService {
 
     public User getUserByUsername(String username) {
         return usersRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username %s not found".formatted(username)));
+                .orElseThrow(() -> new NoSuchUserException("User with username %s not found".formatted(username)));
+    }
+
+    public GetUserDto findUserByEmail(String email) {
+        User user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchUserException("Пользователь с заданным адресом электронной почты не найден."));
+        return UserMapper.toDto(user);
     }
 
     public User findUserById(int id) {
@@ -61,7 +67,7 @@ public class UsersService {
 
 
     public GetUserDto findUserDtoById(int id) {
-        User user = findUserById(id); // Используем уже существующий метод
+        User user = findUserById(id);
         return new GetUserDto(user.getId(), user.getName(), user.getSurname(), user.getUsername());
     }
 

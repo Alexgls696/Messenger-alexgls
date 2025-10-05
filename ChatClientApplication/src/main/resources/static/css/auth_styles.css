@@ -156,3 +156,64 @@ button[type="submit"]:disabled {
 .form-link a:hover {
     text-decoration: underline;
 }
+
+.code-input-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px; /* Добавим отступ от label */
+}
+
+/* Контейнер для видимых прямоугольников */
+.code-boxes {
+    display: flex;
+    gap: 10px; /* Расстояние между прямоугольниками */
+    cursor: text;
+}
+
+/* Стиль одного прямоугольника (ячейки) */
+.code-box {
+    width: 45px;
+    height: 55px;
+    border: 2px solid #dddfe2;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d2129;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Стиль ячейки, когда в нее введен символ */
+.code-box.filled {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+#verification-code {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+    border: none;
+    background: transparent;
+
+    caret-color: transparent;
+
+    color: transparent;
+    letter-spacing: 25px;
+    text-align: center;
+    font-size: 24px;
+}
+
+#verification-code::-webkit-outer-spin-button,
+#verification-code::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

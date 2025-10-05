@@ -31,6 +31,11 @@ public class PagesController {
         return "register";
     }
 
+    @GetMapping("/simple-login")
+    public String simpleLogin() {
+        return "simple-login";
+    }
+
     @RequestMapping(value = {"/chats", "/index", "/"})
     public String index() {
         return "chats";

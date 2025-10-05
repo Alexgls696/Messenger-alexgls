@@ -58,4 +58,4 @@ spring:
             - id: registration-service-route
               uri: http://localhost:8082
               predicates:
-                - Path=/api/verification/**
+                - Path=/api/verification/**, /api/authentication/**

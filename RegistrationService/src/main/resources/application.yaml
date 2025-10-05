@@ -16,3 +16,8 @@ spring:
 
 services:
   auth-service: http://localhost:8085
+
+
+service:
+  client-id: register-service
+  client-secret: ${REGISTER_SECRET:register_secret}

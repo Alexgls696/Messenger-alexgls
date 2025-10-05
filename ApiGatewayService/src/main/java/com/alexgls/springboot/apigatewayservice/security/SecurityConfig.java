@@ -60,7 +60,8 @@ public class SecurityConfig {
                                 "/.well-known/jwks.json",
                                 "/ws-chat/**",
                                 "/api/storage/proxy/download/**",
-                                "/api/verification/**"
+                                "/api/verification/**",
+                                "/api/authentication/**"
                         ).permitAll()
                         .anyExchange().authenticated()
                 )

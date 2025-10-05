@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Константы для API ---
     const API_BASE_URL = 'http://localhost:8080/api/verification';
     const INITIATE_URL = `${API_BASE_URL}/create`;
-    const VERIFY_URL = `${API_BASE_URL}/check`;
+    const REGISTER_URL = `http://localhost:8080/api/authentication/register`;
 
     // --- Переменные для хранения состояния ---
     let loginMethod = 'email'; // 'email' или 'phone'
@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 // Пытаемся получить текст ошибки от сервера
-                const errorData = await response.json().catch(() => ({ message: 'Произошла ошибка на сервере' }));
-                const errorMessage = errorData.message || `Ошибка ${response.status}: ${response.statusText}`;
+                const errorData = await response.json().catch(() => ({message: 'Произошла ошибка на сервере'}));
+                const errorMessage = errorData.message || `Ошибка ${response.status}: ${errorData.error}.`;
                 throw new Error(errorMessage);
             }
         } catch (error) {
@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // Отправляем запрос на проверку кода
-            console.log(VERIFY_URL);
-            const response = await fetch(VERIFY_URL, {
+            console.log(REGISTER_URL);
+            console.log(requestBody);
+            const response = await fetch(REGISTER_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                const jwtResponse = await response.json(); // Ожидаем { "accessToken": "...", "refreshToken": "..." }
+                const jwtResponse = await response.json();
 
                 if (jwtResponse.accessToken && jwtResponse.refreshToken) {
                     localStorage.setItem('accessToken', jwtResponse.accessToken);
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Ответ сервера не содержит токенов.');
                 }
             } else {
-                const errorData = await response.json().catch(() => ({ message: 'Произошла ошибка на сервере' }));
+                const errorData = await response.json().catch(() => ({message: 'Произошла ошибка на сервере'}));
                 const errorMessage = errorData.message || 'Неверный код или истек срок действия операции.';
                 throw new Error(errorMessage);
             }

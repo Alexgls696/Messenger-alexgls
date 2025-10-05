@@ -6,14 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.alexgls.springboot.config.JwtUtil;
 import ru.alexgls.springboot.dto.*;
 import ru.alexgls.springboot.entity.RefreshToken;
@@ -51,7 +49,6 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         log.info("Login request: username={}", loginRequest.username);
         boolean credentialsValid = usersService.checkCredentials(loginRequest.username, loginRequest.password);
-
         if (credentialsValid) {
             return getLoginResponseByUsername(loginRequest.username);
         } else {
@@ -61,10 +58,11 @@ public class AuthController {
     }
 
     @PreAuthorize("hasRole('SERVICE')")
-    @PostMapping("/login-by-id")
-    public ResponseEntity<JwtResponse> loginById(@RequestBody Integer userId) {
-        log.info("Login request for user with id: userId={}", userId);
-        GetUserDto userDto = usersService.findUserDtoById(userId);
+    @PostMapping("/login-by-email")
+    public ResponseEntity<JwtResponse> loginById(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        log.info("Login request for user with email: userId={}", email);
+        GetUserDto userDto = usersService.findUserByEmail(email);
         return getLoginResponseByUsername(userDto.username());
     }
 

@@ -10,43 +10,31 @@
 
 <div class="register-container">
     <form id="login-form" class="register-form">
-        <h2>Регистрация</h2>
-        <p class="form-description">Введите имя пользователя и выберите способ получения кода доступа.</p>
-
-        <div class="tab-switcher">
-            <button type="button" id="email-tab" class="tab-button active" data-method="email">Email</button>
-            <button type="button" id="phone-tab" class="tab-button" data-method="phone">Телефон</button>
-        </div>
+        <h2>Вход в аккаунт</h2>
+        <p class="form-description">Введите ваш email, чтобы получить код для входа.</p>
 
         <div class="input-group">
-            <label for="username">Имя пользователя</label>
-            <input type="text" id="username" name="username" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Ваш адрес электронной почты" required>
         </div>
-
-        <div class="input-group">
-            <label id="contact-label" for="contact-info">Email</label>
-            <input type="email" id="contact-info" name="contact-info"  required>
-        </div>
-
-        <!-- Блок для вывода сообщений -->
         <div id="message-box" class="message hidden"></div>
 
         <button type="submit" id="get-code-button">Получить код</button>
         <div class="form-link">
-            Уже есть аккаунт? <a href="/simple-login">Войти</a>
+            Другие способы входа: <br>
+            <a href="/login">Войти с помощью пароля</a>
         </div>
         <div class="form-link">
-            Проблемы со входом? <a href="/support">Свяжитесь с нами</a>
+            Нет аккаунта? <a href="/register">Зарегистрироваться</a>
         </div>
     </form>
 
-    <!-- Шаг 2: Ввод кода подтверждения (изначально скрыт) -->
     <form id="verify-form" class="register-form hidden">
         <h2>Подтверждение</h2>
         <p class="form-description">Мы отправили код на вашу почту. Пожалуйста, введите его ниже.</p>
 
         <!-- НОВЫЙ БЛОК ДЛЯ ВВОДА КОДА -->
-        <div class = "input-group">
+        <div class="input-group">
             <label for="verification-code">Код доступа</label>
             <div class="code-input-container">
                 <!-- Видимые ячейки (прямоугольники) -->
@@ -58,20 +46,18 @@
                     <span class="code-box"></span>
                     <span class="code-box"></span>
                 </div>
-                <!-- Скрытое, но реальное поле ввода -->
                 <input type="text" id="verification-code" name="verification-code"
                        inputmode="text" maxlength="6"
                        autocomplete="one-time-code" required>
             </div>
         </div>
-        <!-- КОНЕЦ НОВОГО БЛОКА -->
 
         <div id="verify-message-box" class="message hidden"></div>
         <button type="submit" id="verify-button">Войти</button>
     </form>
 </div>
 
-<script src="/js/register.js"></script>
+<script src="/js/simple-login.js"></script>
 <script src="/js/check_code.js"></script>
 
 </body>

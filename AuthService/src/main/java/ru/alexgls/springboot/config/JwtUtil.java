@@ -16,8 +16,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration.users}")
     private Long expiration;
+
+    @Value("${jwt.expiration.service}")
+    private Long serviceTokenExpiration;
 
     private final KeyPairProvider keyProvider;
 
@@ -58,6 +61,26 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(now)
                 .setIssuer("http://localhost:8085")
+                .setExpiration(exp)
+                .signWith(keyProvider.getPrivateKey(), SignatureAlgorithm.RS256)
+                .compact();
+    }
+
+    public String generateTokenForService(String serviceClientId, List<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles); // Добавляем роли, чтобы @PreAuthorize("hasRole('SERVICE')") работало
+
+        long nowMillis = System.currentTimeMillis();
+        Date now = new Date(nowMillis);
+        long expMillis = nowMillis + serviceTokenExpiration;
+        Date exp = new Date(expMillis);
+
+        return Jwts.builder()
+                .setHeaderParam(JwsHeader.KEY_ID, keyProvider.getKeyId())
+                .setClaims(claims)
+                .setSubject(serviceClientId) // В качестве "субъекта" используем clientId сервиса
+                .setIssuedAt(now)
+                .setIssuer("http://localhost:8085") // Тот же issuer
                 .setExpiration(exp)
                 .signWith(keyProvider.getPrivateKey(), SignatureAlgorithm.RS256)
                 .compact();

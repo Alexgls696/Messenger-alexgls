@@ -2,12 +2,14 @@ package com.alexgls.springboot.registrationservice.service;
 
 import com.alexgls.springboot.registrationservice.client.AuthServiceClient;
 import com.alexgls.springboot.registrationservice.dto.*;
-import com.alexgls.springboot.registrationservice.entity.InitializeUserData;
+import com.alexgls.springboot.registrationservice.entity.UserData;
+import com.alexgls.springboot.registrationservice.exception.InvalidAccessCodeException;
+import com.alexgls.springboot.registrationservice.exception.OperationNotFoundException;
 import com.alexgls.springboot.registrationservice.exception.UserExistsException;
+import com.alexgls.springboot.registrationservice.exception.UserNotFoundException;
 import com.alexgls.springboot.registrationservice.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,35 +24,55 @@ public class VerificationServiceImpl implements VerificationService {
 
     private final MailSenderService mailSenderService;
 
-    @Transactional
     @Override
-    public AuthServiceJwtResponse verifyLogin(CheckCodeRequest checkCodeRequest) {
-        Optional<InitializeUserData> initializeUserDataOptional = verificationRepository.findById(checkCodeRequest.id());
+    public UserData verifyLogin(CheckCodeRequest checkCodeRequest) {
+        Optional<UserData> initializeUserDataOptional = verificationRepository.findById(checkCodeRequest.id());
         if (initializeUserDataOptional.isPresent()) {
-            InitializeUserData initializeUserData = initializeUserDataOptional.get();
+            UserData initializeUserData = initializeUserDataOptional.get();
             if (initializeUserData.getCode().equals(checkCodeRequest.code())) {
-                UserRegisterDto userRegisterDto = new UserRegisterDto(null, null, initializeUserData.getUsername(), "password", initializeUserData.getEmail());
-                AuthServiceJwtResponse authServiceJwtResponse = authServiceClient.registerUser(userRegisterDto);
-                verificationRepository.deleteById(checkCodeRequest.id());
-                return authServiceJwtResponse;
+                return initializeUserData;
+            } else {
+                throw new InvalidAccessCodeException("Неверный код доступа, повторите попытку.");
             }
         }
-        return null;
+        throw new OperationNotFoundException("Операция не найдена.");
     }
 
     @Override
-    public CreateCodeResponse createVerificationCodeForUser(InitializeLoginRequest initializeLoginRequest) {
-        InitializeUserData initializeUserData = new InitializeUserData(UUID.randomUUID().toString(),
+    public CreateCodeResponse createVerificationCodeForRegistration(InitializeLoginRequest initializeLoginRequest) {
+        UserData initializeUserData = createUserData(initializeLoginRequest);
+        boolean exists = authServiceClient.existsUserByUsernameOrEmail(new AuthServiceExistsUserRequest(initializeLoginRequest.username(), initializeLoginRequest.email())).exists();
+        if (!exists) {
+            UserData saved = verificationRepository.save(initializeUserData);
+            mailSenderService.sendMessage(initializeUserData.getEmail(), "Ваш код подтверждения ", initializeUserData.getCode());
+            return new CreateCodeResponse(saved.getId());
+        }
+        throw new UserExistsException("Пользователь с указанным адресом почты уже существует.");
+    }
+
+    @Override
+    public CreateCodeResponse createVerificationCodeForAuthentication(InitializeLoginRequest initializeLoginRequest) {
+        UserData initializeUserData = createUserData(initializeLoginRequest);
+        boolean exists = authServiceClient.existsUserByUsernameOrEmail(new AuthServiceExistsUserRequest(initializeLoginRequest.username(), initializeLoginRequest.email())).exists();
+        if (exists) {
+            UserData saved = verificationRepository.save(initializeUserData);
+            mailSenderService.sendMessage(initializeUserData.getEmail(), "Ваш код подтверждения ", initializeUserData.getCode());
+            return new CreateCodeResponse(saved.getId());
+        }
+        throw new UserNotFoundException("Пользователь с указанным адресом электронной почты не найден");
+    }
+
+    @Override
+    public void deleteById(String id) {
+        verificationRepository.deleteById(id);
+    }
+
+
+    private UserData createUserData(InitializeLoginRequest initializeLoginRequest) {
+        return new UserData(UUID.randomUUID().toString(),
                 generateVerificationCode(),
                 initializeLoginRequest.username(),
                 initializeLoginRequest.email(), initializeLoginRequest.phoneNumber());
-        boolean exists = authServiceClient.existsUserByUsernameOrEmail(new AuthServiceExistsUserRequest(initializeLoginRequest.username(), initializeLoginRequest.email())).exists();
-        if(!exists) {
-            InitializeUserData saved = verificationRepository.save(initializeUserData);
-            mailSenderService.sendMessage(initializeUserData.getEmail(),"Ваш код подтверждения ", initializeUserData.getCode());
-            return new CreateCodeResponse(saved.getId());
-        }
-        throw new UserExistsException("Пользователь с введенными вами данными уже существует.");
     }
 
     public String generateVerificationCode() {

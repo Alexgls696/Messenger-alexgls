@@ -1,6 +1,9 @@
 jwt:
   secret: 4eaee43cfe4d9d08e6391dab67baf143
-  expiration: 900000 # 15 мин
+  expiration:
+    users: 900000 #15 min
+    service: 300000 #5 min
+
   refresh:
     expirationMs: 604800000 #7 суток
 
@@ -23,4 +26,5 @@ spring:
 
 services:
   register:
+    id: register-service
     secret: ${REGISTER_SECRET:register_secret}
