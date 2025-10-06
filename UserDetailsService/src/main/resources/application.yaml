@@ -1,0 +1,18 @@
+server:
+  port: 8092
+
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5440/user_details_db
+    username: alexgls
+    password: AS04SERa1
+
+  liquibase:
+    url: jdbc:postgresql://localhost:5440/user_details_db
+    user: alexgls
+    password: AS04SERa1
+    driver-class-name: org.postgresql.Driver
+
+
+services:
+  auth-service: http://localhost:8085

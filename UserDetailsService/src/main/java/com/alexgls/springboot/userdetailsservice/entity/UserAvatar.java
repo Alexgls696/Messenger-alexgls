@@ -1,0 +1,18 @@
+package com.alexgls.springboot.userdetailsservice.entity;
+
+import lombok.*;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table(name = "user_avatars")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class UserAvatar {
+    private int id;
+
+    @Column("user_images_id")
+    private int userImagesId;
+}

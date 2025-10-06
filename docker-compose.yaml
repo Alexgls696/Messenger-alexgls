@@ -4,6 +4,7 @@ volumes:
   security_users_data:
   messaging_db_data:
   images_db_data:
+  user-details-data:
   redis_data:
 
 networks:
@@ -81,6 +82,17 @@ services:
     ports:
       - "5437:5432"
 
+  user-details-database:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ${USER_DETAILS_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - user-details-data:/var/lib/postgresql/data
+    ports:
+      - "5440:5432"
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4
