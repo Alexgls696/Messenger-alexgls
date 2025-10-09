@@ -1,4 +1,4 @@
-package com.alexgls.springboot.userdetailsservice.entity;
+package com.alexgls.springboot.userdetailsservice.dto;
 
 import java.util.Date;
 

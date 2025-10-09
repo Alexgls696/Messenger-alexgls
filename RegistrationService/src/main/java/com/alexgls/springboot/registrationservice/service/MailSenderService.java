@@ -17,7 +17,6 @@ public class MailSenderService {
     @Value("${spring.mail.username}")
     private String from;
 
-
     @Async
     public void sendMessage(String to, String subject, String text) {
         try {

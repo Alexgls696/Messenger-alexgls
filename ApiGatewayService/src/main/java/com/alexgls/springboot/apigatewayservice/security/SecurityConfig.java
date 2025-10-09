@@ -30,7 +30,6 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-
     private final String localHostAddress;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
