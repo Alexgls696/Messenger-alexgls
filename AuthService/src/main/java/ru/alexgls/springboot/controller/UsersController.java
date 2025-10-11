@@ -74,6 +74,8 @@ public class UsersController {
         usersService.setPasswordForUserById(userId, password);
         return ResponseEntity.ok().build();
     }
+
+
     @PostMapping("/update")
     public ResponseEntity<Void> updateUser(@RequestBody UpdateUserRequest updateUserRequest, Authentication authentication) {
         log.info("Update user {}", updateUserRequest);

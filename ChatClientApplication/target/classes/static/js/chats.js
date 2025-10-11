@@ -20,13 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileInput');
     const attachmentPreviewContainer = document.getElementById('attachmentPreviewContainer');
 
-    const attachmentsBtn = document.getElementById("attachmentsBtn");
-    const attachmentsModal = document.getElementById("attachmentsModal");
-    const closeAttachmentsBtn = document.getElementById("closeAttachmentsBtn");
+    // ИЗМЕНЕНИЕ: Обновляем селекторы для нового модального окна
+    const profileBtn = document.getElementById("profileBtn");
+    const profileAttachmentsModal = document.getElementById("profileAttachmentsModal");
+    const closeProfileAttachmentsBtn = document.getElementById("closeProfileAttachmentsBtn");
     const attachmentsTabs = document.querySelectorAll(".attachments-tabs .tab-btn");
-    const attachmentsContent = document.getElementById("attachmentsContent");
-
+    const modalDynamicContent = document.getElementById("modalDynamicContent");
+    const modalTitle = document.getElementById('modalTitle');
+    const myProfileBtn = document.getElementById('myProfileBtn');
     const usernameContent = document.getElementById('username');
+
+    let currentUserData = null;
+
+
     let pendingAttachments = [];
 
     const contextMenu = document.createElement('div');
@@ -38,9 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Состояние приложения ---
     let activeChatId = null;
+    let activeChatRecipientId = null; // ИЗМЕНЕНИЕ: ID собеседника для загрузки профиля
     let chatListPage = 0;
     let messagePage = 0;
-    const pageSize = 15; // Сообщений на странице
+    const pageSize = 15;
     let isLoading = false;
     let hasMoreMessages = true;
     let participantCache = {};
@@ -48,16 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let isChatsLoading = false;
     let hasMoreChats = true;
 
-    const gatewayHost = window.location.hostname; // 'localhost'
-    const gatewayPort = 8080; // Порт вашего Gateway
+    const gatewayHost = window.location.hostname;
+    const gatewayPort = 8080;
     const gatewayAddress = `${gatewayHost}:${gatewayPort}`;
-
-    const httpProtocol = 'http:'; // Для локальной разработки
+    const httpProtocol = 'http:';
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
     const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
+    const API_PROFILES_URL = 'http://localhost:8092'; // ИЗМЕНЕНИЕ: URL для API профилей
 
     const chatManager = {
+        // ... (весь ваш объект chatManager остается без изменений) ...
         stompClient: null,
         isConnected: false,
         isConnecting: false,
@@ -99,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (newMsg.chatId === activeChatId) {
                         const isSentByMe = newMsg.senderId === currentUserId;
 
-                        // Если сообщение имеет tempId, ищем и обновляем его
                         if (newMsg.tempId) {
                             const pendingEl = document.querySelector(`[data-temp-id='${newMsg.tempId}']`);
                             if (pendingEl) {
@@ -109,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
 
-                        // В противном случае добавляем обычное сообщение
                         addMessageToUI(newMsg, isSentByMe);
 
                         if (!isSentByMe) {
@@ -171,13 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sendMessageWithAttachments: function (content, attachments) {
             if (this.stompClient && this.isConnected && activeChatId) {
                 const tempId = generateTempId();
-
-                // 1. Рисуем сообщение сразу в UI с временным статусом
                 const pendingMsgHtml = renderPendingMessage(content, attachments, tempId);
                 messagesEl.insertAdjacentHTML("beforeend", pendingMsgHtml);
                 messagesEl.scrollTop = messagesEl.scrollHeight;
 
-                // 2. Отправляем на сервер
                 const chatMessage = {
                     chatId: activeChatId,
                     content: content,
@@ -186,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 this.stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
 
-                // 3. Обновляем статус сразу, что сообщение отправляется
                 const pendingEl = document.querySelector(`[data-temp-id='${tempId}']`);
                 if (pendingEl) {
                     const statusEl = pendingEl.querySelector('.message-status');
@@ -197,9 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Нет подключения для отправки сообщения.");
             }
         },
-
     };
 
+    // ... (все ваши функции до openChat остаются без изменений)
     function handleMessageDeletion(messageIds) {
         if (!Array.isArray(messageIds)) return;
 
@@ -321,10 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeActiveChat() {
         document.body.classList.remove('chat-active');
-
         chatWindowEl.classList.add('hidden');
-
-        // Сбрасываем активный чат
         activeChatId = null;
         [...chatListEl.children].forEach(li => li.classList.remove('active'));
     }
@@ -350,9 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadChats() {
         if (isChatsLoading || !hasMoreChats) return;
-
         isChatsLoading = true;
-
         try {
             const data = await apiFetch(`${API_BASE_URL}/api/chats/find-by-id/${chatListPage}`);
             statusEl.textContent = '';
@@ -360,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const chatItemsPromises = data.map(chat => createChatItem(chat));
                 const chatItems = await Promise.all(chatItemsPromises);
                 chatItems.forEach(li => chatListEl.appendChild(li));
-
                 chatListPage++;
             } else {
                 hasMoreChats = false;
@@ -378,17 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function createChatItem(chat) {
         const li = document.createElement('li');
         li.dataset.chatId = chat.chatId;
-
-        // Определяем, какое имя показать сразу
         const initialTitle = chat.group ? chat.name : 'Загрузка имени...';
-
         li.innerHTML = `
             <div class="chat-title">${initialTitle}</div>
-            <div class="chat-type">Тип: ${chat.type}</div>
             <div class="last-message">${chat.lastMessage ? chat.lastMessage.content : 'Нет сообщений'}</div>
             <div class="message-time">${chat.lastMessage ? `Отправлено: ${formatDate(chat.lastMessage.createdAt)}` : ''}</div>
         `;
-
         if (!chat.group) {
             try {
                 const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
@@ -400,31 +391,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(`Не удалось загрузить собеседника для чата ${chat.chatId}:`, error);
                 const titleDiv = li.querySelector('.chat-title');
                 if (titleDiv) {
-                    titleDiv.textContent = 'Ошибка загрузки чата'; // Имя по умолчанию в случае ошибки
+                    titleDiv.textContent = 'Ошибка загрузки чата';
                 }
             }
         }
-
         li.addEventListener('click', () => openChat(chat));
         return li;
     }
 
-    // В файле chats.js
-
     async function markMessagesAsRead(messagesToRead) {
-        // Проверяем, есть ли вообще что отправлять
         if (!messagesToRead || messagesToRead.length === 0) {
             return;
         }
-
-        // Формируем payload в том формате, который ожидает бэкенд
         const payload = messagesToRead.map(msg => ({
             messageId: msg.id,
             senderId: msg.senderId,
-            chatId: activeChatId // Используем ID активного чата
+            chatId: activeChatId
         }));
-
-        console.log('Отправка на прочтение:', payload);
         try {
             await apiFetch(`${API_BASE_URL}/api/messages/read-messages`, {
                 method: 'POST',
@@ -441,10 +424,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         activeChatId = chat.chatId;
+        activeChatRecipientId = null; // ИЗМЕНЕНИЕ: Сбрасываем ID собеседника при открытии нового чата
         messagePage = 0;
         hasMoreMessages = true;
         participantCache = {};
-        // -------------------------------------------------------------------
 
         [...chatListEl.children].forEach(li => {
             li.classList.toggle('active', li.dataset.chatId == activeChatId);
@@ -452,9 +435,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chatWindowEl.classList.remove('hidden');
         document.body.classList.add('chat-active');
-
         chatTitleEl.textContent = 'Загрузка...';
         messagesEl.innerHTML = '<p class="placeholder">Загрузка данных...</p>';
+
+        // ИЗМЕНЕНИЕ: Скрываем/показываем кнопку профиля в зависимости от типа чата
+        profileBtn.style.display = chat.group ? 'none' : 'inline-block';
 
         try {
             const [chatDetailsResult, messages] = await Promise.all([
@@ -464,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
                         chatTitleEl.textContent = `Чат с ${recipient.name} ${recipient.surname}`;
+                        activeChatRecipientId = recipient.id; // ИЗМЕНЕНИЕ: Сохраняем ID собеседника
                     }
                     const participants = await apiFetch(`${API_BASE_URL}/api/chats/${chat.chatId}/participants`);
                     participants.forEach(p => {
@@ -490,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageInput.focus();
     }
 
+    // ... (все ваши функции до loadAttachments остаются без изменений)
     async function loadMessages(chatId, page) {
         if (isLoading || !hasMoreMessages) return [];
         isLoading = true;
@@ -547,7 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
 
                 if (att.mimeType && att.mimeType.startsWith('image/')) {
-                    // Просто создаем HTML-заготовку. URL на прокси кладется в data-src.
                     return `
                     <div class="attachment-item image-attachment">
                         <a href="${proxyUrl}" target="_blank" rel="noopener noreferrer">
@@ -556,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </a>
                     </div>`;
                 } else {
-                    // Для обычных файлов ссылка на прокси работает сразу на скачивание.
                     const fileName = att.fileName || 'file';
                     return `
                     <div class="attachment-item file-attachment">
@@ -589,9 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="message-status ${statusClass}">${statusText}</span>
             </div>`;
 
-        // 4. Находим все "ленивые" изображения в созданном сообщении...
         const imagesToLazyLoad = msgDiv.querySelectorAll('img.lazy-load');
-        // ...и говорим нашему единому observer'у начать за ними следить.
         imagesToLazyLoad.forEach(img => imageObserver.observe(img));
 
         return msgDiv;
@@ -606,14 +589,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const msgDiv = createMessageElement(msg, isSentByMe);
 
-        // Добавляем сообщение в начало или в конец
         if (prepend) {
             messagesEl.prepend(msgDiv);
         } else {
             messagesEl.appendChild(msgDiv);
         }
 
-        // Если скроллили до низа, то прокручиваем вниз
         if (wasScrolledToBottom && !prepend) {
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
@@ -652,19 +633,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
-            // Если изображение попало в зону видимости
             if (entry.isIntersecting) {
                 const image = entry.target;
-                // Запускаем асинхронную функцию загрузки
                 lazyLoadImage(image);
-                // Прекращаем наблюдение за этим изображением, чтобы не загружать его повторно
                 observer.unobserve(image);
             }
         });
     });
 
     async function lazyLoadImage(imageElement) {
-        const proxyUrl = imageElement.dataset.src; // Берем URL из data-src
+        const proxyUrl = imageElement.dataset.src;
         if (!proxyUrl) return;
 
         const accessToken = localStorage.getItem('accessToken');
@@ -679,21 +657,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileBlob = await response.blob();
             const objectUrl = URL.createObjectURL(fileBlob);
 
-            imageElement.src = objectUrl; // Устанавливаем реальный src
+            imageElement.src = objectUrl;
 
-            // После успешной загрузки изображения в тег...
             imageElement.onload = () => {
-                if (skeleton) skeleton.remove(); // ...убираем скелетон...
-                // ...и освобождаем память, занятую Blob'ом
+                if (skeleton) skeleton.remove();
                 URL.revokeObjectURL(objectUrl);
             };
             imageElement.onerror = () => {
-                if (skeleton) skeleton.innerHTML = '⚠️'; // Показываем ошибку, если картинка не загрузилась
+                if (skeleton) skeleton.innerHTML = '⚠️';
             }
 
         } catch (error) {
             console.error(`Failed to lazy-load image from ${proxyUrl}:`, error);
-            if (skeleton) skeleton.innerHTML = '⚠️'; // Показываем ошибку
+            if (skeleton) skeleton.innerHTML = '⚠️';
         }
     }
 
@@ -716,11 +692,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             mediaElement.src = objectUrl;
 
-            // Обрабатываем успешную загрузку для разных типов медиа
             const onMediaLoaded = () => {
-                if (skeleton) skeleton.remove(); // Убираем скелетон
-                mediaElement.style.opacity = '1'; // Плавно показываем элемент
-                // Важно освободить память после того, как медиа готово к показу
+                if (skeleton) skeleton.remove();
+                mediaElement.style.opacity = '1';
                 setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
             };
 
@@ -746,7 +720,6 @@ document.addEventListener('DOMContentLoaded', () => {
         attachFileBtn.disabled = !enabled;
     }
 
-    // Отображение превью
     function addAttachmentToPreview(file) {
         const tempId = `temp-${Date.now()}`;
         const previewEl = document.createElement('div');
@@ -777,19 +750,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Удаление превью
     function removeAttachmentFromPreview(tempId) {
         pendingAttachments = pendingAttachments.filter(att => att.tempId !== tempId);
         const previewEl = attachmentPreviewContainer.querySelector(`[data-file-id='${tempId}']`);
         if (previewEl) previewEl.remove();
     }
 
+    // ИЗМЕНЕНИЕ: Новая функция для загрузки профиля
+    async function loadProfile(userId) {
+        if (!userId) {
+            modalDynamicContent.innerHTML = "<p>Не удалось определить пользователя для загрузки профиля.</p>";
+            return;
+        }
+
+        // ИЗМЕНЕНИЕ: Получаем имя пользователя из кеша и устанавливаем заголовок
+        const userName = participantCache[userId];
+        modalTitle.textContent = userName ? `Профиль: ${userName}` : 'Профиль';
+
+        // Показываем общий скелетон для всей секции профиля
+        modalDynamicContent.innerHTML = `<div class="skeleton-list">${Array(3).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
+
+        try {
+            const profileData = await apiFetch(`${API_BASE_URL}/api/profiles/${userId}`);
+
+            const userImagesHtml = profileData.userImages.map(img => {
+                return `
+                    <div class="profile-image-item">
+                        <div class="skeleton"></div>
+                        <!-- <img src="${API_BASE_URL}/api/storage/proxy/download/by-id?id=${img.imageId}" alt="Фото пользователя"> -->
+                    </div>
+                `;
+            }).join('');
+
+            // Сначала рендерим основной HTML-каркас с контейнером для аватара
+            modalDynamicContent.innerHTML = `
+                <div class="profile-content-wrapper">
+                    <div class="profile-header">
+                        <div id="avatarContainer" class="profile-avatar">
+                            <!-- Это место для аватара или его скелетона -->
+                        </div>
+                        <div class="profile-details">
+                             <div class="profile-info-item"><strong>Статус:</strong> ${profileData.status || 'Не указан'}</div>
+                             <div class="profile-info-item"><strong>День рождения:</strong> ${profileData.birthday || 'Не указан'}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="profile-section-title">Фотографии</h3>
+                        <div class="profile-images-grid">
+                            ${userImagesHtml || '<p>У пользователя нет фотографий.</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const avatarContainer = document.getElementById('avatarContainer');
+
+            // Теперь асинхронно загружаем аватар
+            if (profileData.avatarId) {
+                avatarContainer.innerHTML = `<div class="skeleton profile-avatar"></div>`;
+
+                const avatarImg = new Image();
+                avatarImg.className = 'profile-avatar';
+
+                avatarImg.onload = () => {
+                    avatarContainer.innerHTML = '';
+                    avatarContainer.appendChild(avatarImg);
+                };
+
+                avatarImg.onerror = () => {
+                    avatarContainer.innerHTML = `<img src="/images/profile-default.png" class="profile-avatar">`;
+                };
+
+                avatarImg.src = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${profileData.avatarId}`;
+
+            } else {
+                avatarContainer.innerHTML = `<img src="/images/profile-default.png" class="profile-avatar">`;
+            }
+
+        } catch(e) {
+            console.error("Ошибка загрузки профиля:", e);
+            modalDynamicContent.innerHTML = "<p>Не удалось загрузить профиль пользователя.</p>";
+        }
+    }
+
     //Загрузка вложений
     async function loadAttachments(type) {
         if (type === "IMAGE" || type === "VIDEO") {
-            attachmentsContent.innerHTML = `<div class="skeleton-grid">${Array(12).fill('<div class="skeleton skeleton-tile"></div>').join("")}</div>`;
+            modalDynamicContent.innerHTML = `<div class="skeleton-grid">${Array(12).fill('<div class="skeleton skeleton-tile"></div>').join("")}</div>`;
         } else {
-            attachmentsContent.innerHTML = `<div class="skeleton-list">${Array(6).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
+            modalDynamicContent.innerHTML = `<div class="skeleton-list">${Array(6).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
         }
 
         try {
@@ -797,17 +846,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const attachments = await apiFetch(url);
 
             if (!attachments || attachments.length === 0) {
-                attachmentsContent.innerHTML = "<p>Нет вложений в этой категории</p>";
+                modalDynamicContent.innerHTML = "<p>Нет вложений в этой категории</p>";
                 return;
             }
 
-            // Шаг 3: СИНХРОННО генерируем HTML-каркас. Больше нет await Promise.all!
             const itemsHtml = attachments.map(att => {
-                // Ссылка на ваш прокси, который вернет файл
                 const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                 const fileName = att.fileName || 'file';
                 if (type === "IMAGE") {
-                    // Генерируем "заготовку": скелетон + img с data-src
                     return `<div class="attachment-item">
                                 <a href="${proxyUrl}" target="_blank">
                                     <div class="skeleton skeleton-tile"></div>
@@ -815,13 +861,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </a>
                             </div>`;
                 } else if (type === "VIDEO") {
-                    // То же самое для видео
                     return `<div class="attachment-item">
                                 <div class="skeleton skeleton-tile"></div>
                                 <video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>
                             </div>`;
                 } else if (type === "AUDIO") {
-                    // Аудио и файлы не требуют ленивой загрузки, так как у них есть свои элементы управления
                     return `<div class="attachment-list-item">
                                 <audio controls src="${proxyUrl}"></audio>
                                 <a href="${proxyUrl}" download="${fileName}">Скачать</a>
@@ -834,23 +878,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).join('');
 
-            // Шаг 4: Вставляем сгенерированный HTML в DOM
             if (type === "IMAGE" || type === "VIDEO") {
-                attachmentsContent.innerHTML = `<div class="attachments-grid">${itemsHtml}</div>`;
+                modalDynamicContent.innerHTML = `<div class="attachments-grid">${itemsHtml}</div>`;
             } else {
-                attachmentsContent.innerHTML = `<div class="attachments-list">${itemsHtml}</div>`;
+                modalDynamicContent.innerHTML = `<div class="attachments-list">${itemsHtml}</div>`;
             }
 
-            // Шаг 5: Находим все "ленивые" элементы и говорим наблюдателю начать за ними следить
-            const mediaToLazyLoad = attachmentsContent.querySelectorAll('.lazy-load-attachment');
+            const mediaToLazyLoad = modalDynamicContent.querySelectorAll('.lazy-load-attachment');
             mediaToLazyLoad.forEach(media => attachmentObserver.observe(media));
 
         } catch (e) {
             console.error("Ошибка загрузки вложений:", e);
-            attachmentsContent.innerHTML = "<p>Не удалось загрузить вложения</p>";
+            modalDynamicContent.innerHTML = "<p>Не удалось загрузить вложения</p>";
         }
     }
 
+    // ... (все остальные ваши функции до обработчиков событий остаются без изменений)
     function renderPendingMessage(content, attachments, tempId) {
         return `
         <div class="message sent pending" data-temp-id="${tempId}">
@@ -906,6 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'temp-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
     }
 
+
     // --- Обработчики событий ---
 
     closeChatBtn.addEventListener('click', () => {
@@ -913,7 +957,6 @@ document.addEventListener('DOMContentLoaded', () => {
         activeChatId = null;
         [...chatListEl.children].forEach(li => li.classList.remove('active'));
     });
-
 
     function debounce(func, delay) {
         let timeout;
@@ -932,27 +975,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     messagesEl.addEventListener('scroll', async () => {
         if (messagesEl.scrollTop === 0 && hasMoreMessages && !isLoading) {
-
             const scrollHeightBefore = messagesEl.scrollHeight;
-
             try {
                 const messages = await loadMessages(activeChatId, messagePage);
-
                 if (messages && messages.length > 0) {
-
                     const fragment = document.createDocumentFragment();
-
-
                     for (const msg of messages) {
                         const isSentByMe = msg.senderId === currentUserId;
                         const msgDiv = createMessageElement(msg, isSentByMe);
-                        fragment.appendChild(msgDiv); // Добавляем в конец буфера, сохраняя порядок
+                        fragment.appendChild(msgDiv);
                     }
-
                     messagesEl.prepend(fragment);
-
                     messagesEl.scrollTop = messagesEl.scrollHeight - scrollHeightBefore;
-
                     messagePage++;
                 }
             } catch (error) {
@@ -961,15 +995,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    // Отправка сообщения по форме
     messageForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const content = messageInput.value.trim();
 
         if (!content && pendingAttachments.length === 0) return;
 
-        // 1. Загружаем вложения
         const uploadedAttachments = [];
         for (let att of pendingAttachments) {
             try {
@@ -983,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (!response.ok) throw new Error("Ошибка при загрузке");
 
-                const result = await response.json(); // { id: ... }
+                const result = await response.json();
                 uploadedAttachments.push({
                     mimeType: att.mimeType,
                     fileId: result.id,
@@ -996,10 +1027,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 2. Отправляем сообщение
         chatManager.sendMessageWithAttachments(content, uploadedAttachments);
 
-        // 3. Чистим форму
         messageInput.value = '';
         attachmentPreviewContainer.innerHTML = '';
         pendingAttachments = [];
@@ -1016,35 +1045,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     findUserBtn.addEventListener('click', loadAndShowUsers);
-
     closeModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
-
     userSearchModal.addEventListener('click', (e) => {
         if (e.target === userSearchModal) {
             userSearchModal.classList.add('hidden');
         }
     });
-
     logoutBtn.addEventListener('click', () => {
         window.location.href = '/logout';
     });
 
-    //Вложения
-    attachmentsBtn.addEventListener("click", () => {
+    profileBtn.addEventListener("click", () => {
         if (!activeChatId) return;
-        attachmentsModal.classList.remove("hidden");
-        loadAttachments("IMAGE"); // по умолчанию картинки
+
+        attachmentsTabs.forEach(t => t.classList.remove("active"));
+        const profileTab = document.querySelector('.tab-btn[data-type="PROFILE"]');
+        if (profileTab) profileTab.classList.add("active");
+
+        profileAttachmentsModal.classList.remove("hidden");
+
+        loadProfile(activeChatRecipientId);
     });
 
-    closeAttachmentsBtn.addEventListener("click", () => {
-        attachmentsModal.classList.add("hidden");
+    closeProfileAttachmentsBtn.addEventListener("click", () => {
+        profileAttachmentsModal.classList.add("hidden");
     });
 
     attachmentsTabs.forEach(tab => {
         tab.addEventListener("click", () => {
             attachmentsTabs.forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
-            loadAttachments(tab.dataset.type);
+
+            const type = tab.dataset.type;
+
+            if (type === 'PROFILE') {
+                // loadProfile сама установит нужный заголовок
+                loadProfile(activeChatRecipientId);
+            } else {
+                // Для остальных вкладок просто используем их текст
+                modalTitle.textContent = tab.textContent;
+                loadAttachments(type);
+            }
         });
     });
 
@@ -1068,10 +1109,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     backToListBtn.addEventListener('click', closeActiveChat);
 
-    // =================================================================
-    // ИНИЦИАЛИЗАЦИЯ
-    // =================================================================
+    myProfileBtn.addEventListener('click', () => {
+        myProfileManager.open(currentUserData);
+    });
 
+    const updateHeaderUI = (userData) => {
+        console.log(userData)
+        if (!userData) {
+            console.error("updateHeaderUI была вызвана без данных пользователя.");
+            return;
+        }
+
+        currentUserData = userData;
+
+        const name = userData.name || '';
+        const surname = userData.surname || '';
+        const userId = userData.id;
+
+        if (!userId || !name) {
+            console.error("Полученные данные пользователя не содержат id или name.", userData);
+            return;
+        }
+
+        usernameContent.textContent = `${name} ${surname}`.trim();
+        participantCache[userId] = `${name} ${surname}`.trim();
+    };
+
+    const refreshUserData = async () => {
+        try {
+            const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
+            updateHeaderUI(me);
+        } catch (error) {
+            console.error("Не удалось перезагрузить данные пользователя:", error);
+        }
+    };
+
+    // --- ИНИЦИАЛИЗАЦИЯ ---
     async function initializeApp() {
         try {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
@@ -1079,8 +1152,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'setup-profile'; return
             }
             currentUserId = me.id;
+
+            myProfileManager.init(currentUserId, API_BASE_URL, refreshUserData);
+            updateHeaderUI(me);
+
             participantCache[me.id] = `${me.name} ${me.surname}`;
-            usernameContent.textContent = `${me.surname} ${me.name}`;
+            usernameContent.textContent = `${me.name} ${me.surname}`;
 
             statusEl.textContent = 'Загрузка чатов...';
             loadChats();
@@ -1089,7 +1166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Ошибка инициализации:", error);
             statusEl.textContent = "Не удалось загрузить данные пользователя. Пожалуйста, войдите снова.";
-            logout();
         }
     }
 

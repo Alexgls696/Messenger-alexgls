@@ -8,6 +8,8 @@
     <!-- Подключаем ваши стили -->
     <link rel="stylesheet" href="/css/chats.css">
     <link rel="stylesheet" href="/css/chats_mobile.css">
+    <link rel="stylesheet" href="/css/profile.css">
+    <link rel="stylesheet" href="/css/my-profile.css">
 </head>
 <body>
 
@@ -18,7 +20,11 @@
         <div class="header-buttons left">
             <button id="findUserBtn" class="header-action-btn find-user-btn">Найти пользователя</button>
         </div>
-        <h3 id="username"></h3>
+        <!-- ИЗМЕНЕНИЕ: Добавлена кнопка "Мой профиль" -->
+        <div class="user-info-header">
+            <h3 id="username"></h3>
+            <button id="myProfileBtn" class="my-profile-btn" title="Мой профиль">👤</button>
+        </div>
         <div class="header-buttons right">
             <button id="logoutBtn" class="header-action-btn logout-btn">Выйти</button>
         </div>
@@ -40,12 +46,11 @@
 
             <!-- Шапка активного чата -->
             <div class="chat-window__header">
-                <!-- Кнопка "Назад" для мобильной версии -->
                 <button class="back-btn" id="backToListBtn">&larr;</button>
                 <h2 id="chatTitle">Выберите чат</h2>
                 <div>
-                    <button id="attachmentsBtn" class="attachments-btn">📄</button>
-                    <!-- Кнопка "Закрыть" для десктопной версии -->
+                    <!-- ИЗМЕНЕНИЕ 1: Кнопка теперь для профиля -->
+                    <button id="profileBtn" class="attachments-btn">👤</button>
                     <button class="close-btn" id="closeChatBtn">&times;</button>
                 </div>
             </div>
@@ -75,11 +80,6 @@
     </main> <!-- Конец .chat-wrapper -->
 </div> <!-- Конец .container -->
 
-
-<!-- ========================================================== -->
-<!-- ================ МОДАЛЬНЫЕ ОКНА ============================ -->
-<!-- ========================================================== -->
-
 <!-- Модальное окно для поиска пользователей -->
 <div id="userSearchModal" class="modal hidden">
     <div class="modal-content">
@@ -94,21 +94,74 @@
 </div>
 
 <!-- Модальное окно для просмотра всех вложений в чате -->
-<div id="attachmentsModal" class="modal hidden">
+<div id="profileAttachmentsModal" class="modal hidden">
     <div class="modal-content attachments-modal">
         <div class="modal-header">
-            <h2>Вложения в чате</h2>
-            <button id="closeAttachmentsBtn" class="close-btn">&times;</button>
+            <h2 id="modalTitle">Профиль</h2> <!-- Заголовок будет меняться -->
+            <button id="closeProfileAttachmentsBtn" class="close-btn">&times;</button>
         </div>
         <div class="attachments-tabs">
-            <button class="tab-btn active" data-type="IMAGE">Изображения</button>
+            <!-- ИЗМЕНЕНИЕ 3: Добавлена вкладка "Профиль" и сделана активной по умолчанию -->
+            <button class="tab-btn active" data-type="PROFILE">Профиль</button>
+            <button class="tab-btn" data-type="IMAGE">Изображения</button>
             <button class="tab-btn" data-type="VIDEO">Видео</button>
             <button class="tab-btn" data-type="AUDIO">Аудио</button>
             <button class="tab-btn" data-type="DOCUMENT">Файлы</button>
         </div>
-        <div id="attachmentsContent" class="attachments-content">
-            <!-- Сюда JavaScript будет загружать вложения -->
+        <div id="modalDynamicContent" class="attachments-content">
+            <!-- Сюда JavaScript будет загружать либо профиль, либо вложения -->
         </div>
+    </div>
+</div>
+
+<div id="myProfileModal" class="modal hidden">
+    <div class="modal-content my-profile-modal-content">
+        <div class="modal-header">
+            <h2>Мой профиль</h2>
+            <button id="closeMyProfileBtn" class="close-btn">&times;</button>
+        </div>
+        <div id="myProfileContent" class="modal-body">
+            <!-- Сюда будет загружаться контент профиля -->
+            <div class="skeleton-list">
+                <div class="skeleton skeleton-row" style="height: 80px;"></div>
+                <div class="skeleton skeleton-row"></div>
+                <div class="skeleton skeleton-row"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="saveMyProfileBtn" class="profile-save-btn">Сохранить</button>
+            <button id="cancelMyProfileBtn" class="profile-cancel-btn">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="editUserModal" class="modal hidden">
+    <div class="modal-content edit-user-modal-content">
+        <div class="modal-header">
+            <h2>Изменить данные</h2>
+            <button id="closeEditUserBtn" class="close-btn">&times;</button>
+        </div>
+        <form id="editUserForm" novalidate>
+            <div class="modal-body">
+                <div class="profile-form-group">
+                    <label for="editNameInput">Имя:</label>
+                    <input type="text" id="editNameInput" required>
+                </div>
+                <div class="profile-form-group">
+                    <label for="editSurnameInput">Фамилия:</label>
+                    <input type="text" id="editSurnameInput">
+                </div>
+                <div class="profile-form-group">
+                    <label for="editUsernameInput">Имя пользователя:</label>
+                    <input type="text" id="editUsernameInput" required>
+                </div>
+                <div id="editUserError" class="error-message hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="saveEditUserBtn" class="profile-save-btn">Сохранить</button>
+                <button type="button" id="cancelEditUserBtn" class="profile-cancel-btn">Отмена</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -120,6 +173,7 @@
 <script src="/js/lib/stomp.min.js"></script>
 <script src="/js/apiClient.js"></script> <!-- Если у вас есть отдельный файл для apiFetch -->
 <script src="/js/chats.js"></script>
+<script src="/js/current-profile.js"></script>
 
 </body>
 </html>

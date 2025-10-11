@@ -102,12 +102,7 @@ public class UsersService {
     }
 
     public void updateUserInfo(UpdateUserRequest updateUserRequest, int currentUserId) {
-        User userToUpdate = findUserById(updateUserRequest.id());
-
-        if (userToUpdate.getId() != currentUserId) {
-            throw new AccessDeniedException("У вас нет доступа для выполнения данного действия");
-        }
-
+        User userToUpdate = findUserById(currentUserId);
         userToUpdate.setSurname(Objects.isNull(updateUserRequest.surname()) ? "" : updateUserRequest.surname());
         userToUpdate.setName(updateUserRequest.name());
         usersRepository.save(userToUpdate);
