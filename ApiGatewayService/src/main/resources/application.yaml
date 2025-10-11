@@ -59,3 +59,10 @@ spring:
               uri: http://localhost:8082
               predicates:
                 - Path=/api/verification/**, /api/authentication/**
+
+
+            # --- 6. Маршрут для сервиса пользовательской информации (:8092) ---
+            - id: user-details-service-route
+              uri: http://localhost:8092
+              predicates:
+                - Path=/api/profiles/**

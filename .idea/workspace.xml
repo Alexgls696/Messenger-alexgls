@@ -4,33 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/MyChatProject.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/config/UserDetailsSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/java/ru/alexgls/springboot/RatingLogManagerSpringBootApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/java/ru/alexgls/springboot/ChatClientSpringBootApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/ru/alexgls/springboot/RatingLogManagerSpringBootApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MyChatProject.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserDetailsService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/pom.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлен проект">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserImagesController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/AddProfileImageRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/security/UserDetailsSecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UpdateUserDetailsRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UpdateUserDetailsRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserDetailsResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserDetailsResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserProfileResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserProfileResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserAvatar.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserAvatar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/mapper/UserDetailsMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/mapper/UserDetailsMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserAvatarsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserAvatarsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserDetailsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserDetailsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserImagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserImagesRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/db/changelog/changeset/initialize_schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/resources/db/changelog/changeset/initialize_schema.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Record" />
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -66,13 +73,16 @@
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
-    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
-    "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
-    "Spring Boot.MessageStorageServiceApplication.executor": "Run",
-    "Spring Boot.RegistrationServiceApplication.executor": "Run",
+    "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
+    "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
+    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Debug",
+    "Spring Boot.MediaContentStorageServiceApplication.executor": "Debug",
+    "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
+    "Spring Boot.RegistrationServiceApplication.executor": "Debug",
     "Spring Boot.UserDetailsServiceApplication.executor": "Run",
-    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
+    "Spring Boot.UsersMessagingServiceApplication.executor": "Debug",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
@@ -87,8 +97,16 @@
     "project.structure.side.proportion": "0.0",
     "run.configurations.included.in.services": "true",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
 }]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
   <component name="RunDashboard">
     <option name="configurationTypes">
       <set>
@@ -99,7 +117,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
+  <component name="RunManager" selected="Spring Boot.UserDetailsServiceApplication">
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="ApiGatewayService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.apigatewayservice.ApiGatewayServiceApplication" />
@@ -206,11 +224,24 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1760182242280</updated>
-      <workItem from="1760182243104" duration="304000" />
+      <workItem from="1760182243104" duration="9298000" />
     </task>
+    <task id="LOCAL-00001" summary="Исправлен проект">
+      <option name="closed" value="true" />
+      <created>1760182791349</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1760182791349</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Исправлен проект" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлен проект" />
   </component>
 </project>

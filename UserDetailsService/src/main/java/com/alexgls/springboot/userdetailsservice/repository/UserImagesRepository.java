@@ -6,9 +6,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface UserImagesRepository extends ReactiveCrudRepository<UserImage,Integer> {
-    @Query("select ui.image_id from user_images ui where user_id = :userId")
-    Flux<Integer> findAllByUserId(@Param("userId") Integer userId);
+public interface UserImagesRepository extends ReactiveCrudRepository<UserImage, Integer> {
+    Flux<UserImage> findAllByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
+
+    Mono<Void> deleteUserImageByIdAndUserId(int id, int userId);
+
+    @Query("select * from user_images where user_id = :userId order by created_at desc limit 2")
+    Flux<UserImage> findTwoLastImagesByUserIdOrderByCreatedAtDesc(@Param("userId") int userId);
+
+    Mono<UserImage> findByIdAndUserId(int id, int userId);
 }

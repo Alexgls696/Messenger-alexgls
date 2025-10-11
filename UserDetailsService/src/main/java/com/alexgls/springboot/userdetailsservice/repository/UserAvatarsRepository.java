@@ -10,6 +10,16 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface UserAvatarsRepository extends ReactiveCrudRepository<UserAvatar, Integer> {
 
-    @Query("select ui.image_id from user_avatars ua join user_images ui on ua.user_image_id = ui.id where user_id = :userId")
-    Mono<Integer> findByUserId(@Param("userId") int userId);
+    @Query("select * from user_avatars where user_id = :userId")
+    Mono<UserAvatar> findByUserId(@Param("userId") int userId);
+
+    Mono<UserAvatar> findByUserImageIdAndUserId(int imageId, int userId);
+
+    @Query("delete from user_avatars where user_id = :userId")
+    Mono<Void> deleteUserAvatarByUserId(@Param("userId") int userId);
+
+    @Query("update user_avatars set user_image_id = :userImageId where user_id = :userId")
+    Mono<Void> updateUserAvatarByUserId(@Param("userId") int userId, @Param("avatar") int userImageId);
+
+
 }

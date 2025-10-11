@@ -4,6 +4,9 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.sql.Timestamp;
+
+
 @Table(name = "user_images")
 @Getter
 @Setter
@@ -15,4 +18,5 @@ public class UserImage {
     private int id;
     private int userId;
     private int imageId;
+    private Timestamp createdAt;
 }

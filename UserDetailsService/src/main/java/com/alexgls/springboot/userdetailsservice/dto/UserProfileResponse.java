@@ -1,13 +1,15 @@
 package com.alexgls.springboot.userdetailsservice.dto;
 
-import java.util.Date;
+import com.alexgls.springboot.userdetailsservice.entity.UserImage;
+
+import java.time.LocalDate;
 import java.util.List;
 
 public record UserProfileResponse(
         int userId,
-        Date birthday,
+        LocalDate birthday,
         String status,
-        List<Integer> userImagesIds,
+        List<UserImage> userImages,
         Integer avatarId
 
 ) {

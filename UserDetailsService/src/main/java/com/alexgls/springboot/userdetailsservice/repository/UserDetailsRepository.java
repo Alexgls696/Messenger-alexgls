@@ -11,4 +11,6 @@ public interface UserDetailsRepository extends ReactiveCrudRepository<UserDetail
     Mono<UserDetails> findByUserId(Integer userId);
 
     Mono<Void> deleteByUserId(Integer userId);
+
+    Mono<Boolean>existsByUserId(Integer userId);
 }

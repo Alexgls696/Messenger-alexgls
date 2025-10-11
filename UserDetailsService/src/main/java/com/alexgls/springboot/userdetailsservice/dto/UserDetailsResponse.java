@@ -1,10 +1,11 @@
 package com.alexgls.springboot.userdetailsservice.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 public record UserDetailsResponse(
         int userId,
-        Date birthday,
+        LocalDate birthday,
         String status
 ) {
 }
