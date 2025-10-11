@@ -14,9 +14,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserProfileController {
 
-    private UserProfileService userProfileService;
+    private final UserProfileService userProfileService;
 
-    @PostMapping("/create/{id}")
+    @PostMapping("/create")
     public Mono<UserProfileResponse> createProfileByUserId(@PathVariable("id") int userId) {
         log.info("Create profile for user with id: {}", userId);
         return userProfileService.createProfileForUserByUserId(userId);

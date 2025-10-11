@@ -1,6 +1,4 @@
 volumes:
-  users_db_data:
-  students_grades_data:
   security_users_data:
   messaging_db_data:
   images_db_data:
@@ -12,31 +10,6 @@ networks:
     driver: bridge
 
 services:
-  users-database:
-    image: postgres:16
-    restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - users_db_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    networks:
-      - users-network
-
-  students-grades-database:
-    image: postgres:16
-    restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_STUDENTS_GRADES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - students_grades_data:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
 
   security-users-database:
     image: postgres:16

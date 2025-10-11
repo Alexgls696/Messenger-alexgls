@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RatingLogManagerSpringBootApplication {
+public class ChatClientSpringBootApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RatingLogManagerSpringBootApplication.class, args);
+        SpringApplication.run(ChatClientSpringBootApplication.class, args);
     }
 }

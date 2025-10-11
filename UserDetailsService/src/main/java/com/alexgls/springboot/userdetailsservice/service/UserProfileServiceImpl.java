@@ -30,13 +30,16 @@ public class UserProfileServiceImpl implements UserProfileService {
     public Mono<UserProfileResponse> findUserProfileByUserId(int userId) {
         Mono<UserDetails> userDetailsMono = userDetailsRepository.findById(userId);
         Flux<Integer> userImagesFlux = userImagesRepository.findAllByUserId(userId);
-        Mono<Integer> userAvatarImageIdMono = userAvatarsRepository.findByUserId(userId);
+        Mono<Integer> userAvatarImageIdMono = userAvatarsRepository.findByUserId(userId).defaultIfEmpty(-1);
 
         return Mono.zip(userDetailsMono, userImagesFlux.collectList(), userAvatarImageIdMono)
                 .flatMap(tuple -> {
                     UserDetails userDetails = tuple.getT1();
                     List<Integer> imagesIds = tuple.getT2();
                     Integer userAvatarImageId = tuple.getT3();
+                    if (userAvatarImageId == -1) {
+                        userAvatarImageId = null;
+                    }
                     return Mono.just(new UserProfileResponse(userId, userDetails.getBirthday(), userDetails.getStatus(), imagesIds, userAvatarImageId));
                 });
     }

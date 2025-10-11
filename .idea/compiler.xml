@@ -14,27 +14,21 @@
         <module name="AuthService" />
         <module name="InDatabaseContentStorageService" />
         <module name="UserDetailsService" />
-        <module name="MediaContentStorageService" />
         <module name="RegistrationService" />
+        <module name="MediaContentStorageService" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="MediaContentProxyService" target="17" />
-      <module name="UserProfileService" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ApiGatewayService" options="-parameters" />
       <module name="AuthService" options="-parameters" />
       <module name="InDatabaseContentStorageService" options="-parameters" />
-      <module name="MediaContentProxyService" options="-parameters" />
       <module name="MediaContentStorageService" options="-parameters" />
       <module name="MessageStorageService" options="-parameters" />
       <module name="RatingLogClientApplication" options="-parameters" />
       <module name="RegistrationService" options="-parameters" />
       <module name="UserDetailsService" options="-parameters" />
-      <module name="UserProfileService" options="-parameters" />
       <module name="UsersMessagingService" options="-parameters" />
     </option>
   </component>

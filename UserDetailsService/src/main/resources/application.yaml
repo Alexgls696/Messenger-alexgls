@@ -13,6 +13,12 @@ spring:
     password: AS04SERa1
     driver-class-name: org.postgresql.Driver
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+
 
 services:
   auth-service: http://localhost:8085
