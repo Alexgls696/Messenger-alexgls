@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ВАЖНО: Ваш код использует "/update-password", а не "/set-password". Используем эндпоинт из кода.
     const SET_PASSWORD_URL = 'http://localhost:8080/api/users/update-password';
 
+    const API_CREATE_PROFILE_URL='http://localhost:8080/api/profiles/create';
+
     const parseJwt = (token) => {
         try {
             return JSON.parse(atob(token.split('.')[1]));
@@ -123,13 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'text/plain',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                // Отправляем пароль как обычный текст, а не JSON
+
                 body: password,
             });
 
             if (response.ok) {
-                // Финальный успех! Перенаправляем на главную.
-                window.location.href = '/index';
+                await createUserProfile()
             } else {
                 const errorData = await response.json();
                 let errorMessage = 'Произошла неизвестная ошибка.';
@@ -147,4 +148,24 @@ document.addEventListener('DOMContentLoaded', () => {
             setPasswordButton.textContent = 'Завершить регистрацию';
         }
     });
+
+    async function createUserProfile(){
+        const response = await fetch(API_CREATE_PROFILE_URL,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        if (response.ok) {
+            window.location.href = '/index';
+        } else {
+            const errorData = await response.json();
+            let errorMessage = 'Произошла неизвестная ошибка.';
+            if (errorData.detail || errorData.error) {
+                errorMessage = `${errorData.detail || ''} ${errorData.error || ''}`.trim();
+            }
+            throw new Error(errorMessage);
+        }
+    }
 });

@@ -1,6 +1,6 @@
 package com.alexgls.springboot.userdetailsservice.controller;
 
-import com.alexgls.springboot.userdetailsservice.dto.AddProfileImageRequest;
+
 import com.alexgls.springboot.userdetailsservice.dto.UpdateUserDetailsRequest;
 import com.alexgls.springboot.userdetailsservice.dto.UserProfileResponse;
 import com.alexgls.springboot.userdetailsservice.service.UserProfileService;
@@ -19,6 +19,7 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
 
+    //Добавить создание профиля при создании аккаунта.
     @PostMapping("/create")
     public Mono<Void> createProfileByUserId(Authentication authentication) {
         Integer userId = getCurrentUserId(authentication);
