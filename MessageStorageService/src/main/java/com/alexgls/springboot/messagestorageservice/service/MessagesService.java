@@ -72,7 +72,6 @@ public class MessagesService {
                             createMessagePayload.chatId(),
                             createMessagePayload.senderId()
                     ).switchIfEmpty(Mono.error(new NoSuchRecipientException("Recipient not found for chat " + createMessagePayload.chatId())));
-
                     return Mono.zip(savedMessageMono, recipientIdMono)
                             .flatMap(tuple -> {
                                 Message savedMessage = tuple.getT1();

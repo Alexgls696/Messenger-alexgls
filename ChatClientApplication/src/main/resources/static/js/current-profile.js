@@ -84,52 +84,128 @@ const myProfileManager = (() => {
     const renderUserPhotos = (userImages) => {
         const grid = document.getElementById('userPhotosGrid');
         if (!grid) return;
+
         grid.innerHTML = '';
 
         const addPhotoTile = document.createElement('div');
         addPhotoTile.id = 'addPhotoTile';
         addPhotoTile.className = 'photo-tile add-photo-tile';
         addPhotoTile.innerHTML = '<span class="add-photo-tile-icon">+</span>';
-
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.id = 'photoUploadInput';
         fileInput.accept = 'image/*';
-
         addPhotoTile.appendChild(fileInput);
         grid.appendChild(addPhotoTile);
-
         addPhotoTile.addEventListener('click', () => fileInput.click());
-        // ИСПРАВЛЕНИЕ: Обработчик должен быть на fileInput, а не на addPhotoTile
         fileInput.addEventListener('change', handlePhotoUpload);
 
         const authToken = localStorage.getItem('accessToken');
 
         userImages.forEach(image => {
+            if (!image || !image.imageId) return;
+
             const tile = document.createElement('div');
             tile.className = 'photo-tile';
-            tile.innerHTML = '<div class="skeleton skeleton-block"></div>';
-            const img = new Image();
 
-            imageLoader.getImageSrc(image.imageId, apiBaseUrl, authToken)
-                .then(src => {
-                    img.onload = () => {
-                        tile.innerHTML = '';
-                        tile.appendChild(img);
-                    };
-                    img.src = src;
-                });
+            const img = new Image();
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-photo-btn';
+            deleteBtn.innerHTML = '&times;';
+
+            deleteBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (image.imageId) {
+                    deletePhoto(image.imageId, tile);
+                }
+            });
+
+
+            tile.appendChild(img);
+            tile.appendChild(deleteBtn);
 
             grid.appendChild(tile);
 
+            imageLoader.getImageSrc(image.imageId, apiBaseUrl, authToken)
+                .then(src => {
+                    img.src = src;
+                });
+
             tile.addEventListener('click', () => {
-                photoViewer.open(image.imageId);
+                if (image.imageId) {
+                    photoViewer.open(image.imageId);
+                }
             });
         });
     };
 
     // --- ФУНКЦИИ ДЛЯ ОСНОВНОГО ОКНА ПРОФИЛЯ ---
     const closeProfileModal = () => profileModal.classList.add('hidden');
+
+    const deletePhoto = async (imageId, tileElement) => {
+        // Запрос подтверждения у пользователя
+        if (!confirm("Вы уверены, что хотите удалить эту фотографию?")) {
+            return;
+        }
+
+        try {
+            const authToken = localStorage.getItem('accessToken');
+            const response = await fetch(`${apiBaseUrl}/api/profiles/images/${imageId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+
+            // Если удаление на сервере прошло успешно, плавно удаляем плитку из DOM
+            tileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            tileElement.style.opacity = '0';
+            tileElement.style.transform = 'scale(0.8)';
+
+            setTimeout(() => {
+                tileElement.remove();
+            }, 300);
+
+
+            try {
+                const newAvatarId = await apiFetch(`${apiBaseUrl}/api/profiles/images/user-avatar`);
+
+
+                const headerAvatar = document.getElementById('headerAvatarImg');
+                const profileAvatar = document.getElementById('profileAvatarImg');
+
+                if (headerAvatar) {
+                    imageLoader.getImageSrc(newAvatarId, apiBaseUrl, authToken)
+                        .then(src => { headerAvatar.src = src; })
+                        .catch(() => { headerAvatar.src = '/images/profile-default.png'; });
+                }
+                if (profileAvatar) {
+                    imageLoader.getImageSrc(newAvatarId, apiBaseUrl, authToken)
+                        .then(src => { profileAvatar.src = src; })
+                        .catch(() => { profileAvatar.src = '/images/profile-default.png'; });
+                }
+            } catch (avatarError) {
+                if (avatarError.status === 404) {
+                    const headerAvatar = document.getElementById('headerAvatarImg');
+                    const profileAvatar = document.getElementById('profileAvatarImg');
+                    if (headerAvatar) headerAvatar.src = '/images/profile-default.png';
+                    if (profileAvatar) profileAvatar.src = '/images/profile-default.png';
+                } else {
+                    console.error("Не удалось обновить аватар после удаления:", avatarError);
+                }
+            }
+            // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+
+            // Обновляем данные в других частях приложения, если нужно
+            if (onUserDataUpdate) await onUserDataUpdate();
+
+        } catch (error) {
+            console.error("Ошибка при удалении фотографии:", error);
+            alert("Не удалось удалить фотографию. Попробуйте снова.");
+        }
+    };
 
     const saveProfileDetails = async () => {
         const statusInput = document.getElementById('profileStatusInput');
@@ -172,6 +248,7 @@ const myProfileManager = (() => {
         try {
             const profileData = await apiFetch(`${apiBaseUrl}/api/profiles/${currentUserId}`);
 
+            // УБРАНА ЛИШНЯЯ ОБЕРТКА И ЛЮБЫЕ ВНУТРЕННИЕ ЭЛЕМЕНТЫ ИЗ #userPhotosGrid
             profileContent.innerHTML = `
                 <div class="profile-user-info">
                     <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>
@@ -195,12 +272,9 @@ const myProfileManager = (() => {
                 </div>
                 <div class="photos-section">
                     <div class="photos-section-header">Мои фотографии</div>
-                    <div id="userPhotosGrid" class="photos-grid">
-                        <div class="skeleton-list" style="display: contents;">
-                            ${Array(4).fill('<div class="photo-tile"><div class="skeleton skeleton-block"></div></div>').join("")}
-                        </div>
-                    </div>
-            </div>`;
+                    <div id="userPhotosGrid" class="photos-grid"></div>
+                </div>
+            `;
 
             document.getElementById('editUserInfoBtn').addEventListener('click', () => openEditModal(userData));
 
@@ -208,9 +282,7 @@ const myProfileManager = (() => {
             if (profileData.avatarId) {
                 const authToken = localStorage.getItem('accessToken');
                 imageLoader.getImageSrc(profileData.avatarId, apiBaseUrl, authToken)
-                    .then(src => {
-                        avatarImgElement.src = src;
-                    });
+                    .then(src => { avatarImgElement.src = src; });
             }
 
             renderUserPhotos(profileData.userImages || []);
@@ -221,16 +293,14 @@ const myProfileManager = (() => {
         }
     };
 
+    // ИСПРАВЛЕНА HTML-РАЗМЕТКА
     const openWithPreloadedData = (userData, profileData) => {
-        if (!currentUserId || !userData || !profileData) {
-            console.error("Недостаточно данных для открытия профиля.");
-            return;
-        }
+        if (!currentUserId || !userData || !profileData) { return; }
 
         profileModal.classList.remove('hidden');
 
+        // УБРАНА ЛИШНЯЯ ОБЕРТКА И ЛЮБЫЕ ВНУТРЕННИЕ ЭЛЕМЕНТЫ ИЗ #userPhotosGrid
         profileContent.innerHTML = `
-        <div class="profile-form-container">
             <div class="profile-user-info">
                 <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>
                 <div class="user-info-item"><strong>Фамилия:</strong> ${userData.surname || 'Не указана'}</div>
@@ -253,9 +323,9 @@ const myProfileManager = (() => {
             </div>
             <div class="photos-section">
                 <div class="photos-section-header">Мои фотографии</div>
-               <div id="userPhotosGrid" class="photos-grid"></div>
+                <div id="userPhotosGrid" class="photos-grid"></div>
             </div>
-        </div>`;
+        `;
 
         document.getElementById('editUserInfoBtn').addEventListener('click', () => openEditModal(userData));
 
@@ -331,7 +401,6 @@ const myProfileManager = (() => {
         apiBaseUrl = baseUrl;
         onUserDataUpdate = updateCallback;
 
-        // Привязываем обработчики к кнопкам модальных окон
         closeProfileBtn.addEventListener('click', closeProfileModal);
         cancelProfileBtn.addEventListener('click', closeProfileModal);
         saveProfileBtn.addEventListener('click', saveProfileDetails);

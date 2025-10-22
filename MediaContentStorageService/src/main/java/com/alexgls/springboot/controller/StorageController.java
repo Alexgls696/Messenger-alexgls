@@ -58,4 +58,16 @@ public class StorageController {
                         .body(Map.of("href", resultPath)));
     }
 
+    @DeleteMapping("/delete/by-id")
+    public Mono<ResponseEntity<Void>> deleteById(@RequestParam("id") Integer id) {
+        if (Objects.isNull(id)) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+        }
+        log.info("Deleting image from storage: {}", id);
+        return storageService.removeFileById(id)
+                .then(Mono.just(ResponseEntity
+                        .status(HttpStatus.NO_CONTENT)
+                        .build()));
+    }
+
 }

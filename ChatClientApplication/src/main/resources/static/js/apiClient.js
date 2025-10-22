@@ -34,7 +34,7 @@ async function apiFetch(url, options = {}) {
         return await response.json();
 
     } catch (error) {
-        console.error(`Ошибка при запросе к ${url}:`, error);
+        console.warn(`Ошибка при запросе к ${url}:`, error);
         throw error; // Пробрасываем ошибку дальше
     }
 }

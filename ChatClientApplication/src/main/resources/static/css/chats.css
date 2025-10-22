@@ -1096,3 +1096,31 @@ body {
     color: #888;
     font-size: 0.85em;
 }
+
+.message .attachment-item {
+    /* Сбрасываем стили, которые ломают вёрстку в чате */
+    aspect-ratio: unset; /* Убираем принудительные квадратные пропорции */
+    background-color: transparent; /* Убираем серый фон на случай, если останется пустое место */
+
+    /* Скругляем углы контейнера, чтобы они соответствовали картинке */
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/*
+ * 2. Стили для самого изображения <img>, когда оно находится ВНУТРИ сообщения.
+*/
+.message .attachment-item img {
+    width: 100%;
+    height: auto;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+
+    box-shadow: none;
+    transition: none;
+}
+
+.message .attachment-item img:hover {
+    transform: none;
+}

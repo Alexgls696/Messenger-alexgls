@@ -392,8 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     const avatarId = await apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${recipient.id}`);
-                    console.log(recipient.id + " "+avatarId);
-
                     if (avatarId && typeof avatarId === 'number') {
                         const authToken = localStorage.getItem('accessToken');
                         imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
@@ -403,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (avatarError) {
                     if (avatarError.status === 404) {
-                        // Аватара нет, это нормально. Ничего не делаем.
                     } else {
                         console.warn(`Не удалось загрузить аватар для пользователя ${recipient.id}:`, avatarError);
                     }

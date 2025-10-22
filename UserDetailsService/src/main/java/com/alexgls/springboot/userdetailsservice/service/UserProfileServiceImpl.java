@@ -72,10 +72,10 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public Mono<Void> deleteImageFromUserProfile(int userImageId, int userId) {
-        return userImagesRepository.findByIdAndUserId(userImageId, userId)
+        return userImagesRepository.findByImageIdAndUserId(userImageId, userId)
                 .switchIfEmpty(Mono.error(() -> new NoSuchUserImageException("Изображение с id %d не найдено".formatted(userImageId))))
                 .flatMap(existed -> changeUserAvatarWhenImageDelete(userImageId, userId))
-                .then(userImagesRepository.deleteUserImageByIdAndUserId(userImageId, userId))
+                .then(userImagesRepository.deleteUserImageByImageIdAndUserId(userImageId, userId))
                 .as(transactionalOperator::transactional);
     }
 

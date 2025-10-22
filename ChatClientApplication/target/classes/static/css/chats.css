@@ -1051,3 +1051,76 @@ body {
         background-color: #f3f3f3;
     }
 }
+
+.chat-list li {
+    display: flex;
+    align-items: center; /* Выравниваем аватар и текст по центру по вертикали */
+    gap: 15px;         /* Отступ между аватаром и текстом */
+    padding: 12px 15px;
+    /* Убедитесь, что остальные стили (border-bottom, cursor) сохранены */
+}
+
+/* Стили для круглого аватара */
+.chat-item-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover; /* Правильно масштабирует изображение, чтобы оно заполнило круг */
+    flex-shrink: 0;    /* Запрещает аватару сжиматься, если имя чата длинное */
+    background-color: #e9ecef; /* Фон для скелетона */
+}
+
+/* Новый контейнер для текстовой информации */
+.chat-info {
+    flex-grow: 1; /* Занимает все оставшееся место */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden; /* Важно, чтобы обрезать длинные строки */
+}
+
+/* Обновляем стили для текста внутри .chat-info */
+.chat-info .chat-title {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.chat-info .last-message {
+    white-space: nowrap;      /* Запрещаем перенос строки */
+    overflow: hidden;         /* Скрываем все, что не помещается */
+    text-overflow: ellipsis;  /* Добавляем троеточие в конце */
+    color: #555;
+}
+
+.chat-info .message-time {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.message .attachment-item {
+    /* Сбрасываем стили, которые ломают вёрстку в чате */
+    aspect-ratio: unset; /* Убираем принудительные квадратные пропорции */
+    background-color: transparent; /* Убираем серый фон на случай, если останется пустое место */
+
+    /* Скругляем углы контейнера, чтобы они соответствовали картинке */
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/*
+ * 2. Стили для самого изображения <img>, когда оно находится ВНУТРИ сообщения.
+*/
+.message .attachment-item img {
+    width: 100%;
+    height: auto;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+
+    box-shadow: none;
+    transition: none;
+}
+
+.message .attachment-item img:hover {
+    transform: none;
+}

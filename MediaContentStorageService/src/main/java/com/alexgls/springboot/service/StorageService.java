@@ -14,5 +14,7 @@ public interface StorageService {
     Mono<String> getDownloadPathById(int id);
 
     Mono<ChatImage> getFileMetadataById(int id);
+
+    Mono<Void> removeFileById(int id);
 }
 

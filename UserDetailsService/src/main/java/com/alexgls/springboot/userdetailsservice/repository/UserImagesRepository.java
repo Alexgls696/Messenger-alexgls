@@ -12,10 +12,10 @@ import reactor.core.publisher.Mono;
 public interface UserImagesRepository extends ReactiveCrudRepository<UserImage, Integer> {
     Flux<UserImage> findAllByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
 
-    Mono<Void> deleteUserImageByIdAndUserId(int id, int userId);
+    Mono<Void> deleteUserImageByImageIdAndUserId(int id, int userId);
 
     @Query("select * from user_images where user_id = :userId order by created_at desc limit 2")
     Flux<UserImage> findTwoLastImagesByUserIdOrderByCreatedAtDesc(@Param("userId") int userId);
 
-    Mono<UserImage> findByIdAndUserId(int id, int userId);
+    Mono<UserImage> findByImageIdAndUserId(int id, int userId);
 }

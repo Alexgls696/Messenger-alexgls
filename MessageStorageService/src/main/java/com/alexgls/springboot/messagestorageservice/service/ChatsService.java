@@ -35,7 +35,7 @@ public class ChatsService {
         int limit = pageable.getPageSize();
         long offset = pageable.getOffset();
         return chatsRepository.findChatsByUserId(userId, limit, offset)
-                .flatMap(chat -> {
+                .concatMap(chat -> {
                     log.info("Chat {}", chat);
                     ChatDto chatDto = ChatMapper.toDto(chat);
                     Mono<Message> lastMessageInChat = messagesRepository.findLastMessageByChatIdAndUserId(chat.getChatId(), userId);
