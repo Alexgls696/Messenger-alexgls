@@ -105,6 +105,7 @@ public class UsersService {
         User userToUpdate = findUserById(currentUserId);
         userToUpdate.setSurname(Objects.isNull(updateUserRequest.surname()) ? "" : updateUserRequest.surname());
         userToUpdate.setName(updateUserRequest.name());
+        userToUpdate.setUsername(updateUserRequest.username());
         usersRepository.save(userToUpdate);
     }
 

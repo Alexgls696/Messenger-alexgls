@@ -20,17 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileInput');
     const attachmentPreviewContainer = document.getElementById('attachmentPreviewContainer');
 
-    // ИЗМЕНЕНИЕ: Обновляем селекторы для нового модального окна
     const profileBtn = document.getElementById("profileBtn");
-    const profileAttachmentsModal = document.getElementById("profileAttachmentsModal");
-    const closeProfileAttachmentsBtn = document.getElementById("closeProfileAttachmentsBtn");
-    const attachmentsTabs = document.querySelectorAll(".attachments-tabs .tab-btn");
-    const modalDynamicContent = document.getElementById("modalDynamicContent");
-    const modalTitle = document.getElementById('modalTitle');
     const myProfileBtn = document.getElementById('myProfileBtn');
     const usernameContent = document.getElementById('username');
 
-    let currentUserData = null;
+    let currentUserData = null; // Базовые данные (из /users/me)
+    let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
 
 
     let pendingAttachments = [];
@@ -374,27 +369,54 @@ document.addEventListener('DOMContentLoaded', () => {
     async function createChatItem(chat) {
         const li = document.createElement('li');
         li.dataset.chatId = chat.chatId;
-        const initialTitle = chat.group ? chat.name : 'Загрузка имени...';
+
         li.innerHTML = `
-            <div class="chat-title">${initialTitle}</div>
-            <div class="last-message">${chat.lastMessage ? chat.lastMessage.content : 'Нет сообщений'}</div>
+        <img class="chat-item-avatar" src="/images/profile-default.png" alt="Аватар чата">
+        <div class="chat-info">
+            <div class="chat-title">${chat.group ? chat.name : 'Загрузка...'}</div>
+            <div class="last-message">${chat.lastMessage ? chat.lastMessage.content || 'Вложение' : 'Нет сообщений'}</div>
             <div class="message-time">${chat.lastMessage ? `Отправлено: ${formatDate(chat.lastMessage.createdAt)}` : ''}</div>
-        `;
+        </div>
+    `;
+
         if (!chat.group) {
+            const titleDiv = li.querySelector('.chat-title');
+            const avatarImg = li.querySelector('.chat-item-avatar');
+
             try {
                 const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
-                const titleDiv = li.querySelector('.chat-title');
+
                 if (titleDiv) {
                     titleDiv.textContent = `${recipient.name} ${recipient.surname}`;
                 }
+
+                try {
+                    const avatarId = await apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${recipient.id}`);
+                    console.log(recipient.id + " "+avatarId);
+
+                    if (avatarId && typeof avatarId === 'number') {
+                        const authToken = localStorage.getItem('accessToken');
+                        imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
+                            .then(src => {
+                                avatarImg.src = src;
+                            });
+                    }
+                } catch (avatarError) {
+                    if (avatarError.status === 404) {
+                        // Аватара нет, это нормально. Ничего не делаем.
+                    } else {
+                        console.warn(`Не удалось загрузить аватар для пользователя ${recipient.id}:`, avatarError);
+                    }
+                }
+
             } catch (error) {
                 console.error(`Не удалось загрузить собеседника для чата ${chat.chatId}:`, error);
-                const titleDiv = li.querySelector('.chat-title');
                 if (titleDiv) {
                     titleDiv.textContent = 'Ошибка загрузки чата';
                 }
             }
         }
+
         li.addEventListener('click', () => openChat(chat));
         return li;
     }
@@ -535,11 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (att.mimeType && att.mimeType.startsWith('image/')) {
                     return `
-                    <div class="attachment-item image-attachment">
-                        <a href="${proxyUrl}" target="_blank" rel="noopener noreferrer">
-                            <div class="skeleton skeleton-tile"></div>
-                            <img class="attachment-image lazy-load" data-src="${proxyUrl}">
-                        </a>
+                    <div class="attachment-item image-attachment viewer-enabled" data-file-id="${att.fileId}">
+                        <div class="skeleton skeleton-tile"></div>
+                        <img class="attachment-image lazy-load" data-src="${proxyUrl}">
                     </div>`;
                 } else {
                     const fileName = att.fileName || 'file';
@@ -552,9 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>`;
                 }
-            });
+            }).join('');
 
-            attachmentsHtml += attachmentItemsHtml.join('');
+            attachmentsHtml += attachmentItemsHtml;
             attachmentsHtml += '</div>';
         }
 
@@ -714,11 +734,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setFormEnabled(enabled) {
-        messageInput.disabled = !enabled;
-        sendBtn.disabled = !enabled;
-        attachFileBtn.disabled = !enabled;
-    }
 
     function addAttachmentToPreview(file) {
         const tempId = `temp-${Date.now()}`;
@@ -756,144 +771,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (previewEl) previewEl.remove();
     }
 
-    // ИЗМЕНЕНИЕ: Новая функция для загрузки профиля
-    async function loadProfile(userId) {
-        if (!userId) {
-            modalDynamicContent.innerHTML = "<p>Не удалось определить пользователя для загрузки профиля.</p>";
-            return;
-        }
-
-        // ИЗМЕНЕНИЕ: Получаем имя пользователя из кеша и устанавливаем заголовок
-        const userName = participantCache[userId];
-        modalTitle.textContent = userName ? `Профиль: ${userName}` : 'Профиль';
-
-        // Показываем общий скелетон для всей секции профиля
-        modalDynamicContent.innerHTML = `<div class="skeleton-list">${Array(3).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
-
-        try {
-            const profileData = await apiFetch(`${API_BASE_URL}/api/profiles/${userId}`);
-
-            const userImagesHtml = profileData.userImages.map(img => {
-                return `
-                    <div class="profile-image-item">
-                        <div class="skeleton"></div>
-                        <!-- <img src="${API_BASE_URL}/api/storage/proxy/download/by-id?id=${img.imageId}" alt="Фото пользователя"> -->
-                    </div>
-                `;
-            }).join('');
-
-            // Сначала рендерим основной HTML-каркас с контейнером для аватара
-            modalDynamicContent.innerHTML = `
-                <div class="profile-content-wrapper">
-                    <div class="profile-header">
-                        <div id="avatarContainer" class="profile-avatar">
-                            <!-- Это место для аватара или его скелетона -->
-                        </div>
-                        <div class="profile-details">
-                             <div class="profile-info-item"><strong>Статус:</strong> ${profileData.status || 'Не указан'}</div>
-                             <div class="profile-info-item"><strong>День рождения:</strong> ${profileData.birthday || 'Не указан'}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="profile-section-title">Фотографии</h3>
-                        <div class="profile-images-grid">
-                            ${userImagesHtml || '<p>У пользователя нет фотографий.</p>'}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const avatarContainer = document.getElementById('avatarContainer');
-
-            // Теперь асинхронно загружаем аватар
-            if (profileData.avatarId) {
-                avatarContainer.innerHTML = `<div class="skeleton profile-avatar"></div>`;
-
-                const avatarImg = new Image();
-                avatarImg.className = 'profile-avatar';
-
-                avatarImg.onload = () => {
-                    avatarContainer.innerHTML = '';
-                    avatarContainer.appendChild(avatarImg);
-                };
-
-                avatarImg.onerror = () => {
-                    avatarContainer.innerHTML = `<img src="/images/profile-default.png" class="profile-avatar">`;
-                };
-
-                avatarImg.src = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${profileData.avatarId}`;
-
-            } else {
-                avatarContainer.innerHTML = `<img src="/images/profile-default.png" class="profile-avatar">`;
-            }
-
-        } catch(e) {
-            console.error("Ошибка загрузки профиля:", e);
-            modalDynamicContent.innerHTML = "<p>Не удалось загрузить профиль пользователя.</p>";
-        }
-    }
-
-    //Загрузка вложений
-    async function loadAttachments(type) {
-        if (type === "IMAGE" || type === "VIDEO") {
-            modalDynamicContent.innerHTML = `<div class="skeleton-grid">${Array(12).fill('<div class="skeleton skeleton-tile"></div>').join("")}</div>`;
-        } else {
-            modalDynamicContent.innerHTML = `<div class="skeleton-list">${Array(6).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
-        }
-
-        try {
-            const url = `${API_BASE_URL}/api/attachments/find-by-type-and-chat-id?mediaType=${type}&chatId=${activeChatId}`;
-            const attachments = await apiFetch(url);
-
-            if (!attachments || attachments.length === 0) {
-                modalDynamicContent.innerHTML = "<p>Нет вложений в этой категории</p>";
-                return;
-            }
-
-            const itemsHtml = attachments.map(att => {
-                const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
-                const fileName = att.fileName || 'file';
-                if (type === "IMAGE") {
-                    return `<div class="attachment-item">
-                                <a href="${proxyUrl}" target="_blank">
-                                    <div class="skeleton skeleton-tile"></div>
-                                    <img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">
-                                </a>
-                            </div>`;
-                } else if (type === "VIDEO") {
-                    return `<div class="attachment-item">
-                                <div class="skeleton skeleton-tile"></div>
-                                <video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>
-                            </div>`;
-                } else if (type === "AUDIO") {
-                    return `<div class="attachment-list-item">
-                                <audio controls src="${proxyUrl}"></audio>
-                                <a href="${proxyUrl}" download="${fileName}">Скачать</a>
-                            </div>`;
-                } else {
-                    return `<div class="attachment-list-item">
-                                <span>${fileName || "Файл"}</span>
-                                <a href="${proxyUrl}" download="${fileName}">Скачать</a>
-                            </div>`;
-                }
-            }).join('');
-
-            if (type === "IMAGE" || type === "VIDEO") {
-                modalDynamicContent.innerHTML = `<div class="attachments-grid">${itemsHtml}</div>`;
-            } else {
-                modalDynamicContent.innerHTML = `<div class="attachments-list">${itemsHtml}</div>`;
-            }
-
-            const mediaToLazyLoad = modalDynamicContent.querySelectorAll('.lazy-load-attachment');
-            mediaToLazyLoad.forEach(media => attachmentObserver.observe(media));
-
-        } catch (e) {
-            console.error("Ошибка загрузки вложений:", e);
-            modalDynamicContent.innerHTML = "<p>Не удалось загрузить вложения</p>";
-        }
-    }
-
-    // ... (все остальные ваши функции до обработчиков событий остаются без изменений)
     function renderPendingMessage(content, attachments, tempId) {
         return `
         <div class="message sent pending" data-temp-id="${tempId}">
@@ -1044,6 +921,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.body.addEventListener('click', (event) => {
+        // Ищем ближайшего родителя с классом 'viewer-enabled'
+        const viewerTarget = event.target.closest('.viewer-enabled');
+
+        if (viewerTarget) {
+            event.preventDefault(); // Отменяем стандартное действие (переход по ссылке или скачивание)
+            const fileId = parseInt(viewerTarget.dataset.fileId, 10);
+            if (fileId) {
+                photoViewer.open(fileId);
+            }
+        }
+    });
+
     findUserBtn.addEventListener('click', loadAndShowUsers);
     closeModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
     userSearchModal.addEventListener('click', (e) => {
@@ -1056,37 +946,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     profileBtn.addEventListener("click", () => {
-        if (!activeChatId) return;
+        if (!activeChatRecipientId || !activeChatId) return;
 
-        attachmentsTabs.forEach(t => t.classList.remove("active"));
-        const profileTab = document.querySelector('.tab-btn[data-type="PROFILE"]');
-        if (profileTab) profileTab.classList.add("active");
+        const recipientName = participantCache[activeChatRecipientId] || 'Собеседник';
 
-        profileAttachmentsModal.classList.remove("hidden");
-
-        loadProfile(activeChatRecipientId);
-    });
-
-    closeProfileAttachmentsBtn.addEventListener("click", () => {
-        profileAttachmentsModal.classList.add("hidden");
-    });
-
-    attachmentsTabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            attachmentsTabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-
-            const type = tab.dataset.type;
-
-            if (type === 'PROFILE') {
-                // loadProfile сама установит нужный заголовок
-                loadProfile(activeChatRecipientId);
-            } else {
-                // Для остальных вкладок просто используем их текст
-                modalTitle.textContent = tab.textContent;
-                loadAttachments(type);
-            }
-        });
+        userProfile.open(activeChatRecipientId, activeChatId, recipientName);
     });
 
     window.addEventListener('click', (event) => {
@@ -1110,17 +974,21 @@ document.addEventListener('DOMContentLoaded', () => {
     backToListBtn.addEventListener('click', closeActiveChat);
 
     myProfileBtn.addEventListener('click', () => {
-        myProfileManager.open(currentUserData);
+        if (currentUserData && currentUserProfileData) {
+            myProfileManager.openWithPreloadedData(currentUserData, currentUserProfileData);
+        } else {
+            console.warn("Данные профиля не были предзагружены, используется стандартный метод открытия.");
+            myProfileManager.open(currentUserData);
+        }
     });
 
     const updateHeaderUI = (userData) => {
-        console.log(userData)
         if (!userData) {
             console.error("updateHeaderUI была вызвана без данных пользователя.");
             return;
         }
 
-        currentUserData = userData;
+        currentUserData = userData; // Сохраняем базовые данные
 
         const name = userData.name || '';
         const surname = userData.surname || '';
@@ -1139,6 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
             updateHeaderUI(me);
+            currentUserProfileData = await apiFetch(`${API_BASE_URL}/api/profiles/${me.id}`);
         } catch (error) {
             console.error("Не удалось перезагрузить данные пользователя:", error);
         }
@@ -1148,16 +1017,36 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initializeApp() {
         try {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
-            if(me.name === null){
-                window.location.href = 'setup-profile'; return
+            if (me.name === null) {
+                window.location.href = 'setup-profile';
+                return;
             }
             currentUserId = me.id;
-
             myProfileManager.init(currentUserId, API_BASE_URL, refreshUserData);
+            photoViewer.init({apiBaseUrl: API_BASE_URL});
+            userProfile.init({
+                apiBaseUrl: API_BASE_URL,
+                observer: attachmentObserver
+            });
+
             updateHeaderUI(me);
 
             participantCache[me.id] = `${me.name} ${me.surname}`;
-            usernameContent.textContent = `${me.name} ${me.surname}`;
+            const headerAvatarImg = document.getElementById('headerAvatarImg');
+            const authToken = localStorage.getItem('accessToken');
+
+            try {
+                currentUserProfileData = await apiFetch(`${API_BASE_URL}/api/profiles/${currentUserId}`);
+                if (currentUserProfileData && currentUserProfileData.avatarId) {
+                    imageLoader.getImageSrc(currentUserProfileData.avatarId, API_BASE_URL, authToken)
+                        .then(src => {
+                            headerAvatarImg.src = src;
+                        });
+                }
+            } catch (profileError) {
+                console.error("Не удалось предварительно загрузить данные профиля:", profileError);
+            }
+
 
             statusEl.textContent = 'Загрузка чатов...';
             loadChats();

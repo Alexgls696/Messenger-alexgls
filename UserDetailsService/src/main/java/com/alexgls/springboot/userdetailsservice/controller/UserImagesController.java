@@ -24,6 +24,17 @@ public class UserImagesController {
         return userProfileService.addImageToUserProfile(addProfileImageRequest.imageId(), userId);
     }
 
+    @GetMapping("/user-avatar")
+    public Mono<Integer>findUserAvatarImageId(Authentication authentication) {
+        int userId = getCurrentUserId(authentication);
+        return userProfileService.findUserAvatarImageId(userId);
+    }
+
+    @GetMapping("/user-avatar/{id}")
+    public Mono<Integer>findUserAvatarImageId(@PathVariable("id") int id) {
+        return userProfileService.findUserAvatarImageId(id);
+    }
+
     @DeleteMapping("/{userImageId}")
     public Mono<Void> deleteImageFromUserProfileById(@PathVariable("userImageId") int id, Authentication authentication) {
         int userId = getCurrentUserId(authentication);

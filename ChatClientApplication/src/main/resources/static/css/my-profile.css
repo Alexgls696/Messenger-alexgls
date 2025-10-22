@@ -1,3 +1,8 @@
+/* ==========================================================================
+   СТИЛИ ДЛЯ ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ (my-profile.css)
+   ========================================================================== */
+
+/* --- Общие стили для кнопок в шапке (если используются) --- */
 .user-info-header {
     display: flex;
     align-items: center;
@@ -24,12 +29,29 @@
 }
 
 /* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПРОФИЛЯ --- */
+
+/* Увеличена максимальная ширина модального окна */
 .my-profile-modal-content {
-    max-width: 600px;
+    max-width: 750px;
 }
 
+/* Добавлена вертикальная прокрутка для контента, если он не помещается */
 #myProfileContent {
-    padding: 20px;
+    padding: 25px;
+    max-height: 75vh; /* Ограничиваем высоту, чтобы окно не вылезало за пределы экрана */
+    overflow-y: auto;   /* Включаем вертикальный скролл */
+}
+
+/* Стилизация скроллбара для контента профиля */
+#myProfileContent::-webkit-scrollbar {
+    width: 6px;
+}
+#myProfileContent::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+#myProfileContent::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
 }
 
 .profile-form-container {
@@ -49,7 +71,7 @@
     height: 120px;
     border-radius: 50%;
     flex-shrink: 0;
-    overflow: hidden; /* Важно, чтобы скелетон не вылезал */
+    overflow: hidden;
 }
 
 #myAvatarContainer .profile-avatar {
@@ -86,7 +108,7 @@
 
 /* --- СТИЛИ ДЛЯ ФУТЕРА МОДАЛЬНОГО ОКНА --- */
 .modal-footer {
-    padding: 15px 20px;
+    padding: 15px 25px;
     border-top: 1px solid #eee;
     background-color: #f9f9f9;
     display: flex;
@@ -115,7 +137,6 @@
     background-color: #94d3a2;
     cursor: not-allowed;
 }
-
 .profile-cancel-btn {
     background-color: #6c757d;
     color: white;
@@ -123,11 +144,11 @@
 .profile-cancel-btn:hover {
     background-color: #5a6268;
 }
-
 .profile-save-btn.success {
     background-color: #20c997;
 }
 
+/* --- Основная информация о пользователе --- */
 .profile-user-info {
     padding: 15px;
     background-color: #f8f9fa;
@@ -144,7 +165,7 @@
 .user-info-item strong {
     color: #212529;
     display: inline-block;
-    width: 150px; /* Для ровного отображения */
+    width: 150px;
 }
 
 .profile-edit-btn {
@@ -166,7 +187,6 @@
     background-color: #007bff;
     color: white;
 }
-
 
 /* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА РЕДАКТИРОВАНИЯ --- */
 .edit-user-modal-content {
@@ -191,4 +211,92 @@
 
 .error-message.hidden {
     display: none;
+}
+
+/* --- ИЗМЕНЕННЫЕ СТИЛИ ДЛЯ СЕТКИ ФОТОГРАФИЙ --- */
+.photos-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.photos-section-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+}
+
+.photo-tile {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Делаем плитку квадратной, это адаптивнее чем height */
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #e9ecef;
+    cursor: pointer;
+}
+
+.photo-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.photo-tile:hover img {
+    transform: scale(1.05);
+}
+
+/* --- СТИЛИ ДЛЯ КНОПКИ ДОБАВЛЕНИЯ ФОТО --- */
+.add-photo-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #adb5bd;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.add-photo-tile:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.add-photo-tile-icon {
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.add-photo-tile.loading {
+    cursor: not-allowed;
+    background-color: #e9ecef;
+}
+
+#photoUploadInput {
+    display: none;
+}
+
+.my-profile-btn {
+    padding: 0;
+    overflow: hidden; /* Скрываем части изображения, которые могут вылезти за круг */
+}
+
+/* Стили для самого изображения внутри кнопки */
+#headerAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Гарантирует, что изображение заполнит круг без искажений */
+    border-radius: 50%; /* Изображение тоже будет круглым */
+    transition: transform 0.2s ease;
+}
+
+.my-profile-btn:hover #headerAvatarImg {
+    transform: scale(1.1); /* Небольшой эффект увеличения при наведении */
 }

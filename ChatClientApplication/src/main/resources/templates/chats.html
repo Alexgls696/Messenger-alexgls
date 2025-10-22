@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/chats_mobile.css">
     <link rel="stylesheet" href="/css/profile.css">
     <link rel="stylesheet" href="/css/my-profile.css">
+    <link rel="stylesheet" href="/css/photoViewer.css">
 </head>
 <body>
 
@@ -20,10 +21,12 @@
         <div class="header-buttons left">
             <button id="findUserBtn" class="header-action-btn find-user-btn">Найти пользователя</button>
         </div>
-        <!-- ИЗМЕНЕНИЕ: Добавлена кнопка "Мой профиль" -->
+
         <div class="user-info-header">
             <h3 id="username"></h3>
-            <button id="myProfileBtn" class="my-profile-btn" title="Мой профиль">👤</button>
+            <button id="myProfileBtn" class="my-profile-btn" title="Мой профиль">
+                <img id="headerAvatarImg" src="/images/profile-default.png" alt="Мой профиль">
+            </button>
         </div>
         <div class="header-buttons right">
             <button id="logoutBtn" class="header-action-btn logout-btn">Выйти</button>
@@ -49,7 +52,6 @@
                 <button class="back-btn" id="backToListBtn">&larr;</button>
                 <h2 id="chatTitle">Выберите чат</h2>
                 <div>
-                    <!-- ИЗМЕНЕНИЕ 1: Кнопка теперь для профиля -->
                     <button id="profileBtn" class="attachments-btn">👤</button>
                     <button class="close-btn" id="closeChatBtn">&times;</button>
                 </div>
@@ -93,23 +95,14 @@
     </div>
 </div>
 
-<!-- Модальное окно для просмотра всех вложений в чате -->
-<div id="profileAttachmentsModal" class="modal hidden">
-    <div class="modal-content attachments-modal">
+<div id="userProfileModal" class="modal hidden">
+    <div class="modal-content my-profile-modal-content">
         <div class="modal-header">
-            <h2 id="modalTitle">Профиль</h2> <!-- Заголовок будет меняться -->
-            <button id="closeProfileAttachmentsBtn" class="close-btn">&times;</button>
+            <h2 id="userProfileModalTitle">Профиль</h2>
+            <button id="closeUserProfileBtn" class="close-btn">&times;</button>
         </div>
-        <div class="attachments-tabs">
-            <!-- ИЗМЕНЕНИЕ 3: Добавлена вкладка "Профиль" и сделана активной по умолчанию -->
-            <button class="tab-btn active" data-type="PROFILE">Профиль</button>
-            <button class="tab-btn" data-type="IMAGE">Изображения</button>
-            <button class="tab-btn" data-type="VIDEO">Видео</button>
-            <button class="tab-btn" data-type="AUDIO">Аудио</button>
-            <button class="tab-btn" data-type="DOCUMENT">Файлы</button>
-        </div>
-        <div id="modalDynamicContent" class="attachments-content">
-            <!-- Сюда JavaScript будет загружать либо профиль, либо вложения -->
+        <div id="userProfileContent" class="modal-body user-profile-body">
+
         </div>
     </div>
 </div>
@@ -120,7 +113,7 @@
             <h2>Мой профиль</h2>
             <button id="closeMyProfileBtn" class="close-btn">&times;</button>
         </div>
-        <div id="myProfileContent" class="modal-body">
+        <div id="myProfileContent" class="modal-body my-profile-body">
             <!-- Сюда будет загружаться контент профиля -->
             <div class="skeleton-list">
                 <div class="skeleton skeleton-row" style="height: 80px;"></div>
@@ -135,6 +128,7 @@
     </div>
 </div>
 
+<!-- Окно редактирования пользователя остается без изменений -->
 <div id="editUserModal" class="modal hidden">
     <div class="modal-content edit-user-modal-content">
         <div class="modal-header">
@@ -166,14 +160,15 @@
 </div>
 
 
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
-
 <script src="/js/lib/sockjs.min.js"></script>
 <script src="/js/lib/stomp.min.js"></script>
 <script src="/js/apiClient.js"></script> <!-- Если у вас есть отдельный файл для apiFetch -->
 <script src="/js/chats.js"></script>
 <script src="/js/current-profile.js"></script>
+<script src="/js/photoViewer.js"></script>
+<script src="/js/imageLoader.js"></script>
+<script src="/js/userProfile.js"></script>
+
 
 </body>
 </html>

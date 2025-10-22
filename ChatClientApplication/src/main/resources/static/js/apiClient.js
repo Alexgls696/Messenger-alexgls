@@ -4,14 +4,13 @@ const REFRESH_API_URL = 'http://localhost:8080/auth/refresh';
 let isRefreshing = false;
 let refreshPromise = null;
 
-// Функция для выхода из системы
 function logout() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     window.location.href = '/login';
 }
 
-// Основная функция для отправки запросов
+
 async function apiFetch(url, options = {}) {
     try {
         let response = await fetch(url, prepareRequestOptions(options));
@@ -21,17 +20,22 @@ async function apiFetch(url, options = {}) {
             response = await fetch(url, prepareRequestOptions(options));
         }
 
-        // Проверяем, что повторный запрос успешен
+        // Проверяем, что повторный запрос (или первоначальный) успешен
         if (!response.ok) {
-            throw new Error(`Ошибка API: ${response.status} ${response.statusText}`);
+            const error = new Error(`Ошибка API: ${response.status} ${response.statusText}`);
+            error.status = response.status;
+            throw error;
         }
 
-        if (response.status === 204) return null;
+        if (response.status === 204) {
+            return null;
+        }
+
         return await response.json();
 
     } catch (error) {
         console.error(`Ошибка при запросе к ${url}:`, error);
-        throw error;
+        throw error; // Пробрасываем ошибку дальше
     }
 }
 

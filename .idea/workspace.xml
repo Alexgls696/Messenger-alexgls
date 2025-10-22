@@ -4,22 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Доделан API для профиля пользователя, обновление, удаление фотографий. TODO: окно профиля пользователя">
-      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/my-profile.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/profile.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/current-profile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен профиль пользователя на клиенте. TODO: загрузка фотографий профиля">
+      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/photoViewer.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/imageLoader.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/photoViewer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/userProfile.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/utils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UsersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UsersController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/UpdateUserRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/UpdateUserRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/UsersController.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/UsersController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/service/UsersService.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/service/UsersService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/my-profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/my-profile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/profile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/apiClient.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/current-profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/current-profile.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserImagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserImagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserAvatarsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserAvatarsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,32 +41,36 @@
         <option value="Record" />
         <option value="Class" />
         <option value="JavaScript File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Alexgls696"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Alexgls696&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Alexgls696/PrivateChatSpringBoot",
-    "accountId": "d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Alexgls696/PrivateChatSpringBoot&quot;,
+    &quot;accountId&quot;: &quot;d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b&quot;
   }
-}]]></component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="33v0Su4wgohQBoTLYXTCYq0WTYb" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -72,18 +84,19 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
-    "Spring Boot.AuthServiceSpringBootApplication.executor": "Debug",
+    "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
-    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MediaContentStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.RegistrationServiceApplication.executor": "Debug",
-    "Spring Boot.UserDetailsServiceApplication.executor": "Run",
-    "Spring Boot.UsersMessagingServiceApplication.executor": "Debug",
+    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceApplication.executor": "Run",
+    "Spring Boot.RegistrationServiceApplication.executor": "Run",
+    "Spring Boot.UserDetailsServiceApplication.executor": "Debug",
+    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject",
+    "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -205,8 +218,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
+        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -226,7 +239,10 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1760182242280</updated>
-      <workItem from="1760182243104" duration="15302000" />
+      <workItem from="1760182243104" duration="16477000" />
+      <workItem from="1760464246372" duration="65000" />
+      <workItem from="1761124643157" duration="741000" />
+      <workItem from="1761136135962" duration="10309000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -244,7 +260,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760191631754</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Добавлен профиль пользователя на клиенте. TODO: загрузка фотографий профиля">
+      <option name="closed" value="true" />
+      <created>1760197624884</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1760197624884</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,6 +277,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Исправлен проект" />
     <MESSAGE value="Доделан API для профиля пользователя, обновление, удаление фотографий. TODO: окно профиля пользователя" />
-    <option name="LAST_COMMIT_MESSAGE" value="Доделан API для профиля пользователя, обновление, удаление фотографий. TODO: окно профиля пользователя" />
+    <MESSAGE value="Добавлен профиль пользователя на клиенте. TODO: загрузка фотографий профиля" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен профиль пользователя на клиенте. TODO: загрузка фотографий профиля" />
   </component>
 </project>

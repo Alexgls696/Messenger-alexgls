@@ -6,6 +6,7 @@ import com.alexgls.springboot.userdetailsservice.dto.UserProfileResponse;
 import com.alexgls.springboot.userdetailsservice.entity.UserAvatar;
 import com.alexgls.springboot.userdetailsservice.entity.UserDetails;
 import com.alexgls.springboot.userdetailsservice.entity.UserImage;
+import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserAvatarException;
 import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserDetailsException;
 import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserImageException;
 import com.alexgls.springboot.userdetailsservice.mapper.UserDetailsMapper;
@@ -37,15 +38,16 @@ public class UserProfileServiceImpl implements UserProfileService {
     public Mono<UserProfileResponse> findUserProfileByUserId(int userId) {
         Mono<UserDetails> userDetailsMono = userDetailsRepository.findByUserId(userId);
         Flux<UserImage> userImagesFlux = userImagesRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
-        Mono<UserAvatar> userAvatarImageIdMono = userAvatarsRepository.findByUserId(userId).defaultIfEmpty(new UserAvatar());
+        Mono<Integer> userAvatarImageIdMono = userAvatarsRepository.findUserAvatarImageIdByUserId(userId)
+                .defaultIfEmpty(0);
 
         return Mono.zip(userDetailsMono, userImagesFlux.collectList(), userAvatarImageIdMono)
                 .switchIfEmpty(Mono.error(new NoSuchUserDetailsException("Информация о пользователе с id %d не найдена".formatted(userId))))
                 .flatMap(tuple -> {
                     UserDetails userDetails = tuple.getT1();
                     List<UserImage> imagesIds = tuple.getT2();
-                    UserAvatar userAvatar = tuple.getT3();
-                    return Mono.just(new UserProfileResponse(userId, userDetails.getBirthday(), userDetails.getStatus(), imagesIds, userAvatar.getUserImageId()));
+                    Integer userAvatarImageId = tuple.getT3();
+                    return Mono.just(new UserProfileResponse(userId, userDetails.getBirthday(), userDetails.getStatus(), imagesIds, userAvatarImageId));
                 });
     }
 
@@ -75,6 +77,12 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .flatMap(existed -> changeUserAvatarWhenImageDelete(userImageId, userId))
                 .then(userImagesRepository.deleteUserImageByIdAndUserId(userImageId, userId))
                 .as(transactionalOperator::transactional);
+    }
+
+    @Override
+    public Mono<Integer> findUserAvatarImageId(int userId) {
+        return userAvatarsRepository.findUserAvatarImageIdByUserId(userId)
+                .switchIfEmpty(Mono.error(()-> new NoSuchUserAvatarException("Аватар пользователя не найден")));
     }
 
     @Override

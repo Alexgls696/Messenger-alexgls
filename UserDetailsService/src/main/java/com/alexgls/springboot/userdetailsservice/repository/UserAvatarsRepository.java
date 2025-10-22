@@ -15,6 +15,9 @@ public interface UserAvatarsRepository extends ReactiveCrudRepository<UserAvatar
 
     Mono<UserAvatar> findByUserImageIdAndUserId(int imageId, int userId);
 
+    @Query("select ui.image_id from user_images ui join user_avatars ua on ui.id = ua.user_image_id where ua.user_id = :userId")
+    Mono<Integer>findUserAvatarImageIdByUserId(@Param("userId") int userId);
+
     @Query("delete from user_avatars where user_id = :userId")
     Mono<Void> deleteUserAvatarByUserId(@Param("userId") int userId);
 

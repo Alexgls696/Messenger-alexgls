@@ -2,17 +2,15 @@ const myProfileManager = (() => {
     // --- Приватные переменные ---
     let currentUserId = null;
     let apiBaseUrl = null;
-    let onUserDataUpdate = null; // Коллбэк для обновления данных в chats.js
+    let onUserDataUpdate = null;
 
     // --- DOM Элементы ---
-    // Основное окно профиля
     const profileModal = document.getElementById('myProfileModal');
     const closeProfileBtn = document.getElementById('closeMyProfileBtn');
     const cancelProfileBtn = document.getElementById('cancelMyProfileBtn');
     const saveProfileBtn = document.getElementById('saveMyProfileBtn');
     const profileContent = document.getElementById('myProfileContent');
 
-    // Окно редактирования данных пользователя
     const editUserModal = document.getElementById('editUserModal');
     const closeEditUserBtn = document.getElementById('closeEditUserBtn');
     const cancelEditUserBtn = document.getElementById('cancelEditUserBtn');
@@ -20,23 +18,136 @@ const myProfileManager = (() => {
     const saveEditUserBtn = document.getElementById('saveEditUserBtn');
     const errorContainer = document.getElementById('editUserError');
 
-    // --- Функции для основного окна профиля ---
+    // --- ФУНКЦИИ ДЛЯ РАБОТЫ С ФОТО ---
+    const handlePhotoUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const addPhotoTile = document.getElementById('addPhotoTile');
+        addPhotoTile.classList.add('loading');
+        addPhotoTile.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const authToken = localStorage.getItem('accessToken');
+
+            // Шаг 1: Загрузка файла
+            const formData = new FormData();
+            formData.append('file', file);
+            const uploadResponse = await fetch(`${apiBaseUrl}/api/storage/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            });
+            if (!uploadResponse.ok) throw new Error(`Ошибка загрузки файла: ${uploadResponse.status}`);
+            const newFile = await uploadResponse.json();
+
+            // Шаг 2: Привязка изображения к профилю
+            const linkResponse = await fetch(`${apiBaseUrl}/api/profiles/images`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify({ imageId: newFile.id })
+            });
+            if (!linkResponse.ok) throw new Error(`Ошибка привязки изображения: ${linkResponse.status}`);
+
+            // Шаг 3: Обновление интерфейса
+            const newPhotoTile = document.createElement('div');
+            newPhotoTile.className = 'photo-tile';
+            const newImg = new Image();
+
+            imageLoader.getImageSrc(newFile.id, apiBaseUrl, authToken)
+                .then(src => {
+                    newImg.src = src;
+                    newPhotoTile.appendChild(newImg);
+                });
+
+            newPhotoTile.addEventListener('click', () => photoViewer.open(newFile.id));
+            addPhotoTile.after(newPhotoTile);
+
+            const avatarImgElement = document.getElementById('profileAvatarImg');
+            if (avatarImgElement) {
+                imageLoader.getImageSrc(newFile.id, apiBaseUrl, authToken)
+                    .then(src => avatarImgElement.src = src);
+            }
+
+            if (onUserDataUpdate) await onUserDataUpdate();
+
+        } catch (error) {
+            console.error("Ошибка при обработке фото:", error);
+            alert(`Не удалось обработать фото: ${error.message}. Попробуйте снова.`);
+        } finally {
+            addPhotoTile.classList.remove('loading');
+            addPhotoTile.innerHTML = '<span class="add-photo-tile-icon">+</span>';
+            event.target.value = '';
+        }
+    };
+
+    const renderUserPhotos = (userImages) => {
+        const grid = document.getElementById('userPhotosGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const addPhotoTile = document.createElement('div');
+        addPhotoTile.id = 'addPhotoTile';
+        addPhotoTile.className = 'photo-tile add-photo-tile';
+        addPhotoTile.innerHTML = '<span class="add-photo-tile-icon">+</span>';
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'photoUploadInput';
+        fileInput.accept = 'image/*';
+
+        addPhotoTile.appendChild(fileInput);
+        grid.appendChild(addPhotoTile);
+
+        addPhotoTile.addEventListener('click', () => fileInput.click());
+        // ИСПРАВЛЕНИЕ: Обработчик должен быть на fileInput, а не на addPhotoTile
+        fileInput.addEventListener('change', handlePhotoUpload);
+
+        const authToken = localStorage.getItem('accessToken');
+
+        userImages.forEach(image => {
+            const tile = document.createElement('div');
+            tile.className = 'photo-tile';
+            tile.innerHTML = '<div class="skeleton skeleton-block"></div>';
+            const img = new Image();
+
+            imageLoader.getImageSrc(image.imageId, apiBaseUrl, authToken)
+                .then(src => {
+                    img.onload = () => {
+                        tile.innerHTML = '';
+                        tile.appendChild(img);
+                    };
+                    img.src = src;
+                });
+
+            grid.appendChild(tile);
+
+            tile.addEventListener('click', () => {
+                photoViewer.open(image.imageId);
+            });
+        });
+    };
+
+    // --- ФУНКЦИИ ДЛЯ ОСНОВНОГО ОКНА ПРОФИЛЯ ---
     const closeProfileModal = () => profileModal.classList.add('hidden');
 
     const saveProfileDetails = async () => {
-        // ... (эта функция остается без изменений)
         const statusInput = document.getElementById('profileStatusInput');
         const birthdayInput = document.getElementById('profileBirthdayInput');
         if (!statusInput || !birthdayInput) return;
+
         const payload = { status: statusInput.value, birthday: birthdayInput.value };
         saveProfileBtn.disabled = true;
         saveProfileBtn.textContent = 'Сохранение...';
+
         try {
             const response = await fetch(`${apiBaseUrl}/api/profiles/update`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                 body: JSON.stringify(payload)
             });
             if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
+
             saveProfileBtn.textContent = 'Сохранено!';
             saveProfileBtn.classList.add('success');
             setTimeout(() => {
@@ -53,52 +164,56 @@ const myProfileManager = (() => {
     };
 
     const openProfileModal = async (userData) => {
-        if (!currentUserId || !userData) {
-            console.error("Данные пользователя не были переданы в openProfileModal.");
-            profileContent.innerHTML = '<p>Ошибка: не удалось получить данные пользователя.</p>';
-            return;
-        }
+        if (!currentUserId || !userData) { return; }
 
         profileModal.classList.remove('hidden');
-        profileContent.innerHTML = `<div class="skeleton-list">${Array(3).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
+        profileContent.innerHTML = `<div class="skeleton-list">...</div>`;
 
         try {
             const profileData = await apiFetch(`${apiBaseUrl}/api/profiles/${currentUserId}`);
 
             profileContent.innerHTML = `
-                <div class="profile-form-container">
-                    <div class="profile-user-info">
-                        <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>
-                        <div class="user-info-item"><strong>Фамилия:</strong> ${userData.surname || 'Не указана'}</div>
-                        <div class="user-info-item"><strong>Имя пользователя:</strong> @${userData.username}</div>
-                        <button id="editUserInfoBtn" class="profile-edit-btn">Редактировать основную информацию</button>
+                <div class="profile-user-info">
+                    <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>
+                    <div class="user-info-item"><strong>Фамилия:</strong> ${userData.surname || 'Не указана'}</div>
+                    <div class="user-info-item"><strong>Имя пользователя:</strong> @${userData.username}</div>
+                    <button id="editUserInfoBtn" class="profile-edit-btn">Редактировать основную информацию</button>
+                </div>
+                <div class="profile-form-header">
+                    <div id="myAvatarContainer">
+                        <img id="profileAvatarImg" src="/images/profile-default.png" class="profile-avatar">
                     </div>
-                    <div class="profile-form-header">
-                        <div id="myAvatarContainer"></div>
-                        <span style="font-size: 1.2em; font-weight: bold;">Дополнительная информация</span>
+                    <span style="font-size: 1.2em; font-weight: bold;">Дополнительная информация</span>
+                </div>
+                <div class="profile-form-group">
+                    <label for="profileStatusInput">Статус:</label>
+                    <textarea id="profileStatusInput" rows="3">${profileData.status || ''}</textarea>
+                </div>
+                <div class="profile-form-group">
+                    <label for="profileBirthdayInput">Дата рождения:</label>
+                    <input type="date" id="profileBirthdayInput" value="${profileData.birthday || ''}">
+                </div>
+                <div class="photos-section">
+                    <div class="photos-section-header">Мои фотографии</div>
+                    <div id="userPhotosGrid" class="photos-grid">
+                        <div class="skeleton-list" style="display: contents;">
+                            ${Array(4).fill('<div class="photo-tile"><div class="skeleton skeleton-block"></div></div>').join("")}
+                        </div>
                     </div>
-                    <div class="profile-form-group">
-                        <label for="profileStatusInput">Статус:</label>
-                        <textarea id="profileStatusInput" rows="3">${profileData.status || ''}</textarea>
-                    </div>
-                    <div class="profile-form-group">
-                        <label for="profileBirthdayInput">Дата рождения:</label>
-                        <input type="date" id="profileBirthdayInput" value="${profileData.birthday || ''}">
-                    </div>
-                </div>`;
+            </div>`;
 
             document.getElementById('editUserInfoBtn').addEventListener('click', () => openEditModal(userData));
 
-            const avatarContainer = document.getElementById('myAvatarContainer');
+            const avatarImgElement = document.getElementById('profileAvatarImg');
             if (profileData.avatarId) {
-                avatarContainer.innerHTML = `<div class="skeleton profile-avatar"></div>`;
-                const avatarImg = new Image();
-                avatarImg.className = 'profile-avatar';
-                avatarImg.onload = () => { avatarContainer.innerHTML = ''; avatarContainer.appendChild(avatarImg); };
-                avatarImg.src = `${apiBaseUrl}/api/storage/proxy/download/by-id?id=${profileData.avatarId}`;
-            } else {
-                avatarContainer.innerHTML = `<img src="/images/profile-default.png" class="profile-avatar">`;
+                const authToken = localStorage.getItem('accessToken');
+                imageLoader.getImageSrc(profileData.avatarId, apiBaseUrl, authToken)
+                    .then(src => {
+                        avatarImgElement.src = src;
+                    });
             }
+
+            renderUserPhotos(profileData.userImages || []);
 
         } catch (error) {
             console.error("Ошибка загрузки профиля:", error);
@@ -106,12 +221,58 @@ const myProfileManager = (() => {
         }
     };
 
+    const openWithPreloadedData = (userData, profileData) => {
+        if (!currentUserId || !userData || !profileData) {
+            console.error("Недостаточно данных для открытия профиля.");
+            return;
+        }
 
-    // --- Функции для окна редактирования ---
+        profileModal.classList.remove('hidden');
+
+        profileContent.innerHTML = `
+        <div class="profile-form-container">
+            <div class="profile-user-info">
+                <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>
+                <div class="user-info-item"><strong>Фамилия:</strong> ${userData.surname || 'Не указана'}</div>
+                <div class="user-info-item"><strong>Имя пользователя:</strong> @${userData.username}</div>
+                <button id="editUserInfoBtn" class="profile-edit-btn">Редактировать основную информацию</button>
+            </div>
+            <div class="profile-form-header">
+                <div id="myAvatarContainer">
+                    <img id="profileAvatarImg" src="/images/profile-default.png" class="profile-avatar">
+                </div>
+                <span style="font-size: 1.2em; font-weight: bold;">Дополнительная информация</span>
+            </div>
+            <div class="profile-form-group">
+                <label for="profileStatusInput">Статус:</label>
+                <textarea id="profileStatusInput" rows="3">${profileData.status || ''}</textarea>
+            </div>
+            <div class="profile-form-group">
+                <label for="profileBirthdayInput">Дата рождения:</label>
+                <input type="date" id="profileBirthdayInput" value="${profileData.birthday || ''}">
+            </div>
+            <div class="photos-section">
+                <div class="photos-section-header">Мои фотографии</div>
+               <div id="userPhotosGrid" class="photos-grid"></div>
+            </div>
+        </div>`;
+
+        document.getElementById('editUserInfoBtn').addEventListener('click', () => openEditModal(userData));
+
+        const avatarImgElement = document.getElementById('profileAvatarImg');
+        if (profileData.avatarId) {
+            const authToken = localStorage.getItem('accessToken');
+            imageLoader.getImageSrc(profileData.avatarId, apiBaseUrl, authToken)
+                .then(src => { avatarImgElement.src = src; });
+        }
+
+        renderUserPhotos(profileData.userImages || []);
+    };
+
+    // --- ФУНКЦИИ ДЛЯ ОКНА РЕДАКТИРОВАНИЯ ---
     const closeEditModal = () => editUserModal.classList.add('hidden');
 
     const openEditModal = (userData) => {
-        // Заполняем поля текущими данными
         document.getElementById('editNameInput').value = userData.name;
         document.getElementById('editSurnameInput').value = userData.surname || '';
         document.getElementById('editUsernameInput').value = userData.username;
@@ -132,7 +293,6 @@ const myProfileManager = (() => {
         }
 
         const payload = { name, surname, username };
-
         saveEditUserBtn.disabled = true;
         saveEditUserBtn.textContent = "Сохранение...";
         errorContainer.classList.add('hidden');
@@ -145,7 +305,7 @@ const myProfileManager = (() => {
             });
 
             if (!response.ok) {
-                const errorData = await response.text(); // Попробуем прочитать текст ошибки
+                const errorData = await response.text();
                 throw new Error(errorData || `Ошибка сервера: ${response.status}`);
             }
 
@@ -154,7 +314,7 @@ const myProfileManager = (() => {
             }
 
             closeEditModal();
-            closeProfileModal(); // Закрываем оба окна для лучшего UX
+            closeProfileModal();
 
         } catch (error) {
             errorContainer.textContent = `Ошибка: ${error.message}`;
@@ -165,23 +325,21 @@ const myProfileManager = (() => {
         }
     };
 
-
-    // --- Инициализация модуля ---
+    // --- ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ---
     const init = (userId, baseUrl, updateCallback) => {
         currentUserId = userId;
         apiBaseUrl = baseUrl;
         onUserDataUpdate = updateCallback;
 
-        // Обработчики для основного окна
+        // Привязываем обработчики к кнопкам модальных окон
         closeProfileBtn.addEventListener('click', closeProfileModal);
         cancelProfileBtn.addEventListener('click', closeProfileModal);
         saveProfileBtn.addEventListener('click', saveProfileDetails);
 
-        // Обработчики для окна редактирования
         closeEditUserBtn.addEventListener('click', closeEditModal);
         cancelEditUserBtn.addEventListener('click', closeEditModal);
         editUserForm.addEventListener('submit', saveUserInfo);
     };
 
-    return { init, open: openProfileModal };
+    return { init, open: openProfileModal, openWithPreloadedData };
 })();

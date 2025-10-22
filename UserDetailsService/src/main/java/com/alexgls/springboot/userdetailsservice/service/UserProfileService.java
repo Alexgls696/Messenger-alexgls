@@ -15,4 +15,6 @@ public interface UserProfileService {
     Mono<Void> addImageToUserProfile(int imageId, int userId);
 
     Mono<Void> deleteImageFromUserProfile(int userImageId, int userId);
+
+    Mono<Integer> findUserAvatarImageId(int userId);
 }
