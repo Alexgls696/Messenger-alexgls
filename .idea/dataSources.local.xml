@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal" created-in="IU-242.20224.300">
-    <data-source name="user_details_db@localhost" uuid="62cc741b-a907-4a42-9e76-487172719b73">
+    <data-source name="security_users_db@localhost" uuid="53007c7d-d3e5-415a-9377-61a4d0ce3c07">
       <database-info product="PostgreSQL" version="16.9 (Debian 16.9-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.9" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
@@ -16,7 +16,7 @@
         </introspection-scope>
       </schema-mapping>
     </data-source>
-    <data-source name="security_users_db@localhost" uuid="53007c7d-d3e5-415a-9377-61a4d0ce3c07">
+    <data-source name="messaging_db@localhost" uuid="5285a789-2ef7-49d6-a2fb-94f86383f857">
       <database-info product="PostgreSQL" version="16.9 (Debian 16.9-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.9" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

@@ -14,4 +14,9 @@ public interface DeletedMessagesRepository extends ReactiveCrudRepository<Delete
 
     @Query(value = "select dm.user_id from deleted_messages dm where message_id = :messageId")
     Flux<Integer> findAllUserIdByMessageId(@Param("messageId") Long messageId);
+
+    @Query("insert into deleted_messages (message_id, user_id) " +
+            "select m.message_id, :userId from messages m where chat_id = :chatId " +
+            "on conflict (message_id, user_id) do nothing ")
+    Mono<Void>markAllMessagesAsRemovedWhenChatRemoving(@Param("chatId") int chatId, @Param("userId") int userId);
 }

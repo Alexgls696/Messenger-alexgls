@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -76,7 +77,7 @@ public class ChatsController {
         log.info("Find user by chat id: {}", chatId);
 
         return chatsService.findRecipientIdByChatId(chatId, userId)
-                .flatMap(recipientId -> authWebClient.findUserById(recipientId, token)).map(user->{
+                .flatMap(recipientId -> authWebClient.findUserById(recipientId, token)).map(user -> {
                     log.info("Found user: {}", user);
                     return user;
                 });
@@ -89,6 +90,17 @@ public class ChatsController {
         String token = getToken(authentication);
         return participantsService.findUserIdsByChatId(chatId)
                 .flatMap(id -> authWebClient.findUserById(id, token));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<Void>> deleteChatById(@PathVariable("id") int id, Authentication authentication) {
+        int userId = getSenderId(authentication);
+        log.info("Delete chat by id {} and userId: {}", id, userId);
+        return chatsService.deleteChatById(id, userId)
+                .then(Mono.just(ResponseEntity
+                        .ok()
+                        .build()));
+
     }
 
 

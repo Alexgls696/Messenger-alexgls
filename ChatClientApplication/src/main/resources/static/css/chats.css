@@ -541,13 +541,12 @@ body {
 
 .attachment-item.image-attachment {
     display: block;
-    max-width: 250px;
+    max-width: 300px;
+    width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    background-color: #e9ecef;
-    background-image: linear-gradient(90deg, #e9ecef, #f6f7f8, #e9ecef);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    margin-top: 5px;
+    background-color: #f0f2f5;
 }
 
 @keyframes shimmer {
@@ -560,9 +559,18 @@ body {
 }
 
 .attachment-item.image-attachment img {
-    display: block; /* Убирает лишние отступы под картинкой */
-    width: 100%; /* Заставляет изображение заполнять контейнер по ширине */
-    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.attachment-item.image-attachment img[src] {
+    opacity: 1;
 }
 
 .attachment-item.image-attachment img:hover {
@@ -581,7 +589,19 @@ body {
 
 .attachment-item.image-attachment a {
     display: block;
+    position: relative;
+    width: 100%;
     font-size: 0;
+    text-decoration: none;
+}
+
+.attachment-item.image-attachment .skeleton-tile {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin: 0;
+    border-radius: 0;
+    display: block;
 }
 
 .message.sent .attachment-item.file-attachment {
@@ -1097,30 +1117,3 @@ body {
     font-size: 0.85em;
 }
 
-.message .attachment-item {
-    /* Сбрасываем стили, которые ломают вёрстку в чате */
-    aspect-ratio: unset; /* Убираем принудительные квадратные пропорции */
-    background-color: transparent; /* Убираем серый фон на случай, если останется пустое место */
-
-    /* Скругляем углы контейнера, чтобы они соответствовали картинке */
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-/*
- * 2. Стили для самого изображения <img>, когда оно находится ВНУТРИ сообщения.
-*/
-.message .attachment-item img {
-    width: 100%;
-    height: auto;
-    max-height: 350px;
-    object-fit: cover;
-    border-radius: 12px;
-
-    box-shadow: none;
-    transition: none;
-}
-
-.message .attachment-item img:hover {
-    transform: none;
-}

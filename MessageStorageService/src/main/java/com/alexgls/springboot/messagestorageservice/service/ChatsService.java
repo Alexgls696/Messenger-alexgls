@@ -5,9 +5,11 @@ import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.entity.Participants;
+import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.ChatMapper;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservice.repository.ChatsRepository;
+import com.alexgls.springboot.messagestorageservice.repository.DeletedMessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.transaction.support.TransactionOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +34,9 @@ public class ChatsService {
     private final ChatsRepository chatsRepository;
     private final ParticipantsRepository participantsRepository;
     private final MessagesRepository messagesRepository;
+    private final DeletedMessagesRepository deletedMessagesRepository;
+
+    private final TransactionalOperator transactionalOperator;
 
     public Flux<ChatDto> findAllChatsByUserId(int userId, Pageable pageable) {
         int limit = pageable.getPageSize();
@@ -49,9 +56,8 @@ public class ChatsService {
                 });
     }
 
-    @Transactional
     public Mono<ChatDto> findOrCreatePrivateChat(int senderId, int receiverId) {
-        return chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId)
+        return transactionalOperator.transactional(chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId)
                 .flatMap(existingChatId -> {
                     Mono<Chat> chatMono = chatsRepository.findById(existingChatId);
                     return chatMono.map(ChatMapper::toDto);
@@ -76,7 +82,7 @@ public class ChatsService {
                                 return participantsRepository.saveAll(List.of(p1, p2))
                                         .then(Mono.just(ChatMapper.toDto(savedChat)));
                             });
-                }));
+                })));
     }
 
     public Mono<Boolean> existsById(Integer id) {
@@ -96,6 +102,18 @@ public class ChatsService {
                                 return chat_dto;
                             });
                 });
+    }
+
+    public Mono<Void> deleteChatById(int chatId, int userId) {
+        return transactionalOperator.transactional(
+                participantsRepository.findByChatIdAndUserId(chatId, userId)
+                        .switchIfEmpty(Mono.error(() -> new NoSuchUsersChatException("Комбинация чата и его участника не найдена")))
+                        .flatMap(participants -> {
+                            participants.setDeletedByUser(true);
+                            return participantsRepository.save(participants);
+                        })
+                        .flatMap(saved -> deletedMessagesRepository.markAllMessagesAsRemovedWhenChatRemoving(chatId, userId))
+        ).then();
     }
 
     public Mono<Integer> findRecipientIdByChatId(int chatId, int senderId) {

@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changeset/initialize.sql
   - include:
       file: db/changelog/changeset/update_chat_timestamp.sql
+  - include:
+      file: db/changelog/changeset/update_participants_table.sql

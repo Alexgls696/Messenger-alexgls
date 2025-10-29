@@ -34,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     contextMenu.id = 'messageContextMenu';
     contextMenu.className = 'context-menu hidden';
     document.body.appendChild(contextMenu);
-    let contextMessageInfo = null;
+
+
+    let contextMenuTarget = null;
 
 
     // --- Состояние приложения ---
@@ -57,10 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
     const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
-    const API_PROFILES_URL = 'http://localhost:8092'; // ИЗМЕНЕНИЕ: URL для API профилей
 
     const chatManager = {
-        // ... (весь ваш объект chatManager остается без изменений) ...
         stompClient: null,
         isConnected: false,
         isConnecting: false,
@@ -215,6 +215,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function deleteChat(chatId) {
+        const isConfirmed = confirm("Вы действительно хотите удалить этот чат? Это действие необратимо.");
+        if (!isConfirmed) return;
+
+        try {
+            await apiFetch(`${API_BASE_URL}/api/chats/${chatId}`, {
+                method: 'DELETE'
+            });
+
+            const chatLi = chatListEl.querySelector(`[data-chat-id='${chatId}']`);
+            if (chatLi) {
+                chatLi.remove();
+            }
+
+            if (activeChatId === chatId) {
+                closeActiveChat();
+            }
+
+        } catch (error) {
+            console.error("Ошибка при удалении чата:", error);
+            alert("Не удалось удалить чат. Возможно, он уже удален или у вас нет прав.");
+        } finally {
+            hideContextMenu();
+        }
+    }
+
     async function deleteMessages(messageIds, forAll) {
         if (!messageIds || messageIds.length === 0 || !activeChatId) return;
 
@@ -241,20 +267,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function showChatContextMenu(event, chatId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        contextMenuTarget = {
+            type: 'chat',
+            chatId: chatId
+        };
+
+        contextMenu.innerHTML = `
+            <div class="context-menu-item danger" data-action="delete-chat">
+                Удалить чат
+            </div>
+        `;
+
+        contextMenu.style.top = `${event.pageY}px`;
+        contextMenu.style.left = `${event.pageX}px`;
+        contextMenu.classList.remove('hidden');
+    }
+
     function showContextMenu(event, messageElement) {
-        event.preventDefault(); // Отменяем стандартное контекстное меню браузера
+        event.preventDefault();
 
         const messageId = parseInt(messageElement.dataset.messageId);
         const isSentByMe = messageElement.classList.contains('sent');
 
-        contextMessageInfo = {
-            messageId: messageId,
-            isSentByMe: isSentByMe
+        contextMenuTarget = {
+            type: 'message',
+            data: {
+                messageId: messageId,
+                isSentByMe: isSentByMe
+            }
         };
 
         let menuItems = `<div class="context-menu-item" data-action="delete-for-me">Удалить у себя</div>`;
         if (isSentByMe) {
-            menuItems += `<div class="context-menu-item" data-action="delete-for-all">Удалить у всех</div>`;
+            menuItems += `<div class="context-menu-item danger" data-action="delete-for-all">Удалить у всех</div>`;
         }
 
         contextMenu.innerHTML = menuItems;
@@ -265,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideContextMenu() {
         contextMenu.classList.add('hidden');
-        contextMessageInfo = null;
+        contextMenuTarget = null;
     }
 
     async function updateOrFetchChatInList(newMsg) {
@@ -415,6 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         li.addEventListener('click', () => openChat(chat));
+
+        li.addEventListener('contextmenu', (e) => showChatContextMenu(e, chat.chatId));
+
+        li.addEventListener('click', () => openChat(chat));
         return li;
     }
 
@@ -443,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         activeChatId = chat.chatId;
-        activeChatRecipientId = null; // ИЗМЕНЕНИЕ: Сбрасываем ID собеседника при открытии нового чата
+        activeChatRecipientId = null;
         messagePage = 0;
         hasMoreMessages = true;
         participantCache = {};
@@ -457,27 +510,35 @@ document.addEventListener('DOMContentLoaded', () => {
         chatTitleEl.textContent = 'Загрузка...';
         messagesEl.innerHTML = '<p class="placeholder">Загрузка данных...</p>';
 
-        // ИЗМЕНЕНИЕ: Скрываем/показываем кнопку профиля в зависимости от типа чата
         profileBtn.style.display = chat.group ? 'none' : 'inline-block';
 
         try {
-            const [chatDetailsResult, messages] = await Promise.all([
-                (async () => {
-                    if (chat.group) {
-                        chatTitleEl.textContent = chat.name;
-                    } else {
-                        const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
-                        chatTitleEl.textContent = `Чат с ${recipient.name} ${recipient.surname}`;
-                        activeChatRecipientId = recipient.id; // ИЗМЕНЕНИЕ: Сохраняем ID собеседника
-                    }
-                    const participants = await apiFetch(`${API_BASE_URL}/api/chats/${chat.chatId}/participants`);
-                    participants.forEach(p => {
-                        participantCache[p.id] = `${p.name} ${p.surname}`;
-                    });
-                })(),
-                loadMessages(chat.chatId, messagePage)
-            ]);
-            renderMessages(messages);
+            await (async () => {
+                if (chat.group) {
+                    chatTitleEl.textContent = chat.name;
+                } else {
+                    const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
+                    chatTitleEl.textContent = `Чат с ${recipient.name} ${recipient.surname}`;
+                    activeChatRecipientId = recipient.id;
+                }
+                const participants = await apiFetch(`${API_BASE_URL}/api/chats/${chat.chatId}/participants`);
+                participants.forEach(p => {
+                    participantCache[p.id] = `${p.name} ${p.surname}`;
+                });
+            })();
+
+            const messages = await loadMessages(chat.chatId, messagePage);
+
+            const { firstUnreadId } = await renderMessages(messages);
+
+            if (firstUnreadId) {
+                const firstUnreadElement = messagesEl.querySelector(`[data-message-id='${firstUnreadId}']`);
+                if (firstUnreadElement) {
+                    firstUnreadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
 
             const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
             await markMessagesAsRead(unreadMessages);
@@ -495,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
         messageInput.focus();
     }
 
-    // ... (все ваши функции до loadAttachments остаются без изменений)
     async function loadMessages(chatId, page) {
         if (isLoading || !hasMoreMessages) return [];
         isLoading = true;
@@ -517,18 +577,26 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesEl.innerHTML = ''; // Очищаем контейнер
         if (!messages || messages.length === 0) {
             messagesEl.innerHTML = '<p class="placeholder">Сообщений пока нет. Напишите первым!</p>';
-            return;
+            return { firstUnreadId: null }; // Возвращаем, что непрочитанных нет
         }
+
+        let firstUnreadId = null;
 
         const fragment = document.createDocumentFragment();
         for (const msg of messages) {
             const isSentByMe = msg.senderId === currentUserId;
+
+            if (!isSentByMe && !msg.read && firstUnreadId === null) {
+                firstUnreadId = msg.id;
+            }
+
             const msgDiv = createMessageElement(msg, isSentByMe);
             fragment.appendChild(msgDiv);
         }
 
-        messagesEl.appendChild(fragment); // Добавляем все сообщения в DOM за одну операцию
-        messagesEl.scrollTop = messagesEl.scrollHeight; // Прокручиваем вниз
+        messagesEl.appendChild(fragment);
+
+        return { firstUnreadId };
     }
 
 
@@ -958,14 +1026,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     contextMenu.addEventListener('click', (event) => {
         const action = event.target.dataset.action;
-        if (action && contextMessageInfo) {
-            const {messageId} = contextMessageInfo;
+
+        if (!action || !contextMenuTarget) return;
+
+        if (contextMenuTarget.type === 'message') {
+            const { messageId } = contextMenuTarget.data;
             if (action === 'delete-for-me') {
                 deleteMessages([messageId], false);
             } else if (action === 'delete-for-all') {
                 deleteMessages([messageId], true);
             }
         }
+
+        else if (contextMenuTarget.type === 'chat') {
+            if (action === 'delete-chat') {
+                deleteChat(contextMenuTarget.chatId);
+            }
+        }
+
+        // Скрываем меню после любого действия
+        hideContextMenu();
     });
 
     backToListBtn.addEventListener('click', closeActiveChat);

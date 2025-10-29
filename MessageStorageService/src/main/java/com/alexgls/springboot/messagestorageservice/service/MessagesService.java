@@ -9,13 +9,12 @@ import com.alexgls.springboot.messagestorageservice.exceptions.DeleteMessageAcce
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
-import com.alexgls.springboot.messagestorageservice.repository.AttachmentRepository;
-import com.alexgls.springboot.messagestorageservice.repository.DeletedMessagesRepository;
-import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
+import com.alexgls.springboot.messagestorageservice.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -32,9 +31,11 @@ public class MessagesService {
 
     private final MessagesRepository messagesRepository;
     private final DeletedMessagesRepository deletedMessagesRepository;
-    private final ChatsService chatsService;
+    private final ChatsRepository chatsRepository;
     private final AttachmentRepository attachmentRepository;
-    private final ParticipantsService participantsService;
+    private final ParticipantsRepository participantsRepository;
+
+    private final TransactionalOperator transactionalOperator;
 
     public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize, currentUserId)
@@ -60,23 +61,23 @@ public class MessagesService {
     }
 
 
-    @Transactional
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
-        return chatsService.existsById(createMessagePayload.chatId())
+        return transactionalOperator.transactional(chatsRepository.existsById(createMessagePayload.chatId())
                 .filter(Boolean::booleanValue)
                 .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")))
                 .then(Mono.defer(() -> {
                     Message message = createMessageFromPayload(createMessagePayload);
                     Mono<Message> savedMessageMono = messagesRepository.save(message);
-                    Mono<Integer> recipientIdMono = chatsService.findRecipientIdByChatId(
+                    Mono<Integer> recipientIdMono = chatsRepository.findRecipientIdByChatId(
                             createMessagePayload.chatId(),
                             createMessagePayload.senderId()
                     ).switchIfEmpty(Mono.error(new NoSuchRecipientException("Recipient not found for chat " + createMessagePayload.chatId())));
                     return Mono.zip(savedMessageMono, recipientIdMono)
                             .flatMap(tuple -> {
                                 Message savedMessage = tuple.getT1();
-                                Integer recipientId = tuple.getT2();
+                                int recipientId = tuple.getT2();
                                 savedMessage.setRecipientId(recipientId);
+
                                 return saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
                                         .map(savedAttachments -> {
                                             MessageDto dto = MessageMapper.toMessageDto(savedMessage);
@@ -85,8 +86,20 @@ public class MessagesService {
                                             dto.setTempId(createMessagePayload.tempId());
                                             return dto;
                                         });
-                            });
-                }));
+                            })
+                            .flatMap(messageDto ->
+                                    removeMarkIsDeletedForChatAndUserId(createMessagePayload)
+                                            .thenReturn(messageDto)
+                            );
+                })));
+    }
+
+    Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
+        return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
+                .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))
+                .doOnError(error -> log.warn("Failed to remove 'is_deleted' mark: {}", error.getMessage()))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 
     private Message createMessageFromPayload(CreateMessagePayload payload) {
@@ -195,7 +208,7 @@ public class MessagesService {
     }
 
     private Mono<DeleteMessageResponse> generateDeleteMessageResponseWithChatMembers(DeleteMessageRequest deleteMessageRequest) {
-        return participantsService.findUserIdsByChatId(deleteMessageRequest.chatId())
+        return participantsRepository.findUserIdsByChatId(deleteMessageRequest.chatId())
                 .collectList()
                 .map(membersIdsList -> new DeleteMessageResponse(deleteMessageRequest.messagesId(),
                         membersIdsList,
@@ -206,7 +219,7 @@ public class MessagesService {
 
     @Transactional
     public Mono<Void> deleteMessageIfItDeletedForEveryone(long messageId, int chatId) {
-        return participantsService.findUserIdsByChatId(chatId).collectList()
+        return participantsRepository.findUserIdsByChatId(chatId).collectList()
                 .zipWith(deletedMessagesRepository.findAllUserIdByMessageId(messageId).collect(Collectors.toSet()))
                 .flatMap(tuple -> {
                     List<Integer> participants = tuple.getT1();

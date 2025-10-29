@@ -15,7 +15,7 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
     @Query(value = """
             SELECT c.* FROM chats c
             JOIN participants p ON p.chat_id = c.chat_id 
-            WHERE p.user_id = :userId
+            WHERE p.user_id = :userId and is_deleted_by_user = false
             ORDER BY c.updated_at DESC
             LIMIT :limit OFFSET :offset
             """)

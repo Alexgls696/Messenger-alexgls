@@ -20,22 +20,29 @@ async function apiFetch(url, options = {}) {
             response = await fetch(url, prepareRequestOptions(options));
         }
 
-        // Проверяем, что повторный запрос (или первоначальный) успешен
         if (!response.ok) {
             const error = new Error(`Ошибка API: ${response.status} ${response.statusText}`);
             error.status = response.status;
             throw error;
         }
 
+
         if (response.status === 204) {
-            return null;
+            return null; // Успешно, нет тела.
         }
+
+        const contentLength = response.headers.get('content-length');
+        if (contentLength === '0') {
+            return null; // Успешно, но тело пустое.
+        }
+
 
         return await response.json();
 
     } catch (error) {
+
         console.warn(`Ошибка при запросе к ${url}:`, error);
-        throw error; // Пробрасываем ошибку дальше
+        throw error;
     }
 }
 

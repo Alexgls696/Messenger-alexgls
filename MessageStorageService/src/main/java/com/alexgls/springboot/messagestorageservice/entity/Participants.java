@@ -28,5 +28,8 @@ public class Participants {
     @Column(value = "joined_at")
     private Timestamp joinedAt;
 
+    @Column("is_deleted_by_user")
+    private boolean isDeletedByUser;
+
 
 }

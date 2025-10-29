@@ -1,22 +1,16 @@
 const imageLoader = (() => {
-    const imageCache = new Map();
+    // ИЗМЕНЕНИЕ: Теперь кеш хранит Promise<Blob>, а не Blob URL
+    const blobCache = new Map();
     const pendingRequests = new Map();
 
     /**
-     * Получает безопасный SRC для изображения.
-     * Если изображение есть в кэше, возвращает его мгновенно.
-     * Если нет, загружает, кэширует и затем возвращает.
-     * @param {number} imageId - ID изображения.
-     * @param {string} apiBaseUrl - Базовый URL API.
-     * @param {string} authToken - Токен авторизации.
-     * @returns {Promise<string>} Промис, который разрешается в SRC для тега <img>.
+     * Загружает Blob изображения и кэширует его. Это центральная функция.
+     * @param {number} imageId
+     * @param {string} apiBaseUrl
+     * @param {string} authToken
+     * @returns {Promise<Blob>} Промис, который разрешается в Blob.
      */
-    const getImageSrc = (imageId, apiBaseUrl, authToken) => {
-        // Проверяем, есть ли уже готовый URL в кэше
-        if (imageCache.has(imageId)) {
-            return Promise.resolve(imageCache.get(imageId));
-        }
-
+    const fetchAndCacheBlob = (imageId, apiBaseUrl, authToken) => {
         // Проверяем, не загружается ли это изображение прямо сейчас
         if (pendingRequests.has(imageId)) {
             return pendingRequests.get(imageId);
@@ -24,7 +18,6 @@ const imageLoader = (() => {
 
         const imageUrl = `${apiBaseUrl}/api/storage/proxy/download/by-id?id=${imageId}`;
 
-        // Если нет, создаем новый промис для загрузки
         const promise = fetch(imageUrl, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         })
@@ -32,25 +25,50 @@ const imageLoader = (() => {
                 if (!response.ok) {
                     throw new Error(`Ошибка загрузки изображения: ${response.status}`);
                 }
-                return response.blob(); // Получаем данные как Blob
+                return response.blob();
             })
             .then(blob => {
-                const blobUrl = URL.createObjectURL(blob); // Создаем локальный URL
-                imageCache.set(imageId, blobUrl); // Кэшируем результат
-                pendingRequests.delete(imageId); // Удаляем из ожидающих запросов
-                return blobUrl;
+                blobCache.set(imageId, blob); // Кэшируем сам Blob
+                pendingRequests.delete(imageId); // Запрос завершен
+                return blob;
             })
             .catch(error => {
-                console.error(`Не удалось загрузить изображение с ID ${imageId}:`, error);
+                console.error(`Не удалось загрузить Blob с ID ${imageId}:`, error);
                 pendingRequests.delete(imageId);
-                return '/images/image-error.png';
+                // Пробрасываем ошибку дальше, чтобы .catch() в вызывающей функции мог ее обработать
+                throw error;
             });
 
         pendingRequests.set(imageId, promise);
         return promise;
     };
 
+    const getImageBlob = (imageId, apiBaseUrl, authToken) => {
+        if (blobCache.has(imageId)) {
+            return Promise.resolve(blobCache.get(imageId));
+        }
+        return fetchAndCacheBlob(imageId, apiBaseUrl, authToken);
+    };
+
+    const getImageSrc = async (imageId, apiBaseUrl, authToken) => {
+        try {
+            const blob = await getImageBlob(imageId, apiBaseUrl, authToken);
+            return URL.createObjectURL(blob); // Создаем новый, свежий URL
+        } catch (error) {
+            // В случае ошибки загрузки Blob возвращаем картинку-заглушку
+            return '/images/image-error.png';
+        }
+    };
+
+    const revokeUrl = (url) => {
+        if (url && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+        }
+    };
+
     return {
-        getImageSrc
+        getImageSrc,
+        getImageBlob,
+        revokeUrl
     };
 })();
