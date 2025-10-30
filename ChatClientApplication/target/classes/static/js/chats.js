@@ -500,20 +500,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let chatLoadController = null;
+
     async function openChat(chat) {
         if (activeChatId === chat.chatId && !chatWindowEl.classList.contains('hidden')) {
             return;
         }
 
-        // --- БЛОК СБРОСА СОСТОЯНИЯ ---
-        activeChatId = chat.chatId; // Устанавливаем ГЛОБАЛЬНЫЙ activeChatId
-        const openingChatId = chat.chatId; // Создаем ЛОКАЛЬНУЮ копию для этой конкретной операции
+        if (chatLoadController) {
+            chatLoadController.abort();
+        }
+        // Создаем новый контроллер для текущей операции
+        chatLoadController = new AbortController();
+        const signal = chatLoadController.signal;
 
-        activeChatRecipientId = null;
-        messagePage = 0;
-        hasMoreMessages = true;
+        // --- БЛОК СБРОСА СОСТОЯНИЯ ---
+        activeChatId = chat.chatId;
+        messagePage = 0; // Сбрасываем страницу
+        hasMoreMessages = true; // Сбрасываем флаг
         participantCache = {};
-        isLoading = false;
+        isLoading = false; // Этот флаг все еще полезен для скролла
+
+        const openingChatId = chat.chatId;
 
         // --- Обновление UI ---
         [...chatListEl.children].forEach(li => {
@@ -527,8 +535,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Загрузка данных ---
         try {
-            // ИСПРАВЛЕНО: Возвращаем ваш оригинальный код для загрузки деталей чата
+            // Загрузка деталей чата
             await (async () => {
+                // ... ваш код загрузки деталей чата без изменений ...
                 if (chat.group) {
                     chatTitleEl.textContent = chat.name;
                 } else {
@@ -542,13 +551,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             })();
 
-            // Загрузка сообщений
-            const messages = await loadMessages(openingChatId, 0); // Всегда запрашиваем страницу 0
+            // Загрузка сообщений с возможностью отмены
+            const { messages, hasMore } = await loadMessages(openingChatId, 0, signal);
 
-            // --- КЛЮЧЕВАЯ ПРОВЕРКА ---
-            if (openingChatId !== activeChatId) {
-                console.log(`Загрузка для чата ${openingChatId} отменена, активен чат ${activeChatId}`);
+            // Проверяем, не была ли операция отменена во время выполнения
+            if (signal.aborted) {
                 return;
+            }
+
+            // Обновляем состояние ПОСЛЕ получения ответа
+            hasMoreMessages = hasMore;
+            if (hasMore) {
+                messagePage = 1;
             }
 
             // Рендеринг и прокрутка
@@ -566,36 +580,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
             await markMessagesAsRead(unreadMessages);
 
-            // Увеличиваем счетчик СТРОГО после успешного рендеринга
-            if (messages.length === pageSize) {
-                messagePage = 1; // Устанавливаем, что следующая страница будет 1
-            }
-
         } catch (error) {
-            console.error("Ошибка открытия чата:", error);
-            if (openingChatId === activeChatId) { // Показываем ошибку только если чат все еще активен
-                messagesEl.innerHTML = `<p class="placeholder">Не удалось загрузить данные чата.</p>`;
-                chatTitleEl.textContent = 'Ошибка';
+            if (error.name !== 'AbortError') {
+                console.error("Ошибка открытия чата:", error);
+                if (openingChatId === activeChatId) {
+                    messagesEl.innerHTML = `<p class="placeholder">Не удалось загрузить данные чата.</p>`;
+                    chatTitleEl.textContent = 'Ошибка';
+                }
             }
         }
 
         messageInput.focus();
     }
 
-    async function loadMessages(chatId, page) {
-        if (isLoading || !hasMoreMessages) return [];
-        isLoading = true;
+    async function loadMessages(chatId, page, signal) {
         try {
-            const data = await apiFetch(`${API_BASE_URL}/api/messages?chatId=${chatId}&page=${page}&size=${pageSize}`);
-            if (!Array.isArray(data) || data.length < pageSize) {
-                hasMoreMessages = false;
-            }
-            return data;
+            const data = await apiFetch(`${API_BASE_URL}/api/messages?chatId=${chatId}&page=${page}&pageSize=${pageSize}`, { signal });
+
+            const hasMore = Array.isArray(data) && data.length === pageSize;
+            return { messages: data || [], hasMore };
+
         } catch (error) {
+            if (error.name === 'AbortError') {
+                // Это не ошибка, а ожидаемая отмена. Просто возвращаем пустой результат.
+                console.log(`Запрос сообщений для чата ${chatId} был отменен.`);
+                return { messages: [], hasMore: false };
+            }
             console.error('Ошибка загрузки сообщений:', error);
-            return [];
-        } finally {
-            isLoading = false;
+            return { messages: [], hasMore: false };
         }
     }
 
@@ -882,17 +894,62 @@ document.addEventListener('DOMContentLoaded', () => {
         if (previewEl) previewEl.remove();
     }
 
-    function renderPendingMessage(content, attachments, tempId) {
+    function renderPendingMessage(content, localAttachments, tempId) {
+
+        let attachmentsHtml = '';
+        if (localAttachments && localAttachments.length > 0) {
+
+            // Мы повторяем ту же логику группировки, что и в createMessageElement
+            const imageAttachments = localAttachments.filter(att => att.file.type.startsWith('image/'));
+            const fileAttachments = localAttachments.filter(att => !att.file.type.startsWith('image/'));
+
+            let imageContentHtml = '';
+            let fileContentHtml = '';
+
+            if (imageAttachments.length > 0) {
+                const imageItemsHtml = imageAttachments.map(att => {
+                    const localUrl = URL.createObjectURL(att.file);
+                    // ИСПОЛЬЗУЕМ ТЕ ЖЕ КЛАССЫ, ЧТО И В createMessageElement
+                    return `
+                    <div class="attachment-item image-attachment">
+                        <div class="skeleton skeleton-tile" style="background-image: url(${localUrl}); background-size: cover;"></div>
+                    </div>`;
+                }).join('');
+
+                if (imageAttachments.length > 1) {
+                    imageContentHtml = `<div class="image-gallery-grid">${imageItemsHtml}</div>`;
+                } else {
+                    imageContentHtml = imageItemsHtml;
+                }
+            }
+
+            if (fileAttachments.length > 0) {
+                fileContentHtml = fileAttachments.map(att => {
+                    return `
+                    <div class="attachment-item file-attachment">
+                        <div class="file-icon">📁</div>
+                        <div class="file-info">
+                            <span class="file-name">${att.file.name || 'Файл'}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            attachmentsHtml = `<div class="attachments-container">${imageContentHtml}${fileContentHtml}</div>`;
+        }
+
+        const contentHtml = content ? `<div class="message-content">${content}</div>` : '';
+
         return `
-        <div class="message sent pending" data-temp-id="${tempId}">
-            ${content ? `<div class="message-content">${content}</div>` : ""}
-            ${attachments?.length ? renderAttachmentPreview(attachments) : ""}
-            <div class="message-meta">
-                <span>Отправка...</span>
-                <span class="message-status sending">⏳</span>
+            <div class="message sent pending" data-temp-id="${tempId}">
+                ${attachmentsHtml}
+                ${contentHtml}
+                <div class="message-meta">
+                    <span>Отправка...</span>
+                    <span class="message-status">⏳</span>
+                </div>
             </div>
-        </div>
-    `;
+        `;
     }
 
 
@@ -992,43 +1049,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    messageForm.addEventListener('submit', async (e) => {
+    messageForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const content = messageInput.value.trim();
+        const localAttachments = [...pendingAttachments]; // Копируем массив, так как он будет очищен
 
-        if (!content && pendingAttachments.length === 0) return;
+        if (!content && localAttachments.length === 0) return;
 
-        const uploadedAttachments = [];
-        for (let att of pendingAttachments) {
-            try {
-                const formData = new FormData();
-                formData.append('file', att.file);
+        // 1. Генерируем временный ID
+        const tempId = generateTempId();
 
-                const response = await fetch(`${API_BASE_URL}/api/storage/upload`, {
-                    method: 'POST',
-                    headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`},
-                    body: formData
-                });
-                if (!response.ok) throw new Error("Ошибка при загрузке");
+        // 2. Немедленно отображаем временное сообщение в UI
+        const pendingMsgHtml = renderPendingMessage(content, localAttachments, tempId);
+        messagesEl.insertAdjacentHTML("beforeend", pendingMsgHtml);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
 
-                const result = await response.json();
-                uploadedAttachments.push({
-                    mimeType: att.mimeType,
-                    fileId: result.id,
-                    fileName: att.file.name
-                });
-
-            } catch (err) {
-                console.error("Ошибка загрузки файла:", err);
-                alert(`Не удалось загрузить файл: ${att.file.name}`);
-            }
-        }
-
-        chatManager.sendMessageWithAttachments(content, uploadedAttachments);
-
+        // 3. Немедленно очищаем форму
         messageInput.value = '';
         attachmentPreviewContainer.innerHTML = '';
         pendingAttachments = [];
+
+        // 4. Запускаем загрузку файлов и отправку в фоне, не блокируя UI
+        (async () => {
+            const uploadedAttachments = [];
+            for (let att of localAttachments) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', att.file);
+
+                    const response = await fetch(`${API_BASE_URL}/api/storage/upload`, {
+                        method: 'POST',
+                        headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`},
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Ошибка загрузки файла: ${att.file.name}`);
+
+                    const result = await response.json();
+                    uploadedAttachments.push({
+                        mimeType: att.mimeType,
+                        fileId: result.id,
+                        fileName: att.file.name
+                    });
+
+                } catch (err) {
+                    console.error("Ошибка загрузки файла:", err);
+                    const pendingEl = document.querySelector(`[data-temp-id='${tempId}']`);
+                    if (pendingEl) {
+                        pendingEl.querySelector('.message-meta span').textContent = 'Ошибка отправки';
+                    }
+                    return;
+                }
+            }
+
+            const chatMessage = {
+                chatId: activeChatId,
+                content: content,
+                attachments: uploadedAttachments,
+                tempId: tempId
+            };
+
+            if (chatManager.stompClient && chatManager.isConnected) {
+                chatManager.stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
+            } else {
+                alert("Нет подключения для отправки сообщения.");
+                const pendingEl = document.querySelector(`[data-temp-id='${tempId}']`);
+                if (pendingEl) {
+                    pendingEl.querySelector('.message-meta span').textContent = 'Ошибка сети';
+                }
+            }
+        })();
     });
 
     attachFileBtn.addEventListener('click', () => fileInput.click());

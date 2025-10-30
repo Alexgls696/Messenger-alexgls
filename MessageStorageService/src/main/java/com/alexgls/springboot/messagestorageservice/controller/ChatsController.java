@@ -84,6 +84,7 @@ public class ChatsController {
 
     }
 
+
     @GetMapping("/{id}/participants")
     public Flux<GetUserDto> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find participants by chat id: {}", chatId);
@@ -91,6 +92,7 @@ public class ChatsController {
         return participantsService.findUserIdsByChatId(chatId)
                 .flatMap(id -> authWebClient.findUserById(id, token));
     }
+
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteChatById(@PathVariable("id") int id, Authentication authentication) {

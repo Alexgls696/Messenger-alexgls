@@ -258,3 +258,95 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     .back-btn { display: none; }
     body.chat-active .chat-list { display: flex; }
 }
+
+.attachment-preview-container {
+    padding: 10px; /* Убедимся, что отступы консистентны */
+    display: flex; /* Уже должно быть */
+    align-items: flex-start; /* Выравниваем элементы по верху */
+    flex-wrap: wrap; /* Уже должно быть */
+    gap: 10px; /* Уже должно быть */
+}
+
+
+.attachment-preview-item {
+    position: relative;
+    /* Убираем лишние внутренние отступы, чтобы картинка занимала все место */
+    padding: 0;
+    width: 80px;  /* Задаем фиксированную ширину */
+    height: 80px; /* и высоту */
+    border-radius: 8px;
+    overflow: hidden; /* Обрезаем все, что выходит за рамки */
+}
+
+
+.attachment-preview-item img {
+    width: 100%;       /* Растягиваем на всю ширину родителя */
+    height: 100%;      /* Растягиваем на всю высоту родителя */
+    object-fit: cover; /* Масштабируем так, чтобы картинка заполнила блок, сохранив пропорции */
+    display: block;
+}
+
+
+.attachment-preview-item .remove-attachment-btn {
+    top: -5px;
+    right: -5px;
+    width: 22px;
+    height: 22px;
+    line-height: 20px;
+    font-size: 16px;
+}
+
+.message.pending {
+    opacity: 0.7; /* Делаем сообщение полупрозрачным, пока оно не отправлено */
+    position: relative;
+}
+
+/* Контейнер для вложений во временном сообщении */
+.pending-attachments-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 5px;
+}
+
+/* Отдельное превью вложения */
+.pending-attachment-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pending-attachment-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pending-attachment-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный темный фон */
+
+    animation: pending-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pending-pulse {
+    0% { background-color: rgba(0, 0, 0, 0.4); }
+    50% { background-color: rgba(0, 0, 0, 0.6); }
+    100% { background-color: rgba(0, 0, 0, 0.4); }
+}
+
+.message.pending .message-meta {
+    color: var(--text-on-accent);
+    opacity: 0.9;
+}
+
+.message.pending .skeleton-tile {
+    /* Отключаем анимацию загрузки для превью */
+    animation: none;
+}

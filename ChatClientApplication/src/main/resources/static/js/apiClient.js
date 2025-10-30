@@ -13,11 +13,14 @@ function logout() {
 
 async function apiFetch(url, options = {}) {
     try {
-        let response = await fetch(url, prepareRequestOptions(options));
+        // ИСПРАВЛЕНИЕ: optionsWithSignal теперь будет содержать и заголовки, и signal.
+        const optionsWithSignal = prepareRequestOptions(options);
+        let response = await fetch(url, optionsWithSignal);
 
         if (response.status === 401) {
             await handleTokenRefresh();
-            response = await fetch(url, prepareRequestOptions(options));
+            // Повторяем запрос с теми же опциями (включая signal)
+            response = await fetch(url, optionsWithSignal);
         }
 
         if (!response.ok) {
@@ -26,39 +29,39 @@ async function apiFetch(url, options = {}) {
             throw error;
         }
 
-
         if (response.status === 204) {
-            return null; // Успешно, нет тела.
+            return null;
         }
 
         const contentLength = response.headers.get('content-length');
         if (contentLength === '0') {
-            return null; // Успешно, но тело пустое.
+            return null;
         }
-
 
         return await response.json();
 
     } catch (error) {
-
-        console.warn(`Ошибка при запросе к ${url}:`, error);
+        console.warn(`Ошибка или отмена запроса к ${url}:`, error);
         throw error;
     }
 }
 
-// Вспомогательная функция для подготовки заголовков
 function prepareRequestOptions(options) {
     const token = localStorage.getItem('accessToken');
     const headers = {
         'Content-Type': 'application/json',
-        ...options.headers, // Позволяет передавать кастомные заголовки
+        ...options.headers,
     };
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return { ...options, headers };
+    return {
+        ...options,
+        headers,
+        signal: options.signal // Добавляем эту строку
+    };
 }
 
 // Главная логика обновления токена

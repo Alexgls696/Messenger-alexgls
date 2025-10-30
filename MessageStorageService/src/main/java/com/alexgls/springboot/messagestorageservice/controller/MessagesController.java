@@ -7,7 +7,6 @@ import com.alexgls.springboot.messagestorageservice.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservice.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +31,14 @@ public class MessagesController {
     public Flux<Message> findMessagesByChatId(
             @RequestParam("chatId") int chatId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int pageSize, Authentication authentication) {
+            @RequestParam(value = "size", defaultValue = "15") int pageSize, Authentication authentication) {
         int currentUserId = getCurrentUserId(authentication);
         log.info("findMessagesByChatId chatId={}, page={}, size={}", chatId, page, pageSize);
-        return messagesService.getMessagesByChatId(chatId, page * pageSize, pageSize, currentUserId);
+        return messagesService.getMessagesByChatId(chatId, page * pageSize, pageSize, currentUserId)
+                .map(message -> {
+                    log.info("findMessagesByChatId message: {} ", message);
+                    return message;
+                });
     }
 
     @PostMapping("/read-messages")
