@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageForm = document.getElementById('messageForm');
     const messageInput = document.getElementById('messageInput');
     const userSearchModal = document.getElementById('userSearchModal');
-    const logoutBtn = document.getElementById('logoutBtn');
+
     const backToListBtn = document.getElementById('backToListBtn');
 
     const findUserBtn = document.getElementById('findUserBtn');
@@ -24,8 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const myProfileBtn = document.getElementById('myProfileBtn');
     const usernameContent = document.getElementById('username');
 
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    const dropdownThemeToggle = document.getElementById('dropdownThemeToggle');
+    const themeToggleIcon = document.getElementById('themeToggleIcon');
+    const dropdownLogout = document.getElementById('dropdownLogout');
+
     let currentUserData = null; // Базовые данные (из /users/me)
     let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
+
+    const currentTheme = localStorage.getItem('theme');
 
 
     let pendingAttachments = [];
@@ -34,7 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     contextMenu.id = 'messageContextMenu';
     contextMenu.className = 'context-menu hidden';
     document.body.appendChild(contextMenu);
-    let contextMessageInfo = null;
+
+
+    let contextMenuTarget = null;
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const body = document.body;
 
 
     // --- Состояние приложения ---
@@ -57,10 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
     const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
-    const API_PROFILES_URL = 'http://localhost:8092'; // ИЗМЕНЕНИЕ: URL для API профилей
 
     const chatManager = {
-        // ... (весь ваш объект chatManager остается без изменений) ...
         stompClient: null,
         isConnected: false,
         isConnecting: false,
@@ -196,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     };
 
-    // ... (все ваши функции до openChat остаются без изменений)
+
     function handleMessageDeletion(messageIds) {
         if (!Array.isArray(messageIds)) return;
 
@@ -213,6 +223,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 400); // Длительность анимации
             }
         });
+    }
+
+    async function deleteChat(chatId) {
+        const isConfirmed = confirm("Вы действительно хотите удалить этот чат? Это действие необратимо.");
+        if (!isConfirmed) return;
+
+        try {
+            await apiFetch(`${API_BASE_URL}/api/chats/${chatId}`, {
+                method: 'DELETE'
+            });
+
+            const chatLi = chatListEl.querySelector(`[data-chat-id='${chatId}']`);
+            if (chatLi) {
+                chatLi.remove();
+            }
+
+            if (activeChatId === chatId) {
+                closeActiveChat();
+            }
+
+        } catch (error) {
+            console.error("Ошибка при удалении чата:", error);
+            alert("Не удалось удалить чат. Возможно, он уже удален или у вас нет прав.");
+        } finally {
+            hideContextMenu();
+        }
     }
 
     async function deleteMessages(messageIds, forAll) {
@@ -241,20 +277,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function showChatContextMenu(event, chatId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        contextMenuTarget = {
+            type: 'chat',
+            chatId: chatId
+        };
+
+        contextMenu.innerHTML = `
+            <div class="context-menu-item danger" data-action="delete-chat">
+                Удалить чат
+            </div>
+        `;
+
+        contextMenu.style.top = `${event.pageY}px`;
+        contextMenu.style.left = `${event.pageX}px`;
+        contextMenu.classList.remove('hidden');
+    }
+
     function showContextMenu(event, messageElement) {
-        event.preventDefault(); // Отменяем стандартное контекстное меню браузера
+        event.preventDefault();
 
         const messageId = parseInt(messageElement.dataset.messageId);
         const isSentByMe = messageElement.classList.contains('sent');
 
-        contextMessageInfo = {
-            messageId: messageId,
-            isSentByMe: isSentByMe
+        contextMenuTarget = {
+            type: 'message',
+            data: {
+                messageId: messageId,
+                isSentByMe: isSentByMe
+            }
         };
 
         let menuItems = `<div class="context-menu-item" data-action="delete-for-me">Удалить у себя</div>`;
         if (isSentByMe) {
-            menuItems += `<div class="context-menu-item" data-action="delete-for-all">Удалить у всех</div>`;
+            menuItems += `<div class="context-menu-item danger" data-action="delete-for-all">Удалить у всех</div>`;
         }
 
         contextMenu.innerHTML = menuItems;
@@ -265,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideContextMenu() {
         contextMenu.classList.add('hidden');
-        contextMessageInfo = null;
+        contextMenuTarget = null;
     }
 
     async function updateOrFetchChatInList(newMsg) {
@@ -415,6 +474,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         li.addEventListener('click', () => openChat(chat));
+
+        li.addEventListener('contextmenu', (e) => showChatContextMenu(e, chat.chatId));
+
+        li.addEventListener('click', () => openChat(chat));
         return li;
     }
 
@@ -442,60 +505,83 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        activeChatId = chat.chatId;
-        activeChatRecipientId = null; // ИЗМЕНЕНИЕ: Сбрасываем ID собеседника при открытии нового чата
+        // --- БЛОК СБРОСА СОСТОЯНИЯ ---
+        activeChatId = chat.chatId; // Устанавливаем ГЛОБАЛЬНЫЙ activeChatId
+        const openingChatId = chat.chatId; // Создаем ЛОКАЛЬНУЮ копию для этой конкретной операции
+
+        activeChatRecipientId = null;
         messagePage = 0;
         hasMoreMessages = true;
         participantCache = {};
+        isLoading = false;
 
+        // --- Обновление UI ---
         [...chatListEl.children].forEach(li => {
             li.classList.toggle('active', li.dataset.chatId == activeChatId);
         });
-
         chatWindowEl.classList.remove('hidden');
         document.body.classList.add('chat-active');
         chatTitleEl.textContent = 'Загрузка...';
         messagesEl.innerHTML = '<p class="placeholder">Загрузка данных...</p>';
-
-        // ИЗМЕНЕНИЕ: Скрываем/показываем кнопку профиля в зависимости от типа чата
         profileBtn.style.display = chat.group ? 'none' : 'inline-block';
 
+        // --- Загрузка данных ---
         try {
-            const [chatDetailsResult, messages] = await Promise.all([
-                (async () => {
-                    if (chat.group) {
-                        chatTitleEl.textContent = chat.name;
-                    } else {
-                        const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
-                        chatTitleEl.textContent = `Чат с ${recipient.name} ${recipient.surname}`;
-                        activeChatRecipientId = recipient.id; // ИЗМЕНЕНИЕ: Сохраняем ID собеседника
-                    }
-                    const participants = await apiFetch(`${API_BASE_URL}/api/chats/${chat.chatId}/participants`);
-                    participants.forEach(p => {
-                        participantCache[p.id] = `${p.name} ${p.surname}`;
-                    });
-                })(),
-                loadMessages(chat.chatId, messagePage)
-            ]);
-            renderMessages(messages);
+            // ИСПРАВЛЕНО: Возвращаем ваш оригинальный код для загрузки деталей чата
+            await (async () => {
+                if (chat.group) {
+                    chatTitleEl.textContent = chat.name;
+                } else {
+                    const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
+                    chatTitleEl.textContent = `Чат с ${recipient.name} ${recipient.surname}`;
+                    activeChatRecipientId = recipient.id;
+                }
+                const participants = await apiFetch(`${API_BASE_URL}/api/chats/${chat.chatId}/participants`);
+                participants.forEach(p => {
+                    participantCache[p.id] = `${p.name} ${p.surname}`;
+                });
+            })();
 
+            // Загрузка сообщений
+            const messages = await loadMessages(openingChatId, 0); // Всегда запрашиваем страницу 0
+
+            // --- КЛЮЧЕВАЯ ПРОВЕРКА ---
+            if (openingChatId !== activeChatId) {
+                console.log(`Загрузка для чата ${openingChatId} отменена, активен чат ${activeChatId}`);
+                return;
+            }
+
+            // Рендеринг и прокрутка
+            const { firstUnreadId } = await renderMessages(messages);
+            if (firstUnreadId) {
+                const firstUnreadElement = messagesEl.querySelector(`[data-message-id='${firstUnreadId}']`);
+                if (firstUnreadElement) {
+                    firstUnreadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
+
+            // Отметка о прочтении
             const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
             await markMessagesAsRead(unreadMessages);
 
+            // Увеличиваем счетчик СТРОГО после успешного рендеринга
             if (messages.length === pageSize) {
-                messagePage++;
+                messagePage = 1; // Устанавливаем, что следующая страница будет 1
             }
 
         } catch (error) {
             console.error("Ошибка открытия чата:", error);
-            messagesEl.innerHTML = `<p class="placeholder">Не удалось загрузить данные чата.</p>`;
-            chatTitleEl.textContent = 'Ошибка';
+            if (openingChatId === activeChatId) { // Показываем ошибку только если чат все еще активен
+                messagesEl.innerHTML = `<p class="placeholder">Не удалось загрузить данные чата.</p>`;
+                chatTitleEl.textContent = 'Ошибка';
+            }
         }
 
         messageInput.focus();
     }
 
-    // ... (все ваши функции до loadAttachments остаются без изменений)
     async function loadMessages(chatId, page) {
         if (isLoading || !hasMoreMessages) return [];
         isLoading = true;
@@ -517,18 +603,26 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesEl.innerHTML = ''; // Очищаем контейнер
         if (!messages || messages.length === 0) {
             messagesEl.innerHTML = '<p class="placeholder">Сообщений пока нет. Напишите первым!</p>';
-            return;
+            return { firstUnreadId: null }; // Возвращаем, что непрочитанных нет
         }
+
+        let firstUnreadId = null;
 
         const fragment = document.createDocumentFragment();
         for (const msg of messages) {
             const isSentByMe = msg.senderId === currentUserId;
+
+            if (!isSentByMe && !msg.read && firstUnreadId === null) {
+                firstUnreadId = msg.id;
+            }
+
             const msgDiv = createMessageElement(msg, isSentByMe);
             fragment.appendChild(msgDiv);
         }
 
-        messagesEl.appendChild(fragment); // Добавляем все сообщения в DOM за одну операцию
-        messagesEl.scrollTop = messagesEl.scrollHeight; // Прокручиваем вниз
+        messagesEl.appendChild(fragment);
+
+        return { firstUnreadId };
     }
 
 
@@ -547,18 +641,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let attachmentsHtml = '';
         if (msg.attachments && msg.attachments.length > 0) {
-            attachmentsHtml = '<div class="attachments-container">';
 
-            const attachmentItemsHtml = msg.attachments.map(att => {
-                const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
+            // Разделяем вложения на картинки и файлы
+            const imageAttachments = msg.attachments.filter(att => att.mimeType && att.mimeType.startsWith('image/'));
+            const fileAttachments = msg.attachments.filter(att => !att.mimeType || !att.mimeType.startsWith('image/'));
 
-                if (att.mimeType && att.mimeType.startsWith('image/')) {
+            let imageContentHtml = '';
+            let fileContentHtml = '';
+
+            // --- Генерация HTML для картинок ---
+            if (imageAttachments.length > 0) {
+                const imageItemsHtml = imageAttachments.map(att => {
+                    const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
+
                     return `
                     <div class="attachment-item image-attachment viewer-enabled" data-file-id="${att.fileId}">
                         <div class="skeleton skeleton-tile"></div>
                         <img class="attachment-image lazy-load" data-src="${proxyUrl}">
                     </div>`;
+                }).join('');
+
+                // Если картинок больше одной, оборачиваем их в сетку. Если одна - оставляем как есть.
+                if (imageAttachments.length > 1) {
+                    imageContentHtml = `<div class="image-gallery-grid">${imageItemsHtml}</div>`;
                 } else {
+                    imageContentHtml = imageItemsHtml;
+                }
+            }
+
+            // --- Генерация HTML для файлов ---
+            if (fileAttachments.length > 0) {
+                fileContentHtml = fileAttachments.map(att => {
+                    const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                     const fileName = att.fileName || 'file';
                     return `
                     <div class="attachment-item file-attachment">
@@ -568,11 +682,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             <a href="${proxyUrl}" class="file-download-link" download="${fileName}">Скачать</a>
                         </div>
                     </div>`;
-                }
-            }).join('');
+                }).join('');
+            }
 
-            attachmentsHtml += attachmentItemsHtml;
-            attachmentsHtml += '</div>';
+            // Собираем всё вместе
+            attachmentsHtml = `<div class="attachments-container">${imageContentHtml}${fileContentHtml}</div>`;
         }
 
         const contentHtml = messageType === 'TEXT'
@@ -849,9 +963,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     messagesEl.addEventListener('scroll', async () => {
         if (messagesEl.scrollTop === 0 && hasMoreMessages && !isLoading) {
+
+            const scrollChatId = activeChatId; // Запоминаем ID чата в момент начала скролла
+
             const scrollHeightBefore = messagesEl.scrollHeight;
             try {
-                const messages = await loadMessages(activeChatId, messagePage);
+                const messages = await loadMessages(scrollChatId, messagePage);
+
+
+                if (scrollChatId !== activeChatId) {
+                    return;
+                }
+
                 if (messages && messages.length > 0) {
                     const fragment = document.createDocumentFragment();
                     for (const msg of messages) {
@@ -938,9 +1061,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userSearchModal.classList.add('hidden');
         }
     });
-    logoutBtn.addEventListener('click', () => {
-        window.location.href = '/logout';
-    });
 
     profileBtn.addEventListener("click", () => {
         if (!activeChatRecipientId || !activeChatId) return;
@@ -958,14 +1078,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     contextMenu.addEventListener('click', (event) => {
         const action = event.target.dataset.action;
-        if (action && contextMessageInfo) {
-            const {messageId} = contextMessageInfo;
+
+        if (!action || !contextMenuTarget) return;
+
+        if (contextMenuTarget.type === 'message') {
+            const { messageId } = contextMenuTarget.data;
             if (action === 'delete-for-me') {
                 deleteMessages([messageId], false);
             } else if (action === 'delete-for-all') {
                 deleteMessages([messageId], true);
             }
         }
+
+        else if (contextMenuTarget.type === 'chat') {
+            if (action === 'delete-chat') {
+                deleteChat(contextMenuTarget.chatId);
+            }
+        }
+
+        // Скрываем меню после любого действия
+        hideContextMenu();
     });
 
     backToListBtn.addEventListener('click', closeActiveChat);
@@ -977,6 +1109,44 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Данные профиля не были предзагружены, используется стандартный метод открытия.");
             myProfileManager.open(currentUserData);
         }
+    });
+
+    settingsBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Останавливаем "всплытие" события, чтобы не сработал window.onclick
+        settingsDropdown.classList.toggle('hidden');
+    });
+
+    // Закрытие меню по клику в любом другом месте экрана
+    window.addEventListener('click', () => {
+        if (!settingsDropdown.classList.contains('hidden')) {
+            settingsDropdown.classList.add('hidden');
+        }
+    });
+
+    if (currentTheme === 'dark') {
+        body.setAttribute('data-theme', 'dark');
+        themeToggleIcon.textContent = '☀️';
+    } else {
+        body.setAttribute('data-theme', 'light');
+        themeToggleIcon.textContent = '🌙';
+    }
+
+    dropdownThemeToggle.addEventListener('click', () => {
+        let newTheme;
+        if (body.getAttribute('data-theme') === 'dark') {
+            newTheme = 'light';
+            themeToggleIcon.textContent = '🌙';
+        } else {
+            newTheme = 'dark';
+            themeToggleIcon.textContent = '☀️';
+        }
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // Логика выхода (перенесена сюда)
+    dropdownLogout.addEventListener('click', () => {
+        window.location.href = '/logout';
     });
 
     const updateHeaderUI = (userData) => {

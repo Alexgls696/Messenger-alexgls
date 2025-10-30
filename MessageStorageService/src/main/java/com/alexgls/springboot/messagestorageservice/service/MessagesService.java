@@ -94,6 +94,8 @@ public class MessagesService {
                 })));
     }
 
+    //Исправить пропадающие сообщение при переключении чатов
+
     Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
         return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
                 .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))

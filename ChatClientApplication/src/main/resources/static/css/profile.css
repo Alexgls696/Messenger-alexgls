@@ -1,3 +1,11 @@
+/*
+ * ===================================================================
+ *  СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ И ВЛОЖЕНИЙ
+ *  (с исправленной сеткой и поддержкой тем)
+ * ===================================================================
+ */
+
+/* --- Основной контейнер модального окна --- */
 .user-profile-body {
     max-height: 75vh;
     overflow-y: auto;
@@ -7,80 +15,146 @@
     padding: 25px;
 }
 .user-profile-body::-webkit-scrollbar { width: 6px; }
-.user-profile-body::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
-.user-profile-body::-webkit-scrollbar-track { background-color: #f1f1f1; }
+.user-profile-body::-webkit-scrollbar-thumb { background-color: var(--border-primary); border-radius: 3px; }
+.user-profile-body::-webkit-scrollbar-track { background-color: var(--bg-secondary); }
 
-
-/* --- Стили для элементов профиля другого пользователя --- */
+/* --- Секция с информацией о профиле --- */
 .profile-header {
     display: flex;
     align-items: center;
     gap: 20px;
     flex-shrink: 0;
 }
-
 .profile-avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 3px solid var(--surface-primary);
+    box-shadow: 0 2px 8px var(--shadow-primary);
 }
-
 .profile-details {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
+.profile-info-item {
+    font-size: 1em;
+    color: var(--text-secondary);
+}
+.profile-info-item strong {
+    color: var(--text-primary);
+    margin-right: 8px;
+}
 
-.profile-info-item { font-size: 1em; color: #555; }
-.profile-info-item strong { color: #333; margin-right: 8px; }
-
+/* --- Разделители и заголовки секций --- */
 .photos-section,
 .attachments-section {
     padding-top: 20px;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--border-secondary);
 }
-
 .profile-section-title {
     font-size: 1.2em;
     font-weight: 600;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text-primary);
 }
 
+/* --- СЕТКА С ФОТОГРАФИЯМИ ПРОФИЛЯ (ИСПРАВЛЕНО) --- */
 .photos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
+    /* Указываем, что колонки должны заполнять пространство, минимальная ширина 120px */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
 }
 
 .profile-image-item {
     position: relative;
     width: 100%;
-    padding-top: 100%;
-    background-color: #f0f0f0;
-    border-radius: 10px;
+    padding-top: 100%; /* Делает элемент квадратным */
+    background-color: var(--surface-secondary);
+    border-radius: 8px;
     overflow: hidden;
 }
 .profile-image-item .skeleton,
 .profile-image-item img {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
+/* --- Вкладки для переключения вложений --- */
+.attachments-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: 10px;
+}
+.attachments-tabs .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1em;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.attachments-tabs .tab-btn:hover {
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+.attachments-tabs .tab-btn.active {
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+}
 
-/* --- Стили для вкладок и вложений --- */
-.attachments-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-.attachments-tabs .tab-btn { padding: 8px 16px; border: none; background-color: transparent; cursor: pointer; font-size: 1em; color: #555; border-radius: 6px; }
-.attachments-tabs .tab-btn:hover { background-color: #f0f4f8; }
-.attachments-tabs .tab-btn.active { background-color: #007bff; color: white; }
+/* --- Контейнер для отображения вложений --- */
+#attachmentsContent {
+    min-height: 250px;
+    display: flex;
+    align-items: flex-start; /* Контент начинается сверху */
+    justify-content: center;
+}
 
-#attachmentsContent { min-height: 250px; display: flex; align-items: center; justify-content: center; }
-#attachmentsContent .attachments-grid,
-#attachmentsContent .attachments-list { width: 100%; align-self: flex-start; }
+/* --- СЕТКА ДЛЯ ВЛОЖЕНИЙ (ИСПРАВЛЕНО) --- */
+.attachments-grid {
+    width: 100%;
+    display: grid;
+    /* Точно такая же сетка, как для фотографий профиля, для консистентности */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+.attachments-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-.attachment-item { position: relative; border-radius: 8px; overflow: hidden; background-color: #e9ecef; width: 100%; aspect-ratio: 1 / 1; }
+/* Элемент в сетке вложений */
+.attachment-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--surface-secondary);
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Делает плитку квадратной */
+}
 .attachment-item .skeleton,
-.attachment-item .lazy-load-attachment { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-.attachment-item .lazy-load-attachment { opacity: 0; transition: opacity 0.3s ease; }
+.attachment-item .lazy-load-attachment {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.attachment-item .lazy-load-attachment {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}

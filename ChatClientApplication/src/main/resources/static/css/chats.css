@@ -1,1119 +1,260 @@
-/* Сброс и базовые стили */
+/*
+ * ===================================================================
+ *  1. ОПРЕДЕЛЕНИЕ ПЕРЕМЕННЫХ ТЕМЫ (ЦВЕТОВАЯ ПАЛИТРА)
+ * ===================================================================
+ */
+
+/* СВЕТЛАЯ ТЕМА (ПО УМОЛЧАНИЮ) */
+:root, body[data-theme="light"] {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #f9f9f9;
+    --surface-primary: #ffffff;
+    --surface-secondary: #f0f4f8;
+    --surface-accent: #e1f0ff;
+
+    --text-primary: #2c3e50;
+    --text-secondary: #555555;
+    --text-placeholder: #888888;
+    --text-on-accent: #ffffff;
+
+    --border-primary: #dddddd;
+    --border-secondary: #eeeeee;
+
+    --accent-primary: #3498db;
+    --accent-primary-hover: #2980b9;
+    --accent-positive: #28a745;
+    --accent-positive-hover: #218838;
+    --accent-negative: #dc3545;
+    --accent-negative-hover: #c82333;
+
+    --shadow-primary: rgba(0, 0, 0, 0.1);
+
+    --message-sent-bg: var(--accent-primary);
+    --message-sent-text: var(--text-on-accent);
+    --message-received-bg: #ecf0f1;
+    --message-received-text: #333;
+
+    --context-menu-danger-text: #e74c3c;
+    --context-menu-danger-hover: #fcebeb;
+
+    --skeleton-base: #e0e0e0;
+    --skeleton-shine: #f0f0f0;
+}
+
+/* ТЁМНАЯ ТЕМА */
+body[data-theme="dark"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --surface-primary: #2c2c2c;
+    --surface-secondary: #3a3a3a;
+    --surface-accent: #003c75;
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-placeholder: #888888;
+    --text-on-accent: #ffffff;
+
+    --border-primary: #444444;
+    --border-secondary: #333333;
+
+    --accent-primary: #008cff;
+    --accent-primary-hover: #3aa6ff;
+    --accent-positive: #20c997;
+    --accent-positive-hover: #4dd4ab;
+    --accent-negative: #ff5252;
+    --accent-negative-hover: #ff7979;
+
+    --shadow-primary: rgba(0, 0, 0, 0.4);
+
+    --message-sent-bg: var(--accent-primary);
+    --message-sent-text: var(--text-on-accent);
+    --message-received-bg: #3a3a3a;
+    --message-received-text: var(--text-primary);
+
+    --context-menu-danger-text: #ff5252;
+    --context-menu-danger-hover: #5e2a2a;
+
+    --skeleton-base: #3a3a3a;
+    --skeleton-shine: #4a4a4a;
+}
+
+/*
+ * ===================================================================
+ *  2. БАЗОВЫЕ СТИЛИ И ПРИМЕНЕНИЕ ПЕРЕМЕННЫХ
+ * ===================================================================
+ */
+
+/* --- Скроллбар --- */
 * {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Убирает синюю подсветку при тапе на мобильных */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) var(--surface-primary);
 }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface-primary); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background-color: var(--border-primary); border-radius: 4px; border: 2px solid var(--surface-primary); }
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-placeholder); }
 
-html, body {
-    height: 100%;
-}
-
+/* --- Базовые стили и разметка --- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f5f7fa;
-    margin: 0;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    /* Убираем padding для body, чтобы контейнер мог занимать всю ширину на мобильных */
-    padding: 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    margin: 0; display: flex; flex-direction: column; padding: 0;
+    transition: background-color 0.2s, color 0.2s;
 }
+.container { width: 100%; max-width: 1400px; height: 100%; margin: 0 auto; display: flex; flex-direction: column; padding: 10px; }
+.status { text-align: center; margin-bottom: 15px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+.chat-wrapper { display: flex; gap: 20px; flex-grow: 1; min-height: 0; width: 100%; }
 
-.container {
-    width: 100%;
-    max-width: 1400px; /* Немного увеличим для больших экранов */
-    height: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    padding: 10px; /* Добавляем padding сюда */
-}
-
+/* --- Главная шапка (ИСПРАВЛЕНО) --- */
 .main-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
     position: relative;
+    padding: 10px;
+    margin-bottom: 15px;
     flex-shrink: 0;
-    padding: 10px 0;
 }
-
-
-.main-header h3 {
-    margin: 0;
+.user-info-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.user-info-header h3 {
     font-size: 1.5em;
     font-weight: 600;
-    color: #2c3e50;
-    text-align: right;
-}
-
-.status {
-    text-align: center;
-    margin-bottom: 15px;
-    font-weight: 600;
-    color: #666;
-    flex-shrink: 0;
-}
-
-.chat-wrapper {
-    display: flex;
-    gap: 20px;
-    flex-grow: 1;
-    min-height: 0;
-    width: 100%;
-}
-
-.chat-list {
-    list-style: none;
-    padding: 0;
-    width: 320px; /* Фиксированная ширина для десктопа */
-    flex-shrink: 0; /* Не сжиматься */
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
-    overflow-y: auto;
-    border: 1px solid #ddd;
+    color: var(--text-primary);
     margin: 0;
-    display: flex;
-    flex-direction: column;
 }
-
-.chat-list li {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-list li:last-child {
-    border-bottom: none;
-}
-
-.chat-list li:hover {
-    background-color: #f0f4f8;
-}
-
-.chat-list li.active {
-    background-color: #e1f0ff;
-    border-left: 4px solid #3498db;
-}
-
-.chat-title {
-    font-weight: 600;
-    font-size: 1.05em;
-    color: #2c3e50;
-    margin-bottom: 6px;
-}
-
-.chat-type {
-    font-size: 0.85em;
-    color: #777;
-    margin-bottom: 8px;
-}
-
-.last-message {
-    font-size: 0.9em;
-    color: #555;
-    font-style: italic;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.message-time {
-    font-size: 0.75em;
-    color: #999;
-    margin-top: 4px;
-}
-
-.chat-window {
-    flex-grow: 1; /* Растягиваться на всю доступную ширину */
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #ddd;
-    transition: transform 0.3s ease, opacity 0.3s ease; /* Добавляем transition для transform */
-    min-width: 0; /* Важно для работы flex-box */
-}
-
-.chat-window.hidden {
-    display: none;
-}
-
-.chat-window__header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    background-color: #f7f7f7;
-    border-radius: 8px 8px 0 0;
-    flex-shrink: 0;
-}
-
-.chat-window__header h2 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.25em;
-    color: #2c3e50;
-}
-
-.close-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.8em;
-    color: #aaa;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    transition: color 0.2s ease;
-}
-
-.close-btn:hover {
-    color: #e74c3c;
-}
-
-.messages {
-    padding: 15px; /* Немного уменьшим padding */
-    flex-grow: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.message {
+.header-buttons.left, .header-buttons.right {
     position: relative;
-    padding: 10px 15px;
-    border-radius: 18px;
-    max-width: 80%; /* Немного увеличим для мобильных */
     display: flex;
-    flex-direction: column;
-}
-
-.message.sent {
-    background-color: #3498db;
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 4px;
-}
-
-.message.received {
-    background-color: #ecf0f1;
-    color: #333;
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
-}
-
-.message-sender {
-    font-weight: bold;
-    font-size: 0.9em;
-    margin-bottom: 5px;
-}
-
-.message.received .message-sender {
-    color: #3498db;
-    font-size: 0.85em;
-    margin-bottom: 4px;
-    font-weight: 600;
-}
-
-.message-content {
-    font-size: 1em;
-    word-wrap: break-word;
-}
-
-.message-meta {
-    display: flex;
-    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
-    font-size: 0.75em;
-    margin-top: 5px;
-    text-align: right;
-    opacity: 0.8;
 }
-
-.placeholder {
-    font-style: italic;
-    color: #888;
-    text-align: center;
-    margin: auto;
-}
-
-.message-form {
-    display: flex;
-    align-items: center; /* Выравниваем элементы по центру */
-    padding: 10px;
-    border-top: 1px solid #eee;
-    background: #f9f9f9;
-    flex-shrink: 0;
-}
-
-.message-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    font-size: 0.95em;
-    transition: border-color 0.2s ease;
-}
-
-.message-input:focus {
-    border-color: #3498db;
-}
-
-.send-btn {
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.send-btn:hover {
-    background: #2980b9;
-}
-
-.header-buttons {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.header-buttons.left {
-    left: 0;
-}
-
-.header-buttons.right {
-    right: 0;
-}
-
-/* Общий стиль для обеих кнопок */
 .header-action-btn {
     padding: 10px 18px;
     font-size: 0.9em;
     font-weight: 600;
-    color: white;
+    color: var(--text-on-accent);
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px var(--shadow-primary);
+    transition: all 0.2s ease;
 }
-
 .header-action-btn:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px var(--shadow-primary);
 }
-
 .find-user-btn {
-    background-color: #28a745;
+    background-color: var(--accent-positive);
 }
-
 .find-user-btn:hover {
-    background-color: #218838;
-}
-
-.logout-btn {
-    background-color: #dc3545;
-}
-
-.logout-btn:hover {
-    background-color: #c82333;
-}
-
-
-/* Модальное окно */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.modal.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.modal-content {
-    background: #fff;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    max-height: 80vh;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.4em;
-    color: #333;
-}
-
-.modal-header .close-btn {
-    color: #888;
-    font-size: 2em;
-}
-
-.user-list-container {
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.user-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.user-item:last-child {
-    border-bottom: none;
-}
-
-.user-item:hover {
-    background-color: #f5f5f5;
-}
-
-.user-item .user-name {
-    font-weight: 600;
-    font-size: 1.1em;
-}
-
-.user-item .user-username {
-    margin-left: 10px;
-    color: #777;
-    font-size: 0.9em;
-}
-
-.message-status {
-    font-size: 0.75em;
-    font-style: italic;
-    transition: color 0.3s ease;
-}
-
-.message.sent .message-status {
-    color: #cce7ff; /* Цвет для статуса "Доставлено" */
-}
-
-.message-status.read {
-    color: white;
-    font-weight: 600;
-    font-style: normal;
-}
-
-.attach-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.6em;
-    color: #888;
-    cursor: pointer;
-    padding: 0 12px;
-    transition: color 0.2s ease;
-}
-
-.attach-btn:hover {
-    color: #3498db;
-}
-
-/* Контейнер для превью перед отправкой */
-.attachment-preview-container {
-    padding: 10px 15px; /* Увеличим отступ сверху для красоты */
-    background: #f0f4f8; /* Немного изменим фон для контраста */
-    border-top: 1px solid #ddd;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    overflow-y: auto; /* Добавляем скролл, если превью много */
-    max-height: 120px; /* Ограничиваем высоту, чтобы не занимало много места */
-}
-
-/* Отдельный элемент превью */
-.attachment-preview-item {
-    position: relative;
-    padding: 5px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9em;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    /* Ограничиваем максимальную ширину элемента, чтобы длинные имена файлов не ломали верстку */
-    max-width: 200px;
-}
-
-.attachment-preview-item span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.attachment-preview-container .attachment-preview-item img {
-    height: 40px;
-    width: 40px;
-    min-width: 40px; /* Гарантирует, что ширина не станет меньше */
-    flex-shrink: 0;  /* Запрещает изображению сжиматься внутри flex-контейнера */
-    object-fit: cover; /* Сохраняет пропорции, обрезая лишнее */
-    border-radius: 4px;
-    background-color: #e9ecef; /* Фон на случай, если картинка грузится */
-}
-
-/* Индикатор загрузки */
-.attachment-preview-item.loading {
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { background-color: #e9e9e9; }
-    50% { background-color: #dcdcdc; }
-    100% { background-color: #e9e9e9; }
-}
-
-/* Кнопка удаления превью */
-.remove-attachment-btn {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #555;
-    color: white;
-    border: 2px solid #f0f4f8; /* Рамка в цвет фона, чтобы кнопка "отделялась" */
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 16px; /* Корректируем для центрирования крестика */
-    text-align: center;
-    cursor: pointer;
-    opacity: 0.9;
-    transition: all 0.2s;
-    z-index: 1;
-}
-
-.remove-attachment-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    background: #e74c3c;
-}
-
-/* --- СТИЛИ ДЛЯ ВЛОЖЕНИЙ ВНУТРИ СООБЩЕНИЙ --- */
-
-/* Общий контейнер для вложений в сообщении */
-.attachments-container {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 8px;
-}
-
-
-.attachment-item.image-attachment {
-    display: block;
-    max-width: 300px;
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: 5px;
-    background-color: #f0f2f5;
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
-}
-
-.attachment-item.image-attachment img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.attachment-item.image-attachment img[src] {
-    opacity: 1;
-}
-
-.attachment-item.image-attachment img:hover {
-    filter: brightness(0.9);
-}
-
-/* Вложение-файл */
-.attachment-item.file-attachment {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 10px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.attachment-item.image-attachment a {
-    display: block;
-    position: relative;
-    width: 100%;
-    font-size: 0;
-    text-decoration: none;
-}
-
-.attachment-item.image-attachment .skeleton-tile {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    margin: 0;
-    border-radius: 0;
-    display: block;
-}
-
-.message.sent .attachment-item.file-attachment {
-    background: rgba(255, 255, 255, 0.15); /* Фон для отправленных сообщений */
-}
-
-.file-icon {
-    font-size: 1.8em;
-}
-
-.file-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow: hidden; /* Чтобы длинные имена не вылезали */
-}
-
-.file-name {
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.file-download-btn {
-    font-size: 0.8em;
-    color: #3498db;
-    text-decoration: none;
-    background: none;
-    border: none;
-    padding: 2px 0;
-    cursor: pointer;
-    text-align: left;
-}
-
-.file-download-btn:hover {
-    text-decoration: underline;
-}
-
-.message.sent .file-download-btn {
-    color: #fff;
-}
-
-.file-download-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.attachment-item.error {
-    color: #e74c3c;
-    font-style: italic;
-    font-size: 0.9em;
-    padding: 10px;
-}
-
-.message.sent .file-download-link {
-    color: #fff;
-    text-decoration: underline;
-}
-
-.file-download-link:hover {
-    text-decoration: underline;
-}
-
-.message-form {
-    border-radius: 0;
-}
-
-.chat-window {
-    position: relative;
-}
-
-.attachment-preview-container:not(:empty) + .message-form {
-    border-radius: 0;
-}
-
-.attachment-preview-container:empty + .message-form {
-    border-radius: 0 0 8px 8px;
-}
-
-/*Вложения */
-.attachments-btn {
-    background: none;
-    border: none;
-    font-size: 1.2em;
-    cursor: pointer;
-}
-
-/* ====== МОДАЛЬНОЕ ОКНО ====== */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(30, 30, 30, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal-content.attachments-modal {
-    width: 80vw;
-    height: 80vh;
-    background: #fff;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    animation: modalFadeIn 0.3s ease;
-}
-
-@keyframes modalFadeIn {
-    from {opacity: 0; transform: scale(0.9);}
-    to {opacity: 1; transform: scale(1);}
-}
-
-/* ====== ШАПКА ОКНА ====== */
-.modal-header {
-    padding: 15px 20px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.close-btn {
-    font-size: 20px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.close-btn:hover {
-    transform: scale(1.2);
-    color: #e74c3c;
-}
-
-/* ====== ТАБЫ ====== */
-.attachments-tabs {
-    display: flex;
-    border-bottom: 1px solid #eee;
-    background: #fafafa;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s;
-}
-
-.tab-btn:hover {
-    background: #f0f0f0;
-}
-
-.tab-btn.active {
-    color: #2c7be5;
-    border-bottom: 2px solid #2c7be5;
-    background: #fff;
-}
-
-/* ====== КОНТЕНТ ====== */
-.attachments-content {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #fafafa;
-}
-
-/* Грид для картинок и видео */
-.attachments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-}
-
-.attachment-item img,
-.attachment-item video {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 10px;
-    background: #eaeaea;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-
-.attachment-item img:hover,
-.attachment-item video:hover {
-    transform: scale(1.05);
-}
-
-/* Список для файлов и аудио */
-.attachments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.attachment-list-item {
-    background: #fff;
-    border-radius: 10px;
-    padding: 12px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    font-size: 14px;
-}
-
-.attachment-list-item a {
-    color: #2c7be5;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.attachment-list-item a:hover {
-    text-decoration: underline;
-}
-
-/* ====== СКЕЛЕТОН ====== */
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: skeleton-loading 1.2s infinite;
-    border-radius: 10px;
-}
-
-@keyframes skeleton-loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Скелетон для гридов */
-.skeleton-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-}
-
-.skeleton-tile {
-    width: 100%;
-    height: 120px;
-}
-
-/* Скелетон для списков */
-.skeleton-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.skeleton-row {
-    height: 40px;
-    width: 100%;
-}
-
-
-/* Стиль для сообщений в статусе "Ожидает" */
-.message.pending {
-    background-color: #f7f7f7; /* Светло-серый фон */
-    color: #999; /* Тёмно-серый текст */
-    animation: pulse 1.5s infinite; /* Анимация для мигающего фона */
-    border-radius: 18px;
-}
-
-/* Стиль для сообщений в статусе "Отправляется" */
-.message.sending {
-    background-color: #f1f1f1; /* Еще более светлый фон */
-    color: #aaa; /* Более светлый цвет текста */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Спиннер для статуса "Отправляется" */
-.message.sending::before {
-    content: '';
-    width: 20px;
-    height: 20px;
-    border: 3px solid #3498db;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* Анимация вращающегося спиннера */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Анимация для статуса "Ожидает" */
-@keyframes pulse {
-    0% { background-color: #f7f7f7; }
-    50% { background-color: #e2e2e2; }
-    100% { background-color: #f7f7f7; }
-}
-
-.context-menu {
-    position: absolute;
-    z-index: 1000;
-    background: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border-radius: 8px;
-    padding: 5px 0;
-    min-width: 160px;
-    /* Анимация появления */
-    opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
-}
-
-.context-menu:not(.hidden) {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.context-menu.hidden {
-    display: none;
-}
-
-.context-menu-item {
-    padding: 10px 15px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.context-menu-item:hover {
-    background-color: #f0f4f8;
-}
-
-/* Стилизация для опции "Удалить у всех", чтобы она была более заметной/опасной */
-.context-menu-item[data-action="delete-for-all"] {
-    color: #e74c3c; /* Красный цвет */
-}
-
-/* Анимация удаления сообщения */
-.message.deleted-animation {
-    animation: fadeOutAndShrink 0.4s ease-out forwards;
-    transform-origin: center;
-}
-
-@keyframes fadeOutAndShrink {
-    from {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        max-height: 200px; /* Начальная высота (можно увеличить при необходимости) */
-        margin-bottom: 12px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.8) translateY(-10px);
-        max-height: 0;
-        margin-bottom: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        overflow: hidden;
-    }
-}
-
-
+    background-color: var(--accent-positive-hover);
+}
+
+/* --- Список чатов --- */
+.chat-list { list-style: none; padding: 0; width: 320px; flex-shrink: 0; background: var(--surface-primary); border-radius: 8px; box-shadow: 0 4px 10px var(--shadow-primary); overflow-y: auto; border: 1px solid var(--border-primary); margin: 0; display: flex; flex-direction: column; }
+.chat-list li { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-bottom: 1px solid var(--border-secondary); cursor: pointer; transition: background-color 0.2s ease; }
+.chat-list li:last-child { border-bottom: none; }
+.chat-list li:hover { background-color: var(--surface-secondary); }
+.chat-list li.active { background-color: var(--surface-accent); border-left: 4px solid var(--accent-primary); }
+.chat-item-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background-color: var(--bg-secondary); }
+.chat-info { flex-grow: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+.chat-info .chat-title { font-weight: 600; font-size: 1.1em; color: var(--text-primary); }
+.chat-info .last-message { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+.chat-info .message-time { color: var(--text-placeholder); font-size: 0.85em; }
+
+/* --- Окно чата --- */
+.chat-window { flex-grow: 1; background: var(--surface-primary); border-radius: 8px; box-shadow: 0 4px 10px var(--shadow-primary); display: flex; flex-direction: column; border: 1px solid var(--border-primary); min-width: 0; }
+.chat-window.hidden { display: none; }
+.chat-window__header { padding: 10px 15px; border-bottom: 1px solid var(--border-secondary); display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-secondary); border-radius: 8px 8px 0 0; flex-shrink: 0; }
+.chat-title-wrapper { display: flex; align-items: center; gap: 12px; flex-grow: 1; justify-content: center; margin-left: 36px; padding-right: 36px; }
+#chatTitle { margin: 0; font-size: 1.2em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+.chat-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.header-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; background-color: transparent; border: none; border-radius: 50%; cursor: pointer; color: var(--text-secondary); transition: background-color 0.2s, color 0.2s; }
+.header-icon-btn:hover { background-color: var(--surface-secondary); color: var(--text-primary); }
+.header-icon-btn svg { stroke: currentColor; }
+
+/* --- Сообщения --- */
+.messages { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.message { position: relative; padding: 10px 15px; border-radius: 18px; max-width: 80%; display: flex; flex-direction: column; }
+.message.sent { background-color: var(--message-sent-bg); color: var(--message-sent-text); align-self: flex-end; border-bottom-right-radius: 4px; }
+.message.received { background-color: var(--message-received-bg); color: var(--message-received-text); align-self: flex-start; border-bottom-left-radius: 4px; }
+.message.received .message-sender { color: var(--accent-primary); font-size: 0.85em; margin-bottom: 4px; font-weight: 600; }
+.message-content { font-size: 1em; word-wrap: break-word; }
+.message-meta { display: flex; justify-content: flex-end; align-items: center; gap: 8px; font-size: 0.75em; margin-top: 5px; text-align: right; opacity: 0.8; }
+.message.sent .message-status { color: var(--text-on-accent); opacity: 0.7; }
+.message-status.read { opacity: 1; font-weight: 600; }
+.placeholder { font-style: italic; color: var(--text-placeholder); text-align: center; margin: auto; }
+
+/* --- Форма отправки --- */
+.message-form { display: flex; align-items: center; padding: 10px; border-top: 1px solid var(--border-secondary); background: var(--bg-secondary); flex-shrink: 0; }
+.message-input { flex: 1; padding: 10px 15px; border: 1px solid var(--border-primary); border-radius: 20px; outline: none; font-size: 0.95em; background-color: var(--surface-primary); color: var(--text-primary); transition: border-color 0.2s ease; }
+.message-input:focus { border-color: var(--accent-primary); }
+.send-btn { background: var(--accent-primary); color: var(--text-on-accent); border: none; border-radius: 20px; padding: 10px 20px; margin-left: 10px; cursor: pointer; transition: background-color 0.2s ease; }
+.send-btn:hover { background: var(--accent-primary-hover); }
+
+/* --- Вложения --- */
+.attachments-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.image-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 5px; }
+.attachments-container > .image-attachment:first-child:last-child { max-width: 300px; }
+.attachment-item.image-attachment { position: relative; display: block; border-radius: 12px; overflow: hidden; background-color: var(--bg-secondary); }
+.attachment-item .skeleton-tile { width: 100%; height: auto; aspect-ratio: 1 / 1; display: block; margin: 0; }
+.attachments-container > .image-attachment:first-child:last-child .skeleton-tile { aspect-ratio: 16 / 9; }
+.attachment-item .attachment-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
+.attachment-item .attachment-image[src] { opacity: 1; }
+.attachment-item.file-attachment { background: rgba(0, 0, 0, 0.05); padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255, 255, 255, 0.05); }
+.message.sent .attachment-item.file-attachment { background: rgba(255, 255, 255, 0.15); }
+.message.sent .file-download-link { color: var(--text-on-accent); }
+.attach-btn { background: transparent; border: none; font-size: 1.6em; color: var(--text-placeholder); cursor: pointer; padding: 0 12px; transition: color 0.2s ease; }
+.attach-btn:hover { color: var(--accent-primary); }
+
+/* --- Модальные окна --- */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 1; transition: opacity 0.3s ease; }
+.modal.hidden { opacity: 0; pointer-events: none; }
+.modal-content { background: var(--surface-primary); width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 5px 15px var(--shadow-primary); display: flex; flex-direction: column; max-height: 80vh; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-secondary); }
+.modal-header h2 { margin: 0; font-size: 1.4em; color: var(--text-primary); }
+.user-list-container { padding: 10px; overflow-y: auto; }
+.user-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--border-secondary); cursor: pointer; transition: background-color 0.2s; }
+.user-item:hover { background-color: var(--surface-secondary); }
+
+/* --- Контекстное меню и выпадающий список --- */
+.context-menu, .dropdown-menu { position: absolute; z-index: 2001; background: var(--surface-primary); border: 1px solid var(--border-primary); box-shadow: 0 4px 12px var(--shadow-primary); border-radius: 8px; padding: 5px; min-width: 160px; opacity: 1; transform: scale(1); transition: opacity 0.2s ease, transform 0.2s ease; }
+.context-menu.hidden, .dropdown-menu.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+.dropdown-menu { top: calc(100% + 5px); right: 0; width: 200px; transform-origin: top right; }
+.context-menu-item, .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em; color: var(--text-primary); transition: background-color 0.2s ease; }
+.context-menu-item:hover, .dropdown-item:hover { background-color: var(--surface-secondary); }
+.context-menu-item.danger, .dropdown-item.danger { color: var(--accent-negative); }
+.context-menu-item.danger:hover, .dropdown-item.danger:hover { background-color: var(--context-menu-danger-hover); }
+.dropdown-item span { display: inline-block; width: 20px; text-align: center; }
+
+/* --- Скелетон --- */
+.skeleton { background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; border-radius: 10px; }
+@keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-row { height: 40px; width: 100%; border-radius: 6px; }
+
+/* --- Адаптивность --- */
 @media (max-width: 768px) {
-    .container {
-        max-width: 100%;
-        height: 100vh;
-        padding: 0;
-    }
-
-    body {
-        padding: 0;
-    }
-
-    .chat-wrapper {
-        flex-direction: column;
-        height: 100%;
-        gap: 0;
-    }
-
-    .chat-list, .chat-window {
-        width: 100%;
-        max-height: none;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-    }
-
-
-    .chat-list {
-        flex-grow: 0;
-        flex-shrink: 1;
-        height: 35%;
-    }
-
-    .chat-window {
-        height: 65%;
-    }
-
-    .main-header h3 {
-        font-size: 1em;
-        margin-right: 10vw;
-    }
-
-    #backToListBtn{
-        display: inline;
-    }
-
-    #closeAttachmentsBtn{
-        display: inline;
-    }
+    .container { height: 100vh; padding: 0; }
+    .chat-wrapper { flex-direction: column; height: 100%; gap: 0; }
+    .chat-list, .chat-window { width: 100%; max-height: none; border-radius: 0; border-left: none; border-right: none; }
+    .chat-list { flex-grow: 1; flex-shrink: 0; height: 100%; }
+    body.chat-active .chat-list { display: none; }
+    .chat-window { height: 100%; }
+    .main-header { display: none; }
+    .back-btn { display: inline-block; }
+    .chat-title-wrapper { justify-content: flex-start; margin-left: 0; padding-right: 0; gap: 8px; }
+    #chatTitle { font-size: 1.1em; }
 }
-
-.skeleton {
-    background: #e0e0e0;
-    animation: loading 1.2s infinite ease-in-out;
+@media (min-width: 769px) {
+    .back-btn { display: none; }
+    body.chat-active .chat-list { display: flex; }
 }
-
-.skeleton-tile {
-    width: 100%;
-    height: 200px;
-    margin: 10px;
-    background-color: #f3f3f3;
-    border-radius: 8px;
-}
-
-.skeleton-row {
-    width: 100%;
-    height: 30px;
-    margin: 10px;
-    background-color: #f3f3f3;
-    border-radius: 4px;
-}
-
-@keyframes loading {
-    0% {
-        background-color: #f3f3f3;
-    }
-    50% {
-        background-color: #e0e0e0;
-    }
-    100% {
-        background-color: #f3f3f3;
-    }
-}
-
-.chat-list li {
-    display: flex;
-    align-items: center; /* Выравниваем аватар и текст по центру по вертикали */
-    gap: 15px;         /* Отступ между аватаром и текстом */
-    padding: 12px 15px;
-    /* Убедитесь, что остальные стили (border-bottom, cursor) сохранены */
-}
-
-/* Стили для круглого аватара */
-.chat-item-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover; /* Правильно масштабирует изображение, чтобы оно заполнило круг */
-    flex-shrink: 0;    /* Запрещает аватару сжиматься, если имя чата длинное */
-    background-color: #e9ecef; /* Фон для скелетона */
-}
-
-/* Новый контейнер для текстовой информации */
-.chat-info {
-    flex-grow: 1; /* Занимает все оставшееся место */
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow: hidden; /* Важно, чтобы обрезать длинные строки */
-}
-
-/* Обновляем стили для текста внутри .chat-info */
-.chat-info .chat-title {
-    font-weight: 600;
-    font-size: 1.1em;
-}
-
-.chat-info .last-message {
-    white-space: nowrap;      /* Запрещаем перенос строки */
-    overflow: hidden;         /* Скрываем все, что не помещается */
-    text-overflow: ellipsis;  /* Добавляем троеточие в конце */
-    color: #555;
-}
-
-.chat-info .message-time {
-    color: #888;
-    font-size: 0.85em;
-}
-

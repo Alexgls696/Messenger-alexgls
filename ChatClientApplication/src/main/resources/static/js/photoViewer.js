@@ -15,24 +15,37 @@ const photoViewer = (() => {
     };
 
     const createViewerDOM = () => {
-        // ... (эта функция остается без изменений) ...
         if (document.getElementById('photoViewerModal')) return;
+
         const modal = document.createElement('div');
         modal.id = 'photoViewerModal';
         modal.className = 'photo-viewer-modal hidden';
+
+
         modal.innerHTML = `
-            <span class="photo-viewer-close-btn">&times;</span>
+            <button class="photo-viewer-close-btn" title="Закрыть">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
             <div class="photo-viewer-content">
                 <div class="photo-viewer-spinner"></div>
                 <img id="photoViewerImage" alt="Full size view">
             </div>
         `;
+
         document.body.appendChild(modal);
+
         viewerModal = modal;
         viewerImage = document.getElementById('photoViewerImage');
+
         viewerModal.addEventListener('click', (event) => {
-            if (event.target === viewerModal) close();
+            if (event.target === viewerModal || event.target.closest('.photo-viewer-content')) {
+                close();
+            }
         });
+
         viewerModal.querySelector('.photo-viewer-close-btn').addEventListener('click', close);
     };
 
@@ -52,46 +65,40 @@ const photoViewer = (() => {
      */
     const open = (imageId) => {
         if (!viewerModal || !viewerImage || !localApiBaseUrl) {
-            console.error("Photo Viewer не инициализирован. Вызовите photoViewer.init({ apiBaseUrl: '...' }).");
+            console.error("Photo Viewer не инициализирован.");
             return;
         }
 
-        // 1. Очищаем предыдущее изображение и его обработчики
         if (viewerImage.src) {
             imageLoader.revokeUrl(viewerImage.src);
         }
         viewerImage.removeAttribute('src');
+        viewerImage.style.opacity = '0'; // Сбрасываем прозрачность
         viewerImage.onload = null;
         viewerImage.onerror = null;
 
-        // 2. Показываем модальное окно и спиннер
         viewerModal.classList.add('loading');
         viewerModal.classList.remove('hidden');
 
         const authToken = localStorage.getItem('accessToken');
 
-        // 3. Запрашиваем Blob у imageLoader
         imageLoader.getImageBlob(imageId, localApiBaseUrl, authToken)
             .then(blob => {
                 if (!blob) throw new Error("Не удалось получить Blob изображения.");
 
-                // 4. Устанавливаем обработчики ДО присвоения src
                 viewerImage.onload = () => {
                     viewerModal.classList.remove('loading');
+                    viewerImage.style.opacity = '1'; // Плавно показываем изображение
                 };
                 viewerImage.onerror = (e) => {
                     console.error("Ошибка отображения Blob изображения.", e);
-                    viewerModal.classList.remove('loading');
                     close();
                 };
 
-                // 5. Создаем НОВЫЙ Blob URL и присваиваем его
                 viewerImage.src = URL.createObjectURL(blob);
             })
             .catch(error => {
                 console.error(`Не удалось загрузить изображение ${imageId}:`, error);
-                viewerModal.classList.remove('loading');
-                // Можно показать заглушку или просто закрыть
                 close();
             });
     };
