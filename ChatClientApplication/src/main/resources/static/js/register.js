@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const verifyMessageBox = document.getElementById('verify-message-box');
 
     // --- Константы для API ---
-    const API_BASE_URL = 'http://localhost:8080/api/verification';
+    const API_BASE_URL = 'https://localhost:8080/api/verification';
     const INITIATE_URL = `${API_BASE_URL}/create`;
-    const REGISTER_URL = `http://localhost:8080/api/authentication/register`;
+    const REGISTER_URL = `https://localhost:8080/api/authentication/register`;
 
     // --- Переменные для хранения состояния ---
     let loginMethod = 'email'; // 'email' или 'phone'
