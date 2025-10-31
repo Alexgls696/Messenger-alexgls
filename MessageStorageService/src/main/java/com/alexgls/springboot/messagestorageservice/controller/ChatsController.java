@@ -105,7 +105,6 @@ public class ChatsController {
 
     }
 
-
     private Integer getSenderId(Authentication authentication) {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return Integer.parseInt(jwt.getClaim("userId").toString());

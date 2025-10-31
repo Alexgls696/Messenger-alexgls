@@ -1,6 +1,6 @@
 // Файл: apiClient.js
 
-const REFRESH_API_URL = 'http://localhost:8080/auth/refresh';
+const REFRESH_API_URL = 'https://localhost:8080/auth/refresh';
 let isRefreshing = false;
 let refreshPromise = null;
 

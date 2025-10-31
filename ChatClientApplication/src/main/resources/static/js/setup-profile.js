@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmPasswordInput = document.getElementById('confirm-password');
 
     // --- Адреса API ---
-    const UPDATE_USER_URL = 'http://localhost:8080/api/users/update';
+    const UPDATE_USER_URL = 'https://localhost:8080/api/users/update';
     // ВАЖНО: Ваш код использует "/update-password", а не "/set-password". Используем эндпоинт из кода.
-    const SET_PASSWORD_URL = 'http://localhost:8080/api/users/update-password';
+    const SET_PASSWORD_URL = 'https://localhost:8080/api/users/update-password';
 
-    const API_CREATE_PROFILE_URL='http://localhost:8080/api/profiles/create';
+    const API_CREATE_PROFILE_URL='https://localhost:8080/api/profiles/create';
 
     const parseJwt = (token) => {
         try {

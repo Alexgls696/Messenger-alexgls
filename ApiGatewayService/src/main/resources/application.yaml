@@ -1,5 +1,10 @@
 server:
   port: 8080
+  ssl:
+    enabled: true
+    key-store: classpath:keystore/gateway-keystore.p12
+    key-store-password: ${KEYSTORE_SECRET}
+    key-store-type: PKCS12
 
 frontend:
   url: http://localhost:8090
@@ -66,3 +71,9 @@ spring:
               uri: http://localhost:8092
               predicates:
                 - Path=/api/profiles/**
+
+            # --- 7. Маршрут для WebSocket сервиса (:8086) ---
+            - id: websocket-route
+              uri: http://localhost:8086
+              predicates:
+                - Path=/ws-chat/**

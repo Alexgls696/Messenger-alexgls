@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gatewayPort = 8080; // Порт вашего Gateway
     const gatewayAddress = `${gatewayHost}:${gatewayPort}`;
 
-    const httpProtocol = 'http:'; // Для локальной разработки
+    const httpProtocol = 'https:'; // Для локальной разработки
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`; // Базовый URL для всех REST API
 
     loginForm.addEventListener('submit', async (event) => {

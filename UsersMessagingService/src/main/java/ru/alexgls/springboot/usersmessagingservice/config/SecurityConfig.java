@@ -29,27 +29,14 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
-
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
-
-    private final String localHostAddress;
-
-    public SecurityConfig(@Value("${frontend.port}") Integer frontendPort) throws UnknownHostException {
-        try {
-            localHostAddress = "http://" + InetAddress.getLocalHost().getHostAddress() + ":" + frontendPort;
-        } catch (UnknownHostException exception) {
-            throw new UnknownHostException("Не удалось определить адрес хоста");
-        }
-    }
 
     @Bean
     public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(exchange -> exchange
                         .requestMatchers("/ws-chat/**", "/js/**", "/css/**","/chat").permitAll()
                         .requestMatchers("/login").anonymous()
@@ -61,18 +48,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(frontendUrl, localHostAddress,"http://192.168.0.103:8090"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept","X-Frame-Options", "SAMEORIGIN"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
 
     @Bean
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
@@ -92,4 +67,5 @@ public class SecurityConfig {
             return List.of();
         }
     }
+
 }

@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gatewayHost = window.location.hostname;
     const gatewayPort = 8080;
     const gatewayAddress = `${gatewayHost}:${gatewayPort}`;
-    const httpProtocol = 'http:';
+    const httpProtocol = 'https:';
 
     const API_BASE_URL = `${httpProtocol}//${gatewayAddress}`;
-    const WEB_SOCKET_API_URL = API_BASE_URL.replace('8080', '8086');
+    const WEB_SOCKET_API_URL = API_BASE_URL;
 
     const chatManager = {
         stompClient: null,

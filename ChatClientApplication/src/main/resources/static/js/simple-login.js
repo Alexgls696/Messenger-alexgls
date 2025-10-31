@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const verifyMessageBox = document.getElementById('verify-message-box');
 
     // --- Константы для API ---
-    const API_VERIFICATION_URL = 'http://localhost:8080/api/verification';
-    const API_AUTH_URL = 'http://localhost:8080/api/authentication';
+    const API_VERIFICATION_URL = 'https://localhost:8080/api/verification';
+    const API_AUTH_URL = 'https://localhost:8080/api/authentication';
     const INITIATE_URL = `${API_VERIFICATION_URL}/create-for-exists`;
     const LOGIN_URL = `${API_AUTH_URL}/login-by-email`;
 
