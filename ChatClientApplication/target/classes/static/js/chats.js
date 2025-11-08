@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToListBtn = document.getElementById('backToListBtn');
 
     const findUserBtn = document.getElementById('findUserBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const userListContainer = document.getElementById('userListContainer');
+    const closeModalBtn = document.getElementById('closeSearchModalBtn');
 
     const attachFileBtn = document.getElementById('attachFileBtn');
     const fileInput = document.getElementById('fileInput');
@@ -29,6 +28,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdownThemeToggle = document.getElementById('dropdownThemeToggle');
     const themeToggleIcon = document.getElementById('themeToggleIcon');
     const dropdownLogout = document.getElementById('dropdownLogout');
+
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileDropdownMenu = document.getElementById('mobileDropdownMenu');
+
+    const myProfileBtnMobile = document.getElementById('myProfileBtnMobile');
+    const headerAvatarImgMobile = document.getElementById('headerAvatarImgMobile');
+    const usernameMobile = document.getElementById('usernameMobile');
+
+    const mobileFindUser = document.getElementById('mobileFindUser');
+    const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+    const mobileThemeIcon = document.getElementById('mobileThemeIcon');
+    const mobileLogout = document.getElementById('mobileLogout');
+
+    const usernameSearchForm = document.getElementById('usernameSearchForm');
+    const usernameSearchInput = document.getElementById('usernameSearchInput');
+    const usernameSearchResults = document.getElementById('usernameSearchResults');
+    const closeSearchModalBtn = document.getElementById('closeSearchModalBtn');
 
     let currentUserData = null; // Базовые данные (из /users/me)
     let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
@@ -354,24 +370,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderUsers(users) {
-        userListContainer.innerHTML = '';
+    // Убедитесь, что ваша функция renderUsers выглядит так:
+    function renderUsers(users, containerEl) {
+        containerEl.innerHTML = ''; // Очищаем переданный контейнер
+
         if (!users || users.length === 0) {
-            userListContainer.innerHTML = '<p class="placeholder">Пользователи не найдены.</p>';
+            containerEl.innerHTML = '<p class="placeholder">Пользователи не найдены.</p>';
             return;
         }
+
+        const authToken = localStorage.getItem('accessToken');
+
         users.forEach(user => {
             if (user.id === currentUserId) return;
 
             const userDiv = document.createElement('div');
             userDiv.className = 'user-item';
+
             userDiv.innerHTML = `
-                <div class="user-name">${user.name} ${user.surname}</div>
-                <div class="user-username">@${user.username}</div>
+                <img class="user-item-avatar" src="/images/profile-default.png" alt="Аватар">
+                <div class="user-item-info">
+                    <div class="user-item-name">${user.name} ${user.surname || ''}</div>
+                    <div class="user-item-username">@${user.username}</div>
+                </div>
             `;
-            // Вот здесь используется ваша функция startChatWithUser
-            userDiv.addEventListener('click', () => startChatWithUser(user));
-            userListContainer.appendChild(userDiv);
+
+            userDiv.addEventListener('click', () => {
+                startChatWithUser(user);
+                userSearchModal.classList.add('hidden');
+            });
+
+            containerEl.appendChild(userDiv);
+            const avatarImg = userDiv.querySelector('.user-item-avatar');
+            try {
+                apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${user.id}`)
+                    .then(avatarId => {
+                        if (avatarId && typeof avatarId === 'number') {
+                            imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
+                                .then(src => {
+                                    avatarImg.src = src;
+                                });
+                        }
+                    })
+                    .catch(avatarError => {
+                        if (avatarError.status === 404) {
+                        } else {
+                            console.warn(`Не удалось загрузить аватар для пользователя ${user.id}:`, avatarError);
+                        }
+                    });
+            } catch (error) {
+                console.error('Непредвиденная ошибка при запросе аватара:', error);
+            }
         });
     }
 
@@ -380,17 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindowEl.classList.add('hidden');
         activeChatId = null;
         [...chatListEl.children].forEach(li => li.classList.remove('active'));
-    }
-
-    async function loadAndShowUsers() {
-        userListContainer.innerHTML = '<p class="placeholder">Загрузка пользователей...</p>';
-        userSearchModal.classList.remove('hidden');
-        try {
-            const users = await apiFetch(`${API_BASE_URL}/api/users`);
-            renderUsers(users);
-        } catch (error) {
-            userListContainer.innerHTML = `<p class="placeholder">Ошибка загрузки пользователей: ${error.message}</p>`;
-        }
     }
 
     function formatDate(isoString) {
@@ -436,15 +474,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="last-message">${chat.lastMessage ? chat.lastMessage.content || 'Вложение' : 'Нет сообщений'}</div>
             <div class="message-time">${chat.lastMessage ? `Отправлено: ${formatDate(chat.lastMessage.createdAt)}` : ''}</div>
         </div>
-    `;
+        `;
 
         if (!chat.group) {
             const titleDiv = li.querySelector('.chat-title');
-            const avatarImg = li.querySelector('.chat-item-avatar');
+            const avatarImg = li.querySelector('.chat-item-avatar'); // Ищем аватар ТОЛЬКО внутри этого 'li'
 
             try {
                 const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
-
                 if (titleDiv) {
                     titleDiv.textContent = `${recipient.name} ${recipient.surname}`;
                 }
@@ -455,11 +492,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const authToken = localStorage.getItem('accessToken');
                         imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
                             .then(src => {
-                                avatarImg.src = src;
+                                avatarImg.src = src; // Обновляем ТОЛЬКО аватар в списке
                             });
                     }
                 } catch (avatarError) {
                     if (avatarError.status === 404) {
+                        // Аватара нет, ничего страшного
                     } else {
                         console.warn(`Не удалось загрузить аватар для пользователя ${recipient.id}:`, avatarError);
                     }
@@ -474,10 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         li.addEventListener('click', () => openChat(chat));
-
         li.addEventListener('contextmenu', (e) => showChatContextMenu(e, chat.chatId));
-
-        li.addEventListener('click', () => openChat(chat));
         return li;
     }
 
@@ -745,7 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function startChatWithUser(user) {
-        console.log(`Попытка начать чат с пользователем ID: ${user.id}`);
         try {
             const chat = await apiFetch(`${API_BASE_URL}/api/chats/private/${user.id}`, {
                 method: 'POST',
@@ -995,13 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- Обработчики событий ---
-
-    closeChatBtn.addEventListener('click', () => {
-        chatWindowEl.classList.add('hidden');
-        activeChatId = null;
-        [...chatListEl.children].forEach(li => li.classList.remove('active'));
-    });
+    closeChatBtn.addEventListener('click', closeActiveChat);
 
     function debounce(func, delay) {
         let timeout;
@@ -1132,7 +1160,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('click', (event) => {
-        // Ищем ближайшего родителя с классом 'viewer-enabled'
         const viewerTarget = event.target.closest('.viewer-enabled');
 
         if (viewerTarget) {
@@ -1144,7 +1171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    findUserBtn.addEventListener('click', loadAndShowUsers);
     closeModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
     userSearchModal.addEventListener('click', (e) => {
         if (e.target === userSearchModal) {
@@ -1234,6 +1260,48 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', newTheme);
     });
 
+    mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileDropdownMenu.classList.toggle('hidden');
+    });
+
+    // Дублируем действия десктопных кнопок
+    mobileFindUser.addEventListener('click', () => {
+        loadAndShowUsers();
+        mobileDropdownMenu.classList.add('hidden');
+    });
+
+    mobileLogout.addEventListener('click', () => {
+        window.location.href = '/logout';
+    });
+
+    mobileThemeToggle.addEventListener('click', () => {
+        let newTheme;
+        if (body.getAttribute('data-theme') === 'dark') {
+            newTheme = 'light';
+            themeToggleIcon.textContent = '🌙';
+            mobileThemeIcon.textContent = '🌙';
+        } else {
+            newTheme = 'dark';
+            themeToggleIcon.textContent = '☀️';
+            mobileThemeIcon.textContent = '☀️';
+        }
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // Дублируем открытие профиля
+    myProfileBtnMobile.addEventListener('click', () => {
+        myProfileBtn.click(); // Проще всего симулировать клик на основной кнопке
+    });
+
+    // Закрываем мобильное меню при клике в любом другом месте
+    window.addEventListener('click', (e) => {
+        if (!mobileDropdownMenu.classList.contains('hidden') && !e.target.closest('.mobile-header')) {
+            mobileDropdownMenu.classList.add('hidden');
+        }
+    });
+
     // Логика выхода (перенесена сюда)
     dropdownLogout.addEventListener('click', () => {
         window.location.href = '/logout';
@@ -1256,21 +1324,68 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        usernameContent.textContent = `${name} ${surname}`.trim();
-        participantCache[userId] = `${name} ${surname}`.trim();
+        const fullName = `${name} ${surname}`.trim();
+
+        usernameContent.textContent = fullName;
+        usernameMobile.textContent = fullName; // Добавлена строка для мобильной шапки
+
+        participantCache[userId] = fullName;
     };
 
     const refreshUserData = async () => {
         try {
+            const headerAvatarImg = document.getElementById('headerAvatarImg');
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
             updateHeaderUI(me);
             currentUserProfileData = await apiFetch(`${API_BASE_URL}/api/profiles/${me.id}`);
+
+            if (currentUserProfileData && currentUserProfileData.avatarId) {
+                const authToken = localStorage.getItem('accessToken');
+                imageLoader.getImageSrc(currentUserProfileData.avatarId, API_BASE_URL, authToken)
+                    .then(src => {
+                        headerAvatarImg.src = src;
+                        headerAvatarImgMobile.src = src;
+                    });
+            } else {
+                headerAvatarImg.src = '/images/profile-default.png';
+                headerAvatarImgMobile.src = '/images/profile-default.png';
+            }
         } catch (error) {
             console.error("Не удалось перезагрузить данные пользователя:", error);
         }
     };
 
-    // --- ИНИЦИАЛИЗАЦИЯ ---
+    findUserBtn.addEventListener('click', () => {
+        userSearchModal.classList.remove('hidden');
+        usernameSearchInput.value = ''; // Очищаем поле ввода
+        usernameSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>'; // Сбрасываем результаты
+        usernameSearchInput.focus(); // Ставим фокус на поле ввода
+    });
+
+
+    usernameSearchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = usernameSearchInput.value.trim();
+        if (!username) return;
+
+        usernameSearchResults.innerHTML = '<p class="placeholder">Поиск...</p>';
+        try {
+            const users = await apiFetch(`${API_BASE_URL}/api/search/by-username/${username}`);
+            renderUsers(users, usernameSearchResults);
+        } catch (error) {
+            usernameSearchResults.innerHTML = `<p class="placeholder">Ошибка поиска: ${error.message}</p>`;
+        }
+    });
+
+    // Обработчик закрытия модального окна
+    closeSearchModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
+    userSearchModal.addEventListener('click', (e) => {
+        if (e.target === userSearchModal) {
+            userSearchModal.classList.add('hidden');
+        }
+    });
+
+
     async function initializeApp() {
         try {
             const me = await apiFetch(`${API_BASE_URL}/api/users/me`);
@@ -1279,6 +1394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             currentUserId = me.id;
+
+
             myProfileManager.init(currentUserId, API_BASE_URL, refreshUserData);
             photoViewer.init({apiBaseUrl: API_BASE_URL});
             userProfile.init({
@@ -1288,8 +1405,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateHeaderUI(me);
 
-            participantCache[me.id] = `${me.name} ${me.surname}`;
+
             const headerAvatarImg = document.getElementById('headerAvatarImg');
+            const headerAvatarImgMobile = document.getElementById('headerAvatarImgMobile'); // ДОБАВЛЕНО
             const authToken = localStorage.getItem('accessToken');
 
             try {
@@ -1298,12 +1416,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     imageLoader.getImageSrc(currentUserProfileData.avatarId, API_BASE_URL, authToken)
                         .then(src => {
                             headerAvatarImg.src = src;
+                            headerAvatarImgMobile.src = src;
                         });
                 }
             } catch (profileError) {
                 console.error("Не удалось предварительно загрузить данные профиля:", profileError);
             }
-
 
             statusEl.textContent = 'Загрузка чатов...';
             loadChats();

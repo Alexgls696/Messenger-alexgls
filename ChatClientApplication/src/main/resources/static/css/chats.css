@@ -153,9 +153,13 @@ body {
 }
 .find-user-btn {
     background-color: var(--accent-positive);
+    color: var(--text-on-accent);
+    border: none;
 }
+
 .find-user-btn:hover {
     background-color: var(--accent-positive-hover);
+    color: var(--text-on-accent);
 }
 
 /* --- Список чатов --- */
@@ -247,7 +251,6 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     .chat-wrapper { flex-direction: column; height: 100%; gap: 0; }
     .chat-list, .chat-window { width: 100%; max-height: none; border-radius: 0; border-left: none; border-right: none; }
     .chat-list { flex-grow: 1; flex-shrink: 0; height: 100%; }
-    body.chat-active .chat-list { display: none; }
     .chat-window { height: 100%; }
     .main-header { display: none; }
     .back-btn { display: inline-block; }
@@ -350,3 +353,220 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     /* Отключаем анимацию загрузки для превью */
     animation: none;
 }
+
+
+
+
+/*
+ * ===================================================================
+ *  СТИЛИ ДЛЯ МОБИЛЬНОЙ ВЕРСИИ
+ * ===================================================================
+ */
+
+.mobile-header {
+    display: none; /* По умолчанию скрыта */
+    flex-shrink: 0;
+    padding: 10px 15px;
+    background-color: var(--surface-primary);
+    border-bottom: 1px solid var(--border-primary);
+    align-items: center;
+    justify-content: space-between;
+    position: relative; /* Для позиционирования выпадающего меню */
+}
+.user-info-header-mobile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.user-info-header-mobile h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Стили для мобильного выпадающего меню */
+#mobileDropdownMenu {
+    top: 55px; /* Располагаем под шапкой */
+    right: 10px;
+    width: 250px;
+}
+
+.my-profile-btn {
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Стили для самого изображения внутри кнопки */
+#headerAvatarImg, #headerAvatarImgMobile {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.search-modal-content {
+    max-width: 600px; /* Сделаем окно немного шире */
+    height: 70vh;
+    padding: 0; /* Убираем внутренние отступы, чтобы вкладки прилегали к краям */
+}
+
+
+.search-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px 20px; /* Добавляем отступы */
+}
+
+.search-tab-content {
+    display: none; /* По умолчанию все вкладки скрыты */
+    padding: 15px;
+}
+.search-tab-content.active {
+    display: block; /* Показываем только активную */
+}
+
+/* Форма поиска */
+.username-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+#usernameSearchInput {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+#usernameSearchInput:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+#usernameSearchBtn {
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+/* Стили для результатов поиска (переиспользуем .user-item) */
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.user-item:hover {
+    background-color: var(--surface-secondary);
+}
+.user-item-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: var(--bg-secondary);
+}
+.user-item-info {
+    display: flex;
+    flex-direction: column;
+}
+.user-item-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.user-item-username {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+
+@media (max-width: 768px) {
+    .desktop-header {
+        display: none;
+    }
+    .mobile-header {
+        display: flex;
+    }
+    .container {
+        padding: 0;
+        height: 100vh;
+    }
+
+    .chat-wrapper {
+        position: relative;
+        flex-grow: 1;
+        height: 100%;
+    }
+
+    .chat-list, .chat-window {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.2s, visibility 0.2s;
+    }
+
+
+    .chat-window {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    body.chat-active .chat-list {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    body.chat-active .chat-window {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .chat-title-wrapper {
+        justify-content: flex-start;
+        margin-left: 0;
+        padding-right: 0;
+        gap: 8px;
+    }
+    #chatTitle {
+        font-size: 1.1em;
+    }
+    .back-btn {
+        display: inline-block;
+    }
+}
+
+/* Правила для десктопа (убеждаемся, что все работает как надо) */
+@media (min-width: 769px) {
+    .mobile-header {
+        display: none;
+    }
+    .desktop-header {
+        display: flex;
+    }
+    .back-btn {
+        display: none;
+    }
+    .chat-list {
+        display: flex !important;
+    }
+    .chat-window {
+        display: flex !important;
+    }
+    .chat-window.hidden {
+        display: none !important;
+    }
+}
+

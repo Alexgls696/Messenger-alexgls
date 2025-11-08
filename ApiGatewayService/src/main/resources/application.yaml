@@ -77,3 +77,9 @@ spring:
               uri: http://localhost:8086
               predicates:
                 - Path=/ws-chat/**
+
+            # --- 9. Маршрут для поискового сервиса (:8093) ---
+            - id: search-service-route
+              uri: http://localhost:8093
+              predicates:
+                - Path=/api/search/**

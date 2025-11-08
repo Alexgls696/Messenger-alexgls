@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/ApiGatewayService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/AuthService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ChatClientApplication/src/main/java" charset="UTF-8" />
@@ -8,6 +8,7 @@
     <file url="file://$PROJECT_DIR$/MediaContentStorageService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/MessageStorageService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/RegistrationService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SearchDataService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/UserDetailsService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/UsersMessagingService/src/main/java" charset="UTF-8" />
   </component>

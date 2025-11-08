@@ -1,8 +1,22 @@
 // Файл: apiClient.js
 
 const REFRESH_API_URL = 'https://localhost:8080/auth/refresh';
+
+// --- Управление состоянием обновления токена ---
 let isRefreshing = false;
-let refreshPromise = null;
+// Массив "ожидающих" запросов, которые получили 401 и ждут нового токена
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 function logout() {
     localStorage.removeItem('accessToken');
@@ -10,44 +24,81 @@ function logout() {
     window.location.href = '/login';
 }
 
-
 async function apiFetch(url, options = {}) {
+    const requestOptions = prepareRequestOptions(options);
+
     try {
-        // ИСПРАВЛЕНИЕ: optionsWithSignal теперь будет содержать и заголовки, и signal.
-        const optionsWithSignal = prepareRequestOptions(options);
-        let response = await fetch(url, optionsWithSignal);
 
-        if (response.status === 401) {
-            await handleTokenRefresh();
-            // Повторяем запрос с теми же опциями (включая signal)
-            response = await fetch(url, optionsWithSignal);
+        const response = await fetch(url, requestOptions);
+
+        if (response.status !== 401) {
+            return handleResponse(response);
         }
 
-        if (!response.ok) {
-            const error = new Error(`Ошибка API: ${response.status} ${response.statusText}`);
-            error.status = response.status;
-            throw error;
+
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject });
+            })
+                .then(newToken => {
+                    // Когда токен обновился, повторяем запрос с новым токеном
+                    const newOptions = prepareRequestOptions(options, newToken);
+                    return fetch(url, newOptions).then(handleResponse);
+                });
         }
 
-        if (response.status === 204) {
-            return null;
-        }
+        // Если мы первые, кто получил 401, начинаем обновление
+        isRefreshing = true;
 
-        const contentLength = response.headers.get('content-length');
-        if (contentLength === '0') {
-            return null;
-        }
+        return new Promise(async (resolve, reject) => {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (!refreshToken) {
+                logout();
+                return reject(new Error("Сессия истекла."));
+            }
 
-        return await response.json();
+            try {
+                const refreshResponse = await fetch(REFRESH_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken }),
+                });
+
+                if (!refreshResponse.ok) {
+                    throw new Error("Не удалось обновить токен.");
+                }
+
+                const data = await refreshResponse.json();
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+
+                // Успешно обновили! "Пробуждаем" все запросы из очереди с новым токеном
+                processQueue(null, data.accessToken);
+
+                // Повторяем наш оригинальный запрос
+                const newOptions = prepareRequestOptions(options, data.accessToken);
+                resolve(fetch(url, newOptions).then(handleResponse));
+
+            } catch (error) {
+                // Если обновление провалилось, "отменяем" все запросы из очереди
+                processQueue(error, null);
+                logout();
+                reject(error);
+            } finally {
+                isRefreshing = false;
+            }
+        });
 
     } catch (error) {
-        console.warn(`Ошибка или отмена запроса к ${url}:`, error);
+        console.error(`Ошибка при запросе к ${url}:`, error);
         throw error;
     }
 }
 
-function prepareRequestOptions(options) {
-    const token = localStorage.getItem('accessToken');
+
+
+function prepareRequestOptions(options, overrideToken = null) {
+    const token = overrideToken || localStorage.getItem('accessToken');
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -60,55 +111,23 @@ function prepareRequestOptions(options) {
     return {
         ...options,
         headers,
-        signal: options.signal // Добавляем эту строку
+        signal: options.signal
     };
 }
 
-// Главная логика обновления токена
-async function handleTokenRefresh() {
-    if (isRefreshing) {
-        return refreshPromise;
+
+async function handleResponse(response) {
+    if (!response.ok) {
+        const error = new Error(`Ошибка API: ${response.status} ${response.statusText}`);
+        error.status = response.status;
+        throw error;
     }
-
-    isRefreshing = true;
-
-    refreshPromise = new Promise(async (resolve, reject) => {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            logout();
-            return reject(new Error("Refresh token не найден."));
-        }
-
-        try {
-            console.log("TRY TO UPDATE REFRESH TOKEN: "+refreshToken)
-            const response = await fetch(REFRESH_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refreshToken }),
-            });
-
-            if (response.ok) {
-                console.log("REFRESH_TOKEN_OK")
-                const data = await response.json();
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-                resolve();
-            } else {
-                // Если refresh token тоже недействителен, выходим из системы
-                logout();
-                reject(new Error("Сессия истекла. Пожалуйста, войдите снова."));
-            }
-        } catch (error) {
-            console.error('Критическая ошибка при обновлении токена:', error);
-            logout();
-            reject(error);
-        } finally {
-            isRefreshing = false;
-            refreshPromise = null;
-        }
-    });
-
-    return refreshPromise;
+    if (response.status === 204) {
+        return null;
+    }
+    const contentLength = response.headers.get('content-length');
+    if (contentLength === '0') {
+        return null;
+    }
+    return response.json();
 }

@@ -119,4 +119,9 @@ public class UsersService {
         user.setPassword(passwordEncoder.encode(password));
         usersRepository.save(user);
     }
+
+    public List<GetUserDto> findAllByUsername(String username) {
+        return usersRepository.findAllByUsername(username)
+                .stream().map(UserMapper::toDto).toList();
+    }
 }

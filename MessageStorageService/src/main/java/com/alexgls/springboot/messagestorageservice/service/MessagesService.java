@@ -1,10 +1,7 @@
 package com.alexgls.springboot.messagestorageservice.service;
 
 import com.alexgls.springboot.messagestorageservice.dto.*;
-import com.alexgls.springboot.messagestorageservice.entity.Attachment;
-import com.alexgls.springboot.messagestorageservice.entity.DeletedMessage;
-import com.alexgls.springboot.messagestorageservice.entity.Message;
-import com.alexgls.springboot.messagestorageservice.entity.MessageType;
+import com.alexgls.springboot.messagestorageservice.entity.*;
 import com.alexgls.springboot.messagestorageservice.exceptions.DeleteMessageAccessDeniedException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
@@ -45,7 +42,6 @@ public class MessagesService {
                             .map(tuple -> {
                                 var mes = tuple.getT1();
                                 var attachmentsList = tuple.getT2();
-                                log.info(mes.toString());
                                 mes.setAttachments(attachmentsList);
                                 return mes;
                             });
@@ -62,39 +58,58 @@ public class MessagesService {
 
 
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
-        return transactionalOperator.transactional(chatsRepository.existsById(createMessagePayload.chatId())
-                .filter(Boolean::booleanValue)
-                .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")))
-                .then(Mono.defer(() -> {
+        Mono<Chat> chatMono = chatsRepository.findById(createMessagePayload.chatId())
+                .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")));
+
+        return transactionalOperator.transactional(chatMono.flatMap(chat -> {
                     Message message = createMessageFromPayload(createMessagePayload);
                     Mono<Message> savedMessageMono = messagesRepository.save(message);
-                    Mono<Integer> recipientIdMono = chatsRepository.findRecipientIdByChatId(
-                            createMessagePayload.chatId(),
-                            createMessagePayload.senderId()
-                    ).switchIfEmpty(Mono.error(new NoSuchRecipientException("Recipient not found for chat " + createMessagePayload.chatId())));
-                    return Mono.zip(savedMessageMono, recipientIdMono)
-                            .flatMap(tuple -> {
-                                Message savedMessage = tuple.getT1();
-                                int recipientId = tuple.getT2();
-                                savedMessage.setRecipientId(recipientId);
-
-                                return saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
-                                        .map(savedAttachments -> {
-                                            MessageDto dto = MessageMapper.toMessageDto(savedMessage);
-                                            dto.setAttachments(savedAttachments);
-                                            dto.setType(message.getType());
-                                            dto.setTempId(createMessagePayload.tempId());
-                                            return dto;
-                                        });
-                            })
-                            .flatMap(messageDto ->
-                                    removeMarkIsDeletedForChatAndUserId(createMessagePayload)
-                                            .thenReturn(messageDto)
-                            );
-                })));
+                    if (chat.isGroup()) {
+                        return savePublicGroupMessage(createMessagePayload, savedMessageMono);
+                    } else {
+                        return savePrivateChatMessage(createMessagePayload, savedMessageMono);
+                    }
+                })
+                .flatMap(messageDto ->
+                        removeMarkIsDeletedForChatAndUserId(createMessagePayload)
+                                .thenReturn(messageDto)
+                ));
     }
 
-    //Исправить пропадающие сообщение при переключении чатов
+    private Mono<MessageDto> savePublicGroupMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
+        return savedMessageMono.flatMap(savedMessage ->
+                saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
+                        .map(savedAttachments -> {
+                            MessageDto dto = MessageMapper.toMessageDto(savedMessage);
+                            dto.setAttachments(savedAttachments);
+                            dto.setType(savedMessage.getType());
+                            dto.setTempId(createMessagePayload.tempId());
+                            return dto;
+                        })
+        );
+    }
+
+    private Mono<MessageDto> savePrivateChatMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
+        Mono<Integer> recipientIdMono = chatsRepository.findRecipientIdByChatId(
+                createMessagePayload.chatId(),
+                createMessagePayload.senderId()
+        ).switchIfEmpty(Mono.error(new NoSuchRecipientException("Recipient not found for chat " + createMessagePayload.chatId())));
+
+        return Mono.zip(savedMessageMono, recipientIdMono)
+                .flatMap(tuple -> {
+                    Message savedMessage = tuple.getT1();
+                    int recipientId = tuple.getT2();
+                    savedMessage.setRecipientId(recipientId);
+                    return saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
+                            .map(savedAttachments -> {
+                                MessageDto dto = MessageMapper.toMessageDto(savedMessage);
+                                dto.setAttachments(savedAttachments);
+                                dto.setType(savedMessage.getType());
+                                dto.setTempId(createMessagePayload.tempId());
+                                return dto;
+                            });
+                });
+    }
 
     Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
         return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
@@ -118,7 +133,6 @@ public class MessagesService {
         return message;
     }
 
-    @Transactional
     public Mono<List<Attachment>> saveAttachmentsPayloadsToDatabase(List<CreateAttachmentPayload> attachmentPayloads, long messageId, int chatId) {
         if (attachmentPayloads == null || attachmentPayloads.isEmpty()) {
             return Mono.just(Collections.emptyList());

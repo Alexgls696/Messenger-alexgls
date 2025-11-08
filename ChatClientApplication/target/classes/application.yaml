@@ -1,5 +1,10 @@
 server:
   port: 8090
+  ssl:
+    enabled: true
+    key-store: classpath:keystore/client-keystore.p12
+    key-store-password: ${KEYSTORE_SECRET}
+    key-store-type: PKCS12
 spring:
   thymeleaf:
     prefix: classpath:/templates/

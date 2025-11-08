@@ -24,14 +24,52 @@
     <link rel="stylesheet" href="/css/photoViewer.css">
 </head>
 <body>
-
+<header class="mobile-header">
+    <div class="user-info-header-mobile">
+        <button id="myProfileBtnMobile" class="my-profile-btn" title="Мой профиль">
+            <img id="headerAvatarImgMobile" src="/images/profile-default.png" alt="Мой профиль">
+        </button>
+        <h3 id="usernameMobile"></h3>
+    </div>
+    <button id="mobileMenuBtn" class="header-icon-btn" title="Меню">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+</header>
+<!-- Выпадающее меню для мобильной версии -->
+<div id="mobileDropdownMenu" class="dropdown-menu hidden">
+    <div id="mobileFindUser" class="dropdown-item">
+            <span>
+                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </span>
+        Поиск
+    </div>
+    <div id="mobileThemeToggle" class="dropdown-item">
+        <span id="mobileThemeIcon">🌙</span>
+        Сменить тему
+    </div>
+    <div id="mobileLogout" class="dropdown-item danger">
+        Выйти
+    </div>
+</div>
 <!-- Главный контейнер приложения -->
 <div class="container">
     <!-- Верхняя шапка с заголовком и кнопками -->
     <header class="main-header">
         <!-- Кнопка "Найти пользователя" слева -->
         <div class="header-buttons left">
-            <button id="findUserBtn" class="header-action-btn find-user-btn">Найти пользователя</button>
+            <button id="findUserBtn" class="header-icon-btn find-user-btn" title="Найти пользователя">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
         </div>
 
         <!-- Информация о пользователе по центру -->
@@ -62,21 +100,16 @@
         </div>
     </header>
 
-    <!-- Элемент для отображения статуса (например, "Загрузка...") -->
     <div id="status" class="status"></div>
 
-    <!-- Основная рабочая область, содержащая список чатов и окно чата -->
     <main class="chat-wrapper">
 
-        <!-- 1. Список чатов (слева на десктопе) -->
         <ul id="chatList" class="chat-list">
-            <!-- Сюда JavaScript будет добавлять элементы <li> для каждого чата -->
+
         </ul>
 
-        <!-- 2. Окно активного чата (справа на десктопе, скрыто по умолчанию) -->
         <section id="chatWindow" class="chat-window hidden">
 
-            <!-- Шапка активного чата -->
             <div class="chat-window__header">
                 <button class="back-btn" id="backToListBtn">&larr;</button>
 
@@ -121,22 +154,38 @@
                 <button type="submit" class="send-btn">Отправить</button>
             </form>
 
-        </section> <!-- Конец .chat-window -->
-    </main> <!-- Конец .chat-wrapper -->
-</div> <!-- Конец .container -->
+        </section>
+    </main>
+</div>
 
-<!-- Модальное окно для поиска пользователей -->
 <div id="userSearchModal" class="modal hidden">
-    <div class="modal-content">
+    <div class="modal-content search-modal-content">
         <div class="modal-header">
-            <h2>Найти пользователя</h2>
-            <button id="closeModalBtn" class="close-btn">&times;</button>
+            <h2 id="searchModalTitle">Поиск пользователей</h2>
+            <button id="closeSearchModalBtn" class="header-icon-btn" title="Закрыть">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
-        <div id="userListContainer" class="user-list-container">
-            <!-- Сюда JavaScript будет добавлять список пользователей -->
+
+        <!-- Убрали вкладки, оставили только контент -->
+        <div class="search-content">
+            <!-- Форма поиска теперь видна сразу -->
+            <form id="usernameSearchForm" class="username-search-form">
+                <input type="text" id="usernameSearchInput" placeholder="Введите username (без @)" required>
+                <button type="submit" id="usernameSearchBtn" class="profile-save-btn">Найти</button>
+            </form>
+
+            <!-- Контейнер для результатов -->
+            <div id="usernameSearchResults" class="user-list-container">
+                <p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>
+            </div>
         </div>
     </div>
 </div>
+
 
 <div id="userProfileModal" class="modal hidden">
     <div class="modal-content my-profile-modal-content">
@@ -227,6 +276,7 @@
 <script src="/js/photoViewer.js"></script>
 <script src="/js/imageLoader.js"></script>
 <script src="/js/userProfile.js"></script>
+
 
 
 </body>

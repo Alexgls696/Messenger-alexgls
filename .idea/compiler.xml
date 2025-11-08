@@ -10,6 +10,7 @@
         <module name="MessageStorageService" />
         <module name="UsersMessagingService" />
         <module name="RatingLogClientApplication" />
+        <module name="SearchDataService" />
         <module name="ApiGatewayService" />
         <module name="AuthService" />
         <module name="InDatabaseContentStorageService" />
@@ -28,6 +29,7 @@
       <module name="MessageStorageService" options="-parameters" />
       <module name="RatingLogClientApplication" options="-parameters" />
       <module name="RegistrationService" options="-parameters" />
+      <module name="SearchDataService" options="-parameters" />
       <module name="UserDetailsService" options="-parameters" />
       <module name="UsersMessagingService" options="-parameters" />
     </option>

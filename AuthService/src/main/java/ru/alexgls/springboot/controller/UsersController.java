@@ -39,6 +39,12 @@ public class UsersController {
         return usersService.findAllUsers();
     }
 
+    @GetMapping("/find-all-by-username/{username}")
+    public Iterable<GetUserDto> findAllByUsername(@PathVariable("username") String username) {
+        log.info("Find all users by username {}", username);
+        return usersService.findAllByUsername(username);
+    }
+
     @GetMapping("/{id}")
     public GetUserDto findUserById(@PathVariable("id") int id) {
         log.info("Find user by id {}", id);
