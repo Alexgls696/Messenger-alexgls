@@ -7,6 +7,8 @@ import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientEx
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservice.repository.*;
+import com.alexgls.springboot.messagestorageservice.service.encryption.EncryptUtils;
+import com.alexgls.springboot.messagestorageservice.service.nlp.LexicalAnalyzer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,12 @@ public class MessagesService {
     private final ChatsRepository chatsRepository;
     private final AttachmentRepository attachmentRepository;
     private final ParticipantsRepository participantsRepository;
+    private final MessageTokenRepository messageTokenRepository;
 
     private final TransactionalOperator transactionalOperator;
+
+    private final EncryptUtils encryptUtils;
+    private final LexicalAnalyzer lexicalAnalyzer;
 
     public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize, currentUserId)
@@ -41,6 +47,7 @@ public class MessagesService {
                     return Mono.zip(Mono.just(message), attachments)
                             .map(tuple -> {
                                 var mes = tuple.getT1();
+                                mes.setContent(encryptUtils.decrypt(mes.getContent()));
                                 var attachmentsList = tuple.getT2();
                                 mes.setAttachments(attachmentsList);
                                 return mes;
@@ -56,6 +63,18 @@ public class MessagesService {
                 .count();
     }
 
+    public Flux<MessageDto> encryptAllMessages() {
+        return transactionalOperator.transactional(messagesRepository.findAll()
+                .flatMap(message -> {
+                    Mono<Message> encryptMessage = processAndEncryptMessage(message);
+                    return encryptMessage
+                            .flatMap(processedMessage ->
+                                    messagesRepository.save(processedMessage)
+                                            .flatMap(this::saveMessageTokens)
+                            );
+                }).map(MessageMapper::toMessageDto));
+    }
+
 
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
         Mono<Chat> chatMono = chatsRepository.findById(createMessagePayload.chatId())
@@ -63,7 +82,15 @@ public class MessagesService {
 
         return transactionalOperator.transactional(chatMono.flatMap(chat -> {
                     Message message = createMessageFromPayload(createMessagePayload);
-                    Mono<Message> savedMessageMono = messagesRepository.save(message);
+
+                    Mono<Message> processedMessageMono = processAndEncryptMessage(message);
+
+                    Mono<Message> savedMessageMono = processedMessageMono
+                            .flatMap(processedMessage ->
+                                    messagesRepository.save(processedMessage)
+                                            .flatMap(this::saveMessageTokens)
+                            );
+
                     if (chat.isGroup()) {
                         return savePublicGroupMessage(createMessagePayload, savedMessageMono);
                     } else {
@@ -84,6 +111,7 @@ public class MessagesService {
                             dto.setAttachments(savedAttachments);
                             dto.setType(savedMessage.getType());
                             dto.setTempId(createMessagePayload.tempId());
+                            dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));
                             return dto;
                         })
         );
@@ -103,6 +131,7 @@ public class MessagesService {
                     return saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
                             .map(savedAttachments -> {
                                 MessageDto dto = MessageMapper.toMessageDto(savedMessage);
+                                dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));
                                 dto.setAttachments(savedAttachments);
                                 dto.setType(savedMessage.getType());
                                 dto.setTempId(createMessagePayload.tempId());
@@ -111,12 +140,42 @@ public class MessagesService {
                 });
     }
 
-    Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
-        return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
-                .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))
-                .doOnError(error -> log.warn("Failed to remove 'is_deleted' mark: {}", error.getMessage()))
-                .subscribeOn(Schedulers.boundedElastic())
-                .then();
+    private Mono<Message> saveMessageTokens(Message savedMessage) {
+        if (savedMessage.getTokenHashes() == null || savedMessage.getTokenHashes().isEmpty()) {
+            return Mono.just(savedMessage); // Токенов нет, просто продолжаем
+        }
+
+        List<MessageToken> tokensToSave = savedMessage.getTokenHashes().stream()
+                .map(hash -> new MessageToken(savedMessage.getId(), hash))
+                .toList();
+
+        return messageTokenRepository.saveAll(tokensToSave)
+                .then(Mono.just(savedMessage));
+    }
+
+    private Mono<Message> processAndEncryptMessage(Message message) {
+        if (message.getContent() == null || message.getContent().isEmpty()) {
+            return Mono.just(message);
+        }
+        return Mono.just(message)
+                .publishOn(Schedulers.boundedElastic())
+                .map(msgToProcess -> {
+                    String originalText = msgToProcess.getContent();
+
+                    List<String> lemmas = lexicalAnalyzer.lemmatizeText(originalText);
+
+                    Set<String> tokenHashes = new HashSet<>();
+                    for (String lemma : lemmas) {
+                        tokenHashes.add(encryptUtils.calculateHmac(lemma));
+                    }
+
+                    String encryptedText = encryptUtils.encrypt(originalText);
+
+                    msgToProcess.setContent(encryptedText);
+                    msgToProcess.setTokenHashes(tokenHashes);
+
+                    return msgToProcess;
+                });
     }
 
     private Message createMessageFromPayload(CreateMessagePayload payload) {
@@ -153,9 +212,17 @@ public class MessagesService {
                 .collectList();
     }
 
-    @Transactional
+
+    Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
+        return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
+                .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))
+                .doOnError(error -> log.warn("Failed to remove 'is_deleted' mark: {}", error.getMessage()))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
+    }
+
     public Mono<DeleteMessageResponse> deleteById(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
-        return messagesRepository.findAllById(deleteMessageRequest.messagesId())
+        return transactionalOperator.transactional(messagesRepository.findAllById(deleteMessageRequest.messagesId())
                 .collectList()
                 .flatMap(messagesList -> {
                     if (deleteMessageRequest.forAll()) {
@@ -163,10 +230,9 @@ public class MessagesService {
                     } else {
                         return deleteMessageForCurrentUser(deleteMessageRequest, messagesList, currentUserId);
                     }
-                });
+                }));
     }
 
-    @Transactional
     public Mono<DeleteMessageResponse> deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
         List<Long> messagesIdsToDeleteList = new ArrayList<>();
         for (var message : messagesList) {
@@ -185,7 +251,6 @@ public class MessagesService {
                 .then(generateDeleteMessageResponseWithChatMembers(deleteMessageRequest));
     }
 
-    @Transactional
     public Mono<DeleteMessageResponse> deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
         List<DeletedMessage> deletedMessages = messagesList.stream()
                 .map(message -> new DeletedMessage(null, message.getId(), currentUserId))
@@ -216,7 +281,6 @@ public class MessagesService {
     }
 
 
-    @Transactional
     public Mono<Void> checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
         return Flux.fromIterable(messageIds)
                 .flatMap(messageId -> deleteMessageIfItDeletedForEveryone(messageId, chatId))
@@ -233,7 +297,6 @@ public class MessagesService {
                         deleteMessageRequest.forAll()));
     }
 
-    @Transactional
     public Mono<Void> deleteMessageIfItDeletedForEveryone(long messageId, int chatId) {
         return participantsRepository.findUserIdsByChatId(chatId).collectList()
                 .zipWith(deletedMessagesRepository.findAllUserIdByMessageId(messageId).collect(Collectors.toSet()))

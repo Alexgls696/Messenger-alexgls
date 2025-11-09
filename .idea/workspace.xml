@@ -4,37 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="1.fix - исправлена регистрация (https) WebSocket сервер соединений перенесен за API Gateway для клиента, добавлены сертификаты для HTTPS, работа через HTTPS">
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClientImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/RestClientsConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/controller/SearchController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/dto/GetUserDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/exception_handling/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии.">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/entity/MessageToken.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/repository/MessageTokenRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/encryption/EncryptUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/nlp/LexicalAnalyzer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/changeset/create_table_message_tokens.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UsersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UsersController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UsersRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UsersRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/apiClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/apiClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/register.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/register.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/config/WebFluxConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/UsersController.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/UsersController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/repository/UsersRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/repository/UsersRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/service/UsersService.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/service/UsersService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/entity/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/ChatsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +30,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Record" />
         <option value="CSS File" />
         <option value="JavaScript File" />
         <option value="Enum" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -85,6 +71,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.LexicalAnalyzer.executor": "Run",
     "HTTP Request.generated-requests | #1.executor": "Run",
     "Maven.ApiGatewayService [clean].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
@@ -154,7 +141,20 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ApiGatewayServiceApplication">
+  <component name="RunManager" selected="Application.LexicalAnalyzer">
+    <configuration name="LexicalAnalyzer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservice.service.nlp.LexicalAnalyzer" />
+      <module name="MessageStorageService" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservice.service.nlp.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
@@ -213,6 +213,10 @@
       </method>
     </configuration>
     <configuration name="MessageStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <envs>
+        <env name="AES_KEY" value="0e3b03a3d8f1e8a9c3b0c1d2e3f4a5b6" />
+        <env name="HMAC_KEY" value="c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5" />
+      </envs>
       <module name="MessageStorageService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.messagestorageservice.MessageStorageServiceApplication" />
       <method v="2">
@@ -253,8 +257,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
+        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
+        <item itemvalue="Application.LexicalAnalyzer" />
       </list>
     </recent_temporary>
   </component>
@@ -285,7 +290,8 @@
       <workItem from="1761839731524" duration="2303000" />
       <workItem from="1761915471418" duration="12254000" />
       <workItem from="1762157480173" duration="445000" />
-      <workItem from="1762590024600" duration="10566000" />
+      <workItem from="1762590024600" duration="10973000" />
+      <workItem from="1762677387425" duration="11711000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -383,7 +389,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761927063563</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии.">
+      <option name="closed" value="true" />
+      <created>1762601383552</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1762601383553</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -402,7 +416,8 @@
     <MESSAGE value="Исправлены баги отображения, покрашена кнопка" />
     <MESSAGE value="WebSocket сервер соединений перенесен за API Gateway для клиента, добавлены сертификаты для HTTPS, работа через HTTPS" />
     <MESSAGE value="1.fix - исправлена регистрация (https) WebSocket сервер соединений перенесен за API Gateway для клиента, добавлены сертификаты для HTTPS, работа через HTTPS" />
-    <option name="LAST_COMMIT_MESSAGE" value="1.fix - исправлена регистрация (https) WebSocket сервер соединений перенесен за API Gateway для клиента, добавлены сертификаты для HTTPS, работа через HTTPS" />
+    <MESSAGE value="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии." />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

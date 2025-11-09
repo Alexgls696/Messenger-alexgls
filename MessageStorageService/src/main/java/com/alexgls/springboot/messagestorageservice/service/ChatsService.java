@@ -12,6 +12,7 @@ import com.alexgls.springboot.messagestorageservice.repository.ChatsRepository;
 import com.alexgls.springboot.messagestorageservice.repository.DeletedMessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
+import com.alexgls.springboot.messagestorageservice.service.encryption.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,7 @@ public class ChatsService {
     private final DeletedMessagesRepository deletedMessagesRepository;
 
     private final TransactionalOperator transactionalOperator;
+    private final EncryptUtils encryptUtils;
 
     public Flux<ChatDto> findAllChatsByUserId(int userId, Pageable pageable) {
         int limit = pageable.getPageSize();
@@ -50,6 +52,7 @@ public class ChatsService {
                             .flatMap(tuple -> {
                                 ChatDto chatdto = tuple.getT1();
                                 MessageDto lastMessageDto = MessageMapper.toMessageDto(tuple.getT2());
+                                lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
                                 chatdto.setLastMessage(lastMessageDto);
                                 return Mono.just(chatdto);
                             });

@@ -11,6 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 @Table(name = "messages")
 @Getter
@@ -29,6 +30,9 @@ public class Message {
     private int senderId;
 
     private String content;
+
+    @Transient
+    private Set<String> tokenHashes;
 
     @Column(value = "message_type")
     private MessageType type;

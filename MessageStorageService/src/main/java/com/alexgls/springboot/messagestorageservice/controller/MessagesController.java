@@ -1,6 +1,7 @@
 package com.alexgls.springboot.messagestorageservice.controller;
 
 import com.alexgls.springboot.messagestorageservice.dto.DeleteMessageRequest;
+import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
 import com.alexgls.springboot.messagestorageservice.dto.ReadMessagePayload;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.service.KafkaSenderService;
@@ -64,6 +65,12 @@ public class MessagesController {
                     kafkaSenderService.sendDeleteEventMessagesToKafka(response);
                     return Mono.empty();
                 });
+    }
+
+    @GetMapping("/encrypt_all")
+    public Flux<MessageDto> encryptAllMessages() {
+        log.info("Encrypt all messages");
+        return messagesService.encryptAllMessages();
     }
 
     private Integer getCurrentUserId(Authentication authentication) {

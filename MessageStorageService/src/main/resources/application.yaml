@@ -29,3 +29,9 @@ services:
 
 values:
   page-size: 10
+
+
+app:
+  security:
+    aes-key: ${AES_KEY}
+    hmac-key: ${HMAC_KEY}
