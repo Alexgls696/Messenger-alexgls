@@ -56,6 +56,22 @@ public class MessagesService {
                 .sort(Comparator.comparing(Message::getCreatedAt));
     }
 
+    public Flux<MessageDto> findMessagesByContent(SearchMessageInChatRequest request) {
+        var lemmas = lexicalAnalyzer.lemmatizeText(request.content());
+        var hashes = lemmas.stream()
+                .map(encryptUtils::calculateHmac)
+                .toList();
+
+        return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), hashes)
+                .collectList()
+                .flatMapMany(messagesRepository::findAllByIdIn)
+                .map(MessageMapper::toMessageDto)
+                .map(messageDto -> {
+                    messageDto.setContent(encryptUtils.decrypt(messageDto.getContent()));
+                    return messageDto;
+                });
+    }
+
 
     public Mono<Long> readMessagesByList(List<ReadMessagePayload> messages) {
         return Flux.fromIterable(messages)

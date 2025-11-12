@@ -9,16 +9,14 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+
 @Repository
 public interface
 
 MessagesRepository extends ReactiveCrudRepository<Message, Long> {
-    Flux<Message> findAllByChatId(int chatId);
 
-    Mono<Message> findByChatIdAndId(int chatId, long id);
-
-    @Query(value = "select m.* from messages m where chat_id = :chatId order by created_at desc limit 1")
-    Mono<Message> findLastMessageByChatId(int chatId);
+    Flux<Message>findAllByIdIn(Collection<Long> ids);
 
     @Query("select distinct m.* from messages m left join deleted_messages dm on m.message_id = dm.message_id and dm.user_id = :currentUserId " +
             "where m.chat_id = :chatId and dm.user_id is null " +

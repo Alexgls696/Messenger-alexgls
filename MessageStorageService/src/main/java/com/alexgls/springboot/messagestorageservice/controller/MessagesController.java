@@ -3,6 +3,7 @@ package com.alexgls.springboot.messagestorageservice.controller;
 import com.alexgls.springboot.messagestorageservice.dto.DeleteMessageRequest;
 import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
 import com.alexgls.springboot.messagestorageservice.dto.ReadMessagePayload;
+import com.alexgls.springboot.messagestorageservice.dto.SearchMessageInChatRequest;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservice.service.MessagesService;
@@ -40,6 +41,12 @@ public class MessagesController {
                     log.info("findMessagesByChatId message: {} ", message);
                     return message;
                 });
+    }
+
+    @PostMapping("/find-by-content-in-chat")
+    public Flux<MessageDto> findMessagesByChatId(@RequestBody SearchMessageInChatRequest request) {
+        log.info("find messages by content in the chat : {}", request);
+        return messagesService.findMessagesByContent(request);
     }
 
     @PostMapping("/read-messages")

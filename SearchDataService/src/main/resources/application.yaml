@@ -10,3 +10,4 @@ spring:
 
 services:
   auth-service: http://localhost:8085
+  messages-service: http://localhost:8087
