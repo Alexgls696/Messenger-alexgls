@@ -62,14 +62,17 @@ public class MessagesService {
                 .map(encryptUtils::calculateHmac)
                 .toList();
 
-        return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), hashes)
-                .collectList()
-                .flatMapMany(messagesRepository::findAllByIdIn)
-                .map(MessageMapper::toMessageDto)
-                .map(messageDto -> {
-                    messageDto.setContent(encryptUtils.decrypt(messageDto.getContent()));
-                    return messageDto;
-                });
+        if(!hashes.isEmpty()){
+            return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), hashes)
+                    .collectList()
+                    .flatMapMany(messagesRepository::findAllByIdIn)
+                    .map(MessageMapper::toMessageDto)
+                    .map(messageDto -> {
+                        messageDto.setContent(encryptUtils.decrypt(messageDto.getContent()));
+                        return messageDto;
+                    });
+        }
+        return Flux.empty();
     }
 
 
