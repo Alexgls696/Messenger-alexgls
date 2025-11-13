@@ -4,29 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания">
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/dto/SearchMessageInChatRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/MessageStorageServiceClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/MessageStorageServiceClientImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/dto/Attachment.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/dto/MessageDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/dto/MessageType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/dto/SearchMessageInChatRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.meta" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлена ошибка при отсутствии лемм">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClientImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/AsyncConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/RestClientsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/controller/AiContentAnalysisController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AiContentAnalysisRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AnalysisResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/FileMetadata.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/OauthResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/GetOauthTokenFailedException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/InvalidAnalysisRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/messages.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/repository/MessageTokenRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/repository/MessageTokenRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/repository/MessagesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/RestClientsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/RestClientsConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/controller/SearchController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/controller/SearchController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/SecurityConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,11 +41,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Record" />
         <option value="CSS File" />
         <option value="JavaScript File" />
         <option value="Enum" />
         <option value="Interface" />
+        <option value="Record" />
+        <option value="Exception" />
         <option value="Class" />
       </list>
     </option>
@@ -75,56 +81,59 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.LexicalAnalyzer.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ApiGatewayService [clean].executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiGatewayServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.AuthServiceSpringBootApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ChatClientSpringBootApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.InDatabaseContentStorageServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.MediaContentStorageServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.MessageStorageServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.RegistrationServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.SearchDataServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UserDetailsServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UsersMessagingServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;jbr-17&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.LexicalAnalyzer.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "Maven.ApiGatewayService [clean].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
+    "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
+    "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
+    "Spring Boot.ContentAnalysisServiceApplication.executor": "Debug",
+    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceApplication.executor": "Run",
+    "Spring Boot.RegistrationServiceApplication.executor": "Run",
+    "Spring Boot.SearchDataServiceApplication.executor": "Run",
+    "Spring Boot.UserDetailsServiceApplication.executor": "Run",
+    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "jdk.selected.JAVA_MODULE": "jbr-17",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.35517243",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "File.Encoding",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.alexgls.springboot.contentanalysisservice" />
+      <recent name="com.alexgls.springboot.contentanalysisservice.client" />
       <recent name="com.alexgls.springboot.searchdataservice.client" />
       <recent name="com.alexgls.springboot.searchdataservice.service" />
     </key>
@@ -150,7 +159,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.MessageStorageServiceApplication">
+  <component name="RunManager" selected="Spring Boot.ContentAnalysisServiceApplication">
     <configuration name="LexicalAnalyzer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservice.service.nlp.LexicalAnalyzer" />
       <module name="MessageStorageService" />
@@ -200,6 +209,16 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ContentAnalysisServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <envs>
+        <env name="SBER_AUTH_TOKEN" value="MDE5OWMyZTQtZjY2MC03YzdlLTljMzctMDM5MTE2NGM4ZTZjOmRmZDhmMzZmLTdmOTItNDVjMy04ZmI0LWI2MDZmOTdiNTg5MA==" />
+      </envs>
+      <module name="ContentAnalysisService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.contentanalysisservice.ContentAnalysisServiceApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -301,7 +320,13 @@
       <workItem from="1762157480173" duration="445000" />
       <workItem from="1762590024600" duration="10973000" />
       <workItem from="1762677387425" duration="14382000" />
-      <workItem from="1762958938217" duration="8365000" />
+      <workItem from="1762958938217" duration="9096000" />
+      <workItem from="1762972176700" duration="67000" />
+      <workItem from="1762972458830" duration="7000" />
+      <workItem from="1763047035777" duration="1780000" />
+      <workItem from="1763055717527" duration="2604000" />
+      <workItem from="1763058782809" duration="101000" />
+      <workItem from="1763063456282" duration="8760000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -423,7 +448,23 @@
       <option name="project" value="LOCAL" />
       <updated>1762692539655</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService">
+      <option name="closed" value="true" />
+      <created>1762967748681</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1762967748681</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Исправлена ошибка при отсутствии лемм">
+      <option name="closed" value="true" />
+      <created>1762968055234</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1762968055234</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,7 +486,9 @@
     <MESSAGE value="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии." />
     <MESSAGE value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным." />
     <MESSAGE value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания" />
+    <MESSAGE value="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService" />
+    <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлена ошибка при отсутствии лемм" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

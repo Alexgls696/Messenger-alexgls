@@ -46,6 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameSearchResults = document.getElementById('usernameSearchResults');
     const closeSearchModalBtn = document.getElementById('closeSearchModalBtn');
 
+    const searchMessagesBtn = document.getElementById('searchMessagesBtn');
+    const messageSearchModal = document.getElementById('messageSearchModal');
+    const closeMessageSearchBtn = document.getElementById('closeMessageSearchBtn');
+    const messageSearchForm = document.getElementById('messageSearchForm');
+    const messageSearchInput = document.getElementById('messageSearchInput');
+    const messageSearchResults = document.getElementById('messageSearchResults');
+
     let currentUserData = null; // Базовые данные (из /users/me)
     let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
 
@@ -61,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     let contextMenuTarget = null;
-    const themeToggleButton = document.getElementById('theme-toggle');
     const body = document.body;
 
 
@@ -193,32 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             handleTokenRefresh()
             console.error(`Соединение потеряно. Повторная попытка через ${delay}ms...`, error);
             setTimeout(() => this.connect(), delay);
-        },
-
-        sendMessageWithAttachments: function (content, attachments) {
-            if (this.stompClient && this.isConnected && activeChatId) {
-                const tempId = generateTempId();
-                const pendingMsgHtml = renderPendingMessage(content, attachments, tempId);
-                messagesEl.insertAdjacentHTML("beforeend", pendingMsgHtml);
-                messagesEl.scrollTop = messagesEl.scrollHeight;
-
-                const chatMessage = {
-                    chatId: activeChatId,
-                    content: content,
-                    attachments: attachments,
-                    tempId: tempId
-                };
-                this.stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
-
-                const pendingEl = document.querySelector(`[data-temp-id='${tempId}']`);
-                if (pendingEl) {
-                    const statusEl = pendingEl.querySelector('.message-status');
-                    statusEl.textContent = "Отправка...";
-                    statusEl.classList.add('sending');
-                }
-            } else {
-                alert("Нет подключения для отправки сообщения.");
-            }
         },
     };
 
@@ -818,6 +798,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+
+
     async function lazyLoadImage(imageElement) {
         const proxyUrl = imageElement.dataset.src;
         if (!proxyUrl) return;
@@ -1048,21 +1030,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     messagesEl.addEventListener('scroll', async () => {
         if (messagesEl.scrollTop === 0 && hasMoreMessages && !isLoading) {
-
-            const scrollChatId = activeChatId; // Запоминаем ID чата в момент начала скролла
+            const scrollChatId = activeChatId;
 
             const scrollHeightBefore = messagesEl.scrollHeight;
             try {
                 const messages = await loadMessages(scrollChatId, messagePage);
-
-
                 if (scrollChatId !== activeChatId) {
                     return;
                 }
 
-                if (messages && messages.length > 0) {
+                if (messages && messages.messages.length > 0) {
                     const fragment = document.createDocumentFragment();
-                    for (const msg of messages) {
+                    for (const msg of messages.messages) {
                         const isSentByMe = msg.senderId === currentUserId;
                         const msgDiv = createMessageElement(msg, isSentByMe);
                         fragment.appendChild(msgDiv);
@@ -1074,6 +1053,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Ошибка при подгрузке старых сообщений:", error);
             }
+        }
+    });
+
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && event.shiftKey) {
+            return;
+        }
+
+        if (event.key === 'Enter') {
+            event.preventDefault();
+
+            messageForm.requestSubmit();
         }
     });
 
@@ -1370,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         usernameSearchResults.innerHTML = '<p class="placeholder">Поиск...</p>';
         try {
-            const users = await apiFetch(`${API_BASE_URL}/api/search/by-username/${username}`);
+            const users = await apiFetch(`${API_BASE_URL}/api/search/users/by-username/${username}`);
             renderUsers(users, usernameSearchResults);
         } catch (error) {
             usernameSearchResults.innerHTML = `<p class="placeholder">Ошибка поиска: ${error.message}</p>`;
@@ -1385,6 +1376,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    searchMessagesBtn.addEventListener('click', () => {
+        if (!activeChatId) return; // Не открываем, если чат не выбран
+
+        // Сбрасываем состояние окна перед открытием
+        messageSearchInput.value = '';
+        messageSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+
+        messageSearchModal.classList.remove('hidden');
+        messageSearchInput.focus();
+    });
+
+    closeMessageSearchBtn.addEventListener('click', () => {
+        messageSearchModal.classList.add('hidden');
+    });
+
+    messageSearchModal.addEventListener('click', (e) => {
+        if (e.target === messageSearchModal) {
+            messageSearchModal.classList.add('hidden');
+        }
+    });
+
+    messageSearchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = messageSearchInput.value.trim();
+        if (!content) return;
+
+        messageSearchResults.innerHTML = '<p class="placeholder">Поиск...</p>';
+
+        const payload = {
+            chatId: activeChatId,
+            content: content
+        };
+
+        try {
+            const foundMessages = await apiFetch(`${API_BASE_URL}/api/search/messages/find-by-content-in-chat`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            renderFoundMessages(foundMessages);
+        } catch (error) {
+            messageSearchResults.innerHTML = `<p class="placeholder">Ошибка поиска: ${error.message}</p>`;
+        }
+    });
+
+    function renderFoundMessages(messages) {
+        messageSearchResults.innerHTML = '';
+        if (!messages || messages.length === 0) {
+            messageSearchResults.innerHTML = '<p class="placeholder">Ничего не найдено.</p>';
+            return;
+        }
+
+        const authToken = localStorage.getItem('accessToken');
+
+        messages.forEach(msg => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'user-item';
+
+            const senderName = participantCache[msg.senderId] || `Пользователь #${msg.senderId}`;
+
+            itemDiv.innerHTML = `
+                <img class="user-item-avatar" src="/images/profile-default.png" alt="Аватар">
+                <div class="user-item-info">
+                    <div class="user-item-name">${senderName}</div>
+                    <div class="user-item-username">${msg.content || '<em>Вложение</em>'}</div>
+                </div>
+            `;
+
+
+            messageSearchResults.appendChild(itemDiv);
+
+            const avatarImg = itemDiv.querySelector('.user-item-avatar');
+            apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${msg.senderId}`)
+                .then(avatarId => {
+                    if (avatarId && typeof avatarId === 'number') {
+                        imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
+                            .then(src => avatarImg.src = src);
+                    }
+                })
+                .catch(() => { /* Игнорируем ошибки загрузки аватара */ });
+        });
+    }
 
     async function initializeApp() {
         try {

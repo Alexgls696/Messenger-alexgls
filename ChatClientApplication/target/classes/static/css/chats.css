@@ -412,44 +412,70 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
 }
 
 
+/*
+ * ===================================================================
+ *  УНИВЕРСАЛЬНЫЕ СТИЛИ ДЛЯ ФОРМ ПОИСКА
+ * ===================================================================
+ */
+
+.search-modal-content {
+    max-width: 600px;
+    height: 70vh;
+    padding: 0;
+}
+
 .search-content {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 15px 20px; /* Добавляем отступы */
+    padding: 20px;
 }
 
-.search-tab-content {
-    display: none; /* По умолчанию все вкладки скрыты */
-    padding: 15px;
-}
-.search-tab-content.active {
-    display: block; /* Показываем только активную */
-}
-
-/* Форма поиска */
-.username-search-form {
+/* Универсальная форма поиска */
+.search-form {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
 }
-#usernameSearchInput {
+
+/* Универсальное поле ввода */
+.search-input {
     flex-grow: 1;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid var(--border-primary);
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 1em;
     background-color: var(--surface-secondary);
     color: var(--text-primary);
+    transition: border-color 0.2s;
 }
-#usernameSearchInput:focus {
+.search-input::placeholder {
+    color: var(--text-placeholder);
+}
+.search-input:focus {
     outline: none;
     border-color: var(--accent-primary);
 }
-#usernameSearchBtn {
-    padding: 10px 20px;
-    border-radius: 6px;
+
+/* Универсальная кнопка поиска */
+.search-button {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: var(--accent-positive);
+    color: var(--text-on-accent);
+    transition: background-color 0.2s ease;
+}
+.search-button:hover {
+    background-color: var(--accent-positive-hover);
 }
 
-/* Стили для результатов поиска (переиспользуем .user-item) */
+.user-list-container {
+
+}
+
 .user-item {
     display: flex;
     align-items: center;

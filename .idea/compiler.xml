@@ -15,6 +15,7 @@
         <module name="AuthService" />
         <module name="InDatabaseContentStorageService" />
         <module name="UserDetailsService" />
+        <module name="ContentAnalysisService" />
         <module name="RegistrationService" />
         <module name="MediaContentStorageService" />
       </profile>
@@ -24,6 +25,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ApiGatewayService" options="-parameters" />
       <module name="AuthService" options="-parameters" />
+      <module name="ContentAnalysisService" options="-parameters" />
       <module name="InDatabaseContentStorageService" options="-parameters" />
       <module name="MediaContentStorageService" options="-parameters" />
       <module name="MessageStorageService" options="-parameters" />

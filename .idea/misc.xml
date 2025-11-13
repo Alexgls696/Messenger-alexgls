@@ -14,6 +14,7 @@
         <option value="$PROJECT_DIR$/MediaContentStorageService/pom.xml" />
         <option value="$PROJECT_DIR$/InDatabaseContentStorageService/pom.xml" />
         <option value="$PROJECT_DIR$/SearchDataService/pom.xml" />
+        <option value="$PROJECT_DIR$/ContentAnalysisService/pom.xml" />
       </list>
     </option>
   </component>
