@@ -4,34 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлена ошибка при отсутствии лемм">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClientImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/AsyncConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/RestClientsConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/controller/AiContentAnalysisController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AiContentAnalysisRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AnalysisResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/FileMetadata.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/OauthResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/GetOauthTokenFailedException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/InvalidAnalysisRequestException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch">
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AuthInterceptor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/KafkaConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/ClickHouseStorageServiceRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/LoadFileRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/LoadFileResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/EmptyFileException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/exception/LoadFileToAiException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/GigaChatTokenManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/ContentAnalysisServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/ContentAnalysisServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClientImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/ContentAnalysisOauthClientImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/RestClientsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/RestClientsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/controller/AiContentAnalysisController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/controller/AiContentAnalysisController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AiContentAnalysisRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/dto/AiContentAnalysisRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/encryption/EncryptUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/encryption/EncryptUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,8 +38,8 @@
         <option value="JavaScript File" />
         <option value="Enum" />
         <option value="Interface" />
-        <option value="Record" />
         <option value="Exception" />
+        <option value="Record" />
         <option value="Class" />
       </list>
     </option>
@@ -283,6 +276,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.LexicalAnalyzer" />
+      <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
+      <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
+      <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
+      <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
+      <item itemvalue="Spring Boot.MessageStorageServiceApplication" />
+      <item itemvalue="Spring Boot.RegistrationServiceApplication" />
+      <item itemvalue="Spring Boot.SearchDataServiceApplication" />
+      <item itemvalue="Spring Boot.UserDetailsServiceApplication" />
+      <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
+      <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
+      <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
@@ -326,7 +333,11 @@
       <workItem from="1763047035777" duration="1780000" />
       <workItem from="1763055717527" duration="2604000" />
       <workItem from="1763058782809" duration="101000" />
-      <workItem from="1763063456282" duration="8760000" />
+      <workItem from="1763063456282" duration="8912000" />
+      <workItem from="1763452270167" duration="29000" />
+      <workItem from="1763485677419" duration="695000" />
+      <workItem from="1763916188899" duration="7000" />
+      <workItem from="1764256654548" duration="13438000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -464,11 +475,30 @@
       <option name="project" value="LOCAL" />
       <updated>1762968055234</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch">
+      <option name="closed" value="true" />
+      <created>1763072313394</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1763072313394</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Исправлен проект" />
@@ -488,7 +518,8 @@
     <MESSAGE value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания" />
     <MESSAGE value="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService" />
     <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
-    <option name="LAST_COMMIT_MESSAGE" value="Исправлена ошибка при отсутствии лемм" />
+    <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

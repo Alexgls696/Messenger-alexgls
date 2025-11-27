@@ -2,17 +2,18 @@ package com.alexgls.springboot.contentanalysisservice.service;
 
 import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisClient;
 import com.alexgls.springboot.contentanalysisservice.client.ContentAnalysisOauthClient;
-import com.alexgls.springboot.contentanalysisservice.dto.AiContentAnalysisRequest;
-import com.alexgls.springboot.contentanalysisservice.dto.AnalysisResponse;
-import com.alexgls.springboot.contentanalysisservice.dto.FileMetadata;
+import com.alexgls.springboot.contentanalysisservice.dto.*;
+import com.alexgls.springboot.contentanalysisservice.exception.EmptyFileException;
 import com.alexgls.springboot.contentanalysisservice.exception.InvalidAnalysisRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,37 +23,43 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class AiContentAnalysisService {
 
-    private String oauthToken;
-
-    private final ContentAnalysisOauthClient contentAnalysisOauthClient;
+    private final ObjectMapper objectMapper;
 
     private final AiContentAnalysisClient aiContentAnalysisClient;
 
-    @Async
-    public CompletableFuture<FileMetadata> getAiContentAnalysisFromFile(String fileId) {
-        if (oauthToken == null) {
-            oauthToken = contentAnalysisOauthClient.getOauthTokenRequest().access_token();
-        }
-        var request = new AiContentAnalysisRequest(fileId);
-        AnalysisResponse response = null;
-        try {
-            response = aiContentAnalysisClient.analyzeTheFileById(request, oauthToken);
-        } catch (HttpClientErrorException.Unauthorized unauthorizedException) {
-            oauthToken = contentAnalysisOauthClient.getOauthTokenRequest().access_token();
-            response = aiContentAnalysisClient.analyzeTheFileById(request, oauthToken);
-        }
-        FileMetadata fileMetadata = convertAnalysisResponseToFileMetadata(response);
-        return CompletableFuture.completedFuture(fileMetadata);
+    private final KafkaTemplate<String, ClickHouseStorageServiceRequest> kafkaTemplate;
 
+
+    @Async
+    public CompletableFuture<Void> analyseFile(Resource safeResource, int chatId) {
+        return CompletableFuture.supplyAsync(() -> aiContentAnalysisClient.loadTheFile(safeResource))
+                .thenApply(loadFileResponse -> new AiContentAnalysisRequest(loadFileResponse.id()))
+                .thenApply(aiContentAnalysisClient::analyzeTheFileById)
+                .thenApply(this::convertAnalysisResponseToFileMetadata)
+                .thenAccept(metadata -> sendMetadataToKafka(metadata, chatId));
+    }
+
+    private void sendMetadataToKafka(FileMetadata fileMetadata, int chatId) {
+        ClickHouseStorageServiceRequest request = new ClickHouseStorageServiceRequest(fileMetadata, chatId);
+        CompletableFuture<SendResult<String, ClickHouseStorageServiceRequest>> future = kafkaTemplate.send("metadata-topic", request);
+        future.whenComplete((result, throwable) -> handleKafkaResultThrowable(throwable));
+    }
+
+    private void handleKafkaResultThrowable(Throwable throwable) {
+        if (throwable != null) {
+            log.error("Error when sending via kafka", throwable.getMessage());
+        } else {
+            log.info("Successfully sent via kafka");
+        }
     }
 
     private FileMetadata convertAnalysisResponseToFileMetadata(AnalysisResponse analysisResponse) {
         String content = getContentFromAnalysisResponse(analysisResponse);
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(content, FileMetadata.class);
         } catch (JsonProcessingException e) {
-            throw new InvalidAnalysisRequestException("Не удалось преобразовать AnalysisResponse.choices[0].message.content в FileMetadata ");
+            log.warn("Не удалось преобразовать AnalysisResponse.choices[0].message.content в FileMetadata {}", e.getMessage());
+            throw new InvalidAnalysisRequestException("Не удалось преобразовать AnalysisResponse.choices[0].message.content в FileMetadata " + e.getMessage());
         }
     }
 

@@ -4,12 +4,13 @@ import com.alexgls.springboot.contentanalysisservice.dto.FileMetadata;
 import com.alexgls.springboot.contentanalysisservice.service.AiContentAnalysisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -20,14 +21,38 @@ public class AiContentAnalysisController {
 
     private final AiContentAnalysisService aiContentAnalysisService;
 
-    @PostMapping("/{fileId}")
-    public CompletableFuture<ResponseEntity<FileMetadata>> authorizationRequest(@PathVariable("fileId") String fileId) {
-        log.info("Authorization Request");
-        CompletableFuture<FileMetadata> resultFuture = aiContentAnalysisService.getAiContentAnalysisFromFile(fileId);
-        return resultFuture
-                .thenApply(result -> ResponseEntity
-                        .ok()
-                        .body(result));
-    }
+    @PostMapping("/{id}")
+    public CompletableFuture<ResponseEntity<Void>> loadAndAnalyseFileRequest(@RequestParam("file") MultipartFile file, @PathVariable("id") int chatId) {
+        log.info("LoadAndAnalyseFileRequest, file: {}", file.getOriginalFilename());
 
+        Resource resource;
+        try {
+            byte[] bytes = file.getBytes();
+            String filename = file.getOriginalFilename();
+
+            resource = new ByteArrayResource(bytes) {
+                @Override
+                public String getFilename() {
+                    return filename != null ? filename : "unknown";
+                }
+            };
+        } catch (IOException e) {
+            log.error("Ошибка чтения файла", e);
+            return CompletableFuture.completedFuture(ResponseEntity
+                    .badRequest()
+                    .build());
+        }
+
+        aiContentAnalysisService.analyseFile(resource, chatId)
+                .exceptionally(ex -> {
+                    log.error("Ошибка при асинхронном анализе файла", ex);
+                    return null;
+                });
+
+        return CompletableFuture.completedFuture(ResponseEntity
+                .accepted()
+                .build());
+    }
 }
+
+

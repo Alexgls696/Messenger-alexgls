@@ -18,8 +18,8 @@ public class EncryptUtils {
 
     private static final String HMAC_ALGO = "HmacSHA256";
     private static final String AES_ALGO = "AES/GCM/NoPadding";
-    private static final int GCM_IV_LENGTH_BYTES = 12; // Рекомендованный размер IV для GCM - 96 бит
-    private static final int GCM_TAG_LENGTH_BITS = 128; // Размер аутентификационного тега
+    private static final int GCM_IV_LENGTH_BYTES = 12;
+    private static final int GCM_TAG_LENGTH_BITS = 128;
 
     private final SecretKeySpec aesKeySpec;
     private final String hmacKey;
@@ -27,14 +27,11 @@ public class EncryptUtils {
 
     public EncryptUtils(@Value("${app.security.aes-key}") String aesKeyHex,
                         @Value("${app.security.hmac-key}") String hmacKey) {
-
         Objects.requireNonNull(aesKeyHex, "AES key cannot be null");
         Objects.requireNonNull(hmacKey, "HMAC key cannot be null");
-
         if (aesKeyHex.length() != 32) {
             throw new IllegalArgumentException("Invalid AES key length. Must be 32 hex characters (16 bytes).");
         }
-
         byte[] aesKeyBytes = hexStringToByteArray(aesKeyHex);
         this.aesKeySpec = new SecretKeySpec(aesKeyBytes, "AES");
         this.hmacKey = hmacKey;

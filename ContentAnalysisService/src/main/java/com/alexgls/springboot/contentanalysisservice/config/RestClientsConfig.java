@@ -1,9 +1,6 @@
 package com.alexgls.springboot.contentanalysisservice.config;
 
-import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisClient;
-import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisClientImpl;
-import com.alexgls.springboot.contentanalysisservice.client.ContentAnalysisOauthClient;
-import com.alexgls.springboot.contentanalysisservice.client.ContentAnalysisOauthClientImpl;
+import com.alexgls.springboot.contentanalysisservice.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,10 +18,11 @@ public class RestClientsConfig {
     }
 
     @Bean
-    public AiContentAnalysisClient contentAnalysisClient(@Value("${ai-services.gigachat.ai-url}") String AIUrl) {
+    public AiContentAnalysisClient contentAnalysisClient(@Value("${ai-services.gigachat.ai-url}") String AIUrl, AuthInterceptor authInterceptor) {
         return new AiContentAnalysisClientImpl(RestClient
                 .builder()
                 .baseUrl(AIUrl)
+                .requestInterceptor(authInterceptor)
                 .build());
     }
 }

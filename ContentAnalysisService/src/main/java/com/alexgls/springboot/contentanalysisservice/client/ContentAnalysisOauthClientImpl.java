@@ -1,6 +1,5 @@
 package com.alexgls.springboot.contentanalysisservice.client;
 
-import com.alexgls.springboot.contentanalysisservice.dto.AiContentAnalysisRequest;
 import com.alexgls.springboot.contentanalysisservice.dto.OauthResponse;
 import com.alexgls.springboot.contentanalysisservice.exception.GetOauthTokenFailedException;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
