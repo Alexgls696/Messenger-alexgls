@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageSearchInput = document.getElementById('messageSearchInput');
     const messageSearchResults = document.getElementById('messageSearchResults');
 
+    const messageSearchTabs = document.querySelectorAll('#messageSearchModal .tab-btn');
+    const messageSearchTabContents = document.querySelectorAll('#messageSearchModal .search-tab-content');
+
+    const attachmentSearchForm = document.getElementById('attachmentSearchForm');
+    const attachmentSearchInput = document.getElementById('attachmentSearchInput');
+    const attachmentSearchResults = document.getElementById('attachmentSearchResults');
+
     let currentUserData = null; // Базовые данные (из /users/me)
     let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
 
@@ -877,18 +884,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function addAttachmentToPreview(file) {
         const tempId = `temp-${Date.now()}`;
         const previewEl = document.createElement('div');
-        previewEl.className = 'attachment-preview-item';
-        previewEl.dataset.fileId = tempId;
 
         const isImage = file.type.startsWith('image/');
-        const previewContent = isImage
-            ? `<img src="${URL.createObjectURL(file)}" alt="${file.name}">`
-            : `<span>📁 ${file.name}</span>`;
+        const isDocument = isDocumentType(file.type);
+
+        // ИЗМЕНЕНИЕ: Добавляем классы в зависимости от типа файла
+        previewEl.className = `attachment-preview-item ${isImage ? 'is-image' : 'is-file'}`;
+        previewEl.dataset.fileId = tempId;
+
+        let previewContent = '';
+        let analyseCheckbox = '';
+
+        if (isImage) {
+            previewContent = `<img src="${URL.createObjectURL(file)}" alt="${file.name}">`;
+        } else {
+            // Улучшаем отображение для файлов
+            previewContent = `
+                <div class="file-preview-info">
+                    <span class="file-icon">📁</span>
+                    <span>${file.name}</span>
+                </div>
+            `;
+        }
+
+        if (isDocument) {
+            analyseCheckbox = `
+                <label class="analyse-checkbox-wrapper">
+                    <input type="checkbox" id="analyse-${tempId}">
+                    Анализировать
+                </label>
+            `;
+        }
 
         previewEl.innerHTML = `
-        ${previewContent}
-        <button class="remove-attachment-btn">&times;</button>
-    `;
+            ${previewContent}
+            ${analyseCheckbox}
+            <button class="remove-attachment-btn">&times;</button>
+        `;
+
+        if (isDocument) {
+            const checkbox = previewEl.querySelector(`#analyse-${tempId}`);
+            checkbox.addEventListener('change', (event) => {
+                const attachment = pendingAttachments.find(att => att.tempId === tempId);
+                if (attachment) {
+                    attachment.isAnalysed = event.target.checked;
+                }
+            });
+        }
 
         previewEl.querySelector('.remove-attachment-btn').addEventListener('click', () => {
             removeAttachmentFromPreview(tempId);
@@ -899,7 +941,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pendingAttachments.push({
             file,
             mimeType: file.type,
-            tempId
+            tempId,
+            isAnalysed: false
         });
     }
 
@@ -966,29 +1009,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-    }
-
-
-    async function renderAttachmentPreview(attachments) {
-        return `
-        <div class="attachments-container">
-            ${attachments.map(a => {
-            if (a.mimeType.startsWith("image/")) {
-                // Для изображений показываем скелетон до загрузки
-                return `
-                        <div class="attachment-item">
-                            <div class="image-skeleton skeleton"></div>
-                            <img src="${a.src}" alt="Изображение" class="attachment-image" style="display:none;">
-                        </div>`;
-            } else {
-                return `
-                        <div class="attachment-item">
-                            <span>${a.mimeType}</span>
-                        </div>`;
-            }
-        }).join("")}
-        </div>
-    `;
     }
 
     const allImages = document.querySelectorAll('.attachment-image');
@@ -1096,9 +1116,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     const formData = new FormData();
                     formData.append('file', att.file);
 
-                    const response = await fetch(`${API_BASE_URL}/api/storage/upload`, {
+                    let uploadUrl = `${API_BASE_URL}/api/storage/upload`;
+
+                    // Если для файла включен анализ, добавляем параметры в URL
+                    if (att.isAnalysed) {
+                        uploadUrl += `?isAnalyse=true&chatId=${activeChatId}`;
+                    }
+
+
+                    const response = await fetch(uploadUrl, {
                         method: 'POST',
-                        headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`},
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                        },
                         body: formData
                     });
 
@@ -1139,6 +1169,92 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })();
     });
+
+
+    function renderFoundFiles(files) {
+        attachmentSearchResults.innerHTML = '';
+        if (!files || files.length === 0) {
+            attachmentSearchResults.innerHTML = '<p class="placeholder">Ничего не найдено.</p>';
+            return;
+        }
+
+        files.forEach(fileMeta => {
+            // Возвращаемся к использованию <div> как корневого элемента
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'found-file-item';
+
+            // Формируем URL и имя файла для скачивания
+            const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${fileMeta.fileId}`;
+            const fileName = fileMeta.title || `file-${fileMeta.fileId}`;
+
+            // HTML-код для SVG-иконки
+            const fileIconSvg = `
+                <svg class="file-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            `;
+
+            // ИЗМЕНЕНИЕ: Добавляем кнопку <a> с классом .found-file-download-btn
+            itemDiv.innerHTML = `
+                <div class="found-file-preview">
+                    ${fileIconSvg}
+                </div>
+                <div class="found-file-info">
+                    <div class="found-file-title">${fileMeta.title || 'Без названия'}</div>
+                    <div class="found-file-summary">${fileMeta.summary || 'Нет описания.'}</div>
+                    <a href="${proxyUrl}" download="${fileName}" class="found-file-download-btn">
+                        Скачать
+                    </a>
+                </div>
+            `;
+
+            attachmentSearchResults.appendChild(itemDiv);
+        });
+    }
+
+    function resetSearchModals() {
+        // Очистка окна поиска пользователей
+        if (usernameSearchInput) {
+            usernameSearchInput.value = '';
+        }
+        if (usernameSearchResults) {
+            usernameSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+
+        // Очистка окна поиска сообщений и вложений
+        if (messageSearchInput) {
+            messageSearchInput.value = '';
+        }
+        if (attachmentSearchInput) {
+            attachmentSearchInput.value = '';
+        }
+        if (messageSearchResults) {
+            messageSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+        if (attachmentSearchResults) {
+            attachmentSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+    }
+
+    function isDocumentType(mimeType) {
+        const documentMimeTypes = [
+            'application/pdf',
+            'application/msword', // .doc
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+            'application/vnd.ms-excel', // .xls
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+            'application/vnd.ms-powerpoint', // .ppt
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+            'text/plain', // .txt
+            'text/csv', // .csv
+            'application/rtf' // .rtf
+        ];
+        return documentMimeTypes.includes(mimeType);
+    }
 
     attachFileBtn.addEventListener('click', () => fileInput.click());
 
@@ -1368,12 +1484,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    function closeMessageSearchModal() {
+        messageSearchModal.classList.add('hidden');
+        resetSearchModals();
+    }
+
+
     // Обработчик закрытия модального окна
-    closeSearchModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
+    closeSearchModalBtn.addEventListener('click', closeUserSearchModal);
     userSearchModal.addEventListener('click', (e) => {
         if (e.target === userSearchModal) {
-            userSearchModal.classList.add('hidden');
+            closeUserSearchModal();
         }
+    });
+
+    searchMessagesBtn.addEventListener('click', () => {
+        if (!activeChatId) return;
+        messageSearchModal.classList.remove('hidden');
+        // По умолчанию активируем первую вкладку
+        messageSearchTabs[0].click();
+        messageSearchInput.focus();
+    });
+
+    attachmentSearchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = attachmentSearchInput.value.trim();
+        if (!query) return;
+
+        attachmentSearchResults.innerHTML = '<p class="placeholder">Поиск в файлах...</p>';
+
+        const payload = {
+            chatId: activeChatId,
+            query: query
+        };
+
+        try {
+            const foundFiles = await apiFetch(`${API_BASE_URL}/api/metadata`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            renderFoundFiles(foundFiles);
+        } catch (error) {
+            attachmentSearchResults.innerHTML = `<p class="placeholder">Ошибка поиска: ${error.message}</p>`;
+        }
+    });
+
+    // Переключение вкладок
+    messageSearchTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            messageSearchTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const tabId = tab.dataset.tab;
+            messageSearchTabContents.forEach(content => {
+                content.classList.toggle('active', content.id === `${tabId}SearchTab`);
+            });
+        });
     });
 
     searchMessagesBtn.addEventListener('click', () => {
@@ -1387,8 +1553,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messageSearchInput.focus();
     });
 
-    closeMessageSearchBtn.addEventListener('click', () => {
-        messageSearchModal.classList.add('hidden');
+    closeMessageSearchBtn.addEventListener('click', closeMessageSearchModal);
+    messageSearchModal.addEventListener('click', (e) => {
+        if (e.target === messageSearchModal) {
+            closeMessageSearchModal();
+        }
     });
 
     messageSearchModal.addEventListener('click', (e) => {
@@ -1396,6 +1565,11 @@ document.addEventListener('DOMContentLoaded', () => {
             messageSearchModal.classList.add('hidden');
         }
     });
+
+    function closeUserSearchModal() {
+        userSearchModal.classList.add('hidden');
+        resetSearchModals(); // ВЫЗЫВАЕМ ОЧИСТКУ
+    }
 
     messageSearchForm.addEventListener('submit', async (e) => {
         e.preventDefault();

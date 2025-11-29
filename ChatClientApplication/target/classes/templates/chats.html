@@ -197,26 +197,47 @@
     </div>
 </div>
 
+<!-- ИЗМЕНЕНИЕ: Модальное окно поиска с вкладками -->
 <div id="messageSearchModal" class="modal hidden">
     <div class="modal-content search-modal-content">
         <div class="modal-header">
-            <h2>Поиск по сообщениям в чате</h2>
+            <h2>Поиск в чате</h2>
             <button id="closeMessageSearchBtn" class="header-icon-btn" title="Закрыть">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
+
+        <!-- Вкладки -->
+        <div class="search-tabs">
+            <button class="tab-btn active" data-tab="messages">Поиск сообщений</button>
+            <button class="tab-btn" data-tab="attachments">Поиск вложений</button>
+        </div>
+
+        <!-- Контент для вкладок -->
         <div class="search-content">
-            <!-- ИСПОЛЬЗУЕМ НОВЫЕ КЛАССЫ -->
-            <form id="messageSearchForm" class="search-form">
-                <input type="text" id="messageSearchInput" class="search-input" placeholder="Введите текст для поиска..." required>
-                <button type="submit" class="search-button">Найти</button>
-            </form>
-            <div id="messageSearchResults" class="user-list-container"> <!-- Убедитесь, что здесь тоже правильный класс -->
-                <p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>
+            <!-- ВКЛАДКА 1: Поиск сообщений -->
+            <div id="messagesSearchTab" class="search-tab-content active">
+                <form id="messageSearchForm" class="search-form">
+                    <input type="text" id="messageSearchInput" class="search-input" placeholder="Введите текст для поиска..." required>
+                    <button type="submit" class="search-button">Найти</button>
+                </form>
+                <div id="messageSearchResults" class="user-list-container">
+                    <p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА 2: Поиск вложений -->
+            <div id="attachmentsSearchTab" class="search-tab-content">
+                <form id="attachmentSearchForm" class="search-form">
+                    <input type="text" id="attachmentSearchInput" class="search-input" placeholder="Введите запрос для поиска в файлах..." required>
+                    <button type="submit" class="search-button">Найти</button>
+                </form>
+                <div id="attachmentSearchResults" class="attachment-search-results">
+                    <p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>
+                </div>
             </div>
         </div>
     </div>

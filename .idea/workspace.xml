@@ -4,25 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам.">
-      <change afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/client/ContentAnalysisClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/client/ContentAnalysisClientImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/exception/FileSendingToAnalysisException.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен поиск по вложения со стороны клиента.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/config/ClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/config/ClientConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/StorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/StorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/test/java/com/alexgls/springboot/metadatastorageservice/MetadataStorageServiceApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/test/java/com/alexgls/springboot/metadatastorageservice/MetadataStorageServiceApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -369,7 +356,7 @@
       <workItem from="1764411438786" duration="645000" />
       <workItem from="1764412109500" duration="340000" />
       <workItem from="1764412460038" duration="12006000" />
-      <workItem from="1764432495543" duration="6178000" />
+      <workItem from="1764432495543" duration="7201000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -539,7 +526,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764424176472</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Добавлен поиск по вложения со стороны клиента.">
+      <option name="closed" value="true" />
+      <created>1764438988717</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1764438988717</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -577,7 +572,8 @@
     <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
     <MESSAGE value="Дополнен сервис анализа файлов, загрузка и анализ в одном запросе, добавлена конфигурация Kafka и отправка в топик metadata-topic. TODO: сервис хранения метаданных в ClickHouse, JDBC + отправка данных пачками в ClickHouse через Kafka" />
     <MESSAGE value="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам." />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам." />
+    <MESSAGE value="Добавлен поиск по вложения со стороны клиента." />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен поиск по вложения со стороны клиента." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

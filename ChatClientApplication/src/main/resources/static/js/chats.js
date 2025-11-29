@@ -1216,6 +1216,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function resetSearchModals() {
+        // Очистка окна поиска пользователей
+        if (usernameSearchInput) {
+            usernameSearchInput.value = '';
+        }
+        if (usernameSearchResults) {
+            usernameSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+
+        // Очистка окна поиска сообщений и вложений
+        if (messageSearchInput) {
+            messageSearchInput.value = '';
+        }
+        if (attachmentSearchInput) {
+            attachmentSearchInput.value = '';
+        }
+        if (messageSearchResults) {
+            messageSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+        if (attachmentSearchResults) {
+            attachmentSearchResults.innerHTML = '<p class="placeholder">Начните поиск, чтобы увидеть результаты.</p>';
+        }
+    }
+
     function isDocumentType(mimeType) {
         const documentMimeTypes = [
             'application/pdf',
@@ -1460,11 +1484,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    function closeMessageSearchModal() {
+        messageSearchModal.classList.add('hidden');
+        resetSearchModals();
+    }
+
+
     // Обработчик закрытия модального окна
-    closeSearchModalBtn.addEventListener('click', () => userSearchModal.classList.add('hidden'));
+    closeSearchModalBtn.addEventListener('click', closeUserSearchModal);
     userSearchModal.addEventListener('click', (e) => {
         if (e.target === userSearchModal) {
-            userSearchModal.classList.add('hidden');
+            closeUserSearchModal();
         }
     });
 
@@ -1522,8 +1553,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messageSearchInput.focus();
     });
 
-    closeMessageSearchBtn.addEventListener('click', () => {
-        messageSearchModal.classList.add('hidden');
+    closeMessageSearchBtn.addEventListener('click', closeMessageSearchModal);
+    messageSearchModal.addEventListener('click', (e) => {
+        if (e.target === messageSearchModal) {
+            closeMessageSearchModal();
+        }
     });
 
     messageSearchModal.addEventListener('click', (e) => {
@@ -1531,6 +1565,11 @@ document.addEventListener('DOMContentLoaded', () => {
             messageSearchModal.classList.add('hidden');
         }
     });
+
+    function closeUserSearchModal() {
+        userSearchModal.classList.add('hidden');
+        resetSearchModals(); // ВЫЗЫВАЕМ ОЧИСТКУ
+    }
 
     messageSearchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
