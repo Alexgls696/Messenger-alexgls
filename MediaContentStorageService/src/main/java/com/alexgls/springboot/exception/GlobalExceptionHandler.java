@@ -31,4 +31,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail));
     }
+
+    @ExceptionHandler(FileSendingToAnalysisException.class)
+    public Mono<ResponseEntity<ProblemDetail>> handleFileSendingToAnalysisException(FileSendingToAnalysisException exception, Locale locale) {
+        log.warn("Handle FileSendingToAnalysisException.NotFound {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                messageSource.getMessage("errors.file_sending", new Object[0], "errors.file_sending", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail));
+    }
 }

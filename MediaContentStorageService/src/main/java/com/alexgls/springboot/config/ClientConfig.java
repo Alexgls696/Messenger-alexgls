@@ -1,12 +1,11 @@
 package com.alexgls.springboot.config;
 
-import com.alexgls.springboot.client.InDatabaseStorageServiceRestClient;
-import com.alexgls.springboot.client.InDatabaseStorageServiceRestClientImpl;
-import com.alexgls.springboot.client.YandexDriveStorageRestClient;
+import com.alexgls.springboot.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
@@ -29,6 +28,14 @@ public class ClientConfig {
                         .responseTimeout(Duration.ofSeconds(timeoutSeconds))
                         .compress(true))) //поддержка сжатия gzip
                 .defaultHeader("Authorization", oauthToken)
+                .build());
+    }
+
+    @Bean
+    public ContentAnalysisClient contentAnalysisClient(@Value("${services.analysis-service}") String analysisServiceUrl) {
+        return new ContentAnalysisClientImpl(WebClient
+                .builder()
+                .baseUrl(analysisServiceUrl)
                 .build());
     }
 

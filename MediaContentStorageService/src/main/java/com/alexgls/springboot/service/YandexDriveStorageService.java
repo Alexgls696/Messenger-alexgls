@@ -1,5 +1,6 @@
 package com.alexgls.springboot.service;
 
+import com.alexgls.springboot.client.ContentAnalysisClient;
 import com.alexgls.springboot.client.InDatabaseStorageServiceRestClient;
 import com.alexgls.springboot.client.YandexDriveStorageRestClient;
 import com.alexgls.springboot.client.response.DownloadFileResponse;
@@ -16,6 +17,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -31,6 +33,8 @@ public class YandexDriveStorageService implements StorageService {
 
     private final InDatabaseStorageServiceRestClient inDatabaseStorageServiceRestClient;
 
+    private final ContentAnalysisClient contentAnalysisClient;
+
     @Value("${yandex.baseUrl}")
     private String baseUrl;
 
@@ -38,22 +42,43 @@ public class YandexDriveStorageService implements StorageService {
     private String applicationPath;
 
     @Override
-    public Mono<CreateFileResponse> uploadImage(FilePart file) {
-        StringBuilder pathBuilder = new StringBuilder();
+    public Mono<CreateFileResponse> uploadFile(FilePart file, boolean isAnalyse, int chatId, String token) {
         String filepathToDatabase = getFilePath(file.filename());
-        pathBuilder.append(baseUrl).append("/upload?path=").append(filepathToDatabase);
-        Mono<UploadFilePathResponse> uploadPathResponseMono = yandexDriveRestClient.getUploadFilePathUrl(pathBuilder.toString());
-        Mono<ChatImage> chatImageMono = inDatabaseStorageServiceRestClient.saveChatImage(new CreateFileMetadataRequest(filepathToDatabase, file.filename()));
+        String uploadUrl = baseUrl + "/upload?path=" + filepathToDatabase;
 
-        return uploadPathResponseMono
-                .flatMap(response -> {
-                    log.info("upload path from yandex {}", response);
-                    log.info("Saving path to database... {}", filepathToDatabase);
-                    return saveFileToYandexDrive(file, response)
-                            .then(chatImageMono)
-                            .map(chatImage -> new CreateFileResponse(chatImage.getId(), filepathToDatabase, Timestamp.from(Instant.now())));
-                }).switchIfEmpty(Mono.defer(() -> Mono.error(new FileUploadException("Не удалось загрузить файл: " + file.filename()))));
+        Mono<UploadFilePathResponse> uploadPathMono =
+                yandexDriveRestClient.getUploadFilePathUrl(uploadUrl);
+
+        Mono<ChatImage> chatImageMono =
+                inDatabaseStorageServiceRestClient.saveChatImage(
+                        new CreateFileMetadataRequest(filepathToDatabase, file.filename())
+                );
+
+        return uploadPathMono
+                .flatMap(uploadPath ->
+                        saveFileToYandexDrive(file, uploadPath)
+                                .then(chatImageMono)
+                                .map(chatImage ->
+                                        new CreateFileResponse(
+                                                chatImage.getId(),
+                                                filepathToDatabase,
+                                                Timestamp.from(Instant.now())
+                                        )
+                                )
+                )
+                .doOnSuccess(response -> {
+                    if (isAnalyse) {
+                        contentAnalysisClient.sendFileForAnalysis(file, response.id(), chatId, token)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .doOnError(err -> log.warn("Analysis failed: {}", err.getMessage()))
+                                .subscribe();
+                    }
+                })
+                .switchIfEmpty(Mono.error(
+                        new FileUploadException("Не удалось загрузить файл: " + file.filename())
+                ));
     }
+
 
     @Override
     public Mono<String> getDownLoadFilePath(String path) {

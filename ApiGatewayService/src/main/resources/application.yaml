@@ -78,11 +78,16 @@ spring:
               predicates:
                 - Path=/ws-chat/**
 
-            # --- 9. Маршрут для поискового сервиса (:8093) ---
+            # --- 8. Маршрут для поискового сервиса (:8093) ---
             - id: search-service-route
               uri: http://localhost:8093
               predicates:
                 - Path=/api/search/**
+
+            - id: analysis-service-route
+              uri: http://localhost:8094
+              predicates:
+                - Path=/api/analysis/**
 
             # --- 10. Маршрут для сервиса хранения метаданных (:8095) ---
             - id: metadata-storage-route

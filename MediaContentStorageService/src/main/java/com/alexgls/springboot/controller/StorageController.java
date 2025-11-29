@@ -6,13 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Objects;
-
-//http://localhost:8080/api/storage/upload
 
 @RestController
 @RequestMapping("/api/storage")
@@ -23,14 +23,17 @@ public class StorageController {
     private final StorageService storageService;
 
     @PostMapping("/upload")
-    public Mono<ResponseEntity<?>> saveFile(@RequestPart("file") FilePart file) {
+    public Mono<ResponseEntity<?>> saveFile(@RequestPart("file") FilePart file,
+                                            @RequestParam(value = "isAnalyse", required = false) boolean isAnalyse,
+                                            @RequestParam(value = "chatId", required = false) int chatId, Authentication authentication) {
         log.info("Uploading image to storage");
         if (Objects.isNull(file)) {
             return Mono.just(ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "File is null", "code", HttpStatus.BAD_REQUEST.value())));
         }
-        return storageService.uploadImage(file)
+        String token = getCurrentUserId(authentication);
+        return storageService.uploadFile(file, isAnalyse, chatId, token)
                 .map(createFileResponse -> {
                     log.info("Uploading image to storage");
                     return ResponseEntity.ok(createFileResponse);
@@ -69,5 +72,11 @@ public class StorageController {
                         .status(HttpStatus.NO_CONTENT)
                         .build()));
     }
+
+    private String getCurrentUserId(Authentication authentication) {
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        return jwt.getTokenValue();
+    }
+
 
 }

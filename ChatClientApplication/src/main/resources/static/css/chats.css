@@ -262,41 +262,111 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     body.chat-active .chat-list { display: flex; }
 }
 
+/*
+ * ===================================================================
+ *  ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ПРЕВЬЮ ВЛОЖЕНИЙ ПЕРЕД ОТПРАВКОЙ
+ * ===================================================================
+ */
+
 .attachment-preview-container {
-    padding: 10px; /* Убедимся, что отступы консистентны */
-    display: flex; /* Уже должно быть */
-    align-items: flex-start; /* Выравниваем элементы по верху */
-    flex-wrap: wrap; /* Уже должно быть */
-    gap: 10px; /* Уже должно быть */
+    padding: 10px;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-
+/* Общий контейнер для одного превью */
 .attachment-preview-item {
     position: relative;
-    /* Убираем лишние внутренние отступы, чтобы картинка занимала все место */
-    padding: 0;
-    width: 80px;  /* Задаем фиксированную ширину */
-    height: 80px; /* и высоту */
     border-radius: 8px;
-    overflow: hidden; /* Обрезаем все, что выходит за рамки */
+    background-color: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-
-.attachment-preview-item img {
-    width: 100%;       /* Растягиваем на всю ширину родителя */
-    height: 100%;      /* Растягиваем на всю высоту родителя */
-    object-fit: cover; /* Масштабируем так, чтобы картинка заполнила блок, сохранив пропорции */
+/* --- Стили для ПРЕВЬЮ ИЗОБРАЖЕНИЯ --- */
+.attachment-preview-item.is-image {
+    padding: 0;
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+}
+.attachment-preview-item.is-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
 }
 
+/* --- Стили для ПРЕВЬЮ ФАЙЛА/ДОКУМЕНТА --- */
+.attachment-preview-item.is-file {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px; /* Отступ между элементами внутри */
+    max-width: 200px; /* Ограничиваем ширину для длинных имен */
+}
+.attachment-preview-item.is-file .file-preview-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Чтобы иконка и текст не переносились */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.attachment-preview-item.is-file .file-preview-info span {
+    font-size: 0.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.attachment-preview-item.is-file .file-icon {
+    font-size: 1.5em; /* Увеличим иконку папки */
+    color: var(--text-placeholder);
+}
 
-.attachment-preview-item .remove-attachment-btn {
-    top: -5px;
-    right: -5px;
+/* --- Чекбокс анализа --- */
+.analyse-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding-top: 5px;
+    border-top: 1px solid var(--border-secondary);
+    width: 100%; /* Растягиваем на всю ширину превью файла */
+}
+.analyse-checkbox-wrapper input {
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+/* --- Кнопка удаления --- */
+.remove-attachment-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
     width: 22px;
     height: 22px;
-    line-height: 20px;
+    background-color: var(--text-secondary);
+    color: var(--surface-primary);
+    border: 2px solid var(--surface-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    z-index: 1;
+    transition: all 0.2s;
+}
+.remove-attachment-btn:hover {
+    background-color: var(--accent-negative);
+    transform: scale(1.1);
 }
 
 .message.pending {
@@ -509,25 +579,162 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     color: var(--text-secondary);
 }
 
+.attachment-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.found-file-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-secondary);
+}
+
+.found-file-preview {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background-color: var(--surface-primary);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.found-file-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.found-file-preview .file-icon-svg {
+    width: 32px;
+    height: 32px;
+    stroke: currentColor;
+}
+
+.found-file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.found-file-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.found-file-summary {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    /* Ограничиваем текст двумя строками */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.search-tab-content {
+    display: none;
+}
+
+/* Показываем ТОЛЬКО ту вкладку, у которой есть класс .active */
+.search-tab-content.active {
+    display: block;
+}
+
+.search-tabs {
+    display: flex;
+    gap: 10px; /* Расстояние между кнопками */
+    padding: 20px 20px 0; /* Отступы, чтобы блок не прилегал к краям */
+    border-bottom: none; /* Убираем старую линию */
+}
+
+/* Стили для всех кнопок-вкладок */
+.search-tabs .tab-btn {
+    flex: 1; /* Растягиваем на равную ширину */
+    padding: 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+/* Убираем старую синюю линию снизу */
+.search-tabs .tab-btn.active {
+    border-bottom: 1px solid var(--border-primary);
+}
+
+/* Стиль для неактивной вкладки при наведении */
+.search-tabs .tab-btn:not(.active):hover {
+    border-color: var(--border-secondary);
+    background-color: var(--surface-primary);
+    color: var(--text-primary);
+}
+
+/* Стиль для АКТИВНОЙ вкладки */
+.search-tabs .tab-btn.active {
+    /* Делаем ее похожей на зеленую кнопку "Найти" */
+    background-color: var(--accent-positive);
+    color: var(--text-on-accent);
+    border-color: var(--accent-positive);
+}
+
+.found-file-info {
+    flex-grow: 1; /* Чтобы занимал все оставшееся место */
+}
+
+/* Стили для самой кнопки */
+.found-file-download-btn {
+    display: inline-block; /* Чтобы можно было задать отступы */
+    margin-top: 10px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+
+    transition: background-color 0.2s ease;
+}
+
+.found-file-download-btn:hover {
+    background-color: var(--accent-primary-hover);
+}
 
 @media (max-width: 768px) {
+    /* --- ОСНОВНАЯ РАЗМЕТКА --- */
     .desktop-header {
-        display: none;
+        display: none; /* Скрываем десктопную шапку */
     }
     .mobile-header {
-        display: flex;
+        display: flex; /* Показываем мобильную шапку */
     }
     .container {
         padding: 0;
         height: 100vh;
     }
 
+    /* --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЭКРАНОВ --- */
     .chat-wrapper {
         position: relative;
         flex-grow: 1;
         height: 100%;
+        gap: 0; /* Убираем отступ на мобильных */
     }
-
     .chat-list, .chat-window {
         position: absolute;
         top: 0;
@@ -542,13 +749,18 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
         transition: opacity 0.2s, visibility 0.2s;
     }
 
-
+    /* По умолчанию показываем список и скрываем окно чата */
+    .chat-list {
+        /* display: block; не нужен, т.к. flex уже есть у .chat-wrapper, но для ясности оставим */
+        pointer-events: auto;
+    }
     .chat-window {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
     }
 
+    /* Когда чат активен, меняем видимость */
     body.chat-active .chat-list {
         opacity: 0;
         visibility: hidden;
@@ -560,6 +772,7 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
         pointer-events: auto;
     }
 
+    /* --- СТИЛИ ШАПКИ ОКНА ЧАТА --- */
     .chat-title-wrapper {
         justify-content: flex-start;
         margin-left: 0;
@@ -570,11 +783,11 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
         font-size: 1.1em;
     }
     .back-btn {
-        display: inline-block;
+        display: inline-block; /* Показываем кнопку "назад" */
     }
 }
 
-/* Правила для десктопа (убеждаемся, что все работает как надо) */
+/* --- Десктопная верстка (от 769px) --- */
 @media (min-width: 769px) {
     .mobile-header {
         display: none;
@@ -585,14 +798,16 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
     .back-btn {
         display: none;
     }
-    .chat-list {
-        display: flex !important;
+    /* Возвращаем стандартное поведение для десктопа */
+    .chat-list, .chat-window {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
     }
-    .chat-window {
-        display: flex !important;
-    }
+
+    /* Класс .hidden по-прежнему должен скрывать окно чата */
     .chat-window.hidden {
         display: none !important;
     }
 }
-

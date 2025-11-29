@@ -82,19 +82,6 @@ public class MessagesService {
                 .count();
     }
 
-    public Flux<MessageDto> encryptAllMessages() {
-        return transactionalOperator.transactional(messagesRepository.findAll()
-                .flatMap(message -> {
-                    Mono<Message> encryptMessage = processAndEncryptMessage(message);
-                    return encryptMessage
-                            .flatMap(processedMessage ->
-                                    messagesRepository.save(processedMessage)
-                                            .flatMap(this::saveMessageTokens)
-                            );
-                }).map(MessageMapper::toMessageDto));
-    }
-
-
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
         Mono<Chat> chatMono = chatsRepository.findById(createMessagePayload.chatId())
                 .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")));

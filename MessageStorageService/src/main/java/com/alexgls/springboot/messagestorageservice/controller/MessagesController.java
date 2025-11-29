@@ -74,11 +74,6 @@ public class MessagesController {
                 });
     }
 
-    @GetMapping("/encrypt_all")
-    public Flux<MessageDto> encryptAllMessages() {
-        log.info("Encrypt all messages");
-        return messagesService.encryptAllMessages();
-    }
 
     private Integer getCurrentUserId(Authentication authentication) {
         Jwt jwt = (Jwt) authentication.getPrincipal();

@@ -15,6 +15,7 @@ spring:
 
 services:
   in-database-image-service: http://localhost:8089
+  analysis-service: http://localhost:8094
 
 webclient:
   timeout: 10
