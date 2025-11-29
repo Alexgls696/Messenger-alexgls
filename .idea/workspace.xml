@@ -4,12 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен поиск по вложения со стороны клиента.">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлено отображение поиска, скачивание файлов при поиске.">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/changeset/add_has_analysis.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/exception/NoSuchMetadataException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/messages.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/my-profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/css/my-profile.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/chats.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/userProfile.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/static/js/userProfile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/src/main/resources/templates/chats.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/css/chats.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/static/js/chats.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" beforeDir="false" afterPath="$PROJECT_DIR$/ChatClientApplication/target/classes/templates/chats.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/dto/CreateAttachmentPayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/dto/CreateAttachmentPayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/entity/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/entity/Attachment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservice/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/controller/MetadataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/controller/MetadataController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/SimpleFileMetadataRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/SimpleFileMetadataRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/service/MetadataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/service/MetadataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/service/MetadataServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/service/MetadataServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/CreateAttachmentPayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/CreateAttachmentPayload.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,8 +41,8 @@
         <option value="Enum" />
         <option value="Record" />
         <option value="Interface" />
-        <option value="Class" />
         <option value="Exception" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -356,7 +373,7 @@
       <workItem from="1764411438786" duration="645000" />
       <workItem from="1764412109500" duration="340000" />
       <workItem from="1764412460038" duration="12006000" />
-      <workItem from="1764432495543" duration="7201000" />
+      <workItem from="1764432495543" duration="12118000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -534,7 +551,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764438988717</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Исправлено отображение поиска, скачивание файлов при поиске.">
+      <option name="closed" value="true" />
+      <created>1764440137889</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1764440137889</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -573,7 +598,8 @@
     <MESSAGE value="Дополнен сервис анализа файлов, загрузка и анализ в одном запросе, добавлена конфигурация Kafka и отправка в топик metadata-topic. TODO: сервис хранения метаданных в ClickHouse, JDBC + отправка данных пачками в ClickHouse через Kafka" />
     <MESSAGE value="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам." />
     <MESSAGE value="Добавлен поиск по вложения со стороны клиента." />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлен поиск по вложения со стороны клиента." />
+    <MESSAGE value="Исправлено отображение поиска, скачивание файлов при поиске." />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлено отображение поиска, скачивание файлов при поиске." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

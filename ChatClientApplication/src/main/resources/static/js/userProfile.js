@@ -3,6 +3,10 @@ const userProfile = (() => {
     let modal = null, modalContent = null, closeBtn = null, modalTitle = null;
     let localApiBaseUrl = null, activeChatId = null, localAttachmentObserver = null;
 
+    const tooltip = document.getElementById('attachment-tooltip');
+    const metadataCache = new Map();
+    let tooltipTimeout = null;
+
     // --- Функции ---
     const close = () => {
         if (modal) modal.classList.add('hidden');
@@ -38,9 +42,7 @@ const userProfile = (() => {
         });
     };
 
-// ИЗМЕНЕНО: Немного улучшена структура и логика
     const loadAttachments = async (type, container) => {
-        // Показываем скелетон в зависимости от типа контента
         const skeletonHtml = (type === 'IMAGE' || type === 'VIDEO')
             ? `<div class="attachments-grid">${Array(8).fill('<div class="skeleton skeleton-tile"></div>').join("")}</div>`
             : `<div class="skeleton-list">${Array(4).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
@@ -59,22 +61,33 @@ const userProfile = (() => {
                 const proxyUrl = `${localApiBaseUrl}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                 const fileName = att.fileName || 'file';
 
+                const hasAnalysis = att.hasAnalysis;
+                const analysisClass = hasAnalysis ? 'has-analysis' : '';
+                const fileIdAttr = hasAnalysis ? `data-file-id="${att.fileId}"` : '';
+                const aiIcon = hasAnalysis ? '<div class="ai-icon">AI</div>' : '';
+
                 switch (type) {
                     case "IMAGE":
-                        return `<div class="attachment-item viewer-enabled" data-file-id="${att.fileId}">
-                                <div class="skeleton skeleton-tile"></div>
-                                <img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">
-                            </div>`;
                     case "VIDEO":
-                        return `<div class="attachment-item">
-                                <div class="skeleton skeleton-tile"></div>
-                                <video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>
-                            </div>`;
-                    default: // Для AUDIO и DOCUMENT
-                        return `<div class="attachment-list-item">
-                                <span>${fileName}</span>
-                                <a href="${proxyUrl}" download="${fileName}">Скачать</a>
-                            </div>`;
+                        // Логика для изображений и видео остается прежней
+                        const isVideo = type === "VIDEO";
+                        return `<div class="attachment-item ${isVideo ? '' : 'viewer-enabled'} ${analysisClass}" ${fileIdAttr}>
+                                    <div class="skeleton skeleton-tile"></div>
+                                    ${isVideo
+                            ? `<video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>`
+                            : `<img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">`
+                        }
+                                    ${aiIcon}
+                                </div>`;
+
+                    default: // ИЗМЕНЕНИЕ: Новая структура для AUDIO и DOCUMENT
+                        return `<div class="attachment-list-item ${analysisClass}" ${fileIdAttr}>
+                                    <span>${fileName}</span>
+                                    <div class="file-actions">
+                                        ${aiIcon}
+                                        <a href="${proxyUrl}" download="${fileName}">Скачать</a>
+                                    </div>
+                                </div>`;
                 }
             }).join('');
 
@@ -162,6 +175,62 @@ const userProfile = (() => {
         }
     };
 
+    const showTooltip = async (event) => {
+        // ИЗМЕНЕНИЕ: Теперь мы ищем наведение ТОЛЬКО на иконку .ai-icon
+        const targetIcon = event.target.closest('.ai-icon');
+        if (!targetIcon) return;
+
+        // Находим родительский элемент, чтобы получить fileId
+        const parentItem = targetIcon.closest('.has-analysis');
+        if (!parentItem) return;
+
+        const fileId = parentItem.dataset.fileId;
+        if (!fileId) return;
+
+        clearTimeout(tooltipTimeout);
+
+        tooltip.classList.add('visible');
+        tooltip.style.opacity = '0';
+
+        if (metadataCache.has(fileId)) {
+            tooltip.innerHTML = metadataCache.get(fileId).summary || 'Нет описания.';
+        } else {
+            tooltip.innerHTML = 'Загрузка анализа...';
+            try {
+                const metadata = await apiFetch(`${localApiBaseUrl}/api/metadata/by-file-id/${fileId}`);
+                if (metadata) {
+                    metadataCache.set(fileId, metadata);
+                    tooltip.innerHTML = metadata.summary || 'Нет описания.';
+                } else {
+                    tooltip.innerHTML = 'Не удалось загрузить анализ.';
+                }
+            } catch (error) {
+                console.error(`Ошибка загрузки метаданных для файла ${fileId}:`, error);
+                tooltip.innerHTML = 'Ошибка загрузки.';
+            }
+        }
+
+        const tooltipRect = tooltip.getBoundingClientRect();
+        // Позиционируем относительно иконки, а не курсора
+        const iconRect = targetIcon.getBoundingClientRect();
+
+        const topPosition = window.scrollY + iconRect.top - tooltipRect.height - 10; // 10px над иконкой
+        const leftPosition = window.scrollX + iconRect.left + (iconRect.width / 2) - (tooltipRect.width / 2); // Центрируем над иконкой
+
+        tooltip.style.top = `${topPosition}px`;
+        tooltip.style.left = `${leftPosition}px`;
+        tooltip.style.opacity = '1';
+    };
+
+    const hideTooltip = (event) => {
+        const targetIcon = event.target.closest('.ai-icon');
+        if (targetIcon) {
+            tooltipTimeout = setTimeout(() => {
+                tooltip.classList.remove('visible');
+            }, 300);
+        }
+    };
+
     const init = (config) => {
         modal = document.getElementById('userProfileModal');
         modalContent = document.getElementById('userProfileContent');
@@ -179,6 +248,16 @@ const userProfile = (() => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) close();
         });
+
+        if (modalContent) {
+            modalContent.addEventListener('mouseover', showTooltip);
+            modalContent.addEventListener('mouseout', hideTooltip);
+        }
+
+        if (tooltip) {
+            tooltip.addEventListener('mouseover', () => clearTimeout(tooltipTimeout));
+            tooltip.addEventListener('mouseout', hideTooltip);
+        }
     };
 
     return { init, open };

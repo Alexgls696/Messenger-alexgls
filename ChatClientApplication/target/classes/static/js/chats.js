@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const attachmentSearchInput = document.getElementById('attachmentSearchInput');
     const attachmentSearchResults = document.getElementById('attachmentSearchResults');
 
+
     let currentUserData = null; // Базовые данные (из /users/me)
     let currentUserProfileData = null; // Полные данные профиля (из /profiles/{id})
 
@@ -672,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
         const senderHtml = senderName ? `<div class="message-sender">${senderName}</div>` : '';
-
+        console.log(msg.attachments)
         let attachmentsHtml = '';
         if (msg.attachments && msg.attachments.length > 0) {
 
@@ -1116,13 +1117,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const formData = new FormData();
                     formData.append('file', att.file);
 
-                    let uploadUrl = `${API_BASE_URL}/api/storage/upload`;
+                    // --- ИЗМЕНЕНИЕ: URL теперь всегда одинаковый ---
+                    const uploadUrl = `${API_BASE_URL}/api/storage/upload`;
 
-                    // Если для файла включен анализ, добавляем параметры в URL
                     if (att.isAnalysed) {
-                        uploadUrl += `?isAnalyse=true&chatId=${activeChatId}`;
+                        formData.append('isAnalyse', 'true');
+                        formData.append('chatId', activeChatId);
                     }
-
 
                     const response = await fetch(uploadUrl, {
                         method: 'POST',
@@ -1135,10 +1136,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!response.ok) throw new Error(`Ошибка загрузки файла: ${att.file.name}`);
 
                     const result = await response.json();
+
                     uploadedAttachments.push({
-                        mimeType: att.mimeType,
                         fileId: result.id,
-                        fileName: att.file.name
+                        mimeType: att.mimeType,
+                        fileName: att.file.name,
+                        hasAnalysis: att.isAnalysed
                     });
 
                 } catch (err) {

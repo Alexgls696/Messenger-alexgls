@@ -39,10 +39,17 @@ public class MetadataController {
         }
     }
 
+
+    @GetMapping("/by-file-id/{id}")
+    public FileMetadataResponse findByFileId(@PathVariable("id") int id) {
+        log.info("find metadata by fileId: {}", id);
+        return metadataService.findByFileId(id);
+    }
+
     @PostMapping
     public List<FileMetadataResponse> findAllInChat(@RequestBody FindInChatRequest findInChatRequest) {
         log.info("Find in chat request: {}", findInChatRequest);
-        return metadataService.findByFileId(findInChatRequest.chatId(), findInChatRequest.query());
+        return metadataService.findAllByChatIdAndQuery(findInChatRequest.chatId(), findInChatRequest.query());
     }
 
     @GetMapping("/find-all-by-chat-id/{id}")

@@ -213,10 +213,89 @@ body {
 .attachments-container > .image-attachment:first-child:last-child .skeleton-tile { aspect-ratio: 16 / 9; }
 .attachment-item .attachment-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s ease; }
 .attachment-item .attachment-image[src] { opacity: 1; }
-.attachment-item.file-attachment { background: rgba(0, 0, 0, 0.05); padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
-body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255, 255, 255, 0.05); }
-.message.sent .attachment-item.file-attachment { background: rgba(255, 255, 255, 0.15); }
-.message.sent .file-download-link { color: var(--text-on-accent); }
+
+.attachment-item.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+
+    max-width: 160px;
+    overflow: hidden; /* Необходимо для работы text-overflow */
+}
+
+.attachment-item.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+
+    /* --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: ЗАДАЕМ ФИКСИРОВАННУЮ ШИРИНУ --- */
+    width: 280px; /* Вы можете подобрать значение, которое вам нравится */
+
+    /* Свойства ниже нужны для правильной работы с длинными именами */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Выравнивание для ПОЛУЧЕННЫХ сообщений */
+.message.received .attachment-item.file-attachment {
+    align-self: flex-start;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-secondary);
+}
+
+/* Выравнивание для ОТПРАВЛЕННЫХ сообщений */
+.message.sent .attachment-item.file-attachment {
+    align-self: flex-end;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Переопределение цвета для темной темы для ПОЛУЧЕННЫХ сообщений */
+body[data-theme="dark"] .message.received .attachment-item.file-attachment {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+
+/* --- Стили для дочерних элементов (без изменений) --- */
+.file-attachment .file-icon {
+    font-size: 1.8em;
+    color: var(--text-placeholder);
+    flex-shrink: 0;
+}
+.file-attachment .file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+.file-attachment .file-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.file-attachment .file-download-link {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+.file-attachment .file-download-link:hover {
+    text-decoration: underline;
+}
+.message.sent .file-attachment .file-name,
+.message.sent .file-attachment .file-download-link {
+    color: var(--text-on-accent);
+}
+.message.sent .file-attachment .file-download-link {
+    opacity: 0.8;
+}
 .attach-btn { background: transparent; border: none; font-size: 1.6em; color: var(--text-placeholder); cursor: pointer; padding: 0 12px; transition: color 0.2s ease; }
 .attach-btn:hover { color: var(--accent-primary); }
 
@@ -713,6 +792,123 @@ body[data-theme="dark"] .attachment-item.file-attachment { background: rgba(255,
 
 .found-file-download-btn:hover {
     background-color: var(--accent-primary-hover);
+}
+
+
+.attachments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Расстояние между файлами в списке */
+}
+
+.attachment-list-item {
+    display: flex;
+    align-items: center; /* Выравниваем все по вертикальному центру */
+    justify-content: space-between; /* Раскидываем элементы по краям */
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-secondary);
+    position: relative; /* Нужно для позиционирования иконки AI */
+}
+
+/* Контейнер для имени файла (слева) */
+.attachment-list-item > span {
+    font-weight: 500;
+    color: var(--text-primary);
+    /* Ограничиваем длинные имена файлов */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px; /* Отступ от правых элементов */
+}
+
+/* Контейнер для кнопок (справа) */
+.attachment-list-item .file-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Расстояние между иконкой AI и кнопкой "Скачать" */
+    flex-shrink: 0; /* Запрещаем этому блоку сжиматься */
+}
+
+/* Ссылка "Скачать" */
+.attachment-list-item .file-actions a {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+.attachment-list-item .file-actions a:hover {
+    text-decoration: underline;
+}
+
+
+.attachment-list-item .ai-icon {
+    position: static;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+}
+
+.ai-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 24px;   /* Немного увеличим для лучшей видимости */
+    height: 24px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 11px;
+    font-weight: bold;
+    color: white; /* Текст "AI" всегда белый */
+
+    cursor: pointer;
+    z-index: 1;
+
+    background: linear-gradient(120deg, #8A2BE2, #4169E1, #00BFFF, #20B2AA, #32CD32);
+    background-size: 400% 400%;
+
+    animation: gradient-flow 5s ease infinite;
+}
+
+.attachment-list-item .ai-icon {
+    position: static;
+}
+
+
+@keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#attachment-tooltip {
+    position: absolute;
+    z-index: 3000; /* Выше модального окна */
+    max-width: 300px;
+    padding: 10px;
+    background-color: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-primary);
+    font-size: 0.9em;
+    color: var(--text-primary);
+
+    /* Скрыта по умолчанию */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+#attachment-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 @media (max-width: 768px) {

@@ -205,6 +205,7 @@ public class MessagesService {
         List<Attachment> attachments = attachmentPayloads.stream()
                 .map(payload -> {
                     Attachment attachment = new Attachment();
+                    attachment.setHasAnalysis(payload.hasAnalysis());
                     attachment.setMessageId(messageId);
                     attachment.setFileId(payload.fileId());
                     attachment.setMimeType(payload.mimeType());

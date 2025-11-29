@@ -34,4 +34,7 @@ public class Attachment {
 
     @Column(value = "filename")
     private String fileName;
+
+    @Column(value = "has_analysis")
+    private boolean hasAnalysis;
 }

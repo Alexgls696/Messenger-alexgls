@@ -3,6 +3,7 @@ package com.alexgls.springboot.metadatastorageservice.service;
 import com.alexgls.springboot.metadatastorageservice.dto.ElasticSearchStorageServiceRequest;
 import com.alexgls.springboot.metadatastorageservice.dto.FileMetadataResponse;
 import com.alexgls.springboot.metadatastorageservice.entity.FileMetadata;
+import com.alexgls.springboot.metadatastorageservice.exception.NoSuchMetadataException;
 import com.alexgls.springboot.metadatastorageservice.mapper.FileMetadataMapper;
 import com.alexgls.springboot.metadatastorageservice.repository.MetadataRepository;
 import com.alexgls.springboot.metadatastorageservice.repository.SimpleFileMetadataRepository;
@@ -26,7 +27,7 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public List<FileMetadataResponse> findByFileId(int chatId, String queryText) {
+    public List<FileMetadataResponse> findAllByChatIdAndQuery(int chatId, String queryText) {
         return metadataRepository.searchInChat(chatId, queryText)
                 .stream().map(FileMetadataMapper::entityToResponse)
                 .toList();
@@ -38,5 +39,13 @@ public class MetadataServiceImpl implements MetadataService {
                 .stream()
                 .map(FileMetadataMapper::entityToResponse)
                 .toList();
+    }
+
+    @Override
+    public FileMetadataResponse findByFileId(int fileId) {
+        var metadata = simpleFileMetadataRepository
+                .findByFileId(fileId)
+                .orElseThrow(()->new NoSuchMetadataException("Метаданные файла с заданным id не найдены."));
+        return FileMetadataMapper.entityToResponse(metadata);
     }
 }
