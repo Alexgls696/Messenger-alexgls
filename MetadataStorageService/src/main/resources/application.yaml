@@ -1,0 +1,18 @@
+server:
+  port: 8095
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      enable-auto-commit: false
+      max-poll-records: 50
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+
+services:
+  auth-service: http://localhost:8085

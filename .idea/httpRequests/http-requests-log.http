@@ -1,0 +1,30 @@
+HEAD http://localhost:9200/file_metadata
+Authorization: Basic elastic elastic
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+content-length: 0
+
+###
+
+GET http://localhost:9200
+Authorization: Basic elastic elastic
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+content-length: 0
+
+<> 2025-11-29T154052.200.json
+
+###
+
+GET http://localhost:9200
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+content-length: 0
+
+<> 2025-11-29T153948.401.json
+
+###
+

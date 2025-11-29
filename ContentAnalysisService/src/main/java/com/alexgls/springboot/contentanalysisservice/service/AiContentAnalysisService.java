@@ -1,9 +1,8 @@
 package com.alexgls.springboot.contentanalysisservice.service;
 
 import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisClient;
-import com.alexgls.springboot.contentanalysisservice.client.ContentAnalysisOauthClient;
 import com.alexgls.springboot.contentanalysisservice.dto.*;
-import com.alexgls.springboot.contentanalysisservice.exception.EmptyFileException;
+
 import com.alexgls.springboot.contentanalysisservice.exception.InvalidAnalysisRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,21 +26,21 @@ public class AiContentAnalysisService {
 
     private final AiContentAnalysisClient aiContentAnalysisClient;
 
-    private final KafkaTemplate<String, ClickHouseStorageServiceRequest> kafkaTemplate;
+    private final KafkaTemplate<String, ElasticSearchStorageServiceRequest> kafkaTemplate;
 
 
     @Async
-    public CompletableFuture<Void> analyseFile(Resource safeResource, int chatId) {
+    public CompletableFuture<Void> analyseFile(Resource safeResource, int chatId, int fileId) {
         return CompletableFuture.supplyAsync(() -> aiContentAnalysisClient.loadTheFile(safeResource))
                 .thenApply(loadFileResponse -> new AiContentAnalysisRequest(loadFileResponse.id()))
                 .thenApply(aiContentAnalysisClient::analyzeTheFileById)
                 .thenApply(this::convertAnalysisResponseToFileMetadata)
-                .thenAccept(metadata -> sendMetadataToKafka(metadata, chatId));
+                .thenAccept(metadata -> sendMetadataToKafka(metadata, chatId, fileId));
     }
 
-    private void sendMetadataToKafka(FileMetadata fileMetadata, int chatId) {
-        ClickHouseStorageServiceRequest request = new ClickHouseStorageServiceRequest(fileMetadata, chatId);
-        CompletableFuture<SendResult<String, ClickHouseStorageServiceRequest>> future = kafkaTemplate.send("metadata-topic", request);
+    private void sendMetadataToKafka(FileMetadataDto fileMetadata, int chatId, int fileId) {
+        ElasticSearchStorageServiceRequest request = new ElasticSearchStorageServiceRequest(fileMetadata, chatId, fileId);
+        CompletableFuture<SendResult<String, ElasticSearchStorageServiceRequest>> future = kafkaTemplate.send("metadata-topic", request);
         future.whenComplete((result, throwable) -> handleKafkaResultThrowable(throwable));
     }
 
@@ -53,10 +52,10 @@ public class AiContentAnalysisService {
         }
     }
 
-    private FileMetadata convertAnalysisResponseToFileMetadata(AnalysisResponse analysisResponse) {
+    private FileMetadataDto convertAnalysisResponseToFileMetadata(AnalysisResponse analysisResponse) {
         String content = getContentFromAnalysisResponse(analysisResponse);
         try {
-            return objectMapper.readValue(content, FileMetadata.class);
+            return objectMapper.readValue(content, FileMetadataDto.class);
         } catch (JsonProcessingException e) {
             log.warn("Не удалось преобразовать AnalysisResponse.choices[0].message.content в FileMetadata {}", e.getMessage());
             throw new InvalidAnalysisRequestException("Не удалось преобразовать AnalysisResponse.choices[0].message.content в FileMetadata " + e.getMessage());

@@ -1,6 +1,5 @@
 package com.alexgls.springboot.contentanalysisservice.controller;
 
-import com.alexgls.springboot.contentanalysisservice.dto.FileMetadata;
 import com.alexgls.springboot.contentanalysisservice.service.AiContentAnalysisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,8 @@ public class AiContentAnalysisController {
 
     private final AiContentAnalysisService aiContentAnalysisService;
 
-    @PostMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> loadAndAnalyseFileRequest(@RequestParam("file") MultipartFile file, @PathVariable("id") int chatId) {
+    @PostMapping
+    public CompletableFuture<ResponseEntity<Void>> loadAndAnalyseFileRequest(@RequestParam("file") MultipartFile file, @RequestParam("chatId") int chatId, @RequestParam("fileId") int fileId) {
         log.info("LoadAndAnalyseFileRequest, file: {}", file.getOriginalFilename());
 
         Resource resource;
@@ -43,7 +42,7 @@ public class AiContentAnalysisController {
                     .build());
         }
 
-        aiContentAnalysisService.analyseFile(resource, chatId)
+        aiContentAnalysisService.analyseFile(resource, chatId, fileId)
                 .exceptionally(ex -> {
                     log.error("Ошибка при асинхронном анализе файла", ex);
                     return null;

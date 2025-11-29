@@ -83,3 +83,9 @@ spring:
               uri: http://localhost:8093
               predicates:
                 - Path=/api/search/**
+
+            # --- 10. Маршрут для сервиса хранения метаданных (:8095) ---
+            - id: metadata-storage-route
+              uri: http://localhost:8095
+              predicates:
+                - Path=/api/metadata/**

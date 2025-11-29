@@ -4,9 +4,14 @@ volumes:
   images_db_data:
   user-details-data:
   redis_data:
+  es_data:
+    driver: local
 
 networks:
   users-network:
+    driver: bridge
+
+  elastic:
     driver: bridge
 
 services:
@@ -93,3 +98,30 @@ services:
     environment:
       - REDIS_PASSWORD=AS04SERa1 #
     restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: elasticsearch
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      # Ограничиваем память Java, чтобы Docker не съел все ресурсы ПК
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      # --- НАСТРОЙКИ БЕЗОПАСНОСТИ ---
+      - xpack.security.enabled=true
+      # Отключаем SSL (HTTPS) для HTTP API, чтобы в Java не возиться с сертификатами
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      # Задаем пароль для пользователя 'elastic'
+      - ELASTIC_PASSWORD=elastic
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ulimits:
+       memlock:
+         soft: -1
+         hard: -1
+    networks:
+      - elastic
