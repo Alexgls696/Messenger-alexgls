@@ -52,7 +52,10 @@ public class MessagesController {
     @PostMapping("/read-messages")
     public Mono<Long> readMessagesList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
         int currentUserId = getCurrentUserId(authentication);
-        final List<ReadMessagePayload> filteredMessages = messages.stream().filter(message -> message.senderId() != currentUserId).toList();
+        final List<ReadMessagePayload> filteredMessages = messages
+                .stream()
+                .filter(message -> message.senderId() != currentUserId)
+                .toList();
         return Mono.just(filteredMessages)
                 .flatMap(messagesList -> {
                     log.info("Read messages from payload... {}", messagesList);

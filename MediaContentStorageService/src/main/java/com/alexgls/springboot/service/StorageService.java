@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 public interface StorageService {
-    Mono<CreateFileResponse> uploadFile(FilePart file, boolean isAnalyse, int chatId, String token);
+    Mono<CreateFileResponse> uploadFile(FilePart file, boolean isAnalyse, Integer chatId, String token);
 
     Mono<String> getDownLoadFilePath(String path);
 

@@ -26,7 +26,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         AuthServiceJwtResponse authServiceJwtResponse = authServiceClient.registerUser(userRegisterDto);
         verificationService.deleteById(checkCodeRequest.id());
         return authServiceJwtResponse;
-
     }
 
     @Transactional

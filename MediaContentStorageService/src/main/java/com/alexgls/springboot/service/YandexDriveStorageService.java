@@ -42,7 +42,7 @@ public class YandexDriveStorageService implements StorageService {
     private String applicationPath;
 
     @Override
-    public Mono<CreateFileResponse> uploadFile(FilePart file, boolean isAnalyse, int chatId, String token) {
+    public Mono<CreateFileResponse> uploadFile(FilePart file, boolean isAnalyse, Integer chatId, String token) {
         String filepathToDatabase = getFilePath(file.filename());
         String uploadUrl = baseUrl + "/upload?path=" + filepathToDatabase;
 

@@ -12,7 +12,7 @@ public record FileMetadata(
         @Id
         String id,
 
-        @Field(type = FieldType.Integer)
+        @Field(type = FieldType.Long)
         int fileId,
 
         @Field(type = FieldType.Integer)

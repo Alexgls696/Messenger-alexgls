@@ -1,9 +1,5 @@
 package ru.alexgls.springboot.usersmessagingservice.controller;
 
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ru.alexgls.springboot.usersmessagingservice.dto.MessageDto;
-import ru.alexgls.springboot.usersmessagingservice.dto.ReadMessagePayload;
 import ru.alexgls.springboot.usersmessagingservice.service.MessagingService;
 import ru.alexgls.springboot.usersmessagingservice.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
