@@ -231,6 +231,9 @@ const myProfileManager = (() => {
                 saveProfileBtn.classList.remove('success');
                 saveProfileBtn.disabled = false;
             }, 2000);
+            if (onUserDataUpdate) {
+                await onUserDataUpdate();
+            }
         } catch (error) {
             console.error("Ошибка при сохранении профиля:", error);
             alert("Не удалось сохранить изменения. Попробуйте снова.");

@@ -31,5 +31,7 @@ public class Participants {
     @Column("is_deleted_by_user")
     private boolean isDeletedByUser;
 
+    @Column("last_read_message_id")
+    private long lastReadMessageId;
 
 }

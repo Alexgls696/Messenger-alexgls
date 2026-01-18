@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const authToken = localStorage.getItem('accessToken');
                         imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
                             .then(src => {
-                                avatarImg.src = src; // Обновляем ТОЛЬКО аватар в списке
+                                avatarImg.src = src;
                             });
                     }
                 } catch (avatarError) {
@@ -673,7 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
         const senderHtml = senderName ? `<div class="message-sender">${senderName}</div>` : '';
-        console.log(msg.attachments)
         let attachmentsHtml = '';
         if (msg.attachments && msg.attachments.length > 0) {
 
@@ -1117,14 +1116,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const formData = new FormData();
                     formData.append('file', att.file);
 
-                    // --- ИЗМЕНЕНИЕ: URL теперь всегда одинаковый ---
                     const uploadUrl = `${API_BASE_URL}/api/storage/upload`;
 
                     if (att.isAnalysed) {
                         formData.append('isAnalyse', 'true');
                         formData.append('chatId', activeChatId);
                     }
-
+                    console.log(formData);
                     const response = await fetch(uploadUrl, {
                         method: 'POST',
                         headers: {
@@ -1682,5 +1680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    console.log("HELLO!")
     initializeApp();
 });

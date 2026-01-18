@@ -63,24 +63,26 @@ const userProfile = (() => {
 
                 const hasAnalysis = att.hasAnalysis;
                 const analysisClass = hasAnalysis ? 'has-analysis' : '';
-                const fileIdAttr = hasAnalysis ? `data-file-id="${att.fileId}"` : '';
+
+                // ИСПРАВЛЕНИЕ: ID файла добавляется ВСЕГДА, а не только при наличии анализа
+                const fileIdAttr = `data-file-id="${att.fileId}"`;
+
                 const aiIcon = hasAnalysis ? '<div class="ai-icon">AI</div>' : '';
 
                 switch (type) {
                     case "IMAGE":
+                        return `<div class="attachment-item viewer-enabled ${analysisClass}" ${fileIdAttr}>
+                                <div class="skeleton skeleton-tile"></div>
+                                <img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">
+                                ${aiIcon}
+                            </div>`;
                     case "VIDEO":
-                        // Логика для изображений и видео остается прежней
-                        const isVideo = type === "VIDEO";
-                        return `<div class="attachment-item ${isVideo ? '' : 'viewer-enabled'} ${analysisClass}" ${fileIdAttr}>
-                                    <div class="skeleton skeleton-tile"></div>
-                                    ${isVideo
-                            ? `<video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>`
-                            : `<img class="lazy-load-attachment" data-src="${proxyUrl}" alt="Изображение" style="opacity:0;">`
-                        }
-                                    ${aiIcon}
-                                </div>`;
-
-                    default: // ИЗМЕНЕНИЕ: Новая структура для AUDIO и DOCUMENT
+                        return `<div class="attachment-item ${analysisClass}" ${fileIdAttr}>
+                                <div class="skeleton skeleton-tile"></div>
+                                <video class="lazy-load-attachment" data-src="${proxyUrl}" controls style="opacity:0;"></video>
+                                ${aiIcon}
+                            </div>`;
+                    default: // Для AUDIO и DOCUMENT
                         return `<div class="attachment-list-item ${analysisClass}" ${fileIdAttr}>
                                     <span>${fileName}</span>
                                     <div class="file-actions">
@@ -249,9 +251,29 @@ const userProfile = (() => {
             if (e.target === modal) close();
         });
 
+        // Обработчики для модального окна
         if (modalContent) {
+            // Тултипы
             modalContent.addEventListener('mouseover', showTooltip);
             modalContent.addEventListener('mouseout', hideTooltip);
+
+            // Клик по фото (photoViewer)
+            modalContent.addEventListener('click', (event) => {
+                // Ищем элемент с классом viewer-enabled (это наши картинки)
+                const viewerTarget = event.target.closest('.viewer-enabled');
+
+                if (viewerTarget) {
+                    event.preventDefault();
+                    const fileId = parseInt(viewerTarget.dataset.fileId, 10);
+
+                    // Теперь fileId будет существовать всегда
+                    if (fileId) {
+                        photoViewer.open(fileId);
+                    } else {
+                        console.warn("Не найден ID файла для открытия");
+                    }
+                }
+            });
         }
 
         if (tooltip) {

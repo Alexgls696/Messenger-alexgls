@@ -673,7 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
         const senderHtml = senderName ? `<div class="message-sender">${senderName}</div>` : '';
-        console.log(msg.attachments)
         let attachmentsHtml = '';
         if (msg.attachments && msg.attachments.length > 0) {
 

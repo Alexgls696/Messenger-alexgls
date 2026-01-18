@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changeset/create_table_message_tokens.sql
   - include:
       file: db/changelog/changeset/add_has_analysis.sql
+  - include:
+      file: db/changelog/changeset/add_last_read_message_id.sql

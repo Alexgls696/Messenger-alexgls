@@ -88,15 +88,12 @@ public class MessagesService {
 
         return transactionalOperator.transactional(chatMono.flatMap(chat -> {
                     Message message = createMessageFromPayload(createMessagePayload);
-
                     Mono<Message> processedMessageMono = processAndEncryptMessage(message);
-
                     Mono<Message> savedMessageMono = processedMessageMono
                             .flatMap(processedMessage ->
                                     messagesRepository.save(processedMessage)
                                             .flatMap(this::saveMessageTokens)
                             );
-
                     if (chat.isGroup()) {
                         return savePublicGroupMessage(createMessagePayload, savedMessageMono);
                     } else {

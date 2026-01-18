@@ -75,6 +75,7 @@
     background-color: var(--surface-secondary);
     border-radius: 8px;
     overflow: hidden;
+    cursor: pointer;
 }
 .profile-image-item .skeleton,
 .profile-image-item img {

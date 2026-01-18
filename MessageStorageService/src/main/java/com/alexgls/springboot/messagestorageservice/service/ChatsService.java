@@ -88,10 +88,6 @@ public class ChatsService {
                 })));
     }
 
-    public Mono<Boolean> existsById(Integer id) {
-        return chatsRepository.existsById(id);
-    }
-
     public Mono<ChatDto> findById(int id, int currentUserId) {
         return chatsRepository.findById(id)
                 .flatMap(chat -> {
@@ -101,6 +97,7 @@ public class ChatsService {
                             .map(tuple -> {
                                 var chat_dto = tuple.getT1();
                                 var messageDto = MessageMapper.toMessageDto(tuple.getT2());
+                                messageDto.setContent(encryptUtils.decrypt(messageDto.getContent()));
                                 chat_dto.setLastMessage(messageDto);
                                 return chat_dto;
                             });
