@@ -36,4 +36,5 @@ MessagesRepository extends ReactiveCrudRepository<Message, Long> {
             "where m.chat_id = :chatId and dm.user_id is null " +
             "order by created_at desc limit 1;")
     Mono<Message> findLastMessageByChatIdAndUserId(@Param("chatId") int chatId, int currentUserId);
+
 }

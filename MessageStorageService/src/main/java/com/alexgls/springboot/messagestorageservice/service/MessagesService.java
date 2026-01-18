@@ -34,7 +34,6 @@ public class MessagesService {
     private final AttachmentRepository attachmentRepository;
     private final ParticipantsRepository participantsRepository;
     private final MessageTokenRepository messageTokenRepository;
-
     private final TransactionalOperator transactionalOperator;
 
     private final EncryptUtils encryptUtils;
@@ -62,7 +61,7 @@ public class MessagesService {
                 .map(encryptUtils::calculateHmac)
                 .toList();
 
-        if(!hashes.isEmpty()){
+        if (!hashes.isEmpty()) {
             return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), hashes)
                     .collectList()
                     .flatMapMany(messagesRepository::findAllByIdIn)
@@ -76,10 +75,13 @@ public class MessagesService {
     }
 
 
-    public Mono<Long> readMessagesByList(List<ReadMessagePayload> messages) {
+    public Mono<Void> readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
+        ReadMessagePayload lastReadMessage = messages.get(messages.size() - 1);
+        int chatId = lastReadMessage.chatId();
         return Flux.fromIterable(messages)
                 .flatMap(message -> messagesRepository.readMessagesByList(message.messageId()))
-                .count();
+                .then(participantsRepository.findUnreadCountByChatIdAndUserId(chatId, readerId))
+                .flatMap(count -> participantsRepository.updateCountForUser(chatId, readerId, count - messages.size()));
     }
 
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
@@ -100,11 +102,18 @@ public class MessagesService {
                         return savePrivateChatMessage(createMessagePayload, savedMessageMono);
                     }
                 })
-                .flatMap(messageDto ->
-                        removeMarkIsDeletedForChatAndUserId(createMessagePayload)
-                                .thenReturn(messageDto)
+                .flatMap(messageDto -> {
+                            Mono<Void> asyncRemoveMarkDeletedMono = removeMarkIsDeletedForChatAndUserId(createMessagePayload);
+                            Mono<Void> lastMessageIdUpdateMono = chatsRepository.updateLastMessageIdByChatId(messageDto.getChatId(), messageDto.getId());
+                            Mono<Void> incrementUnreadCount = participantsRepository.incrementUpdateCountForUser(messageDto.getChatId(), messageDto.getSenderId());
+                            return asyncRemoveMarkDeletedMono
+                                    .then(lastMessageIdUpdateMono)
+                                    .then(incrementUnreadCount)
+                                    .thenReturn(messageDto);
+                        }
                 ));
     }
+
 
     private Mono<MessageDto> savePublicGroupMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
         return savedMessageMono.flatMap(savedMessage ->
@@ -217,6 +226,7 @@ public class MessagesService {
     }
 
 
+    //Удаляет метку удаленного чата для пользователя, который удалил его для себя
     Mono<Void> removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
         return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
                 .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))

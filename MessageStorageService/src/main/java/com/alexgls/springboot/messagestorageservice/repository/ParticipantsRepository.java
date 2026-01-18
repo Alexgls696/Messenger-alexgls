@@ -22,4 +22,16 @@ public interface ParticipantsRepository extends ReactiveCrudRepository<Participa
 
     @Query("select participants.user_id from participants where chat_id = :chatId")
     Flux<Integer> findUserIdsWhoDeletedChat(@Param("chatId") int chatId);
+
+    @Modifying
+    @Query(value = "update participants set unread_count = unread_count + 1 where chat_id = :chatId and user_id != :senderId ")
+    Mono<Void> incrementUpdateCountForUser(@Param("chatId") int chatId, @Param("senderId") int senderId);
+
+    @Modifying
+    @Query(value = "update participants set unread_count = :count where chat_id = :chatId and user_id = :readerId ")
+    Mono<Void> updateCountForUser(@Param("chatId") int chatId, @Param("readerId") int readerId, @Param("count") int count);
+
+
+    @Query(value = "select unread_count from participants where user_id = :userId and chat_id = :chatId")
+    Mono<Integer>findUnreadCountByChatIdAndUserId(int chatId, int userId);
 }

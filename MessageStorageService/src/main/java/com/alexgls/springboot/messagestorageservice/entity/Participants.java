@@ -34,4 +34,6 @@ public class Participants {
     @Column("last_read_message_id")
     private long lastReadMessageId;
 
+    @Column("unread_count")
+    private int unreadCount;
 }

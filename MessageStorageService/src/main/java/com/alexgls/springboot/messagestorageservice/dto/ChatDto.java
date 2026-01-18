@@ -26,4 +26,6 @@ public class ChatDto {
 
     private MessageDto lastMessage;
 
+    private Integer numberOfUnreadMessages;
+
 }

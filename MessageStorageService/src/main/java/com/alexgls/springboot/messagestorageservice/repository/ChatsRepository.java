@@ -1,5 +1,6 @@
 package com.alexgls.springboot.messagestorageservice.repository;
 
+import com.alexgls.springboot.messagestorageservice.dto.ChatWithUnread;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Modifying;
@@ -13,13 +14,13 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
     @Query(value = """
-            SELECT c.* FROM chats c
+            SELECT c.*, p.unread_count FROM chats c
             JOIN participants p ON p.chat_id = c.chat_id 
             WHERE p.user_id = :userId and is_deleted_by_user = false
             ORDER BY c.updated_at DESC
             LIMIT :limit OFFSET :offset
             """)
-    Flux<Chat> findChatsByUserId(
+    Flux<ChatWithUnread> findChatsByUserId(
             @Param("userId") int userId,
             @Param("limit") int limit,
             @Param("offset") long offset);
@@ -41,12 +42,7 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
     @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id where c.chat_id = :chatId and user_id != :senderId and is_group = false")
     Mono<Integer> findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
-    @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id where c.chat_id = :chatId and user_id != :senderId and is_group = true")
-    Flux<Integer> findRecipientIdsByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
-
-    @Modifying
-    @Query(value = "update chats set last_message_id = :lastMessageId, updated_at = now() where chat_id = :chatId")
-    Mono<Void> updateLastMessageId(@Param("chatId") int chatId, @Param("lastMessageId") long lastMessageId);
-
+    @Query(value = "update chats set last_message_id =:lastMessageId where chat_id =:chatId")
+    Mono<Void>updateLastMessageIdByChatId(@Param("chatId") int chatId, @Param("lastMessageId") long lastMessageId);
 
 }

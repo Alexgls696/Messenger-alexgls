@@ -455,6 +455,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = document.createElement('li');
         li.dataset.chatId = chat.chatId;
 
+        // --- ИЗМЕНЕНИЕ: Логика для бейджа ---
+        const unreadCount = chat.numberOfUnreadMessages;
+        // Если count есть и больше 0, создаем HTML, иначе пустая строка
+        const badgeHtml = (unreadCount && unreadCount > 0)
+            ? `<div class="unread-badge">${unreadCount}</div>`
+            : '';
+
         li.innerHTML = `
         <img class="chat-item-avatar" src="/images/profile-default.png" alt="Аватар чата">
         <div class="chat-info">
@@ -462,11 +469,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="last-message">${chat.lastMessage ? chat.lastMessage.content || 'Вложение' : 'Нет сообщений'}</div>
             <div class="message-time">${chat.lastMessage ? `Отправлено: ${formatDate(chat.lastMessage.createdAt)}` : ''}</div>
         </div>
+        ${badgeHtml} <!-- Вставляем бейдж справа -->
         `;
 
         if (!chat.group) {
             const titleDiv = li.querySelector('.chat-title');
-            const avatarImg = li.querySelector('.chat-item-avatar'); // Ищем аватар ТОЛЬКО внутри этого 'li'
+            const avatarImg = li.querySelector('.chat-item-avatar');
 
             try {
                 const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
@@ -484,18 +492,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                     }
                 } catch (avatarError) {
-                    if (avatarError.status === 404) {
-                        // Аватара нет, ничего страшного
-                    } else {
-                        console.warn(`Не удалось загрузить аватар для пользователя ${recipient.id}:`, avatarError);
+                    if (avatarError.status !== 404) {
+                        console.warn(`Не удалось загрузить аватар:`, avatarError);
                     }
                 }
 
             } catch (error) {
-                console.error(`Не удалось загрузить собеседника для чата ${chat.chatId}:`, error);
-                if (titleDiv) {
-                    titleDiv.textContent = 'Ошибка загрузки чата';
-                }
+                console.error(`Не удалось загрузить собеседника:`, error);
+                if (titleDiv) titleDiv.textContent = 'Ошибка загрузки чата';
             }
         }
 
@@ -508,11 +512,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!messagesToRead || messagesToRead.length === 0) {
             return;
         }
+
+        const currentChatId = messagesToRead[0].chatId;
+        decrementUnreadBadge(currentChatId, messagesToRead.length);
+        // ---------------------------------------------------
+
         const payload = messagesToRead.map(msg => ({
-            messageId: msg.id,
+            messageId: msg.messageId, // Обратите внимание: observer возвращает объект с полем messageId
             senderId: msg.senderId,
-            chatId: activeChatId
+            chatId: msg.chatId
         }));
+
         try {
             await apiFetch(`${API_BASE_URL}/api/messages/read-messages`, {
                 method: 'POST',
@@ -600,8 +610,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Отметка о прочтении
-            const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
-            await markMessagesAsRead(unreadMessages);
+           /* const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
+            await markMessagesAsRead(unreadMessages);*/
 
         } catch (error) {
             if (error.name !== 'AbortError') {
@@ -666,9 +676,16 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
         msgDiv.dataset.messageId = msg.id;
 
+        msgDiv.dataset.senderId = msg.senderId;
+
         msgDiv.addEventListener('contextmenu', (event) => {
             showContextMenu(event, msgDiv);
         });
+
+
+        if (!isSentByMe && !msg.read) {
+            messageReadObserver.observe(msgDiv);
+        }
 
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
@@ -804,6 +821,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- Observer для отслеживания прочтения сообщений ---
+    const messageReadObserver = new IntersectionObserver((entries) => {
+        const messagesToRead = [];
+
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const msgEl = entry.target;
+
+                // Перестаем следить за сообщением, так как оно уже "увидено"
+                messageReadObserver.unobserve(msgEl);
+
+                // Собираем данные для отправки на сервер
+                messagesToRead.push({
+                    messageId: parseInt(msgEl.dataset.messageId),
+                    senderId: parseInt(msgEl.dataset.senderId),
+                    chatId: activeChatId
+                });
+
+                // Визуально помечаем как прочитанное (убираем жирность, меняем статус и т.д. если нужно)
+                // Но статус "Прочитано" обычно ставится для *исходящих*, а мы читаем *входящие*.
+            }
+        });
+
+        if (messagesToRead.length > 0) {
+            markMessagesAsRead(messagesToRead);
+        }
+    }, {
+        root: messagesEl, // Следим внутри контейнера сообщений
+        threshold: 0.5    // Считаем прочитанным, когда показано 50% сообщения
+    });
+
+    /**
+     * Уменьшает счетчик непрочитанных сообщений в списке чатов.
+     * @param {number} chatId - ID чата.
+     * @param {number} amount - Количество прочитанных сообщений.
+     */
+    function decrementUnreadBadge(chatId, amount) {
+        const chatItem = chatListEl.querySelector(`li[data-chat-id="${chatId}"]`);
+        if (!chatItem) return;
+
+        const badge = chatItem.querySelector('.unread-badge');
+        if (!badge) return;
+
+        let currentCount = parseInt(badge.textContent, 10);
+        if (isNaN(currentCount)) return;
+
+        currentCount -= amount;
+
+        if (currentCount <= 0) {
+            badge.remove(); // Если 0 или меньше, удаляем кружок
+            // Также обновляем данные в объекте чата, если он где-то хранится (опционально)
+        } else {
+            badge.textContent = currentCount; // Обновляем число
+        }
+    }
 
 
 

@@ -83,7 +83,6 @@ public class ChatsController {
 
     }
 
-
     @GetMapping("/{id}/participants")
     public Flux<GetUserDto> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find participants by chat id: {}", chatId);

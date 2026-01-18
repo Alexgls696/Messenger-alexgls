@@ -50,7 +50,7 @@ public class MessagesController {
     }
 
     @PostMapping("/read-messages")
-    public Mono<Long> readMessagesList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
+    public Mono<Void> readMessagesList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
         int currentUserId = getCurrentUserId(authentication);
         final List<ReadMessagePayload> filteredMessages = messages
                 .stream()
@@ -59,11 +59,11 @@ public class MessagesController {
         return Mono.just(filteredMessages)
                 .flatMap(messagesList -> {
                     log.info("Read messages from payload... {}", messagesList);
-                    return messagesService.readMessagesByList(messagesList);
-                }).flatMap(count -> {
-                    kafkaSenderService.sendMessagesToKafka(filteredMessages, count);
-                    return Mono.just(count);
-                });
+                    return messagesService.readMessagesByList(messagesList, currentUserId);
+                }).then(Mono.defer(() -> {
+                    kafkaSenderService.sendMessagesToKafka(filteredMessages);
+                    return Mono.empty();
+                }));
     }
 
     @DeleteMapping

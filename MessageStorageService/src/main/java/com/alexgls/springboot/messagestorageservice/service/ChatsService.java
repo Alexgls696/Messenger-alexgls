@@ -54,6 +54,7 @@ public class ChatsService {
                                 MessageDto lastMessageDto = MessageMapper.toMessageDto(tuple.getT2());
                                 lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
                                 chatdto.setLastMessage(lastMessageDto);
+                                chatDto.setNumberOfUnreadMessages(chat.getUnreadCount());
                                 return Mono.just(chatdto);
                             });
                 });
@@ -118,14 +119,6 @@ public class ChatsService {
 
     public Mono<Integer> findRecipientIdByChatId(int chatId, int senderId) {
         return chatsRepository.findRecipientIdByChatId(chatId, senderId);
-    }
-
-    public Flux<Integer> findRecipientIdsByChatId(int chatId, int senderId) {
-        return chatsRepository.findRecipientIdsByChatId(chatId, senderId);
-    }
-
-    public Mono<Void> updateLastMessageToChat(int chatId, long messageId) {
-        return chatsRepository.updateLastMessageId(chatId, messageId);
     }
 
 }

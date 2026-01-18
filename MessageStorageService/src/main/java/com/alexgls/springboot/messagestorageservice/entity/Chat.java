@@ -32,4 +32,6 @@ public class Chat {
     @Column(value = "updated_at")
     private Timestamp updatedAt;
 
+    private Long lastMessageId;
+
 }

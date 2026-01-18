@@ -20,15 +20,13 @@ public class KafkaSenderService {
 
     private final KafkaTemplate<String, DeleteMessageResponse> deleteMessageTemplate;
 
-    public void sendMessagesToKafka(List<ReadMessagePayload> messages, long count) {
-        log.info("Count of updated messages {}", count);
+    public void sendMessagesToKafka(List<ReadMessagePayload> messages) {
         messages.forEach(message -> {
             CompletableFuture<SendResult<String, ReadMessagePayload>> futureResult = readMessageTemplate.send("read-message-topic", message).toCompletableFuture();
             futureResult.whenComplete((result, throwable) -> {
                 handleKafkaResultThrowable(throwable);
             });
         });
-
     }
 
     public void sendDeleteEventMessagesToKafka(DeleteMessageResponse deleteMessageResponse) {
