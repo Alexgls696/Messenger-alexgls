@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/changeset/add_last_read_message_id.sql
   - include:
       file: db/changelog/changeset/add_unread_count_column.sql
+  - include:
+      file: db/changelog/changeset/add_groups_update.sql

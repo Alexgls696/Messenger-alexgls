@@ -156,7 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!isSentByMe) {
                             markMessagesAsRead([newMsg]);
                         }
+                    } else {
+                        if (newMsg.senderId !== currentUserId) {
+                            incrementUnreadBadge(newMsg.chatId);
+                        }
                     }
+
                 } catch (error) {
                     console.error('Ошибка обработки нового сообщения:', error);
                 }
@@ -432,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isChatsLoading = true;
         try {
             const data = await apiFetch(`${API_BASE_URL}/api/chats/find-by-id/${chatListPage}`);
+
             statusEl.textContent = '';
             if (Array.isArray(data) && data.length > 0) {
                 const chatItemsPromises = data.map(chat => createChatItem(chat));
@@ -451,61 +457,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ЗАМЕНИТЕ СТАРУЮ ФУНКЦИЮ createChatItem НА ЭТУ
     async function createChatItem(chat) {
         const li = document.createElement('li');
         li.dataset.chatId = chat.chatId;
 
-        // --- ИЗМЕНЕНИЕ: Логика для бейджа ---
         const unreadCount = chat.numberOfUnreadMessages;
-        // Если count есть и больше 0, создаем HTML, иначе пустая строка
         const badgeHtml = (unreadCount && unreadCount > 0)
             ? `<div class="unread-badge">${unreadCount}</div>`
             : '';
 
+        // Сразу рендерим с дефолтными данными (скелетон или заглушка)
+        // Для личных чатов имя пока будет "Загрузка..." или можно использовать chat.name если бэк его отдает
         li.innerHTML = `
         <img class="chat-item-avatar" src="/images/profile-default.png" alt="Аватар чата">
         <div class="chat-info">
-            <div class="chat-title">${chat.group ? chat.name : 'Загрузка...'}</div>
+            <div class="chat-title">${chat.group ? chat.name : '...'}</div>
             <div class="last-message">${chat.lastMessage ? chat.lastMessage.content || 'Вложение' : 'Нет сообщений'}</div>
             <div class="message-time">${chat.lastMessage ? `Отправлено: ${formatDate(chat.lastMessage.createdAt)}` : ''}</div>
         </div>
-        ${badgeHtml} <!-- Вставляем бейдж справа -->
+        ${badgeHtml}
         `;
 
+        // Логика подгрузки данных запускается АСИНХРОННО и НЕ БЛОКИРУЕТ возврат li
         if (!chat.group) {
-            const titleDiv = li.querySelector('.chat-title');
-            const avatarImg = li.querySelector('.chat-item-avatar');
-
-            try {
-                const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
-                if (titleDiv) {
-                    titleDiv.textContent = `${recipient.name} ${recipient.surname}`;
-                }
+            (async () => {
+                const titleDiv = li.querySelector('.chat-title');
+                const avatarImg = li.querySelector('.chat-item-avatar');
 
                 try {
-                    const avatarId = await apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${recipient.id}`);
-                    if (avatarId && typeof avatarId === 'number') {
-                        const authToken = localStorage.getItem('accessToken');
-                        imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
-                            .then(src => {
-                                avatarImg.src = src;
-                            });
-                    }
-                } catch (avatarError) {
-                    if (avatarError.status !== 404) {
-                        console.warn(`Не удалось загрузить аватар:`, avatarError);
-                    }
-                }
+                    // 1. Загружаем информацию о собеседнике
+                    const recipient = await apiFetch(`${API_BASE_URL}/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
 
-            } catch (error) {
-                console.error(`Не удалось загрузить собеседника:`, error);
-                if (titleDiv) titleDiv.textContent = 'Ошибка загрузки чата';
-            }
+                    if (titleDiv) {
+                        titleDiv.textContent = `${recipient.name} ${recipient.surname}`;
+                    }
+
+                    // 2. Загружаем аватар
+                    try {
+                        const avatarId = await apiFetch(`${API_BASE_URL}/api/profiles/images/user-avatar/${recipient.id}`);
+                        if (avatarId && typeof avatarId === 'number') {
+                            const authToken = localStorage.getItem('accessToken');
+                            imageLoader.getImageSrc(avatarId, API_BASE_URL, authToken)
+                                .then(src => {
+                                    if (avatarImg) avatarImg.src = src;
+                                });
+                        }
+                    } catch (avatarError) {
+                        // Игнорируем 404 для аватара, оставляем дефолтный
+                        if (avatarError.status !== 404) {
+                            console.warn(`Не удалось загрузить аватар:`, avatarError);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(`Не удалось загрузить данные чата ${chat.chatId}:`, error);
+                    if (titleDiv) titleDiv.textContent = 'Неизвестный пользователь';
+                }
+            })();
         }
 
         li.addEventListener('click', () => openChat(chat));
         li.addEventListener('contextmenu', (e) => showChatContextMenu(e, chat.chatId));
+
+        // Возвращаем элемент МГНОВЕННО, не дожидаясь окончания запросов внутри
         return li;
+    }
+
+    function incrementUnreadBadge(chatId) {
+        const chatItem = chatListEl.querySelector(`li[data-chat-id="${chatId}"]`);
+
+        if (!chatItem) return;
+
+        let badge = chatItem.querySelector('.unread-badge');
+
+        if (badge) {
+            let currentCount = parseInt(badge.textContent, 10);
+            if (isNaN(currentCount)) currentCount = 0;
+            badge.textContent = currentCount + 1;
+        } else {
+            // Если бейджа нет, создаем новый
+            badge = document.createElement('div');
+            badge.className = 'unread-badge';
+            badge.textContent = '1';
+            chatItem.appendChild(badge);
+        }
     }
 
     async function markMessagesAsRead(messagesToRead) {
@@ -585,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })();
 
             // Загрузка сообщений с возможностью отмены
-            const { messages, hasMore } = await loadMessages(openingChatId, 0, signal);
+            const {messages, hasMore} = await loadMessages(openingChatId, 0, signal);
 
             // Проверяем, не была ли операция отменена во время выполнения
             if (signal.aborted) {
@@ -599,19 +635,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Рендеринг и прокрутка
-            const { firstUnreadId } = await renderMessages(messages);
+            const {firstUnreadId} = await renderMessages(messages);
             if (firstUnreadId) {
                 const firstUnreadElement = messagesEl.querySelector(`[data-message-id='${firstUnreadId}']`);
                 if (firstUnreadElement) {
-                    firstUnreadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstUnreadElement.scrollIntoView({behavior: 'smooth', block: 'center'});
                 }
             } else {
                 messagesEl.scrollTop = messagesEl.scrollHeight;
             }
 
             // Отметка о прочтении
-           /* const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
-            await markMessagesAsRead(unreadMessages);*/
+            /* const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
+             await markMessagesAsRead(unreadMessages);*/
 
         } catch (error) {
             if (error.name !== 'AbortError') {
@@ -628,19 +664,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadMessages(chatId, page, signal) {
         try {
-            const data = await apiFetch(`${API_BASE_URL}/api/messages?chatId=${chatId}&page=${page}&pageSize=${pageSize}`, { signal });
+            const data = await apiFetch(`${API_BASE_URL}/api/messages?chatId=${chatId}&page=${page}&pageSize=${pageSize}`, {signal});
 
             const hasMore = Array.isArray(data) && data.length === pageSize;
-            return { messages: data || [], hasMore };
+            return {messages: data || [], hasMore};
 
         } catch (error) {
             if (error.name === 'AbortError') {
                 // Это не ошибка, а ожидаемая отмена. Просто возвращаем пустой результат.
                 console.log(`Запрос сообщений для чата ${chatId} был отменен.`);
-                return { messages: [], hasMore: false };
+                return {messages: [], hasMore: false};
             }
             console.error('Ошибка загрузки сообщений:', error);
-            return { messages: [], hasMore: false };
+            return {messages: [], hasMore: false};
         }
     }
 
@@ -648,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesEl.innerHTML = ''; // Очищаем контейнер
         if (!messages || messages.length === 0) {
             messagesEl.innerHTML = '<p class="placeholder">Сообщений пока нет. Напишите первым!</p>';
-            return { firstUnreadId: null }; // Возвращаем, что непрочитанных нет
+            return {firstUnreadId: null}; // Возвращаем, что непрочитанных нет
         }
 
         let firstUnreadId = null;
@@ -667,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         messagesEl.appendChild(fragment);
 
-        return { firstUnreadId };
+        return {firstUnreadId};
     }
 
 
@@ -877,7 +913,6 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.textContent = currentCount; // Обновляем число
         }
     }
-
 
 
     async function lazyLoadImage(imageElement) {
@@ -1379,15 +1414,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!action || !contextMenuTarget) return;
 
         if (contextMenuTarget.type === 'message') {
-            const { messageId } = contextMenuTarget.data;
+            const {messageId} = contextMenuTarget.data;
             if (action === 'delete-for-me') {
                 deleteMessages([messageId], false);
             } else if (action === 'delete-for-all') {
                 deleteMessages([messageId], true);
             }
-        }
-
-        else if (contextMenuTarget.type === 'chat') {
+        } else if (contextMenuTarget.type === 'chat') {
             if (action === 'delete-chat') {
                 deleteChat(contextMenuTarget.chatId);
             }
@@ -1702,7 +1735,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             .then(src => avatarImg.src = src);
                     }
                 })
-                .catch(() => { /* Игнорируем ошибки загрузки аватара */ });
+                .catch(() => { /* Игнорируем ошибки загрузки аватара */
+                });
         });
     }
 

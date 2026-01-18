@@ -1,8 +1,10 @@
 package com.alexgls.springboot.messagestorageservice.service;
 
 import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
+import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
+import com.alexgls.springboot.messagestorageservice.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.entity.Participants;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
@@ -25,7 +27,9 @@ import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +64,8 @@ public class ChatsService {
                 });
     }
 
+
+    //Создание или поиск личного чата
     public Mono<ChatDto> findOrCreatePrivateChat(int senderId, int receiverId) {
         return transactionalOperator.transactional(chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId)
                 .flatMap(existingChatId -> {
@@ -88,6 +94,31 @@ public class ChatsService {
                             });
                 })));
     }
+
+
+    //TODO
+    public Mono<ChatDto> createGroup(CreateGroupDto createGroupDto, int creatorId) {
+        Chat chat = ChatMapper.createGroupDtoToEntity(createGroupDto);
+        return chatsRepository.save(chat)
+                .flatMap(savedChat -> {
+                    List<Participants> participants = createGroupDto.membersIds()
+                            .stream()
+                            .map(id -> createParticipantForGroup(ChatRole.MEMBER, id, savedChat.getChatId())).collect(Collectors.toList());
+                    participants.add(createParticipantForGroup(ChatRole.OWNER, creatorId, savedChat.getChatId()));
+                    return participantsRepository.saveAll(participants)
+                            .then(Mono.just(ChatMapper.toDto(savedChat)));
+                });
+    }
+
+    private Participants createParticipantForGroup(ChatRole chatRole, int userId, int chatId) {
+        Participants participant = new Participants();
+        participant.setRole(chatRole);
+        participant.setUserId(userId);
+        participant.setChatId(chatId);
+        participant.setJoinedAt(Timestamp.from(Instant.now()));
+        return participant;
+    }
+
 
     public Mono<ChatDto> findById(int id, int currentUserId) {
         return chatsRepository.findById(id)

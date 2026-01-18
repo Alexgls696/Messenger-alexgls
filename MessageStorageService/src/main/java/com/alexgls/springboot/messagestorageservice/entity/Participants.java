@@ -36,4 +36,7 @@ public class Participants {
 
     @Column("unread_count")
     private int unreadCount;
+
+    @Column("role")
+    private ChatRole role;
 }

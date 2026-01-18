@@ -20,6 +20,9 @@ public class Chat {
     @Column(value = "name")
     private String name;
 
+    @Column(value = "description")
+    private String description;
+
     @Column(value = "is_group")
     private boolean isGroup;
 

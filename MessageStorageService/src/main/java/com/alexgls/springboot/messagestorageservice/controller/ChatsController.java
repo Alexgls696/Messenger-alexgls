@@ -2,6 +2,7 @@ package com.alexgls.springboot.messagestorageservice.controller;
 
 import com.alexgls.springboot.messagestorageservice.client.AuthWebClient;
 import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
+import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservice.dto.GetUserDto;
 import com.alexgls.springboot.messagestorageservice.service.ChatsService;
 import com.alexgls.springboot.messagestorageservice.service.ParticipantsService;
@@ -55,11 +56,21 @@ public class ChatsController {
         return chatsService.findAllChatsByUserId(userId, pageable);
     }
 
+
+    //Создание личного чата
     @PostMapping("/private/{receiverId}")
-    public Mono<ChatDto> savePrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
-        log.info("Save private chat: {}", id);
+    public Mono<ChatDto> createPrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
+        log.info("Create private chat: {}", id);
         Integer userId = getSenderId(authentication);
         return chatsService.findOrCreatePrivateChat(userId, id);
+    }
+
+    @PostMapping("/group")
+    public Mono<ChatDto> createGroupChat(@RequestBody CreateGroupDto createGroupDto, Authentication authentication) {
+        Integer id = getSenderId(authentication);
+        log.info("Create group chat: {}", id);
+        return chatsService.createGroup(createGroupDto, id);
+
     }
 
     @GetMapping("/find-recipient-id-by-chat-id/{id}")

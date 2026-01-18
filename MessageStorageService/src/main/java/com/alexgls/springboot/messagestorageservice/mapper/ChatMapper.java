@@ -1,7 +1,11 @@
 package com.alexgls.springboot.messagestorageservice.mapper;
 
 import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
+import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class ChatMapper {
 
@@ -13,17 +17,18 @@ public class ChatMapper {
         chatDto.setCreatedAt(chat.getCreatedAt());
         chatDto.setUpdatedAt(chat.getUpdatedAt());
         chatDto.setChatId(chat.getChatId());
+        chatDto.setDescription(chat.getDescription());
         return chatDto;
     }
 
-    public static Chat toEntity(ChatDto chatDto) {
+    public static Chat createGroupDtoToEntity(CreateGroupDto createGroupDto) {
         Chat chat = new Chat();
-        chat.setName(chatDto.getName());
-        chat.setType(chatDto.getType());
-        chat.setGroup(chatDto.isGroup());
-        chat.setCreatedAt(chatDto.getCreatedAt());
-        chat.setUpdatedAt(chatDto.getUpdatedAt());
-        chat.setChatId(chatDto.getChatId());
+        chat.setCreatedAt(Timestamp.from(Instant.now()));
+        chat.setUpdatedAt(Timestamp.from(Instant.now()));
+        chat.setType("GROUP");
+        chat.setGroup(true);
+        chat.setName(createGroupDto.name());
+        chat.setDescription(createGroupDto.description());
         return chat;
     }
 }

@@ -81,7 +81,11 @@ public class MessagesService {
         return Flux.fromIterable(messages)
                 .flatMap(message -> messagesRepository.readMessagesByList(message.messageId()))
                 .then(participantsRepository.findUnreadCountByChatIdAndUserId(chatId, readerId))
-                .flatMap(count -> participantsRepository.updateCountForUser(chatId, readerId, count - messages.size()));
+                .flatMap(count -> {
+                    int resultCount = count - messages.size();
+                    int reallyCount = Math.max(resultCount, 0);
+                    return participantsRepository.updateCountForUser(chatId, readerId, reallyCount);
+                });
     }
 
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {

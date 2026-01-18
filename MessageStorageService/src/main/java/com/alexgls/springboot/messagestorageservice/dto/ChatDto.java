@@ -16,6 +16,8 @@ public class ChatDto {
 
     private String name;
 
+    private String description;
+
     private boolean isGroup;
 
     private String type;
