@@ -23,9 +23,17 @@ public class MessageStorageServiceKafkaListener {
     @KafkaListener(topics = "events-message-created", groupId = "event-message-group", containerFactory = "kafkaMessageListenerContainerFactory")
     public void listen(MessageDto createdMessageDto) {
         log.info("Received message, which was saved to database: {}", createdMessageDto);
-        log.info("Try to send message to client: {}", createdMessageDto);
-        messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getRecipientId()), "/queue/messages", createdMessageDto);
-        messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getSenderId()), "/queue/messages", createdMessageDto);
+
+        if (createdMessageDto.getRecipientIds() == null || createdMessageDto.getRecipientIds().isEmpty()) {
+            messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getRecipientId()), "/queue/messages", createdMessageDto);
+            messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getSenderId()), "/queue/messages", createdMessageDto);
+        } else {
+            var participants = createdMessageDto.getRecipientIds();
+            for (int receiverId : participants) {
+                messagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/messages", createdMessageDto);
+            }
+        }
+
     }
 
     @KafkaListener(topics = "read-message-topic", groupId = "message-read-group", containerFactory = "kafkaReadMessagesConsumerFactory")

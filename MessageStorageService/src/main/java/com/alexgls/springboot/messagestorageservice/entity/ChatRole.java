@@ -8,4 +8,12 @@ public enum ChatRole {
     public static ChatRole getDefault() {
         return MEMBER;
     }
+
+    public static String getTranslate(ChatRole role) {
+        return switch (role) {
+            case OWNER -> "Создатель";
+            case ADMIN -> "Администратор";
+            case MEMBER -> "Участник";
+        };
+    }
 }

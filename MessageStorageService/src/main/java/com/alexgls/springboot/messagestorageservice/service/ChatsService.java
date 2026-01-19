@@ -40,7 +40,6 @@ public class ChatsService {
     private final ParticipantsRepository participantsRepository;
     private final MessagesRepository messagesRepository;
     private final DeletedMessagesRepository deletedMessagesRepository;
-
     private final TransactionalOperator transactionalOperator;
     private final EncryptUtils encryptUtils;
 
@@ -60,7 +59,11 @@ public class ChatsService {
                                 chatdto.setLastMessage(lastMessageDto);
                                 chatDto.setNumberOfUnreadMessages(chat.getUnreadCount());
                                 return Mono.just(chatdto);
-                            });
+                            })
+                            .switchIfEmpty(Mono.defer(() -> {
+                                chatDto.setNumberOfUnreadMessages(chat.getUnreadCount());
+                                return Mono.just(chatDto);
+                            }));
                 });
     }
 
@@ -150,6 +153,12 @@ public class ChatsService {
 
     public Mono<Integer> findRecipientIdByChatId(int chatId, int senderId) {
         return chatsRepository.findRecipientIdByChatId(chatId, senderId);
+    }
+
+    public Mono<Integer> findChatIdByRecipientId(int recipientId, int myId) {
+        return chatsRepository.findChatIdByUserId(recipientId, myId)
+                .doOnError(error -> log.warn("Не удалось найти ваш чат с этим человеком: {}", error.getMessage()))
+                .switchIfEmpty(Mono.just(0));
     }
 
 }

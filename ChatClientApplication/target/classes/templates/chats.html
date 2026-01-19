@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="/css/profile.css">
     <link rel="stylesheet" href="/css/my-profile.css">
     <link rel="stylesheet" href="/css/photoViewer.css">
+    <link rel="stylesheet" href="/css/group-styles.css">
 </head>
 <body>
 <header class="mobile-header">
@@ -128,8 +129,19 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </button>
+                    <button id="groupInfoBtn" class="header-icon-btn" title="Информация о группе"
+                            style="display: none;">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </button>
                     <button id="searchMessagesBtn" class="header-icon-btn" title="Поиск по сообщениям">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
@@ -187,7 +199,8 @@
         <div class="search-content">
             <!-- ИСПОЛЬЗУЕМ НОВЫЕ КЛАССЫ -->
             <form id="usernameSearchForm" class="search-form">
-                <input type="text" id="usernameSearchInput" class="search-input" placeholder="Введите username (без @)" required>
+                <input type="text" id="usernameSearchInput" class="search-input" placeholder="Введите username (без @)"
+                       required>
                 <button type="submit" id="usernameSearchBtn" class="search-button">Найти</button>
             </form>
             <div id="usernameSearchResults" class="user-list-container">
@@ -203,7 +216,8 @@
         <div class="modal-header">
             <h2>Поиск в чате</h2>
             <button id="closeMessageSearchBtn" class="header-icon-btn" title="Закрыть">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -221,7 +235,8 @@
             <!-- ВКЛАДКА 1: Поиск сообщений -->
             <div id="messagesSearchTab" class="search-tab-content active">
                 <form id="messageSearchForm" class="search-form">
-                    <input type="text" id="messageSearchInput" class="search-input" placeholder="Введите текст для поиска..." required>
+                    <input type="text" id="messageSearchInput" class="search-input"
+                           placeholder="Введите текст для поиска..." required>
                     <button type="submit" class="search-button">Найти</button>
                 </form>
                 <div id="messageSearchResults" class="user-list-container">
@@ -232,7 +247,8 @@
             <!-- ВКЛАДКА 2: Поиск вложений -->
             <div id="attachmentsSearchTab" class="search-tab-content">
                 <form id="attachmentSearchForm" class="search-form">
-                    <input type="text" id="attachmentSearchInput" class="search-input" placeholder="Введите запрос для поиска в файлах..." required>
+                    <input type="text" id="attachmentSearchInput" class="search-input"
+                           placeholder="Введите запрос для поиска в файлах..." required>
                     <button type="submit" class="search-button">Найти</button>
                 </form>
                 <div id="attachmentSearchResults" class="attachment-search-results">
@@ -256,6 +272,24 @@
             </button>
         </div>
         <div id="userProfileContent" class="modal-body user-profile-body">
+
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно профиля группы -->
+<div id="groupProfileModal" class="modal hidden">
+    <div class="modal-content my-profile-modal-content"> <!-- Используем те же классы размеров -->
+        <div class="modal-header">
+            <h2 id="groupProfileModalTitle">Группа</h2>
+            <button id="closeGroupProfileBtn" class="header-icon-btn" title="Закрыть">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div id="groupProfileContent" class="modal-body user-profile-body">
 
         </div>
     </div>
@@ -337,6 +371,7 @@
 <script src="/js/photoViewer.js"></script>
 <script src="/js/imageLoader.js"></script>
 <script src="/js/userProfile.js"></script>
+<script src="/js/groupProfile.js"></script>
 
 
 </body>

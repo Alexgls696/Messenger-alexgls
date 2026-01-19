@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBtn = document.getElementById("profileBtn");
     const myProfileBtn = document.getElementById('myProfileBtn');
     const usernameContent = document.getElementById('username');
+    const groupInfoBtn = document.getElementById('groupInfoBtn');
 
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsDropdown = document.getElementById('settingsDropdown');
@@ -467,8 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<div class="unread-badge">${unreadCount}</div>`
             : '';
 
-        // Сразу рендерим с дефолтными данными (скелетон или заглушка)
-        // Для личных чатов имя пока будет "Загрузка..." или можно использовать chat.name если бэк его отдает
         li.innerHTML = `
         <img class="chat-item-avatar" src="/images/profile-default.png" alt="Аватар чата">
         <div class="chat-info">
@@ -479,7 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ${badgeHtml}
         `;
 
-        // Логика подгрузки данных запускается АСИНХРОННО и НЕ БЛОКИРУЕТ возврат li
         if (!chat.group) {
             (async () => {
                 const titleDiv = li.querySelector('.chat-title');
@@ -620,6 +618,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             })();
 
+            if (chat.group) {
+                profileBtn.style.display = 'none';
+                groupInfoBtn.style.display = 'flex'; // Показываем кнопку группы
+            } else {
+                profileBtn.style.display = 'flex';
+                groupInfoBtn.style.display = 'none';
+            }
+
             // Загрузка сообщений с возможностью отмены
             const {messages, hasMore} = await loadMessages(openingChatId, 0, signal);
 
@@ -645,9 +651,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 messagesEl.scrollTop = messagesEl.scrollHeight;
             }
 
-            // Отметка о прочтении
-            /* const unreadMessages = messages.filter(msg => !msg.read && msg.senderId !== currentUserId);
-             await markMessagesAsRead(unreadMessages);*/
 
         } catch (error) {
             if (error.name !== 'AbortError') {
@@ -1230,7 +1233,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         formData.append('isAnalyse', 'true');
                         formData.append('chatId', activeChatId);
                     }
-                    console.log(formData);
                     const response = await fetch(uploadUrl, {
                         method: 'POST',
                         headers: {
@@ -1269,6 +1271,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (chatManager.stompClient && chatManager.isConnected) {
                 chatManager.stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
+                decrementUnreadBadge(activeChatId, Number.MAX_VALUE);
             } else {
                 alert("Нет подключения для отправки сообщения.");
                 const pendingEl = document.querySelector(`[data-temp-id='${tempId}']`);
@@ -1400,6 +1403,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const recipientName = participantCache[activeChatRecipientId] || 'Собеседник';
 
         userProfile.open(activeChatRecipientId, activeChatId, recipientName);
+    });
+
+    groupInfoBtn.addEventListener('click', () => {
+        if (activeChatId) {
+            // Берем название чата из заголовка
+            const chatName = chatTitleEl.textContent;
+            groupProfile.open(activeChatId, chatName);
+        }
     });
 
     window.addEventListener('click', (event) => {
@@ -1753,6 +1764,10 @@ document.addEventListener('DOMContentLoaded', () => {
             myProfileManager.init(currentUserId, API_BASE_URL, refreshUserData);
             photoViewer.init({apiBaseUrl: API_BASE_URL});
             userProfile.init({
+                apiBaseUrl: API_BASE_URL,
+                observer: attachmentObserver
+            });
+            groupProfile.init({
                 apiBaseUrl: API_BASE_URL,
                 observer: attachmentObserver
             });

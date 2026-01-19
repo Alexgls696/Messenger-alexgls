@@ -39,17 +39,22 @@ public class MessagesService {
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
 
+
+    //Теперь статус прочитано ли сообщение - динамический
     public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize, currentUserId)
                 .flatMap(message -> {
                     Mono<List<Attachment>> attachments = attachmentRepository.findAllByMessageId(message.getId()).collectList();
-                    return Mono.zip(Mono.just(message), attachments)
+                    Mono<Participants> participantsMono = participantsRepository.findByChatIdAndUserId(chatId, currentUserId);
+                    return Mono.zip(attachments, participantsMono)
                             .map(tuple -> {
-                                var mes = tuple.getT1();
-                                mes.setContent(encryptUtils.decrypt(mes.getContent()));
-                                var attachmentsList = tuple.getT2();
-                                mes.setAttachments(attachmentsList);
-                                return mes;
+                                var attachmentsList = tuple.getT1();
+                                message.setContent(encryptUtils.decrypt(message.getContent()));
+                                message.setAttachments(attachmentsList);
+                                var participant = tuple.getT2();
+                                boolean isReadByCurrentUser = message.getId() <= participant.getLastReadMessageId();
+                                message.setRead(isReadByCurrentUser);
+                                return message;
                             });
                 })
                 .sort(Comparator.comparing(Message::getCreatedAt));
@@ -75,17 +80,30 @@ public class MessagesService {
     }
 
 
+    //TODO Требуется оптимизация
     public Mono<Void> readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
-        ReadMessagePayload lastReadMessage = messages.get(messages.size() - 1);
-        int chatId = lastReadMessage.chatId();
-        return Flux.fromIterable(messages)
-                .flatMap(message -> messagesRepository.readMessagesByList(message.messageId()))
-                .then(participantsRepository.findUnreadCountByChatIdAndUserId(chatId, readerId))
-                .flatMap(count -> {
-                    int resultCount = count - messages.size();
-                    int reallyCount = Math.max(resultCount, 0);
-                    return participantsRepository.updateCountForUser(chatId, readerId, reallyCount);
-                });
+        if (messages == null || messages.isEmpty()) {
+            return Mono.empty();
+        }
+
+        int chatId = messages.get(0).chatId();
+        List<Long> messageIds = messages.stream()
+                .map(ReadMessagePayload::messageId)
+                .toList();
+
+        long lastReadMessageId = Collections.max(messageIds);
+
+        int countMessagesRead = messageIds.size();
+        Mono<Void> updateGlobalMessageStatus = messagesRepository.markMessagesAsRead(messageIds);
+
+        Mono<Void> updateParticipantStatus = participantsRepository.updateUnreadCountAndLastMessageId(
+                chatId,
+                readerId,
+                lastReadMessageId,
+                countMessagesRead
+        );
+
+        return Mono.when(updateGlobalMessageStatus, updateParticipantStatus);
     }
 
     public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
@@ -110,15 +128,18 @@ public class MessagesService {
                             Mono<Void> asyncRemoveMarkDeletedMono = removeMarkIsDeletedForChatAndUserId(createMessagePayload);
                             Mono<Void> lastMessageIdUpdateMono = chatsRepository.updateLastMessageIdByChatId(messageDto.getChatId(), messageDto.getId());
                             Mono<Void> incrementUnreadCount = participantsRepository.incrementUpdateCountForUser(messageDto.getChatId(), messageDto.getSenderId());
+                            Mono<Void> updateUnreadCountForCurrentUser = participantsRepository.resetCountForCurrentUser(messageDto.getChatId(), messageDto.getSenderId());
                             return asyncRemoveMarkDeletedMono
                                     .then(lastMessageIdUpdateMono)
                                     .then(incrementUnreadCount)
+                                    .then(updateUnreadCountForCurrentUser)
                                     .thenReturn(messageDto);
                         }
                 ));
     }
 
 
+    //Без удаления отправителя из participants
     private Mono<MessageDto> savePublicGroupMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
         return savedMessageMono.flatMap(savedMessage ->
                 saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
@@ -130,6 +151,12 @@ public class MessagesService {
                             dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));
                             return dto;
                         })
+                        .flatMap(dto -> participantsRepository.findUserIdsByChatId(dto.getChatId())
+                                .collect(Collectors.toList())
+                                .map(participants -> {
+                                    dto.setRecipientIds(participants);
+                                    return dto;
+                                }))
         );
     }
 

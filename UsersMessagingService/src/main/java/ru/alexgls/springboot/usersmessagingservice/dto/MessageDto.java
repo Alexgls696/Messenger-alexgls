@@ -21,6 +21,8 @@ public class MessageDto {
 
     private int recipientId;
 
+    private List<Integer> recipientIds;
+
     private String content;
 
     private Timestamp createdAt;

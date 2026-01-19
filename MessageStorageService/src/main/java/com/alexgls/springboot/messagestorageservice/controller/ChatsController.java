@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/chats")
 @RequiredArgsConstructor
@@ -60,7 +63,7 @@ public class ChatsController {
     //Создание личного чата
     @PostMapping("/private/{receiverId}")
     public Mono<ChatDto> createPrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
-        log.info("Create private chat: {}", id);
+        log.info("Create private chat, receiver id: {}", id);
         Integer userId = getSenderId(authentication);
         return chatsService.findOrCreatePrivateChat(userId, id);
     }
@@ -68,9 +71,16 @@ public class ChatsController {
     @PostMapping("/group")
     public Mono<ChatDto> createGroupChat(@RequestBody CreateGroupDto createGroupDto, Authentication authentication) {
         Integer id = getSenderId(authentication);
-        log.info("Create group chat: {}", id);
+        log.info("Creating group chat, creator id: : {}", id);
         return chatsService.createGroup(createGroupDto, id);
+    }
 
+    @GetMapping("/find-chat-id-by-recipient-id/{id}")
+    public Mono<Map<String,Integer>> findChatIdByRecipientId(@PathVariable("id") int id, Authentication authentication) {
+        Integer userId = getSenderId(authentication);
+        log.info("Find chat id by user id: {}", userId);
+        return chatsService.findChatIdByRecipientId(id, userId)
+                .map(chatId->Map.of("chatId", chatId));
     }
 
     @GetMapping("/find-recipient-id-by-chat-id/{id}")
@@ -94,12 +104,14 @@ public class ChatsController {
 
     }
 
+
+    //Необходимо для загрузки участников групп
     @GetMapping("/{id}/participants")
-    public Flux<GetUserDto> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
+    public Mono<List<GetUserDto>> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find participants by chat id: {}", chatId);
         String token = getToken(authentication);
-        return participantsService.findUserIdsByChatId(chatId)
-                .flatMap(id -> authWebClient.findUserById(id, token));
+        int userId = getSenderId(authentication);
+        return participantsService.findAllByChatId(chatId, token,userId);
     }
 
 

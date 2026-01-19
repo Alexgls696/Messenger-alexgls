@@ -1,7 +1,7 @@
 package com.alexgls.springboot.messagestorageservice.dto;
 
 public record ReadMessagePayload(
-        int messageId,
+        long messageId,
         int senderId,
         int chatId
 ) {

@@ -39,6 +39,12 @@ public interface ChatsRepository extends ReactiveCrudRepository<Chat, Integer> {
     Mono<Integer> findChatIdByParticipantsIdForPrivateChats(@Param("senderId") int senderId,
                                                             @Param("receiverId") int receiverId);
 
+    @Query(value = "select distinct(c.chat_id) from chats c " +
+            "join participants p1 on c.chat_id = p1.chat_id " +
+            "join participants p2 on p1.chat_id = p2.chat_id " +
+            "where c.type = 'PRIVATE' and p1.user_id = :userId and p2.user_id = :myId")
+    Mono<Integer>findChatIdByUserId(int userId, int myId);
+
     @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id where c.chat_id = :chatId and user_id != :senderId and is_group = false")
     Mono<Integer> findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 

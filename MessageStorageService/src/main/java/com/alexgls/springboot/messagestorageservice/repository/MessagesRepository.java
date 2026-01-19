@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public interface
@@ -36,5 +37,9 @@ MessagesRepository extends ReactiveCrudRepository<Message, Long> {
             "where m.chat_id = :chatId and dm.user_id is null " +
             "order by created_at desc limit 1;")
     Mono<Message> findLastMessageByChatIdAndUserId(@Param("chatId") int chatId, int currentUserId);
+
+    @Modifying
+    @Query("UPDATE messages SET is_read = true, read_at = now() WHERE message_id IN (:messageIds)")
+    Mono<Void> markMessagesAsRead(@Param("messageIds") List<Long> messageIds);
 
 }

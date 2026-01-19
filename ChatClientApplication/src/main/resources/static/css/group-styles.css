@@ -1,0 +1,69 @@
+/* --- Стили для списка участников группы --- */
+.participants-section {
+    padding-top: 20px;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 200px; /* Ограничим высоту списка участников */
+    overflow-y: auto;
+}
+
+/* Переиспользуем стили .user-item для участников, но можно добавить специфику */
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.participant-item:hover {
+    background-color: var(--surface-accent);
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95em;
+}
+
+.participant-username {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+/* Добавьте в profile.css */
+
+.profile-description {
+    margin-top: 8px;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-wrap: break-word; /* Чтобы длинные слова не ломали верстку */
+
+    /* Опционально: фон, чтобы выделить описание */
+    background-color: var(--surface-secondary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-secondary);
+}

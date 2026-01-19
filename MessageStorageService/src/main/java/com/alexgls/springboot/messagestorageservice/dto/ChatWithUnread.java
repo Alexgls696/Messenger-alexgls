@@ -13,6 +13,6 @@ import org.springframework.data.relational.core.mapping.Column;
 @ToString(callSuper = true)
 public class ChatWithUnread extends Chat {
 
-    @Column("unread_count") // Важно указать имя колонки из SQL
+    @Column("unread_count") 
     private int unreadCount;
 }
