@@ -27,16 +27,12 @@ MessagesRepository extends ReactiveCrudRepository<Message, Long> {
                                           @Param("size") int size,
                                           @Param("currentUserId") int currentUserId);
 
-    @Modifying
-    @Query("update messages set is_read = true, read_at = now() where message_id = :messageId")
-    Mono<Void> readMessagesByList(@Param("messageId") int messageId);
-
-
     @Query("select m.* from messages m left join deleted_messages dm " +
             "on m.message_id = dm.message_id and dm.user_id = :currentUserId " +
             "where m.chat_id = :chatId and dm.user_id is null " +
             "order by created_at desc limit 1;")
     Mono<Message> findLastMessageByChatIdAndUserId(@Param("chatId") int chatId, int currentUserId);
+
 
     @Modifying
     @Query("UPDATE messages SET is_read = true, read_at = now() WHERE message_id IN (:messageIds)")

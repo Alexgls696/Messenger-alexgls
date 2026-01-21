@@ -76,7 +76,15 @@
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
+
+            <button id="createGroupBtn" class="header-icon-btn find-user-btn" title="Создать группу" style="margin-left: 10px;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
         </div>
+
 
         <!-- Информация о пользователе по центру -->
         <div class="user-info-header">
@@ -360,6 +368,57 @@
     </div>
 </div>
 
+<!-- Модальное окно создания группы -->
+<div id="createGroupModal" class="modal hidden">
+    <div class="modal-content my-profile-modal-content">
+        <div class="modal-header">
+            <h2>Создание группы</h2>
+            <button id="closeCreateGroupBtn" class="header-icon-btn" title="Закрыть">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body user-profile-body">
+            <!-- Форма создания -->
+            <div class="profile-form-group">
+                <label for="groupNameInput">Название группы:</label>
+                <input type="text" id="groupNameInput" placeholder="Введите название группы">
+            </div>
+
+            <div class="profile-form-group">
+                <label for="groupDescInput">Описание (опционально):</label>
+                <textarea id="groupDescInput" placeholder="Введите описание группы"></textarea>
+            </div>
+
+            <!-- Список выбранных участников -->
+            <div class="selected-members-section">
+                <label>Участники:</label>
+                <div id="selectedMembersContainer" class="selected-members-list">
+                    <!-- Сюда JS будет добавлять выбранных людей -->
+                    <span class="placeholder-text">Никто не выбран</span>
+                </div>
+            </div>
+
+            <!-- Поиск участников -->
+            <div class="search-section">
+                <label>Добавить участников:</label>
+                <form id="groupMemberSearchForm" class="search-form">
+                    <input type="text" id="groupMemberSearchInput" class="search-input" placeholder="Поиск по username">
+                    <button type="submit" class="search-button">Найти</button>
+                </form>
+                <div id="groupMemberSearchResults" class="user-list-container" style="max-height: 200px;">
+                    <!-- Результаты поиска -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="submitCreateGroupBtn" class="profile-save-btn">Создать</button>
+        </div>
+    </div>
+</div>
+
 <div id="attachment-tooltip"></div>
 
 
@@ -372,6 +431,7 @@
 <script src="/js/imageLoader.js"></script>
 <script src="/js/userProfile.js"></script>
 <script src="/js/groupProfile.js"></script>
+<script src="/js/createGroup.js"></script>
 
 
 </body>

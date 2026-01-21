@@ -67,3 +67,74 @@
     border-radius: 6px;
     border: 1px solid var(--border-secondary);
 }
+
+/*создание группы */
+/* --- Стили для создания группы --- */
+
+.selected-members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    min-height: 50px;
+    background-color: var(--surface-secondary);
+}
+
+.selected-member-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.remove-member-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-on-accent);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 2px;
+    font-size: 1.1em;
+}
+
+.remove-member-btn:hover {
+    color: #ffcccc;
+}
+
+.placeholder-text {
+    color: var(--text-placeholder);
+    font-style: italic;
+    font-size: 0.9em;
+    padding: 5px;
+}
+
+/* Кнопка добавления в результатах поиска */
+.add-member-btn {
+    margin-left: auto; /* Прижимаем вправо */
+    padding: 5px 10px;
+    border: 1px solid var(--accent-primary);
+    background: transparent;
+    color: var(--accent-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.add-member-btn:hover {
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+}
+
+.add-member-btn.added {
+    background-color: var(--surface-secondary);
+    border-color: var(--text-placeholder);
+    color: var(--text-placeholder);
+    cursor: default;
+}

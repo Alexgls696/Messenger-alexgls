@@ -2,9 +2,9 @@ const groupProfile = (() => {
     let modal = null, modalContent = null, closeBtn = null, modalTitle = null;
     let localApiBaseUrl = null, activeChatId = null, localAttachmentObserver = null;
 
-    // Кеш для участников, чтобы не грузить аватарки каждый раз заново
     const tooltip = document.getElementById('attachment-tooltip');
     const metadataCache = new Map();
+    let CURRENT_USER_ID = null;
     let tooltipTimeout = null;
 
     const close = () => {
@@ -72,7 +72,7 @@ const groupProfile = (() => {
     };
 
     // --- Рендеринг участников ---
-     const renderParticipants = (participants, container) => {
+    const renderParticipants = async (participants, container) => {
         if (!participants || participants.length === 0) {
             container.innerHTML = '<p class="placeholder">Нет участников.</p>';
             return;
@@ -94,9 +94,10 @@ const groupProfile = (() => {
 
             // Клик по участнику открывает его личный профиль
             div.addEventListener('click', async () => {
-                //close(); // Можно закрыть, а можно оставить поверх
-                const data = await apiFetch(`${localApiBaseUrl}/api/chats/find-chat-id-by-recipient-id/${user.id}`)
-                userProfile.open(user.id, data.chatId, `${user.name} ${user.surname}`);
+                if (user.id !== CURRENT_USER_ID) {
+                    const data = await apiFetch(`${localApiBaseUrl}/api/chats/find-chat-id-by-recipient-id/${user.id}`)
+                    await userProfile.open(user.id, data.chatId, `${user.name} ${user.surname}`);
+                }
             });
 
             container.appendChild(div);
@@ -247,7 +248,7 @@ const groupProfile = (() => {
         }
     };
 
-    const init = (config) => {
+    const init = (config, currentUserId) => {
         modal = document.getElementById('groupProfileModal');
         modalContent = document.getElementById('groupProfileContent');
         closeBtn = document.getElementById('closeGroupProfileBtn');
@@ -259,6 +260,7 @@ const groupProfile = (() => {
         }
         localApiBaseUrl = config.apiBaseUrl;
         localAttachmentObserver = config.observer;
+        CURRENT_USER_ID = currentUserId
 
         closeBtn.addEventListener('click', close);
         modal.addEventListener('click', (e) => {

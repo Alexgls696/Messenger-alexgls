@@ -251,7 +251,6 @@ const myProfileManager = (() => {
         try {
             const profileData = await apiFetch(`${apiBaseUrl}/api/profiles/${currentUserId}`);
 
-            // УБРАНА ЛИШНЯЯ ОБЕРТКА И ЛЮБЫЕ ВНУТРЕННИЕ ЭЛЕМЕНТЫ ИЗ #userPhotosGrid
             profileContent.innerHTML = `
                 <div class="profile-user-info">
                     <div class="user-info-item"><strong>Имя:</strong> ${userData.name}</div>

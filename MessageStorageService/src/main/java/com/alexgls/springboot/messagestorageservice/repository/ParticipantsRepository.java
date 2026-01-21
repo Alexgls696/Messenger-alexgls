@@ -32,16 +32,12 @@ public interface ParticipantsRepository extends ReactiveCrudRepository<Participa
     @Query(value = "update participants set unread_count = unread_count + 1 where chat_id = :chatId and user_id != :senderId ")
     Mono<Void> incrementUpdateCountForUser(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
-    @Modifying
-    @Query(value = "update participants set unread_count = :count,  last_read_message_id = :messageId where chat_id = :chatId and user_id = :readerId ")
-    Mono<Void> updateCountForUser(@Param("chatId") int chatId, @Param("readerId") int readerId, @Param("messageId") long messageId, @Param("count") int count);
 
     @Modifying
     @Query(value = "update participants set unread_count = 0 where chat_id = :chatId and user_id = :readerId ")
     Mono<Void> resetCountForCurrentUser(@Param("chatId") int chatId, @Param("readerId") int readerId);
 
-    @Query(value = "select unread_count from participants where user_id = :userId and chat_id = :chatId")
-    Mono<Integer> findUnreadCountByChatIdAndUserId(int chatId, int userId);
+
 
     @Modifying
     @Query("""

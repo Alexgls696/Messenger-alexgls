@@ -1517,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Дублируем открытие профиля
     myProfileBtnMobile.addEventListener('click', () => {
-        myProfileBtn.click(); // Проще всего симулировать клик на основной кнопке
+        myProfileBtn.click();
     });
 
     // Закрываем мобильное меню при клике в любом другом месте
@@ -1763,17 +1763,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             myProfileManager.init(currentUserId, API_BASE_URL, refreshUserData);
             photoViewer.init({apiBaseUrl: API_BASE_URL});
+
             userProfile.init({
                 apiBaseUrl: API_BASE_URL,
                 observer: attachmentObserver
             });
+
+
+
+            const handleNewGroupCreated = async (newGroupChat) => {
+                const newChatItemEl = await createChatItem(newGroupChat);
+                chatListEl.prepend(newChatItemEl);
+                await openChat(newGroupChat);
+            };
+
+            createGroupManager.init(API_BASE_URL, handleNewGroupCreated);
+
             groupProfile.init({
                 apiBaseUrl: API_BASE_URL,
                 observer: attachmentObserver
-            });
+            }, me.id);
 
             updateHeaderUI(me);
-
 
             const headerAvatarImg = document.getElementById('headerAvatarImg');
             const headerAvatarImgMobile = document.getElementById('headerAvatarImgMobile'); // ДОБАВЛЕНО
