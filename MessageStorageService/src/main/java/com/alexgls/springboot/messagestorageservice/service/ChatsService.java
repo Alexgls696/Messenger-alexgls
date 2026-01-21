@@ -3,10 +3,12 @@ package com.alexgls.springboot.messagestorageservice.service;
 import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
 import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
+import com.alexgls.springboot.messagestorageservice.dto.UpdateGroupDto;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
 import com.alexgls.springboot.messagestorageservice.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
 import com.alexgls.springboot.messagestorageservice.entity.Participants;
+import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.ChatMapper;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
@@ -18,6 +20,7 @@ import com.alexgls.springboot.messagestorageservice.service.encryption.EncryptUt
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -99,7 +102,6 @@ public class ChatsService {
     }
 
 
-    //TODO
     public Mono<ChatDto> createGroup(CreateGroupDto createGroupDto, int creatorId) {
         Chat chat = ChatMapper.createGroupDtoToEntity(createGroupDto);
         return chatsRepository.save(chat)
@@ -112,6 +114,24 @@ public class ChatsService {
                             .then(Mono.just(ChatMapper.toDto(savedChat)));
                 });
     }
+
+    public Mono<ChatDto> updateGroup(UpdateGroupDto updateGroupDto, int actorId) {
+        return participantsRepository.findByChatIdAndUserId(updateGroupDto.chatId(), actorId)
+                .switchIfEmpty(Mono.error(() -> new NoSuchParticipantException("Не найдена связь между участником чата и самим чатом")))
+                .flatMap(participant -> {
+                    if (!ChatRole.CanEditGroupDescription(participant.getRole())) {
+                        return Mono.error(() -> new AccessDeniedException("У вас нет доступа для выполнения данной операции"));
+                    }
+                    return chatsRepository.findById(updateGroupDto.chatId());
+                })
+                .switchIfEmpty(Mono.error(() -> new NoSuchUsersChatException("Чат с заданным id не найден")))
+                .flatMap(chat -> {
+                    chat.setName(updateGroupDto.name());
+                    chat.setDescription(updateGroupDto.description());
+                    return chatsRepository.save(chat);
+                }).map(ChatMapper::toDto);
+    }
+
 
     private Participants createParticipantForGroup(ChatRole chatRole, int userId, int chatId) {
         Participants participant = new Participants();

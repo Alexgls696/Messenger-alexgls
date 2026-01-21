@@ -15,7 +15,6 @@ public interface ParticipantsRepository extends ReactiveCrudRepository<Participa
     @Query(value = "select * from participants where chat_id = :chatId")
     Flux<Participants> findByChatId(@Param("chatId") Integer chatId);
 
-
     @Query(value = "select user_id from participants where chat_id = :chatId")
     Flux<Integer> findUserIdsByChatId(@Param("chatId") Integer chatId);
 

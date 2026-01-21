@@ -4,8 +4,10 @@ import com.alexgls.springboot.messagestorageservice.client.AuthWebClient;
 import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
 import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservice.dto.GetUserDto;
+import com.alexgls.springboot.messagestorageservice.dto.UpdateGroupDto;
 import com.alexgls.springboot.messagestorageservice.service.ChatsService;
 import com.alexgls.springboot.messagestorageservice.service.ParticipantsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,19 +70,26 @@ public class ChatsController {
         return chatsService.findOrCreatePrivateChat(userId, id);
     }
 
-    @PostMapping("/group")
+    @PostMapping("/groups")
     public Mono<ChatDto> createGroupChat(@RequestBody CreateGroupDto createGroupDto, Authentication authentication) {
         Integer id = getSenderId(authentication);
         log.info("Creating group chat, creator id: : {}", id);
         return chatsService.createGroup(createGroupDto, id);
     }
 
+    @PostMapping("/groups/update")
+    public Mono<ChatDto> updateGroupChat(@Valid @RequestBody UpdateGroupDto updateGroupDto, Authentication authentication) {
+        log.info("Update group chat, actor id: {}", updateGroupDto.chatId());
+        int userId = getSenderId(authentication);
+        return chatsService.updateGroup(updateGroupDto, userId);
+    }
+
     @GetMapping("/find-chat-id-by-recipient-id/{id}")
-    public Mono<Map<String,Integer>> findChatIdByRecipientId(@PathVariable("id") int id, Authentication authentication) {
+    public Mono<Map<String, Integer>> findChatIdByRecipientId(@PathVariable("id") int id, Authentication authentication) {
         Integer userId = getSenderId(authentication);
         log.info("Find chat id by user id: {}", userId);
         return chatsService.findChatIdByRecipientId(id, userId)
-                .map(chatId->Map.of("chatId", chatId));
+                .map(chatId -> Map.of("chatId", chatId));
     }
 
     @GetMapping("/find-recipient-id-by-chat-id/{id}")
@@ -111,7 +120,7 @@ public class ChatsController {
         log.info("Find participants by chat id: {}", chatId);
         String token = getToken(authentication);
         int userId = getSenderId(authentication);
-        return participantsService.findAllByChatId(chatId, token,userId);
+        return participantsService.findAllByChatId(chatId, token, userId);
     }
 
 

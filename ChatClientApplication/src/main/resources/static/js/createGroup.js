@@ -124,7 +124,7 @@ const createGroupManager = (() => {
             createBtn.textContent = 'Создание...';
 
             // Получаем ответ от сервера (новый ChatDto)
-            const newGroupChat = await apiFetch(`${localApiBaseUrl}/api/chats/group`, {
+            const newGroupChat = await apiFetch(`${localApiBaseUrl}/api/chats/groups`, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
