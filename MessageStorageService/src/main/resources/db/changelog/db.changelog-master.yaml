@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/changeset/add_unread_count_column.sql
   - include:
       file: db/changelog/changeset/add_groups_update.sql
+  - include:
+      file: db/changelog/changeset/leave_group_and_service_message.sql

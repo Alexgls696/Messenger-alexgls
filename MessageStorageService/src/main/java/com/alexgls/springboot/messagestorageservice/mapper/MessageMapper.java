@@ -3,6 +3,10 @@ package com.alexgls.springboot.messagestorageservice.mapper;
 import com.alexgls.springboot.messagestorageservice.dto.CreateMessagePayload;
 import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
+import com.alexgls.springboot.messagestorageservice.entity.MessageType;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class MessageMapper {
 
@@ -19,14 +23,24 @@ public class MessageMapper {
         messageDto.setRecipientId(message.getRecipientId());
         messageDto.setReadAt(message.getReadAt());
         messageDto.setChatId(message.getChatId());
+        messageDto.setService(message.isService());
         return messageDto;
     }
 
-    public static Message toMessageFromCreateMessagePayload(CreateMessagePayload createMessagePayload) {
+    public static Message toMessageFromCreateMessagePayload(CreateMessagePayload payload) {
         Message message = new Message();
-        message.setChatId(createMessagePayload.chatId());
-        message.setSenderId(createMessagePayload.senderId());
-        message.setContent(createMessagePayload.content());
+        message.setCreatedAt(Timestamp.from(Instant.now()));
+        message.setContent(payload.content());
+        message.setType(
+                (payload.attachments() == null || payload.attachments().isEmpty())
+                        ? MessageType.TEXT
+                        : MessageType.FILE
+        );
+        message.setSenderId(payload.senderId());
+        message.setChatId(payload.chatId());
+        message.setService(payload.isService());
         return message;
     }
+
+
 }

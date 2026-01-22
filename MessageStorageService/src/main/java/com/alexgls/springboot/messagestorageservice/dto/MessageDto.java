@@ -40,4 +40,6 @@ public class MessageDto {
     private List<Attachment> attachments;
 
     private String tempId;
+
+    private boolean isService;
 }

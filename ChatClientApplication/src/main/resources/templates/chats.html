@@ -419,6 +419,22 @@
     </div>
 </div>
 
+<!-- Модальное окно подтверждения -->
+<div id="confirmationModal" class="modal hidden">
+    <div class="modal-content confirmation-modal-content">
+        <div class="modal-header">
+            <h2 id="confirmationTitle">Подтверждение</h2>
+        </div>
+        <div class="modal-body">
+            <p id="confirmationMessage" class="confirmation-text">Вы уверены?</p>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelConfirmBtn" class="profile-cancel-btn">Нет</button>
+            <button id="acceptConfirmBtn" class="profile-save-btn danger">Да</button>
+        </div>
+    </div>
+</div>
+
 <div id="attachment-tooltip"></div>
 
 
@@ -426,6 +442,7 @@
 <script src="/js/lib/stomp.min.js"></script>
 <script src="/js/apiClient.js"></script>
 <script src="/js/chats.js"></script>
+<script src="/js/uiUtils.js"></script>
 <script src="/js/current-profile.js"></script>
 <script src="/js/photoViewer.js"></script>
 <script src="/js/imageLoader.js"></script>

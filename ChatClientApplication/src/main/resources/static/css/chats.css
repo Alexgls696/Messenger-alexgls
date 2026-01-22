@@ -935,6 +935,40 @@ body[data-theme="dark"] .message.received .attachment-item.file-attachment {
     visibility: visible;
 }
 
+
+
+
+.message.service {
+    align-self: center; /* Центрируем по горизонтали во flex-контейнере сообщений */
+    max-width: 90%;     /* Даем больше места по ширине */
+
+    /* Визуальный стиль "плашки" */
+    background-color: rgba(0, 0, 0, 0.2); /* Полупрозрачный фон */
+    color: #fff;
+
+    border-radius: 15px; /* Закругленные края (форма пилюли) */
+    padding: 5px 12px;
+    margin: 8px 0;
+
+    font-size: 0.85em;
+    text-align: center;
+    box-shadow: none; /* Убираем тени, если они есть у обычных сообщений */
+}
+
+/* Адаптация под светлую тему */
+body[data-theme="light"] .message.service {
+    background-color: var(--surface-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-secondary);
+}
+
+/* Адаптация под темную тему */
+body[data-theme="dark"] .message.service {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    border: none;
+}
+
 @media (max-width: 768px) {
     /* --- ОСНОВНАЯ РАЗМЕТКА --- */
     .desktop-header {

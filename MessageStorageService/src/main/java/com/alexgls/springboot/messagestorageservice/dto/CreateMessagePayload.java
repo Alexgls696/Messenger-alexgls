@@ -7,6 +7,7 @@ public record CreateMessagePayload(
         int senderId,
         String content,
         List<CreateAttachmentPayload> attachments,
-        String tempId
+        String tempId,
+        boolean isService
 ) {
 }

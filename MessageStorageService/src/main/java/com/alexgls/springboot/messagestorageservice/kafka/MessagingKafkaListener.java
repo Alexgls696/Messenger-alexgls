@@ -1,7 +1,7 @@
 package com.alexgls.springboot.messagestorageservice.kafka;
 
 import com.alexgls.springboot.messagestorageservice.dto.CreateMessagePayload;
-import com.alexgls.springboot.messagestorageservice.service.MessageEventsService;
+import com.alexgls.springboot.messagestorageservice.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservice.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ public class MessagingKafkaListener {
 
     private final MessagesService messagingService;
 
-    private final MessageEventsService messageEventsService;
+    private final KafkaSenderService kafkaSenderService;
 
     @KafkaListener(topics = "messaging-topic", groupId = "messaging-group", containerFactory = "kafkaCreateMessageListenerContainerFactory")
     public void listen(CreateMessagePayload createMessagePayload) {
@@ -24,7 +24,7 @@ public class MessagingKafkaListener {
         messagingService.save(createMessagePayload)
                 .doOnNext(savedMessageDto -> {
                     log.info("Message has been successfully saved in database: {}", savedMessageDto);
-                    messageEventsService.sendMessage(savedMessageDto);
+                    kafkaSenderService.sendMessage(savedMessageDto);
                 })
                 .subscribe(
                         result -> log.info("Reactive stream completed successfully for payload: {}", createMessagePayload),

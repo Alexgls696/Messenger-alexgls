@@ -36,8 +36,6 @@ public interface ParticipantsRepository extends ReactiveCrudRepository<Participa
     @Query(value = "update participants set unread_count = 0 where chat_id = :chatId and user_id = :readerId ")
     Mono<Void> resetCountForCurrentUser(@Param("chatId") int chatId, @Param("readerId") int readerId);
 
-
-
     @Modifying
     @Query("""
                 UPDATE participants
@@ -51,5 +49,13 @@ public interface ParticipantsRepository extends ReactiveCrudRepository<Participa
             @Param("lastMessageId") long lastMessageId,
             @Param("count") int count
     );
+
+    @Modifying
+    @Query(value = "update participants set is_leave = true where chat_id = :chatId and user_id = :userId")
+    Mono<Void> leavingFromGroupByChatIdAndUserId(@Param("chatId") int chatId, @Param("userId") int userId);
+
+    @Modifying
+    @Query(value = "update participants set is_removed = true where chat_id = :chatId and user_id = :userId")
+    Mono<Void> removingUserFromGroupByChatIdAndUserId(@Param("chatId") int chatId, @Param("userId") int userId);
 
 }

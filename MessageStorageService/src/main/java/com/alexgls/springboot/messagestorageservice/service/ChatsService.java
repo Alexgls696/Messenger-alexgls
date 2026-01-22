@@ -1,9 +1,6 @@
 package com.alexgls.springboot.messagestorageservice.service;
 
-import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
-import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
-import com.alexgls.springboot.messagestorageservice.dto.MessageDto;
-import com.alexgls.springboot.messagestorageservice.dto.UpdateGroupDto;
+import com.alexgls.springboot.messagestorageservice.dto.*;
 import com.alexgls.springboot.messagestorageservice.entity.Chat;
 import com.alexgls.springboot.messagestorageservice.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservice.entity.Message;
@@ -16,23 +13,23 @@ import com.alexgls.springboot.messagestorageservice.repository.ChatsRepository;
 import com.alexgls.springboot.messagestorageservice.repository.DeletedMessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.MessagesRepository;
 import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
+import com.alexgls.springboot.messagestorageservice.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservice.service.encryption.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.transaction.reactive.TransactionalOperator;
-import org.springframework.transaction.support.TransactionOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -180,5 +177,12 @@ public class ChatsService {
                 .doOnError(error -> log.warn("Не удалось найти ваш чат с этим человеком: {}", error.getMessage()))
                 .switchIfEmpty(Mono.just(0));
     }
+
+    public Mono<GroupAccessDto> getUserRightsByGroupId(int groupId, int userId) {
+        return participantsRepository.findByChatIdAndUserId(groupId, userId)
+                .switchIfEmpty(Mono.error(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем")))
+                .map(participant -> SecurityUtils.determinateGroupAccess(participant.getRole()));
+    }
+
 
 }

@@ -49,6 +49,9 @@ public class Message {
     @Column(value = "read_at")
     private Timestamp readAt;
 
+    @Column("is_service")
+    private boolean isService;
+
     @Transient
     private int recipientId;
 

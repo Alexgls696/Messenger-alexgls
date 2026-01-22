@@ -10,10 +10,10 @@ import com.alexgls.springboot.messagestorageservice.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import static com.alexgls.springboot.messagestorageservice.util.SecurityUtils.*;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class MessagesController {
             @RequestParam("chatId") int chatId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int pageSize, Authentication authentication) {
-        int currentUserId = getCurrentUserId(authentication);
+        int currentUserId = getSenderId(authentication);
         log.info("findMessagesByChatId chatId={}, page={}, size={}", chatId, page, pageSize);
         return messagesService.getMessagesByChatId(chatId, page * pageSize, pageSize, currentUserId)
                 .map(message -> {
@@ -44,14 +44,15 @@ public class MessagesController {
     }
 
     @PostMapping("/find-by-content-in-chat")
-    public Flux<MessageDto> findMessagesByChatId(@RequestBody SearchMessageInChatRequest request) {
+    public Flux<MessageDto> findMessagesByChatId(@RequestBody SearchMessageInChatRequest request, Authentication authentication) {
         log.info("find messages by content in the chat : {}", request);
-        return messagesService.findMessagesByContent(request);
+        int userId = getSenderId(authentication);
+        return messagesService.findMessagesByContent(request, userId);
     }
 
     @PostMapping("/read-messages")
     public Mono<Void> readMessagesList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
-        int currentUserId = getCurrentUserId(authentication);
+        int currentUserId = getSenderId(authentication);
         final List<ReadMessagePayload> filteredMessages = messages
                 .stream()
                 .filter(message -> message.senderId() != currentUserId)
@@ -61,14 +62,14 @@ public class MessagesController {
                     log.info("Read messages from payload... {}", messagesList);
                     return messagesService.readMessagesByList(messagesList, currentUserId);
                 }).then(Mono.defer(() -> {
-                    kafkaSenderService.sendMessagesToKafka(filteredMessages);
+                    kafkaSenderService.sendReadMessagesToKafka(filteredMessages);
                     return Mono.empty();
                 }));
     }
 
     @DeleteMapping
     public Mono<Void> deleteMessage(@RequestBody DeleteMessageRequest deleteMessageRequest, Authentication authentication) {
-        int currentUserId = getCurrentUserId(authentication);
+        int currentUserId = getSenderId(authentication);
         log.info("Try to delete messages: {} ", deleteMessageRequest);
         return messagesService.deleteById(deleteMessageRequest, currentUserId)
                 .flatMap(response -> {
@@ -76,12 +77,5 @@ public class MessagesController {
                     return Mono.empty();
                 });
     }
-
-
-    private Integer getCurrentUserId(Authentication authentication) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return Integer.parseInt(jwt.getClaim("userId").toString());
-    }
-
 
 }

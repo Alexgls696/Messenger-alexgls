@@ -1,13 +1,9 @@
 package com.alexgls.springboot.messagestorageservice.controller;
 
 import com.alexgls.springboot.messagestorageservice.client.AuthWebClient;
-import com.alexgls.springboot.messagestorageservice.dto.ChatDto;
-import com.alexgls.springboot.messagestorageservice.dto.CreateGroupDto;
-import com.alexgls.springboot.messagestorageservice.dto.GetUserDto;
-import com.alexgls.springboot.messagestorageservice.dto.UpdateGroupDto;
+import com.alexgls.springboot.messagestorageservice.dto.*;
 import com.alexgls.springboot.messagestorageservice.service.ChatsService;
 import com.alexgls.springboot.messagestorageservice.service.ParticipantsService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +16,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static com.alexgls.springboot.messagestorageservice.util.SecurityUtils.*;
 
 import java.util.List;
 import java.util.Map;
@@ -70,20 +68,6 @@ public class ChatsController {
         return chatsService.findOrCreatePrivateChat(userId, id);
     }
 
-    @PostMapping("/groups")
-    public Mono<ChatDto> createGroupChat(@RequestBody CreateGroupDto createGroupDto, Authentication authentication) {
-        Integer id = getSenderId(authentication);
-        log.info("Creating group chat, creator id: : {}", id);
-        return chatsService.createGroup(createGroupDto, id);
-    }
-
-    @PostMapping("/groups/update")
-    public Mono<ChatDto> updateGroupChat(@Valid @RequestBody UpdateGroupDto updateGroupDto, Authentication authentication) {
-        log.info("Update group chat, actor id: {}", updateGroupDto.chatId());
-        int userId = getSenderId(authentication);
-        return chatsService.updateGroup(updateGroupDto, userId);
-    }
-
     @GetMapping("/find-chat-id-by-recipient-id/{id}")
     public Mono<Map<String, Integer>> findChatIdByRecipientId(@PathVariable("id") int id, Authentication authentication) {
         Integer userId = getSenderId(authentication);
@@ -123,6 +107,14 @@ public class ChatsController {
         return participantsService.findAllByChatId(chatId, token, userId);
     }
 
+    //Удаление участника группы
+    @DeleteMapping("/{chatId}/participants/{userId}")
+    public Mono<Void> deleteParticipantFromGroup(@PathVariable("chatId") int chatId, @PathVariable("userId") int userId, Authentication authentication) {
+        log.info("Delete participant from chat id: {}", chatId);
+        int currentUserId = getSenderId(authentication);
+        String token = getToken(authentication);
+        return participantsService.deleteParticipantFromGroup(chatId, userId, currentUserId, token);
+    }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteChatById(@PathVariable("id") int id, Authentication authentication) {
@@ -135,13 +127,4 @@ public class ChatsController {
 
     }
 
-    private Integer getSenderId(Authentication authentication) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return Integer.parseInt(jwt.getClaim("userId").toString());
-    }
-
-    private String getToken(Authentication authentication) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return jwt.getTokenValue();
-    }
 }

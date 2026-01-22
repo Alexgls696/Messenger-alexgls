@@ -39,4 +39,10 @@ public class Participants {
 
     @Column("role")
     private ChatRole role;
+
+    @Column("is_leave")
+    private boolean isLeave;
+
+    @Column("is_removed")
+    private boolean isRemoved;
 }

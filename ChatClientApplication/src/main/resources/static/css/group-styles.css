@@ -138,3 +138,117 @@
     color: var(--text-placeholder);
     cursor: default;
 }
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Чтобы занимал все место */
+}
+
+/* Новая обертка для строки "Имя + Роль" */
+.participant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Имя слева, роль справа */
+    width: 100%;
+}
+
+.participant-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95em;
+    margin-right: 10px; /* Отступ, если имя длинное */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.participant-role {
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase; /* Делаем все буквы заглавными для стиля */
+    flex-shrink: 0; /* Роль не должна сжиматься */
+}
+
+/* --- Цвета для разных ролей --- */
+
+/* Владелец / Создатель */
+.role-owner, .role-создатель {
+    color: #e67e22; /* Оранжевый */
+    background-color: rgba(230, 126, 34, 0.15); /* Полупрозрачный фон */
+    border: 1px solid rgba(230, 126, 34, 0.3);
+}
+
+/* Админ */
+.role-admin {
+    color: var(--accent-primary); /* Синий (основной цвет темы) */
+    background-color: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+/* Обычный участник */
+.role-member {
+    color: var(--text-secondary); /* Серый */
+     background-color: var(--surface-primary);
+     border: 1px solid var(--border-secondary);
+    font-weight: normal; /* Обычный шрифт */
+    text-transform: none; /* Обычный регистр */
+}
+
+.remove-participant-btn {
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: var(--text-placeholder); /* Серый по умолчанию */
+    font-size: 1.5em;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-left: 10px; /* Отступ от информации пользователя */
+}
+
+.remove-participant-btn:hover {
+    color: var(--accent-negative); /* Красный при наведении */
+    background-color: rgba(220, 53, 69, 0.1); /* Легкий красный фон */
+}
+
+#confirmationModal {
+    z-index: 3000;
+}
+
+.confirmation-modal-content {
+    max-width: 400px; /* Компактный размер */
+    height: auto;     /* Высота по содержимому */
+    border-radius: 12px;
+}
+
+.confirmation-text {
+    font-size: 1.1em;
+    color: var(--text-primary);
+    text-align: center;
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+/* Красная кнопка "Да" для опасных действий */
+.profile-save-btn.danger {
+    background-color: var(--accent-negative);
+    color: white;
+}
+
+.profile-save-btn.danger:hover {
+    background-color: var(--accent-negative-hover);
+}
+
+.profile-cancel-btn {
+    /* Убедимся, что кнопка "Нет" выглядит нейтрально */
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+}
+.profile-cancel-btn:hover {
+    background-color: var(--border-secondary);
+}

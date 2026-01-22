@@ -3,14 +3,17 @@ package com.alexgls.springboot.messagestorageservice.service;
 import com.alexgls.springboot.messagestorageservice.dto.*;
 import com.alexgls.springboot.messagestorageservice.entity.*;
 import com.alexgls.springboot.messagestorageservice.exceptions.DeleteMessageAccessDeniedException;
+import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchRecipientException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservice.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservice.repository.*;
 import com.alexgls.springboot.messagestorageservice.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservice.service.nlp.LexicalAnalyzer;
+import com.alexgls.springboot.messagestorageservice.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -60,14 +63,14 @@ public class MessagesService {
                 .sort(Comparator.comparing(Message::getCreatedAt));
     }
 
-    public Flux<MessageDto> findMessagesByContent(SearchMessageInChatRequest request) {
+    public Flux<MessageDto> findMessagesByContent(SearchMessageInChatRequest request, int userId) {
         var lemmas = lexicalAnalyzer.lemmatizeText(request.content());
         var hashes = lemmas.stream()
                 .map(encryptUtils::calculateHmac)
                 .toList();
 
         if (!hashes.isEmpty()) {
-            return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), hashes)
+            return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(),userId, hashes)
                     .collectList()
                     .flatMapMany(messagesRepository::findAllByIdIn)
                     .map(MessageMapper::toMessageDto)
@@ -79,8 +82,6 @@ public class MessagesService {
         return Flux.empty();
     }
 
-
-    //TODO Требуется оптимизация
     public Mono<Void> readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
         if (messages == null || messages.isEmpty()) {
             return Mono.empty();
@@ -106,12 +107,26 @@ public class MessagesService {
         return Mono.when(updateGlobalMessageStatus, updateParticipantStatus);
     }
 
-    public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
-        Mono<Chat> chatMono = chatsRepository.findById(createMessagePayload.chatId())
-                .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")));
+    public Mono<MessageDto> saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
+        CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
+                null, "service", true);
+        return this.save(createMessagePayload);
+    }
 
+
+    public Mono<MessageDto> save(CreateMessagePayload createMessagePayload) {
+        Mono<Chat> chatMono = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                .flatMap(participant -> {
+                    if (participant.isRemoved() || participant.isLeave()) {
+                        return Mono.error(() -> new AccessDeniedException("У вас нет доступа для выполнения данной операции."));
+                    }
+                    return chatsRepository.findById(participant.getChatId())
+                            .switchIfEmpty(Mono.error(new NoSuchUsersChatException("Chat with id " + createMessagePayload.chatId() + " not found")));
+                })
+
+                .switchIfEmpty(Mono.error((new NoSuchParticipantException("Не найдена связь между чатом и пользователем"))));
         return transactionalOperator.transactional(chatMono.flatMap(chat -> {
-                    Message message = createMessageFromPayload(createMessagePayload);
+                    Message message = MessageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
                     Mono<Message> processedMessageMono = processAndEncryptMessage(message);
                     Mono<Message> savedMessageMono = processedMessageMono
                             .flatMap(processedMessage ->
@@ -139,7 +154,6 @@ public class MessagesService {
     }
 
 
-    //Без удаления отправителя из participants
     private Mono<MessageDto> savePublicGroupMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
         return savedMessageMono.flatMap(savedMessage ->
                 saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
@@ -219,20 +233,6 @@ public class MessagesService {
 
                     return msgToProcess;
                 });
-    }
-
-    private Message createMessageFromPayload(CreateMessagePayload payload) {
-        Message message = new Message();
-        message.setCreatedAt(Timestamp.from(Instant.now()));
-        message.setContent(payload.content());
-        message.setType(
-                (payload.attachments() == null || payload.attachments().isEmpty())
-                        ? MessageType.TEXT
-                        : MessageType.FILE
-        );
-        message.setSenderId(payload.senderId());
-        message.setChatId(payload.chatId());
-        return message;
     }
 
     public Mono<List<Attachment>> saveAttachmentsPayloadsToDatabase(List<CreateAttachmentPayload> attachmentPayloads, long messageId, int chatId) {
@@ -357,4 +357,5 @@ public class MessagesService {
                     return Mono.empty();
                 });
     }
+
 }

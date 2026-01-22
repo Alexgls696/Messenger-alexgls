@@ -2,16 +2,15 @@ package com.alexgls.springboot.messagestorageservice.controller;
 
 import com.alexgls.springboot.messagestorageservice.entity.Attachment;
 import com.alexgls.springboot.messagestorageservice.service.AttachmentService;
-import com.alexgls.springboot.messagestorageservice.service.ParticipantsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import static com.alexgls.springboot.messagestorageservice.util.SecurityUtils.*;
 
 
 @RestController
@@ -34,12 +33,8 @@ public class AttachmentsController {
             return Flux.error(() -> new IllegalArgumentException("Обязательные параметры: mimeType и chatId"));
         }
 
-        int currentUserId = getCurrentUserId(auth);
+        int currentUserId = getSenderId(auth);
         return attachmentService.findAllByMediaTypeAndChatId(mediaType, chatId, currentUserId);
     }
 
-    private Integer getCurrentUserId(Authentication authentication) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return Integer.parseInt(jwt.getClaim("userId").toString());
-    }
 }

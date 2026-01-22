@@ -71,8 +71,7 @@ const groupProfile = (() => {
         }
     };
 
-    // --- Рендеринг участников ---
-    const renderParticipants = async (participants, container) => {
+    const renderParticipants = async (participants, container, canRemove) => {
         if (!participants || participants.length === 0) {
             container.innerHTML = '<p class="placeholder">Нет участников.</p>';
             return;
@@ -81,28 +80,58 @@ const groupProfile = (() => {
         const authToken = localStorage.getItem('accessToken');
         container.innerHTML = '';
 
+        const roleMap = { 'OWNER': 'Владелец', 'ADMIN': 'Админ', 'MEMBER': 'Участник', 'Создатель': 'Владелец' };
+
         participants.forEach(user => {
             const div = document.createElement('div');
             div.className = 'participant-item';
+
+            const userRole = user.role || 'MEMBER';
+            const displayRole = roleMap[userRole] || userRole;
+            const roleClass = String(userRole).toLowerCase();
+
+            // Логика отображения кнопки удаления:
+            // 1. У меня есть права (canRemove = true)
+            // 2. Это не я сам (user.id !== CURRENT_USER_ID)
+            // 3. (Опционально) Админ не может удалить Владельца (можно добавить проверку ролей здесь)
+            let deleteBtnHtml = '';
+            if (canRemove && user.id !== CURRENT_USER_ID) {
+                deleteBtnHtml = `<button class="remove-participant-btn" title="Удалить из группы">&times;</button>`;
+            }
+
             div.innerHTML = `
                 <img class="participant-avatar" src="/images/profile-default.png">
                 <div class="participant-info">
-                    <span class="participant-name">${user.name} ${user.surname || ''}</span>
+                    <div class="participant-header">
+                        <span class="participant-name">${user.name} ${user.surname || ''}</span>
+                        <span class="participant-role role-${roleClass}">${displayRole}</span>
+                    </div>
                     <span class="participant-username">@${user.username}</span>
                 </div>
+                ${deleteBtnHtml}
             `;
 
-            // Клик по участнику открывает его личный профиль
+            // Обработчик удаления
+            const deleteBtn = div.querySelector('.remove-participant-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Чтобы не открылся профиль пользователя
+                    removeParticipant(user.id, `${user.name} ${user.surname}`, div);
+                });
+            }
+
+            // Обработчик открытия профиля
             div.addEventListener('click', async () => {
                 if (user.id !== CURRENT_USER_ID) {
-                    const data = await apiFetch(`${localApiBaseUrl}/api/chats/find-chat-id-by-recipient-id/${user.id}`)
-                    await userProfile.open(user.id, data.chatId, `${user.name} ${user.surname}`);
+                    // Предполагаем, что userProfile доступен
+                    const data = await apiFetch(`${localApiBaseUrl}/api/chats/find-chat-id-by-recipient-id/${user.id}`);
+                    await userProfile.open(user.id, data?.chatId, `${user.name} ${user.surname}`);
                 }
             });
 
             container.appendChild(div);
 
-            // Подгрузка аватара участника
+            // Подгрузка аватара
             const avatarImg = div.querySelector('.participant-avatar');
             apiFetch(`${localApiBaseUrl}/api/profiles/images/user-avatar/${user.id}`)
                 .then(avatarId => {
@@ -110,12 +139,44 @@ const groupProfile = (() => {
                         imageLoader.getImageSrc(avatarId, localApiBaseUrl, authToken)
                             .then(src => avatarImg.src = src);
                     }
-                }).catch(() => {
-            });
+                }).catch(() => {});
         });
     };
 
-    // --- Основная функция открытия ---
+    // --- ОБНОВЛЕННАЯ ФУНКЦИЯ УДАЛЕНИЯ С КРАСИВЫМ ОКНОМ ---
+    const removeParticipant = (userId, userName, divElement) => {
+        // Вызываем наше кастомное окно
+        confirmModal.open(
+            `Вы действительно хотите удалить пользователя ${userName} из группы?`,
+            async () => {
+                // ВЕСЬ КОД УДАЛЕНИЯ ТЕПЕРЬ ЗДЕСЬ (ВНУТРИ КОЛЛБЭКА)
+                try {
+                    const authToken = localStorage.getItem('accessToken');
+                    const response = await fetch(`${localApiBaseUrl}/api/chats/${activeChatId}/participants/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+
+                    if (!response.ok) throw new Error('Ошибка при удалении');
+
+                    // Анимация удаления
+                    divElement.style.transition = 'all 0.3s ease';
+                    divElement.style.opacity = '0';
+                    divElement.style.transform = 'translateX(20px)';
+
+                    setTimeout(() => {
+                        divElement.remove();
+                        // Здесь можно было бы обновить счетчик участников
+                    }, 300);
+
+                } catch (error) {
+                    console.error("Не удалось удалить участника:", error);
+                    alert("Ошибка при удалении пользователя.");
+                }
+            }
+        );
+    };
+
     const open = async (chatId, chatName) => {
         activeChatId = chatId;
         modal.classList.remove('hidden');
@@ -124,38 +185,34 @@ const groupProfile = (() => {
         modalContent.innerHTML = `<div class="skeleton-list">${Array(5).fill('<div class="skeleton skeleton-row"></div>').join("")}</div>`;
 
         try {
-            // Запускаем запросы параллельно для ускорения
-            const [participants, chatDetails] = await Promise.all([
+            const [participants, chatDetails, accessData] = await Promise.all([
                 apiFetch(`${localApiBaseUrl}/api/chats/${chatId}/participants`),
-                apiFetch(`${localApiBaseUrl}/api/chats/${chatId}`)
+                apiFetch(`${localApiBaseUrl}/api/chats/${chatId}`),
+                // Запрос прав доступа. Если сервер возвращает 403 при отсутствии прав, оберните в try/catch
+                apiFetch(`${localApiBaseUrl}/api/chats/groups/${chatId}/access`).catch(() => ({ canRemoveMembers: false }))
             ]);
 
-            // Формируем HTML для описания (только если оно есть)
+            const canRemoveMembers = accessData === true || accessData?.canRemoveMembers === true || accessData?.role === 'ADMIN' || accessData?.role === 'OWNER';
+
             const descriptionHtml = chatDetails.description
                 ? `<div class="profile-description">${chatDetails.description}</div>`
                 : '';
 
             modalContent.innerHTML = `
-                <!-- Шапка группы -->
                 <div class="profile-header">
                     <img id="groupAvatarImg" src="/images/group-default.png" class="profile-avatar">
                     <div class="profile-details">
-                        <!-- Используем имя из деталей чата, оно точнее -->
                         <div class="profile-section-title" style="margin:0; border:none;">${chatDetails.name || chatName}</div>
                         <div class="profile-info-item">${participants.length} участников</div>
-                        
-                        <!-- Вставляем описание сюда -->
                         ${descriptionHtml}
                     </div>
                 </div>
 
-                <!-- Список участников -->
                 <div class="participants-section">
                     <h3 class="profile-section-title">Участники</h3>
                     <div id="groupParticipantsList" class="participants-list"></div>
                 </div>
 
-                <!-- Вложения -->
                 <div class="attachments-section">
                      <div class="attachments-tabs">
                         <button class="tab-btn active" data-type="IMAGE">Изображения</button>
@@ -167,11 +224,10 @@ const groupProfile = (() => {
                 </div>
             `;
 
-            // Рендер участников
+            // Передаем флаг прав доступа в рендер
             const participantsContainer = document.getElementById('groupParticipantsList');
-            renderParticipants(participants, participantsContainer);
+            renderParticipants(participants, participantsContainer, canRemoveMembers);
 
-            // Логика вкладок
             const tabs = modalContent.querySelectorAll(".attachments-tabs .tab-btn");
             const attachmentsContainer = document.getElementById('groupAttachmentsContent');
 
@@ -183,7 +239,6 @@ const groupProfile = (() => {
                 });
             });
 
-            // Загружаем первую вкладку
             loadAttachments('IMAGE', attachmentsContainer);
 
         } catch (error) {
@@ -193,11 +248,9 @@ const groupProfile = (() => {
     };
 
     const showTooltip = async (event) => {
-        // ИЗМЕНЕНИЕ: Теперь мы ищем наведение ТОЛЬКО на иконку .ai-icon
         const targetIcon = event.target.closest('.ai-icon');
         if (!targetIcon) return;
 
-        // Находим родительский элемент, чтобы получить fileId
         const parentItem = targetIcon.closest('.has-analysis');
         if (!parentItem) return;
 
