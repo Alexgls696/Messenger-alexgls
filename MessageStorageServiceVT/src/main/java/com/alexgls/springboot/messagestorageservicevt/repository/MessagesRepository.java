@@ -21,8 +21,10 @@ public interface MessagesRepository extends CrudRepository<Message, Long> {
 
     @Query("select distinct m " +
             "from Message m " +
+            "join Participants p on m.chatId = p.chat.id and p.userId = :currentUserId " +
             "left join DeletedMessage dm on m.id = dm.messageId and dm.userId = :currentUserId " +
             "where m.chatId = :chatId and dm.userId is null " +
+            "and ((p.leave is false and p.removed is false) or (m.createdAt < p.removeAt)) " +
             "order by m.createdAt desc")
     Page<Message> findAllMessagesByChatId(@Param("chatId") int chatId,
                                           @Param("currentUserId") int currentUserId,

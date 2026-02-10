@@ -46,8 +46,11 @@ public class Participants {
     private ChatRole role;
 
     @Column(name = "is_leave")
-    private boolean isLeave;
+    private boolean leave;
 
     @Column(name = "is_removed")
-    private boolean isRemoved;
+    private boolean removed;
+
+    @Column(name = "remove_at")
+    private Timestamp removeAt;
 }

@@ -43,7 +43,7 @@ public class MessagesService {
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
 
-    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+    private final ExecutorService executorService = Executors.newWorkStealingPool();
 
     public List<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         Pageable pageable = PageRequest.of(page, pageSize);
@@ -61,6 +61,11 @@ public class MessagesService {
                     boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
                     message.setRead(isReadByCurrentUser);
                 }
+            }else{
+                message.setRead(false);
+            }
+            if (!message.isRead()) {
+                log.info("Message: {}", message);
             }
         }
         return messages.stream()
@@ -103,7 +108,7 @@ public class MessagesService {
         readMessages(new ReadMessageDatabaseRequest(messageIds, chatId, readerId, lastReadMessageId, countMessagesRead));
     }
 
-    private record ReadMessageDatabaseRequest
+    public record ReadMessageDatabaseRequest
             (
                     List<Long> messageIds,
                     int chatId,
@@ -114,7 +119,7 @@ public class MessagesService {
     }
 
     @Transactional
-    protected void readMessages(ReadMessageDatabaseRequest request) {
+    protected void readMessages(final ReadMessageDatabaseRequest request) {
         messagesRepository.markMessagesAsRead(request.messageIds, Timestamp.from(Instant.now()));
         participantsRepository.updateUnreadCountAndLastMessageId(
                 request.chatId,
@@ -122,7 +127,13 @@ public class MessagesService {
                 request.lastReadMessageId,
                 request.countMessagesRead
         );
-        log.info("ALL MESSAGES IS  READING");
+
+        var participants = participantsRepository.findByChatIdAndUserId(request.chatId, request.readerId)
+                .orElseThrow(() -> new NoSuchParticipantException("Связь чата с пользователе не найдена."));
+        if (participants.getLastReadMessageId() == request.lastReadMessageId) {
+            participants.setUnreadCount(0);
+        }
+        participantsRepository.save(participants);
     }
 
     @Transactional
@@ -159,12 +170,8 @@ public class MessagesService {
         return this.save(createMessagePayload);
     }
 
-    /*TODO Исправить баг с непрочитанными сообщениями (счетчик), если они были удалены до прочтения.
-    Запретить подгрузку сообщений для тех людей, которые были удалены из чата или же вышли сами
-     */
     private MessageDto savePublicGroupMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
         MessageDto dto = createMessageDto(createMessagePayload, savedMessage);
-
         List<Integer> participants = participantsRepository.findUserIdsByChatId(dto.getChatId());
         dto.setRecipientIds(participants);
         return dto;
@@ -226,9 +233,9 @@ public class MessagesService {
     }
 
     @Transactional
-    protected Message saveMessageTokens(Message message) {
+    protected void saveMessageTokens(Message message) {
         if (message.getContent() == null || message.getContent().isEmpty() || message.isService()) {
-            return message;
+            return;
         }
         String originalText = encryptUtils.decrypt(message.getContent());
         List<String> lemmas = lexicalAnalyzer.lemmatizeText(originalText);
@@ -246,7 +253,6 @@ public class MessagesService {
         }
 
         messageTokenRepository.saveAll(tokens);
-        return message;
     }
 
 
@@ -284,6 +290,7 @@ public class MessagesService {
         deleteAllDeletedMessagesForUsers(deleteMessageRequest);
         deleteAllAttachmentsByMessageIdMono(messagesIdsToDeleteList);
         messagesRepository.deleteAllById(messagesIdsToDeleteList);
+        participantsRepository.decrementUpdateCountForUser(deleteMessageRequest.chatId(), currentUserId);
         return generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
     }
 

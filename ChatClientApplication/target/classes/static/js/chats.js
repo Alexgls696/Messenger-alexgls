@@ -721,8 +721,8 @@ document.addEventListener('DOMContentLoaded', () => {
             msgDiv.className = 'message service';
             msgDiv.dataset.messageId = msg.id;
 
-            // Важно: сервисные сообщения тоже нужно помечать прочитанными,
-            // чтобы сбросить счетчик непрочитанных
+            msgDiv.dataset.senderId = msg.senderId;
+
             if (!msg.read) {
                 messageReadObserver.observe(msgDiv);
             }

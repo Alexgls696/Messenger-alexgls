@@ -57,59 +57,6 @@ class ChatsServiceTest {
     @Spy
     private EncryptUtils encryptUtils = new EncryptUtils("814c76c47c08276acca3e69371142996", "hmac");
 
-    public List<ChatWithUnread> getChats() {
-        return List.of(new ChatWithUnread(Chat
-                        .builder()
-                        .id(1)
-                        .name("chat-1")
-                        .type("PRIVATE")
-                        .createdAt(Timestamp.from(Instant.now()))
-                        .description("Description")
-                        .updatedAt(Timestamp.from(Instant.now()))
-                        .isGroup(false)
-                        .build(), 3),
-                new ChatWithUnread(Chat
-                        .builder()
-                        .id(1)
-                        .name("group")
-                        .type("GROUP")
-                        .createdAt(Timestamp.from(Instant.now()))
-                        .description("Description")
-                        .updatedAt(Timestamp.from(Instant.now()))
-                        .isGroup(true)
-                        .build(), 0),
-                new ChatWithUnread(Chat
-                        .builder()
-                        .id(1)
-                        .name("chat-3")
-                        .type("PRIVATE")
-                        .createdAt(Timestamp.from(Instant.now()))
-                        .description("Description")
-                        .updatedAt(Timestamp.from(Instant.now()))
-                        .isGroup(false)
-                        .build(), 2),
-                new ChatWithUnread(Chat
-                        .builder()
-                        .id(1)
-                        .name("our-group")
-                        .type("GROUP")
-                        .createdAt(Timestamp.from(Instant.now()))
-                        .description("Description")
-                        .updatedAt(Timestamp.from(Instant.now()))
-                        .isGroup(true)
-                        .build(), 1),
-                new ChatWithUnread(Chat
-                        .builder()
-                        .id(1)
-                        .name("chat-5")
-                        .type("PRIVATE")
-                        .createdAt(Timestamp.from(Instant.now()))
-                        .description("Description")
-                        .updatedAt(Timestamp.from(Instant.now()))
-                        .isGroup(false)
-                        .build(), 2));
-
-    }
 
     @Test
     void findOrCreatePrivateChatIfChatIsExistsTest() {
@@ -147,7 +94,6 @@ class ChatsServiceTest {
 
         assertEquals(expected, chatsService.findOrCreatePrivateChat(senderId, receiverId));
     }
-
 
     @Test
     void findOrCreatePrivateChatIfChatIsNotExistsTest() {

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,19 +36,15 @@ public class ParticipantsService {
 
     private final AuthRestClient authRestClient;
 
-
-    //TODO Оптимизировать, грузить сразу список пользователей из сервиса аутентификации, а не по одному
     public List<GetUserDto> findAllByChatId(int chatId, String token, int currentUserId) {
-        var unsortedUsers = participantsRepository.findAllByChatId(chatId)
+        var participants = participantsRepository.findAllByChatId(chatId);
+        Map<Integer, Participants> participantsMap = participants.stream()
+                .collect(Collectors.toMap(Participants::getUserId, (participant -> participant)));
+        List<GetUserDto> unsortedUsers = authRestClient.findAllUsers(participantsMap.keySet(), token)
                 .stream()
-                .map(participant -> createUserDtoForAllChats(participant, token))
+                .map(user -> new GetUserDto(user.id(), user.name(), user.surname(), user.username(), ChatRole.getTranslate(participantsMap.get(user.id()).getRole())))
                 .toList();
         return sortUsersList(unsortedUsers, currentUserId);
-    }
-
-    public GetUserDto createUserDtoForAllChats(Participants participant, String token) {
-        var userDto = authRestClient.findUserById(participant.getUserId(), token);
-        return new GetUserDto(userDto.id(), userDto.name(), userDto.surname(), userDto.username(), ChatRole.getTranslate(participant.getRole()));
     }
 
     private List<GetUserDto> sortUsersList(List<GetUserDto> unsorted, int currentUserId) {
@@ -60,6 +57,9 @@ public class ParticipantsService {
                 meIndex = i;
                 break;
             }
+        }
+        if (meIndex == -1) {
+            return sorted;
         }
         GetUserDto me = sorted.get(meIndex);
         sorted.remove(meIndex);
@@ -85,6 +85,9 @@ public class ParticipantsService {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }
 
+        var serviceMessage = generateRemovingMessageContent(removingUserId, actorId, token);
+        var savedMessageDto = messagesService.saveServiceMessage(serviceMessage, chatId, actorId);
+
         if (participant.getRole() == ChatRole.OWNER) {
             validateAndRemove(chatId, removingUserId, false);
         } else if (participant.getRole() == ChatRole.ADMIN) {
@@ -93,8 +96,6 @@ public class ParticipantsService {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }
 
-        var serviceMessage = generateRemovingMessageContentAsync(removingUserId, actorId, token);
-        var savedMessageDto = messagesService.saveServiceMessage(serviceMessage, chatId, actorId);
         kafkaSenderService.sendMessage(savedMessageDto);
     }
 
@@ -112,7 +113,7 @@ public class ParticipantsService {
         participantsRepository.removingUserFromGroupByChatIdAndUserId(chatId, removingUserId);
     }
 
-    private ServiceMessage generateRemovingMessageContentAsync(int removingUserId, int actorId, String token) {
+    private ServiceMessage generateRemovingMessageContent(int removingUserId, int actorId, String token) {
         GetUserDto removingUser = authRestClient.findUserById(removingUserId, token);
         GetUserDto actor = authRestClient.findUserById(actorId, token);
 

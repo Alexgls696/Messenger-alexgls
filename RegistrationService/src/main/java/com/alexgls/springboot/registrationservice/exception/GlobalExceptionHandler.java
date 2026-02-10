@@ -1,6 +1,5 @@
-package com.alexgls.springboot.registrationservice.exception_handler;
+package com.alexgls.springboot.registrationservice.exception;
 
-import com.alexgls.springboot.registrationservice.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -24,6 +23,17 @@ public class GlobalExceptionHandler {
         log.warn("Выброшено исключение: {}", exception.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, messageSource
                 .getMessage("error.user_exists", new Object[0], "error.user_exists", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InvalidAccessCodeException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidAccessCodeException(InvalidAccessCodeException exception, Locale locale) {
+        log.warn("Выброшено исключение: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, messageSource
+                .getMessage("error.invalid_code", new Object[0], "error.invalid_code", locale));
         problemDetail.setProperty("error", exception.getMessage());
         return ResponseEntity
                 .badRequest()

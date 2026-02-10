@@ -89,7 +89,7 @@ async function apiFetch(url, options = {}) {
 
     } catch (error) {
         if (error.name !== 'AbortError') {
-            console.error(`Ошибка при запросе к ${url}:`, error);
+            console.warn(`Ошибка при запросе к ${url}:`, error);
         }
         throw error;
     }

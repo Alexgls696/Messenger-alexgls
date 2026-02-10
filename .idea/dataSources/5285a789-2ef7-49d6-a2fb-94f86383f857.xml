@@ -3,17 +3,9 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <Grants>1||-9223372036854775808|c|G
-1||10|c|G
-1||10|C|G
-1||10|T|G
-4||-9223372036854775808|c|G
-4||10|c|G
-4||10|C|G
-4||10|T|G</Grants>
-      <IntrospectionStateNumber>2213</IntrospectionStateNumber>
+      <IntrospectionStateNumber>2448</IntrospectionStateNumber>
       <ServerVersion>16.9</ServerVersion>
-      <StartupTime>1769099258</StartupTime>
+      <StartupTime>1770737177</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -1409,7 +1401,7 @@ false posixrules
 13212||10|C|G
 13212||-9223372036854775808|U|G
 13212||10|U|G</Grants>
-      <IntrospectionStateNumber>2213</IntrospectionStateNumber>
+      <IntrospectionStateNumber>2448</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>alexgls</OwnerName>
     </database>
@@ -4833,8 +4825,8 @@ false posixrules
     <schema id="264" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>2213</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2026-01-22.18:45:32</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>2448</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2026-02-10.18:01:44</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>524</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -4933,7 +4925,7 @@ false posixrules
     </table>
     <table id="278" parent="264" name="participants">
       <ObjectId>25101</ObjectId>
-      <StateNumber>2210</StateNumber>
+      <StateNumber>2442</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>alexgls</OwnerName>
     </table>
@@ -5522,7 +5514,13 @@ default</CollationNames>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <foreign-key id="363" parent="278" name="participants_chat_id_fkey">
+    <column id="363" parent="278" name="remove_at">
+      <Position>11</Position>
+      <StateNumber>2442</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <foreign-key id="364" parent="278" name="participants_chat_id_fkey">
       <ColNames>chat_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>25106</ObjectId>
@@ -5530,7 +5528,7 @@ default</CollationNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>25094</RefTableId>
     </foreign-key>
-    <index id="364" parent="278" name="participants_pkey">
+    <index id="365" parent="278" name="participants_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>25104</ObjectId>
@@ -5539,7 +5537,7 @@ default</CollationNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="365" parent="278" name="role_index">
+    <index id="366" parent="278" name="role_index">
       <ColNames>role</ColNames>
       <ObjectId>32910</ObjectId>
       <StateNumber>1738</StateNumber>
@@ -5548,7 +5546,7 @@ default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="366" parent="278" name="participants_pkey">
+    <key id="367" parent="278" name="participants_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>25105</ObjectId>
       <Primary>1</Primary>

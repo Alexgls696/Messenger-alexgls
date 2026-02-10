@@ -58,7 +58,8 @@ public interface ChatsRepository extends CrudRepository<Chat, Long> {
     Optional<Integer> findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
     @Modifying
-    @Query(value = "UPDATE chats SET last_message_id = :newLastMessageId WHERE chat_id = :currentChatId",
+    @Query(value = "UPDATE chats SET last_message_id = :newLastMessageId, updated_at = now() " +
+            "WHERE chat_id = :currentChatId",
             nativeQuery = true)
     void updateLastMessageIdByChatId(@Param("currentChatId") int currentChatId,
                                      @Param("newLastMessageId") long newLastMessageId);

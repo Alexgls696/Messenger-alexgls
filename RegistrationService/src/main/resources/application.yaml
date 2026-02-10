@@ -21,3 +21,5 @@ services:
 service:
   client-id: register-service
   client-secret: ${REGISTER_SECRET:register_secret}
+
+key-length: 6

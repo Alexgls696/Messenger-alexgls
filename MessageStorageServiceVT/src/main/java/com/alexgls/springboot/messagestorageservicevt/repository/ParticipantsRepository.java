@@ -13,11 +13,14 @@ import java.util.Optional;
 @Repository
 public interface ParticipantsRepository extends CrudRepository<Participants, Long> {
 
-    List<Participants> findAllByChatId(long chatId);
+    @Query("from Participants " +
+            "where chat.id = :currentChatId and removed is false " +
+            "and leave is false")
+    List<Participants> findAllByChatId(@Param("currentChatId") long chatId);
 
     @Query("select userId from Participants " +
-            "where chat.id = :currentChatId and (isRemoved = false " +
-            "and  isLeave = false)")
+            "where chat.id = :currentChatId and removed is false " +
+            "and leave is false")
     List<Integer> findUserIdsByChatId(@Param("currentChatId") Integer chatId);
 
     Optional<Participants> findByChatIdAndUserId(long chatId, int userId);
@@ -39,8 +42,14 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     List<Integer> findUserIdsWhoDeletedChat(@Param("currentChatId") int chatId);
 
     @Modifying
-    @Query(value = "update participants set unread_count = unread_count + 1 where chat_id = :chatId and user_id != :senderId", nativeQuery = true)
+    @Query(value = "update participants set unread_count = unread_count + 1 " +
+            "where chat_id = :chatId and user_id != :senderId and (is_leave is false and is_removed is false)", nativeQuery = true)
     void incrementUpdateCountForUser(@Param("chatId") int chatId, @Param("senderId") int senderId);
+
+    @Modifying
+    @Query(value = "update participants set unread_count = GREATEST(0, unread_count - 1) " +
+            "where chat_id = :chatId and user_id != :senderId and (is_leave is false and is_removed is false)", nativeQuery = true)
+    void decrementUpdateCountForUser(@Param("chatId") int chatId, @Param("senderId") int senderId);
 
     @Modifying
     @Query(value = "update participants set unread_count = 0 where chat_id = :chatId and user_id = :readerId", nativeQuery = true)
@@ -65,6 +74,7 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     void leavingFromGroupByChatIdAndUserId(@Param("chatId") int chatId, @Param("userId") int userId);
 
     @Modifying
-    @Query(value = "update participants set is_removed = true where chat_id = :chatId and user_id = :userId", nativeQuery = true)
+    @Query(value = "update participants set is_removed = true, remove_at = now() where chat_id = :chatId " +
+            "and user_id = :userId", nativeQuery = true)
     void removingUserFromGroupByChatIdAndUserId(@Param("chatId") int chatId, @Param("userId") int userId);
 }

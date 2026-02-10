@@ -9,6 +9,7 @@ import com.alexgls.springboot.registrationservice.exception.UserExistsException;
 import com.alexgls.springboot.registrationservice.exception.UserNotFoundException;
 import com.alexgls.springboot.registrationservice.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +24,9 @@ public class VerificationServiceImpl implements VerificationService {
     private final AuthServiceClient authServiceClient;
 
     private final MailSenderService mailSenderService;
+
+    @Value("${key-length}")
+    private int keyLength;
 
     @Override
     public UserData verifyLogin(CheckCodeRequest checkCodeRequest) {
@@ -75,16 +79,19 @@ public class VerificationServiceImpl implements VerificationService {
                 initializeLoginRequest.email(), initializeLoginRequest.phoneNumber());
     }
 
+
+    /**
+     * Генерирует численные коды доступа при входе/регистрации.
+     * Длину ключа нужно указать в конфигурации: key-length.
+     * @return Строка-код из key-length символов.
+     */
     public String generateVerificationCode() {
         List<Character> symbols = new ArrayList<>();
-        for (char i = 'A'; i <= 'Z'; i++) {
-            symbols.add(i);
-        }
         for (char i = '0'; i <= '9'; i++) {
             symbols.add(i);
         }
         Collections.shuffle(symbols);
-        return symbols.subList(0, 6)
+        return symbols.subList(0, keyLength)
                 .stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining());

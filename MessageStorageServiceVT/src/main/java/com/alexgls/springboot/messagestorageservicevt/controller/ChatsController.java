@@ -87,7 +87,6 @@ public class ChatsController {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Integer userId = getSenderId(authentication);
         String token = jwt.getTokenValue();
-        log.info("Find user by chat id: {}", chatId);
         Integer recipientId = chatsService.findRecipientIdByChatId(chatId, userId);
         var user = authRestClient.findUserById(recipientId, token);
         log.info("Found user: {}", user);
