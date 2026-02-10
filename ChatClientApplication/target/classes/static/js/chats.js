@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeChatRecipientId = null; // ИЗМЕНЕНИЕ: ID собеседника для загрузки профиля
     let chatListPage = 0;
     let messagePage = 0;
-    const pageSize = 15;
+    const pageSize = 50;
     let isLoading = false;
     let hasMoreMessages = true;
     let participantCache = {};
@@ -712,15 +712,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createMessageElement(msg, isSentByMe) {
         const msgDiv = document.createElement('div');
+
+        // --- ПРОВЕРКА НА СЕРВИСНОЕ СООБЩЕНИЕ ---
+        // Jackson может сериализовать isService как "service", проверяем оба варианта
+        const isService = msg.service || msg.isService;
+
+        if (isService) {
+            msgDiv.className = 'message service';
+            msgDiv.dataset.messageId = msg.id;
+
+            // Важно: сервисные сообщения тоже нужно помечать прочитанными,
+            // чтобы сбросить счетчик непрочитанных
+            if (!msg.read) {
+                messageReadObserver.observe(msgDiv);
+            }
+
+            msgDiv.innerHTML = `
+                <div class="service-content">
+                    ${msg.content}
+                </div>
+            `;
+            // Возвращаем сразу, остальная логика (аватарки, время, статус) не нужна
+            return msgDiv;
+        }
+        // ---------------------------------------
+
+        // Дальше идет стандартная логика для обычных сообщений
         msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
         msgDiv.dataset.messageId = msg.id;
-
         msgDiv.dataset.senderId = msg.senderId;
 
         msgDiv.addEventListener('contextmenu', (event) => {
             showContextMenu(event, msgDiv);
         });
-
 
         if (!isSentByMe && !msg.read) {
             messageReadObserver.observe(msgDiv);
@@ -729,9 +753,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageType = msg.type || msg.messageType;
         const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
         const senderHtml = senderName ? `<div class="message-sender">${senderName}</div>` : '';
+
         let attachmentsHtml = '';
         if (msg.attachments && msg.attachments.length > 0) {
-
             // Разделяем вложения на картинки и файлы
             const imageAttachments = msg.attachments.filter(att => att.mimeType && att.mimeType.startsWith('image/'));
             const fileAttachments = msg.attachments.filter(att => !att.mimeType || !att.mimeType.startsWith('image/'));
@@ -743,7 +767,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (imageAttachments.length > 0) {
                 const imageItemsHtml = imageAttachments.map(att => {
                     const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
-
                     return `
                     <div class="attachment-item image-attachment viewer-enabled" data-file-id="${att.fileId}">
                         <div class="skeleton skeleton-tile"></div>
@@ -751,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
                 }).join('');
 
-                // Если картинок больше одной, оборачиваем их в сетку. Если одна - оставляем как есть.
+                // Если картинок больше одной, оборачиваем их в сетку
                 if (imageAttachments.length > 1) {
                     imageContentHtml = `<div class="image-gallery-grid">${imageItemsHtml}</div>`;
                 } else {
@@ -768,7 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="attachment-item file-attachment">
                         <div class="file-icon">📁</div>
                         <div class="file-info">
-                            <span class="file-name">${fileName || 'Файл'}</span>
+                            <span class="file-name">${fileName}</span>
                             <a href="${proxyUrl}" class="file-download-link" download="${fileName}">Скачать</a>
                         </div>
                     </div>`;
@@ -871,16 +894,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Перестаем следить за сообщением, так как оно уже "увидено"
                 messageReadObserver.unobserve(msgEl);
-
                 // Собираем данные для отправки на сервер
                 messagesToRead.push({
                     messageId: parseInt(msgEl.dataset.messageId),
                     senderId: parseInt(msgEl.dataset.senderId),
                     chatId: activeChatId
                 });
-
-                // Визуально помечаем как прочитанное (убираем жирность, меняем статус и т.д. если нужно)
-                // Но статус "Прочитано" обычно ставится для *исходящих*, а мы читаем *входящие*.
             }
         });
 
@@ -888,8 +907,8 @@ document.addEventListener('DOMContentLoaded', () => {
             markMessagesAsRead(messagesToRead);
         }
     }, {
-        root: messagesEl, // Следим внутри контейнера сообщений
-        threshold: 0.5    // Считаем прочитанным, когда показано 50% сообщения
+        root: messagesEl,
+        threshold: 0.5
     });
 
     /**

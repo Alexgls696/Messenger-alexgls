@@ -90,7 +90,7 @@ public class KafkaConfiguration {
         JsonSerializer<DeleteMessageResponse> jsonSerializer = new JsonSerializer<>();
         return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
     }
-    
+
     @Bean
     public KafkaTemplate<String, MessageDto> kafkaTemplate() {
         return new KafkaTemplate<>(messageProducerFactory());

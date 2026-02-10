@@ -16,6 +16,7 @@
         <option value="$PROJECT_DIR$/SearchDataService/pom.xml" />
         <option value="$PROJECT_DIR$/ContentAnalysisService/pom.xml" />
         <option value="$PROJECT_DIR$/MetadataStorageService/pom.xml" />
+        <option value="$PROJECT_DIR$/MessageStorageServiceVT/pom.xml" />
       </list>
     </option>
   </component>

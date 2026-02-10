@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeChatRecipientId = null; // ИЗМЕНЕНИЕ: ID собеседника для загрузки профиля
     let chatListPage = 0;
     let messagePage = 0;
-    const pageSize = 15;
+    const pageSize = 50;
     let isLoading = false;
     let hasMoreMessages = true;
     let participantCache = {};
@@ -894,16 +894,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Перестаем следить за сообщением, так как оно уже "увидено"
                 messageReadObserver.unobserve(msgEl);
-
                 // Собираем данные для отправки на сервер
                 messagesToRead.push({
                     messageId: parseInt(msgEl.dataset.messageId),
                     senderId: parseInt(msgEl.dataset.senderId),
                     chatId: activeChatId
                 });
-
-                // Визуально помечаем как прочитанное (убираем жирность, меняем статус и т.д. если нужно)
-                // Но статус "Прочитано" обычно ставится для *исходящих*, а мы читаем *входящие*.
             }
         });
 
@@ -911,8 +907,8 @@ document.addEventListener('DOMContentLoaded', () => {
             markMessagesAsRead(messagesToRead);
         }
     }, {
-        root: messagesEl, // Следим внутри контейнера сообщений
-        threshold: 0.5    // Считаем прочитанным, когда показано 50% сообщения
+        root: messagesEl,
+        threshold: 0.5
     });
 
     /**

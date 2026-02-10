@@ -4,10 +4,12 @@ import com.alexgls.springboot.messagestorageservice.entity.MessageToken;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
 import java.util.Collection;
 
+@Repository
 public interface MessageTokenRepository extends ReactiveCrudRepository<MessageToken, Long> {
     @Query(value = "SELECT t.message_id FROM message_tokens t " +
             "JOIN messages m ON t.message_id = m.message_id " +

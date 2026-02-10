@@ -3,6 +3,7 @@ package com.alexgls.springboot.messagestorageservice.service;
 import com.alexgls.springboot.messagestorageservice.client.AuthWebClient;
 import com.alexgls.springboot.messagestorageservice.dto.GetUserDto;
 import com.alexgls.springboot.messagestorageservice.entity.ChatRole;
+import com.alexgls.springboot.messagestorageservice.entity.Participants;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservice.exceptions.NoSuchUserException;
 import com.alexgls.springboot.messagestorageservice.repository.ParticipantsRepository;
@@ -10,6 +11,7 @@ import com.alexgls.springboot.messagestorageservice.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservice.util.groups.RemoveUserServiceMessage;
 import com.alexgls.springboot.messagestorageservice.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.Get;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,20 +38,25 @@ public class ParticipantsService {
 
     private final AuthWebClient authWebClient;
 
-    public Mono<List<GetUserDto>> findAllByChatId(int chatId, String token, int currentUserId) {
-        return participantsRepository.findByChatId(chatId)
-                .flatMap(participant -> authWebClient
-                        .findUserById(participant.getUserId(), token)
-                        .map(userDto -> new GetUserDto(userDto.id(), userDto.name(), userDto.surname(), userDto.username(), ChatRole.getTranslate(participant.getRole()))))
+    public Flux<GetUserDto> findAllByChatId(int chatId, String token, int currentUserId) {
+        return participantsRepository
+                .findByChatId(chatId)
+                .collectMap(Participants::getUserId, (participant) -> participant)
+                .flatMapMany(map -> findAllUsersForChat(List.copyOf(map.keySet()), token)
+                        .map(userDto -> new GetUserDto(userDto.id(), userDto.name(), userDto.surname(), userDto.username(), ChatRole.getTranslate(map.get(userDto.id()).getRole()))))
                 .collectList()
-                .map(unsorted -> sortUsersList(unsorted, currentUserId));
+                .flatMapMany(unsorted -> sortUsersList(unsorted, currentUserId));
+    }
+
+    public Flux<GetUserDto> findAllUsersForChat(List<Integer> ids, String token) {
+        return authWebClient.findAllUsers(ids, token);
     }
 
     public Flux<Integer> findUserIdsByChatId(int chatId) {
         return participantsRepository.findUserIdsByChatId(chatId);
     }
 
-    private List<GetUserDto> sortUsersList(List<GetUserDto> unsorted, int currentUserId) {
+    private Flux<GetUserDto> sortUsersList(List<GetUserDto> unsorted, int currentUserId) {
         var sorted = unsorted.stream()
                 .sorted(Comparator.comparing(GetUserDto::name))
                 .collect(Collectors.toList());
@@ -57,10 +67,12 @@ public class ParticipantsService {
                 break;
             }
         }
-        GetUserDto me = sorted.get(meIndex);
-        sorted.remove(meIndex);
-        sorted.add(0, me);
-        return sorted;
+        if (meIndex != -1) {
+            GetUserDto me = sorted.get(meIndex);
+            sorted.remove(meIndex);
+            sorted.add(0, me);
+        }
+        return Flux.fromIterable(sorted);
     }
 
     public Mono<Void> deleteParticipantFromGroup(int chatId, int removingUserId, int actorId, String token) {
@@ -119,8 +131,6 @@ public class ParticipantsService {
                 .switchIfEmpty(Mono.error(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем")))
                 .flatMap(participant -> participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId));
     }
-
-
 
 
 }

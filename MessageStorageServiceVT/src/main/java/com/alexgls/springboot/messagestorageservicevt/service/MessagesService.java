@@ -1,0 +1,357 @@
+package com.alexgls.springboot.messagestorageservicevt.service;
+
+import com.alexgls.springboot.messagestorageservicevt.dto.*;
+import com.alexgls.springboot.messagestorageservicevt.entity.*;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.DeleteMessageAccessDeniedException;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchRecipientException;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
+import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
+import com.alexgls.springboot.messagestorageservicevt.repository.*;
+import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
+import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class MessagesService {
+
+    private final MessagesRepository messagesRepository;
+    private final DeletedMessagesRepository deletedMessagesRepository;
+    private final ChatsRepository chatsRepository;
+    private final AttachmentRepository attachmentRepository;
+    private final ParticipantsRepository participantsRepository;
+    private final MessageTokenRepository messageTokenRepository;
+    private final EncryptUtils encryptUtils;
+    private final LexicalAnalyzer lexicalAnalyzer;
+
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+
+    public List<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Message> messages = messagesRepository.findAllMessagesByChatId(chatId, currentUserId, pageable);
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId, currentUserId)
+                .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
+        for (Message message : messages) {
+            List<Attachment> attachments = attachmentRepository.findAllByMessageId(message.getId());
+            message.setContent(encryptUtils.decrypt(message.getContent()));
+            message.setAttachments(attachments);
+            if (!Objects.isNull(participants.getLastReadMessageId())) {
+                if (message.getSenderId() == currentUserId) {
+                    message.setRead(true);
+                } else {
+                    boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
+                    message.setRead(isReadByCurrentUser);
+                }
+            }
+        }
+        return messages.stream()
+                .sorted(Comparator.comparing(Message::getCreatedAt))
+                .toList();
+    }
+
+    public List<MessageDto> findMessagesByContent(SearchMessageInChatRequest request, int userId) {
+        var lemmas = lexicalAnalyzer.lemmatizeText(request.content());
+        var hashes = lemmas.stream()
+                .map(encryptUtils::calculateHmac)
+                .toList();
+        if (!hashes.isEmpty()) {
+            List<Long> messageIds = messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), userId, hashes);
+            return messagesRepository.findAllByIdIn(messageIds)
+                    .stream()
+                    .map(message -> {
+                        MessageDto messageDto = MessageMapper.toMessageDto(message);
+                        messageDto.setContent(encryptUtils.decrypt(message.getContent()));
+                        return messageDto;
+                    })
+                    .toList();
+        }
+        return List.of();
+    }
+
+
+    @Transactional
+    public void readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+        int chatId = messages.get(0).chatId();
+        List<Long> messageIds = messages.stream()
+                .map(ReadMessagePayload::messageId)
+                .toList();
+
+        long lastReadMessageId = Collections.max(messageIds);
+        int countMessagesRead = messageIds.size();
+        readMessages(new ReadMessageDatabaseRequest(messageIds, chatId, readerId, lastReadMessageId, countMessagesRead));
+    }
+
+    private record ReadMessageDatabaseRequest
+            (
+                    List<Long> messageIds,
+                    int chatId,
+                    int readerId,
+                    long lastReadMessageId,
+                    int countMessagesRead
+            ) {
+    }
+
+    @Transactional
+    protected void readMessages(ReadMessageDatabaseRequest request) {
+        messagesRepository.markMessagesAsRead(request.messageIds, Timestamp.from(Instant.now()));
+        participantsRepository.updateUnreadCountAndLastMessageId(
+                request.chatId,
+                request.readerId,
+                request.lastReadMessageId,
+                request.countMessagesRead
+        );
+        log.info("ALL MESSAGES IS  READING");
+    }
+
+    @Transactional
+    public MessageDto save(CreateMessagePayload createMessagePayload) {
+        Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                .orElseThrow(() -> new NoSuchParticipantException("Чат с указанным id: %d и участником: %d не найден".formatted(createMessagePayload.chatId(), createMessagePayload.senderId())));
+        if (participants.isRemoved() || participants.isLeave()) {
+            throw new AccessDeniedException("У вас нет доступа для выполнения данной операции.");
+        }
+        Chat chat = chatsRepository.findById(participants.getChat().getId())
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат с указанным id: %d не найден".formatted(participants.getChat().getId())));
+        Message message = MessageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
+        Message encryptedMessage = processAndEncryptMessage(message);
+        Message savedMessage = messagesRepository.save(encryptedMessage);
+        chat.setLastMessage(savedMessage);
+        saveMessageTokens(savedMessage);
+        MessageDto messageDto;
+        if (chat.isGroup()) {
+            messageDto = savePublicGroupMessage(createMessagePayload, savedMessage);
+        } else {
+            messageDto = savePrivateChatMessage(createMessagePayload, savedMessage);
+        }
+        removeMarkIsDeletedForChatAndUserId(createMessagePayload);
+        chatsRepository.updateLastMessageIdByChatId(messageDto.getChatId(), messageDto.getId());
+        participantsRepository.incrementUpdateCountForUser(message.getChatId(), messageDto.getSenderId());
+        participantsRepository.resetCountForCurrentUser(message.getChatId(), messageDto.getSenderId());
+        return messageDto;
+    }
+
+
+    public MessageDto saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
+        CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
+                null, "service");
+        return this.save(createMessagePayload);
+    }
+
+    /*TODO Исправить баг с непрочитанными сообщениями (счетчик), если они были удалены до прочтения.
+    Запретить подгрузку сообщений для тех людей, которые были удалены из чата или же вышли сами
+     */
+    private MessageDto savePublicGroupMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
+        MessageDto dto = createMessageDto(createMessagePayload, savedMessage);
+
+        List<Integer> participants = participantsRepository.findUserIdsByChatId(dto.getChatId());
+        dto.setRecipientIds(participants);
+        return dto;
+    }
+
+    @Transactional
+    protected MessageDto savePrivateChatMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
+        Integer recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
+
+        savedMessage.setRecipientId(recipientId);
+        return createMessageDto(createMessagePayload, savedMessage);
+    }
+
+    private MessageDto createMessageDto(CreateMessagePayload createMessagePayload, Message savedMessage) {
+        List<Attachment> savedAttachments = saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId());
+        MessageDto dto = MessageMapper.toMessageDto(savedMessage);
+        dto.setAttachments(savedAttachments);
+        dto.setTempId(createMessagePayload.tempId());
+        dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));
+        return dto;
+    }
+
+    public List<Attachment> saveAttachmentsPayloadsToDatabase(List<CreateAttachmentPayload> attachmentPayloads, long messageId, long chatId) {
+        if (attachmentPayloads == null || attachmentPayloads.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Attachment> attachments = attachmentPayloads.stream()
+                .map(payload -> {
+                    Attachment attachment = new Attachment();
+                    attachment.setHasAnalysis(payload.hasAnalysis());
+                    attachment.setMessageId(messageId);
+                    attachment.setFileId(payload.fileId());
+                    attachment.setMimeType(payload.mimeType());
+                    attachment.setChatId(chatId);
+                    attachment.setFileName(payload.fileName());
+                    attachment.setLogicType(MessageType.fromMimeType(payload.mimeType()));
+                    return attachment;
+                }).toList();
+
+
+        Iterable<Attachment> savedAttachments = attachmentRepository.saveAll(attachments);
+        List<Attachment> result = new ArrayList<>();
+        for (Attachment attachment : savedAttachments) {
+            result.add(attachment);
+        }
+        return result;
+    }
+
+
+    private Message processAndEncryptMessage(Message message) {
+        if (message.getContent() == null || message.getContent().isEmpty()) {
+            return message;
+        }
+        String originalText = message.getContent();
+        String encryptedText = encryptUtils.encrypt(originalText);
+        message.setContent(encryptedText);
+        return message;
+    }
+
+    @Transactional
+    protected Message saveMessageTokens(Message message) {
+        if (message.getContent() == null || message.getContent().isEmpty() || message.isService()) {
+            return message;
+        }
+        String originalText = encryptUtils.decrypt(message.getContent());
+        List<String> lemmas = lexicalAnalyzer.lemmatizeText(originalText);
+
+        Set<String> uniqueHashes = new HashSet<>();
+        for (String lemma : lemmas) {
+            String hash = encryptUtils.calculateHmac(lemma);
+            uniqueHashes.add(hash);
+        }
+
+        List<MessageToken> tokens = new ArrayList<>();
+        for (String hash : uniqueHashes) {
+            MessageToken token = new MessageToken(message.getId(), hash);
+            tokens.add(token);
+        }
+
+        messageTokenRepository.saveAll(tokens);
+        return message;
+    }
+
+
+    //Удаляет метку удаленного чата для пользователя, который удалил его для себя
+    public void removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
+        List<Integer> userIdsWhoDeletedChat = participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId());
+        participantsRepository.removeMarkIsDeletedForChatAndUserIdForAll(userIdsWhoDeletedChat, createMessagePayload.chatId());
+    }
+
+    @Transactional
+    public DeleteMessageResponse deleteById(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
+        Iterable<Message> messagesIterable = messagesRepository.findAllById(deleteMessageRequest.messagesId());
+        List<Message> messages = new ArrayList<>();
+        for (Message message : messagesIterable) {
+            messages.add(message);
+        }
+        if (deleteMessageRequest.forAll()) {
+            return deleteMessageForAll(deleteMessageRequest, messages, currentUserId);
+        } else {
+            return deleteMessageForCurrentUser(deleteMessageRequest, messages, currentUserId);
+        }
+    }
+
+    @Transactional
+    public DeleteMessageResponse deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
+        List<Long> messagesIdsToDeleteList = new ArrayList<>();
+        for (var message : messagesList) {
+            if (message.getSenderId() == currentUserId) {
+                messagesIdsToDeleteList.add(message.getId());
+            } else {
+                throw new DeleteMessageAccessDeniedException("Данный пользователь не может выполнить это действие.");
+            }
+        }
+
+        deleteAllDeletedMessagesForUsers(deleteMessageRequest);
+        deleteAllAttachmentsByMessageIdMono(messagesIdsToDeleteList);
+        messagesRepository.deleteAllById(messagesIdsToDeleteList);
+        return generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
+    }
+
+    @Transactional
+    public DeleteMessageResponse deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
+        List<DeletedMessage> deletedMessages = messagesList.stream()
+                .map(message -> new DeletedMessage(null, message.getId(), currentUserId))
+                .toList();
+
+        deletedMessagesRepository.saveAll(deletedMessages);
+
+        DeleteMessageResponse response = generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                CompletableFuture.runAsync(() ->
+                                checkAndDeleteFullyDeletedMessages(response.messagesId(), response.chatId()),
+                        executorService
+                ).exceptionally(ex -> {
+                    log.error("Ошибка фоновой очистки", ex);
+                    return null;
+                });
+            }
+        });
+
+        return response;
+    }
+
+    private DeleteMessageResponse generateDeleteMessageResponseWithChatMembers(DeleteMessageRequest deleteMessageRequest) {
+        List<Integer> userIds = participantsRepository.findUserIdsByChatId(deleteMessageRequest.chatId());
+        return new DeleteMessageResponse(deleteMessageRequest.messagesId(),
+                userIds,
+                deleteMessageRequest.senderId(),
+                deleteMessageRequest.chatId(),
+                deleteMessageRequest.forAll());
+    }
+
+
+    @Transactional
+    protected void deleteAllAttachmentsByMessageIdMono(List<Long> messagesIds) {
+        attachmentRepository.deleteAllByMessageIdIn(messagesIds);
+    }
+
+    @Transactional
+    protected void deleteAllDeletedMessagesForUsers(DeleteMessageRequest deleteMessageRequest) {
+        deletedMessagesRepository.deleteAllByMessageIdIn(deleteMessageRequest.messagesId());
+    }
+
+
+    //TODO N+1
+    @Transactional
+    public void checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
+        for (var messageId : messageIds) {
+            deleteMessageIfItDeletedForEveryone(messageId, chatId);
+        }
+    }
+
+    @Transactional
+    public void deleteMessageIfItDeletedForEveryone(long messageId, int chatId) {
+        List<Integer> participantsIds = participantsRepository.findUserIdsByChatId(chatId);
+        Set<Integer> userIdsWhenDeletedMessages = new HashSet<>(deletedMessagesRepository.findAllUserIdByMessageId(messageId));
+        if (participantsIds.size() == userIdsWhenDeletedMessages.size() &&
+                userIdsWhenDeletedMessages.containsAll(participantsIds)) {
+            log.info("All participants deleted message {}, removing completely", messageId);
+            deletedMessagesRepository.deleteAllByMessageId(messageId);
+            messagesRepository.deleteById(messageId);
+        }
+    }
+
+
+}

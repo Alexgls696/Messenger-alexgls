@@ -6,7 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class AuthWebClientImpl implements AuthWebClient {
@@ -22,5 +26,15 @@ public class AuthWebClientImpl implements AuthWebClient {
                 .retrieve()
                 .bodyToMono(GetUserDto.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, exception -> Mono.error(new NoSuchUserException("User with id %d not found".formatted(id))));
+    }
+
+    @Override
+    public Flux<GetUserDto> findAllUsers(Iterable<Integer> ids, String token) {
+        return webClient.post()
+                .uri("api/users/find-by-ids")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token))
+                .bodyValue(ids)
+                .retrieve()
+                .bodyToFlux(GetUserDto.class);
     }
 }

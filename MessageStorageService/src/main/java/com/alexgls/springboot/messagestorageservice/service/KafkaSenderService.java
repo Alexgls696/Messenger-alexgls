@@ -23,7 +23,6 @@ public class KafkaSenderService {
 
     private final KafkaTemplate<String, DeleteMessageResponse> deleteMessageTemplate;
 
-
     public void sendMessage(MessageDto createdMessageDto) {
         log.info("Try to sending message to kafka: {}", createdMessageDto);
         CompletableFuture<SendResult<String, MessageDto>> future = kafkaTemplate
@@ -61,8 +60,4 @@ public class KafkaSenderService {
             log.info("Successfully sent via kafka");
         }
     }
-
-
-
-
 }

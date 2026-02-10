@@ -15,14 +15,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,8 +39,6 @@ public class MessagesService {
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
 
-
-    //Теперь статус прочитано ли сообщение - динамический
     public Flux<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         return messagesRepository.findAllMessagesByChatId(chatId, page, pageSize, currentUserId)
                 .flatMap(message -> {
@@ -70,7 +65,7 @@ public class MessagesService {
                 .toList();
 
         if (!hashes.isEmpty()) {
-            return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(),userId, hashes)
+            return messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), userId, hashes)
                     .collectList()
                     .flatMapMany(messagesRepository::findAllByIdIn)
                     .map(MessageMapper::toMessageDto)
@@ -153,7 +148,9 @@ public class MessagesService {
                 ));
     }
 
-
+    /*TODO Исправить баг с непрочитанными сообщениями (счетчик), если они были удалены до прочтения.
+    Запретить подгрузку сообщений для тех людей, которые были удалены из чата или же вышли сами
+     */
     private Mono<MessageDto> savePublicGroupMessage(CreateMessagePayload createMessagePayload, Mono<Message> savedMessageMono) {
         return savedMessageMono.flatMap(savedMessage ->
                 saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId())
@@ -262,7 +259,6 @@ public class MessagesService {
         return participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId())
                 .flatMap(id -> participantsRepository.removeMarkIsDeletedForChatAndUserId(createMessagePayload.chatId(), id))
                 .doOnError(error -> log.warn("Failed to remove 'is_deleted' mark: {}", error.getMessage()))
-                .subscribeOn(Schedulers.boundedElastic())
                 .then();
     }
 

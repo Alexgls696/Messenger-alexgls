@@ -13,9 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
-public interface
-
-MessagesRepository extends ReactiveCrudRepository<Message, Long> {
+public interface MessagesRepository extends ReactiveCrudRepository<Message, Long> {
 
     Flux<Message>findAllByIdIn(Collection<Long> ids);
 

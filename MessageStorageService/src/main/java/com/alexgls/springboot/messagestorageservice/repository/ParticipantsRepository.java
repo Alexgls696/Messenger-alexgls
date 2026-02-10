@@ -12,10 +12,14 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface ParticipantsRepository extends ReactiveCrudRepository<Participants, Integer> {
+
     @Query(value = "select * from participants where chat_id = :chatId")
     Flux<Participants> findByChatId(@Param("chatId") Integer chatId);
 
-    @Query(value = "select user_id from participants where chat_id = :chatId")
+    @Query(value = "select p.user_id from participants p where chat_id = :chatId")
+    Flux<Integer> findAllIdsByChatId(@Param("chatId") Integer chatId);
+
+    @Query(value = "select user_id from participants where chat_id = :chatId and (is_removed = false and is_leave = false)")
     Flux<Integer> findUserIdsByChatId(@Param("chatId") Integer chatId);
 
     Mono<Participants> findByChatIdAndUserId(int chatId, int userId);

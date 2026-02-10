@@ -124,4 +124,10 @@ public class UsersService {
         return usersRepository.findAllByUsername(username)
                 .stream().map(UserMapper::toDto).toList();
     }
+
+    public List<GetUserDto> findAllByUserIds(List<Integer> userIds) {
+        return usersRepository.findAllById(userIds)
+                .stream().map(UserMapper::toDto)
+                .toList();
+    }
 }

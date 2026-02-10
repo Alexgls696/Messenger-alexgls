@@ -100,7 +100,7 @@ public class ChatsController {
 
     //Необходимо для загрузки участников групп
     @GetMapping("/{id}/participants")
-    public Mono<List<GetUserDto>> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
+    public Flux<GetUserDto> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find participants by chat id: {}", chatId);
         String token = getToken(authentication);
         int userId = getSenderId(authentication);

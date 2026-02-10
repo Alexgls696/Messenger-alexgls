@@ -17,6 +17,7 @@ import ru.alexgls.springboot.exceptions.NoSuchAuthException;
 import ru.alexgls.springboot.service.UsersService;
 import ru.alexgls.springboot.utils.AuthUtil;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -49,6 +50,12 @@ public class UsersController {
     public GetUserDto findUserById(@PathVariable("id") int id) {
         log.info("Find user by id {}", id);
         return usersService.findUserDtoById(id);
+    }
+
+    @PostMapping("/find-by-ids")
+    public List<GetUserDto>findAllByUserIds(@RequestBody List<Integer>userIds){
+        log.info("Find all users by ids {}", userIds);
+        return usersService.findAllByUserIds(userIds);
     }
 
     @GetMapping("/me")
