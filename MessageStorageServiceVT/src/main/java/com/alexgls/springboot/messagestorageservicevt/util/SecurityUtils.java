@@ -22,7 +22,7 @@ public class SecurityUtils {
         if (chatRole == ChatRole.OWNER || chatRole == ChatRole.ADMIN) {
             return new GroupAccessDto(true, true, true);
         }
-        if (chatRole == ChatRole.MODERATOR) {
+        if (chatRole == ChatRole.MODERATOR || chatRole.equals(ChatRole.MEMBER)) {
             return new GroupAccessDto(false, false, true);
         }
         return new GroupAccessDto(false, true, false);

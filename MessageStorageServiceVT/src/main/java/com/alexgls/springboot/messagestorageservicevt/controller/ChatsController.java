@@ -62,11 +62,12 @@ public class ChatsController {
     //Создание личного чата
     @PostMapping("/private/{receiverId}")
     public ChatDto createPrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
-        log.info("Create private chat, receiver id: {}", id);
+        log.info("Find or create private chat, receiver id: {}", id);
         Integer userId = getSenderId(authentication);
         return chatsService.findOrCreatePrivateChat(userId, id);
     }
 
+    //unused
     @GetMapping("/find-chat-id-by-recipient-id/{id}")
     public ResponseEntity<Map<String, Integer>> findChatIdByRecipientId(@PathVariable("id") int id, Authentication authentication) {
         Integer userId = getSenderId(authentication);
@@ -75,6 +76,7 @@ public class ChatsController {
         return ResponseEntity.ok(Map.of("chatId", chatId));
     }
 
+    //unused
     @GetMapping("/find-recipient-id-by-chat-id/{id}")
     public Integer findRecipientIdByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find recipient id by chat id: {}", chatId);

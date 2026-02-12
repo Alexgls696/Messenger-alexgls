@@ -165,7 +165,7 @@ public class ChatsService {
 
     public Integer findChatIdByRecipientId(int recipientId, int myId) {
         return chatsRepository.findChatIdByUserId(recipientId, myId)
-                .orElse(0);
+                .orElseThrow(()->new NoSuchUsersChatException("Чат не найден"));
     }
 
     public GroupAccessDto getUserRightsByGroupId(long groupId, int userId) {

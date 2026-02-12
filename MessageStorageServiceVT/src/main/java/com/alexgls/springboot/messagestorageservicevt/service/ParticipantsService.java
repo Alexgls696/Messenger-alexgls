@@ -76,26 +76,19 @@ public class ParticipantsService {
         if (removingUserId == actorId) {
             throw new AccessDeniedException("У вас нет доступа для выполнения этой операции.");
         }
-
         Participants participant = participantsRepository.findByChatIdAndUserId(chatId, actorId)
-                .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем")); // Предполагаем, что репозиторий возвращает Optional
-
+                .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
         boolean canRemoveMembers = SecurityUtils.determinateGroupAccess(participant.getRole()).canRemoveMembers();
         if (!canRemoveMembers) {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }
-
         var serviceMessage = generateRemovingMessageContent(removingUserId, actorId, token);
         var savedMessageDto = messagesService.saveServiceMessage(serviceMessage, chatId, actorId);
-
         if (participant.getRole() == ChatRole.OWNER) {
             validateAndRemove(chatId, removingUserId, false);
-        } else if (participant.getRole() == ChatRole.ADMIN) {
-            validateAndRemove(chatId, removingUserId, true);
         } else {
-            throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
+            validateAndRemove(chatId, removingUserId, true);
         }
-
         kafkaSenderService.sendMessage(savedMessageDto);
     }
 
@@ -113,7 +106,7 @@ public class ParticipantsService {
         participantsRepository.removingUserFromGroupByChatIdAndUserId(chatId, removingUserId);
     }
 
-    private ServiceMessage generateRemovingMessageContent(int removingUserId, int actorId, String token) {
+    protected ServiceMessage generateRemovingMessageContent(int removingUserId, int actorId, String token) {
         GetUserDto removingUser = authRestClient.findUserById(removingUserId, token);
         GetUserDto actor = authRestClient.findUserById(actorId, token);
 
@@ -123,7 +116,7 @@ public class ParticipantsService {
         return new RemoveUserServiceMessage(removingUser.username(), actor.username());
     }
 
-    public void leaveGroup(int chatId, int userId) {
+    public void leaveGroup(long chatId, int userId) {
         boolean exists = participantsRepository.existsByChatIdAndUserId(chatId, userId);
         if (!exists) {
             throw new NoSuchParticipantException("Не найдена связь между чатом и пользователем");

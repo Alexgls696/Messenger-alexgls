@@ -7,7 +7,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="MessageStorageService" />
         <module name="UsersMessagingService" />
         <module name="SearchDataService" />
         <module name="ApiGatewayService" />
@@ -22,6 +21,9 @@
         <module name="MessageStorageServiceVT" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="MessageStorageService" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
