@@ -30,22 +30,12 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    private final String localHostAddress;
-
     @Value("${server.ssl.key-store-password}")
     private String keyPassword;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
 
-    public SecurityConfig(@Value("${frontend.port}") Integer frontendPort) throws UnknownHostException {
-        try {
-            localHostAddress = "https://" + InetAddress.getLocalHost().getHostAddress() + ":" + frontendPort;
-            System.out.println("PASSWORD = "+keyPassword);
-        } catch (UnknownHostException exception) {
-            throw new UnknownHostException("Не удалось определить адрес хоста");
-        }
-    }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -86,7 +76,7 @@ public class SecurityConfig {
             }
 
             CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(List.of("https://localhost:8090", "https://192.168.0.103:8090"));
+            corsConfig.setAllowedOrigins(List.of("https://localhost:8090", "https://192.168.0.103:8090","http://localhost:5173"));
             corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             corsConfig.setAllowedHeaders(List.of("*"));
             corsConfig.setAllowCredentials(true);

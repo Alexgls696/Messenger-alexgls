@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MessageStorageServiceClient {
     List<MessageDto> findMessagesByContent(SearchMessageInChatRequest searchMessageInChatRequest, String token);
+
+    List<Integer> findAllUsersWhoHadChatWith(String token);
 }

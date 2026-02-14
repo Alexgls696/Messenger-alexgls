@@ -1,0 +1,251 @@
+/*
+ * ===================================================================
+ *  СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ И ВЛОЖЕНИЙ
+ *  (с исправленной сеткой и поддержкой тем)
+ * ===================================================================
+ */
+
+/* --- Основной контейнер модального окна --- */
+.user-profile-body {
+    max-height: 75vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px;
+}
+.user-profile-body::-webkit-scrollbar { width: 6px; }
+.user-profile-body::-webkit-scrollbar-thumb { background-color: var(--border-primary); border-radius: 3px; }
+.user-profile-body::-webkit-scrollbar-track { background-color: var(--bg-secondary); }
+
+/* --- Секция с информацией о профиле --- */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--surface-primary);
+    box-shadow: 0 2px 8px var(--shadow-primary);
+}
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.profile-info-item {
+    font-size: 1em;
+    color: var(--text-secondary);
+}
+.profile-info-item strong {
+    color: var(--text-primary);
+    margin-right: 8px;
+}
+
+.photos-section,
+.attachments-section {
+    padding-top: 20px;
+    margin-bottom: 10px; /* Добавляем отступ между секциями */
+    border-top: 1px solid var(--border-secondary);
+    width: 100%;
+    position: relative; /* Создаем контекст наслоения */
+    display: block;
+}
+.profile-section-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 20px; /* Отступ до следующей секции */
+}
+
+.profile-image-item {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    background-color: var(--surface-secondary);
+    border-radius: 8px;
+    overflow: hidden; 
+    cursor: pointer;
+    z-index: 1; 
+}
+.profile-image-item .skeleton,
+.profile-image-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block; 
+}
+/* --- Вкладки для переключения вложений --- */
+.attachments-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-primary);
+    padding-bottom: 10px;
+    
+    position: sticky; 
+    top: 0;
+    z-index: 10; 
+    background-color: var(--surface-primary); /* Обязательно фон, чтобы под кнопками не просвечивали фото */
+}
+
+.attachments-tabs .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1em;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.attachments-tabs .tab-btn:hover {
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+.attachments-tabs .tab-btn.active {
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+}
+
+/* --- Контейнер для отображения вложений --- */
+#attachmentsContent {
+    min-height: 250px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* --- СЕТКА ДЛЯ ВЛОЖЕНИЙ (ИСПРАВЛЕНО) --- */
+.attachments-grid {
+    width: 100%;
+    display: grid;
+    /* Точно такая же сетка, как для фотографий профиля, для консистентности */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+.attachments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Расстояние между файлами в списке */
+}
+
+.attachment-list-item {
+    display: flex;
+    align-items: center; /* Выравниваем все по вертикальному центру */
+    justify-content: space-between; /* Раскидываем элементы по краям */
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-secondary);
+    position: relative; /* Нужно для позиционирования иконки AI */
+}
+
+/* Контейнер для имени файла (слева) */
+.attachment-list-item > span {
+    font-weight: 500;
+    color: var(--text-primary);
+    /* Ограничиваем длинные имена файлов */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px; /* Отступ от правых элементов */
+}
+
+/* Контейнер для кнопок (справа) */
+.attachment-list-item .file-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Расстояние между иконкой AI и кнопкой "Скачать" */
+    flex-shrink: 0; /* Запрещаем этому блоку сжиматься */
+}
+
+/* Ссылка "Скачать" */
+.attachment-list-item .file-actions a {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.attachment-list-item .file-actions a:hover {
+    text-decoration: underline;
+}
+
+
+.attachment-list-item .ai-icon {
+    position: static;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+}
+
+.ai-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 24px; /* Немного увеличим для лучшей видимости */
+    height: 24px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 11px;
+    font-weight: bold;
+    color: white; /* Текст "AI" всегда белый */
+
+    cursor: pointer;
+    z-index: 1;
+
+    background: linear-gradient(120deg, #8A2BE2, #4169E1, #00BFFF, #20B2AA, #32CD32);
+    background-size: 400% 400%;
+
+    animation: gradient-flow 5s ease infinite;
+}
+
+.attachment-list-item .ai-icon {
+    position: static;
+}
+
+#attachment-tooltip {
+    position: absolute;
+    z-index: 3000; /* Выше модального окна */
+    max-width: 300px;
+    padding: 10px;
+    background-color: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-primary);
+    font-size: 0.9em;
+    color: var(--text-primary);
+
+    /* Скрыта по умолчанию */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+#attachment-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}

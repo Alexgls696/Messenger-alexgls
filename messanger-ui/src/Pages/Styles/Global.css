@@ -1,0 +1,320 @@
+/*
+ * ===================================================================
+ *  1. ПЕРЕМЕННЫЕ ТЕМЫ (Light / Dark)
+ * ===================================================================
+ */
+
+:root,
+body[data-theme="light"] {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #f9f9f9;
+    --surface-primary: #ffffff;
+    --surface-secondary: #f0f4f8;
+    --surface-accent: #e1f0ff;
+    --text-primary: #2c3e50;
+    --text-secondary: #555555;
+    --text-placeholder: #888888;
+    --text-on-accent: #ffffff;
+    --border-primary: #dddddd;
+    --border-secondary: #eeeeee;
+    --accent-primary: #3498db;
+    --accent-primary-hover: #2980b9;
+    --accent-positive: #28a745;
+    --accent-positive-hover: #218838;
+    --accent-negative: #dc3545;
+    --accent-negative-hover: #c82333;
+    --shadow-primary: rgba(0, 0, 0, 0.1);
+    --context-menu-danger-hover: #fcebeb;
+    --skeleton-base: #e0e0e0;
+    --skeleton-shine: #f0f0f0;
+}
+
+body[data-theme="dark"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --surface-primary: #2c2c2c;
+    --surface-secondary: #3a3a3a;
+    --surface-accent: #003c75;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-placeholder: #888888;
+    --border-primary: #444444;
+    --border-secondary: #333333;
+    --accent-primary: #008cff;
+    --accent-primary-hover: #3aa6ff;
+    --accent-positive: #20c997;
+    --accent-positive-hover: #4dd4ab;
+    --accent-negative: #ff5252;
+    --accent-negative-hover: #ff7979;
+    --shadow-primary: rgba(0, 0, 0, 0.4);
+    --context-menu-danger-hover: #5e2a2a;
+    --skeleton-base: #3a3a3a;
+    --skeleton-shine: #4a4a4a;
+}
+
+/*
+ * ===================================================================
+ *  2. ГЛОБАЛЬНЫЕ СБРОСЫ И СКРОЛЛБАР
+ * ===================================================================
+ */
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* Запрещаем скролл всей страницы, скроллиться будут только списки */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Главный контейнер */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 40px;
+    /* Отступы для десктопа */
+    box-sizing: border-box;
+}
+
+/* Универсальный скроллбар */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) var(--surface-primary);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-primary);
+    border-radius: 10px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/*
+ * ===================================================================
+ *  3. МОДАЛЬНЫЕ ОКНА
+ * ===================================================================
+ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: var(--surface-primary);
+    width: 95%;
+    max-width: 550px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px var(--shadow-primary);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalAppear 0.2s ease-out;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-secondary);
+    background-color: var(--bg-secondary);
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-secondary);
+    background-color: var(--bg-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/*
+ * ===================================================================
+ *  4. ВЫПАДАЮЩИЕ И КОНТЕКСТНЫЕ МЕНЮ
+ * ===================================================================
+ */
+
+.context-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    background: transparent;
+}
+
+.context-menu,
+.dropdown-menu {
+    position: absolute;
+    z-index: 9999;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 8px 20px var(--shadow-primary);
+    border-radius: 8px;
+    padding: 5px;
+    min-width: 180px;
+}
+
+.context-menu {
+    position: fixed;
+}
+
+/* Фиксировано для координат мыши */
+
+.context-menu-item,
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--text-primary);
+    transition: background-color 0.1s;
+}
+
+.context-menu-item:hover,
+.dropdown-item:hover {
+    background-color: var(--surface-secondary);
+}
+
+.context-menu-item.danger,
+.dropdown-item.danger {
+    color: var(--accent-negative);
+}
+
+.context-menu-item.danger:hover {
+    background-color: var(--context-menu-danger-hover);
+}
+
+/*
+ * ===================================================================
+ *  5. КНОПКИ И ПОЛЯ ВВОДА
+ * ===================================================================
+ */
+
+.header-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.header-icon-btn:hover {
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+    outline: none;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    border-color: var(--accent-primary);
+}
+
+/*
+ * ===================================================================
+ *  6. АДАПТИВНОСТЬ (МОБИЛЬНАЯ ВЕРСИЯ)
+ * ===================================================================
+ */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        /* Контейнер остается колонкой */
+    }
+
+    .chat-wrapper {
+        position: relative;
+        flex-grow: 1;
+        /* Занимает всё оставшееся место под шапкой */
+        width: 100%;
+        /* Убираем height: 100%, так как flex-grow + parent height справятся лучше */
+    }
+
+    .chat-list,
+    .chat-window {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Теперь они на 100% высоты именно WRAPPER-а */
+    }
+}

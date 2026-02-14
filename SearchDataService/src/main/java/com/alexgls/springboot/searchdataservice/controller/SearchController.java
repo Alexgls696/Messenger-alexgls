@@ -25,6 +25,13 @@ public class SearchController {
         return searchService.findAllUsersByUsername(username, token);
     }
 
+    @GetMapping("/users/from-chats")
+    public Iterable<GetUserDto> findAllUsersFromChats(Authentication authentication) {
+        String token = getToken(authentication);
+        log.info("find users from users chats");
+        return searchService.findAllUsersFromChats(token);
+    }
+
     @PostMapping("/messages/find-by-content-in-chat")
     public Iterable<MessageDto> findAllMessagesByContentInChat(@RequestBody SearchMessageInChatRequest request, Authentication authentication) {
         String token = getToken(authentication);

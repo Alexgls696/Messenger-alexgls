@@ -91,7 +91,6 @@ public class ChatsController {
         String token = jwt.getTokenValue();
         Integer recipientId = chatsService.findRecipientIdByChatId(chatId, userId);
         var user = authRestClient.findUserById(recipientId, token);
-        log.info("Found user: {}", user);
         return user;
     }
 
@@ -102,6 +101,19 @@ public class ChatsController {
         String token = getToken(authentication);
         int userId = getSenderId(authentication);
         return participantsService.findAllByChatId(chatId, token, userId);
+    }
+
+
+    /**
+     * Запрос пользователей, с которыми был чат.
+     * @param authentication Содержит информацию о текущем пользователе.
+     * @return Список id пользователей
+     */
+    @GetMapping("/search-users")
+    public Iterable<Integer> findAllUsersWhoHadChatWith(Authentication authentication) {
+        Integer userId = getSenderId(authentication);
+        log.info("Find all users who have had chat: {}", userId);
+        return participantsService.findAllUsersWhoHadChatWith(userId);
     }
 
     //Удаление участника группы

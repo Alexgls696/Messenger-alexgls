@@ -10,19 +10,19 @@
         <module name="UsersMessagingService" />
         <module name="SearchDataService" />
         <module name="ApiGatewayService" />
-        <module name="MetadataStorageService" />
-        <module name="RegistrationService" />
-        <module name="MediaContentStorageService" />
-        <module name="RatingLogClientApplication" />
         <module name="AuthService" />
+        <module name="MetadataStorageService" />
         <module name="InDatabaseContentStorageService" />
         <module name="UserDetailsService" />
         <module name="ContentAnalysisService" />
+        <module name="RegistrationService" />
+        <module name="MediaContentStorageService" />
         <module name="MessageStorageServiceVT" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="MessageStorageService" target="17" />
+      <module name="RatingLogClientApplication" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

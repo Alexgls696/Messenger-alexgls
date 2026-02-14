@@ -94,7 +94,9 @@ public class UsersController {
         log.info("Update user {}", updateUserRequest);
         int currentUserId = AuthUtil.getCurrentUserId(authentication);
         usersService.updateUserInfo(updateUserRequest, currentUserId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
     @PostMapping("/exists")

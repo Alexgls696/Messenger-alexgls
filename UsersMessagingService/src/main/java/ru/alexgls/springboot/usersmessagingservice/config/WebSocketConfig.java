@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("https://localhost:8090", "https://192.168.0.103:8090")
+                .setAllowedOriginPatterns("https://localhost:8090", "https://192.168.0.103:8090","http://localhost:5173")
                 .addInterceptors(new JwtHandshakeInterceptor(authServiceClient))
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();

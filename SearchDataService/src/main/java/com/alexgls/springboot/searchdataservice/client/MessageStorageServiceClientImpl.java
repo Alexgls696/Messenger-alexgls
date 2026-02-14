@@ -4,6 +4,7 @@ import com.alexgls.springboot.searchdataservice.dto.MessageDto;
 import com.alexgls.springboot.searchdataservice.dto.SearchMessageInChatRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
@@ -14,7 +15,11 @@ public class MessageStorageServiceClientImpl implements MessageStorageServiceCli
 
     private final RestClient restClient;
 
-    private final ParameterizedTypeReference<List<MessageDto>> messageTypeReference = new ParameterizedTypeReference<>() {};
+    private final ParameterizedTypeReference<List<MessageDto>> messageTypeReference = new ParameterizedTypeReference<>() {
+    };
+
+    private final ParameterizedTypeReference<List<Integer>> userIds = new ParameterizedTypeReference<>() {
+    };
 
     @Override
     public List<MessageDto> findMessagesByContent(SearchMessageInChatRequest searchMessageInChatRequest, String token) {
@@ -25,6 +30,19 @@ public class MessageStorageServiceClientImpl implements MessageStorageServiceCli
                     .body(searchMessageInChatRequest)
                     .retrieve()
                     .body(messageTypeReference);
+        } catch (HttpClientErrorException exception) {
+            throw new HttpClientErrorException(exception.getStatusCode(), "Ошибка при обращении к сервису сообщений: " + exception.getResponseBodyAsString());
+        }
+    }
+
+    @Override
+    public List<Integer> findAllUsersWhoHadChatWith(String token) {
+        try {
+            return restClient.get()
+                    .uri("/api/chats/search-users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .retrieve()
+                    .body(userIds);
         } catch (HttpClientErrorException exception) {
             throw new HttpClientErrorException(exception.getStatusCode(), "Ошибка при обращении к сервису сообщений: " + exception.getResponseBodyAsString());
         }

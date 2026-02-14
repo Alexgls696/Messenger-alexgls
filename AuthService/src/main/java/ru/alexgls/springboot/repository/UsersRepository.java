@@ -21,6 +21,7 @@ public interface UsersRepository extends CrudRepository<User, Integer> {
     @Query(nativeQuery = true, value = "select * from users where username ilike (concat(:username,'%'))")
     List<User> findAllByUsername(String username);
 
-    @Query("from User where id in :userIds")
+    @Query("from User where id in :userIds " +
+            "order by surname")
     List<User> findAllById(@Param("userIds") List<Integer> userIds);
 }

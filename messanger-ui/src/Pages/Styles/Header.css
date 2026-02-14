@@ -1,0 +1,163 @@
+/*
+ * ===================================================================
+ *  СТИЛИ ШАПКИ (HEADER) - ДЛЯ ДЕСКТОПА И МОБИЛЬНЫХ
+ * ===================================================================
+ */
+
+/* --- 1. ДЕСКТОПНАЯ ШАПКА (.main-header) --- */
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* Для абсолютного позиционирования центрального блока */
+    padding: 10px 0;
+    margin-bottom: 15px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+/* Группы кнопок слева и справа */
+.header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+}
+
+/* Центральный блок: Имя и Аватар (Идеальное центрирование) */
+.user-info-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.user-info-header h3 {
+    margin: 0;
+    font-size: 1.4em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* --- 2. МОБИЛЬНАЯ ШАПКА (.mobile-header) --- */
+
+.mobile-header {
+    display: none; /* Скрыта на десктопе по умолчанию */
+    flex-shrink: 0;
+    padding: 10px 15px;
+    background-color: var(--surface-primary);
+    border-bottom: 1px solid var(--border-primary);
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 100;
+}
+
+.user-info-header-mobile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-info-header-mobile h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* --- 3. КНОПКИ И АВАТАРЫ В ШАПКЕ --- */
+
+/* Общий стиль для кнопок-иконок в шапке */
+.header-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.header-icon-btn:hover {
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+
+.header-icon-btn:active {
+    transform: scale(0.95);
+}
+
+.header-icon-btn svg {
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+/* Кнопка поиска (Зеленая) */
+.find-user-btn {
+    background-color: var(--accent-positive);
+    color: white;
+}
+
+.find-user-btn:hover {
+    background-color: var(--accent-positive-hover);
+    color: white;
+}
+
+/* Кнопка вызова своего профиля (Круглый аватар) */
+.my-profile-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid var(--border-primary);
+    background-color: var(--bg-secondary);
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+}
+
+.my-profile-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.my-profile-btn:hover img {
+    transform: scale(1.1);
+}
+
+/* --- 4. СПЕЦИФИКА ВЫПАДАЮЩИХ СПИСКОВ В ШАПКЕ --- */
+
+#mobileDropdownMenu {
+    top: 65px;
+    right: 15px;
+    width: 240px;
+}
+
+.header-buttons.right .dropdown-menu {
+    top: 50px;
+    right: 0;
+}
+
+/* --- 5. АДАПТИВНОСТЬ ШАПКИ --- */
+
+@media (max-width: 768px) {
+    .main-header {
+        display: none; /* Прячем десктопную */
+    }
+
+    .mobile-header {
+        display: flex; /* Показываем мобильную */
+    }
+}

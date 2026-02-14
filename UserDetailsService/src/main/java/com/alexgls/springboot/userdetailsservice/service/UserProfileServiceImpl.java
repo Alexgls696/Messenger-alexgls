@@ -82,7 +82,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public Mono<Integer> findUserAvatarImageId(int userId) {
         return userAvatarsRepository.findUserAvatarImageIdByUserId(userId)
-                .switchIfEmpty(Mono.error(()-> new NoSuchUserAvatarException("Аватар пользователя не найден")));
+                .switchIfEmpty(Mono.just(0));
     }
 
     @Override

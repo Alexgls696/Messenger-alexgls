@@ -26,8 +26,8 @@ public class MailSenderService {
             message.setSubject(subject);
             message.setText(text);
             mailSender.send(message);
-        }catch (Exception exception){
-            throw new SendMailException("Произошла ошибка, связанная с отправкой сообщения пользователю: "+exception.getMessage());
+        } catch (Exception exception) {
+            throw new SendMailException("Произошла ошибка, связанная с отправкой сообщения пользователю: " + exception.getMessage());
         }
     }
 }

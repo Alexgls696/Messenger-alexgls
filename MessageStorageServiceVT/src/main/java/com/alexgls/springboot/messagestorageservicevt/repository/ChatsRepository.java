@@ -37,7 +37,8 @@ public interface ChatsRepository extends CrudRepository<Chat, Long> {
             SELECT p1.chat_id
             FROM participants p1
             JOIN participants p2 ON p1.chat_id = p2.chat_id
-            WHERE p1.user_id = :senderId AND p2.user_id = :receiverId
+            JOIN chats c on p1.chat_id = c.chat_id
+            WHERE p1.user_id = :senderId AND p2.user_id = :receiverId and c.is_group = false
               AND p1.chat_id IN (
                 SELECT chat_id
                 FROM participants

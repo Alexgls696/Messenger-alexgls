@@ -8,4 +8,6 @@ public interface SearchService {
     Iterable<GetUserDto>findAllUsersByUsername(String username, String token);
 
     Iterable<MessageDto>findMessagesByContentInChat(SearchMessageInChatRequest searchMessageInChatRequest, String token);
+
+    Iterable<GetUserDto> findAllUsersFromChats(String token);
 }

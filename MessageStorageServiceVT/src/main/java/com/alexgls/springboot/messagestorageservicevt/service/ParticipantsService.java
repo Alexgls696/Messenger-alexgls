@@ -124,4 +124,12 @@ public class ParticipantsService {
         participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId);
     }
 
+    /**
+     * Возвращает id пользователей, с которыми у данного пользователя есть чат.
+     * @param userId Id текущего пользователя
+     * @return Iterable с id пользователей.
+     */
+    public Iterable<Integer> findAllUsersWhoHadChatWith(Integer userId) {
+        return participantsRepository.findAllUsersWhoHadChatWith(userId);
+    }
 }

@@ -1,0 +1,393 @@
+/*
+ * ===================================================================
+ *  СТИЛИ ЧАТОВ (СПИСОК, ОКНО ПЕРЕПИСКИ, СООБЩЕНИЯ)
+ * ===================================================================
+ */
+
+/* --- 1. ОБЩАЯ ОБЛАСТЬ (Layout) --- */
+
+.chat-wrapper {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px;
+    min-height: 0;
+    height: 0;
+    flex-basis: 100%;
+}
+
+/* --- 2. СПИСОК ЧАТОВ (Слева) --- */
+
+.chat-list {
+    list-style: none;
+    padding: 0;
+    width: 320px;
+    flex-shrink: 0;
+    background: var(--surface-primary);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px var(--shadow-primary);
+    overflow-y: auto;
+    border: 1px solid var(--border-primary);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.chat-list li:last-child {
+    border-bottom: none;
+}
+
+.chat-list li:hover {
+    background-color: var(--surface-secondary);
+}
+
+.chat-list li.active {
+    background-color: var(--surface-accent);
+    border-left: 4px solid var(--accent-primary);
+}
+
+.chat-item-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: var(--bg-secondary);
+}
+
+.chat-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.chat-info .chat-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--text-primary);
+}
+
+.chat-info .last-message {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.chat-info .message-time {
+    color: var(--text-placeholder);
+    font-size: 0.85em;
+}
+
+/* --- 3. ОКНО ЧАТА (Справа) --- */
+
+.chat-window {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-primary);
+    border-radius: 12px;
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 4px 15px var(--shadow-primary);
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Шапка внутри окна чата */
+.chat-window__header {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-secondary);
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
+}
+
+.chat-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    justify-content: center;
+    margin-left: 36px;
+    padding-right: 36px;
+}
+
+#chatTitle {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+/* --- 4. СООБЩЕНИЯ --- */
+
+.messages {
+    padding: 15px;
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* Отключаем браузерный Scroll Anchoring для корректной работы JS-скролла */
+    overflow-anchor: none;
+}
+
+.message {
+    position: relative;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.sent {
+    background-color: var(--message-sent-bg);
+    color: var(--message-sent-text);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.message.received {
+    background-color: var(--message-received-bg);
+    color: var(--message-received-text);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.message.received .message-sender {
+    color: var(--accent-primary);
+    font-size: 0.85em;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.message-content {
+    font-size: 1em;
+    word-wrap: break-word;
+}
+
+.message-meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75em;
+    margin-top: 5px;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.message.sent .message-status {
+    color: var(--text-on-accent);
+    opacity: 0.7;
+}
+
+.message-status.read {
+    opacity: 1;
+    font-weight: 600;
+}
+
+.message.pending {
+    opacity: 0.7;
+}
+
+.unread-badge {
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 0 6px;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+/* --- 5. ВЛОЖЕНИЯ И ГАЛЕРЕИ --- */
+
+.attachments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.image-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 5px;
+}
+
+.attachments-container>.image-attachment:first-child:last-child {
+    max-width: 300px;
+}
+
+.attachment-item.image-attachment {
+    position: relative;
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+}
+
+.attachment-item .attachment-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.attachment-item .attachment-image[src] {
+    opacity: 1;
+}
+
+.attachment-item.file-attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    width: 280px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.message.received .attachment-item.file-attachment {
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-secondary);
+}
+
+.message.sent .attachment-item.file-attachment {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- 6. ПРЕВЬЮ ПЕРЕД ОТПРАВКОЙ --- */
+
+.attachment-preview-container {
+    padding: 10px;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--surface-secondary);
+    border-top: 1px solid var(--border-primary);
+}
+
+.attachment-preview-item {
+    position: relative;
+    border-radius: 8px;
+    background-color: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 1px 3px var(--shadow-primary);
+}
+
+.attachment-preview-item.is-image {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.attachment-preview-item.is-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.attachment-preview-item.is-file {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    max-width: 200px;
+}
+
+/* --- 7. АДАПТИВНОСТЬ (ЛОГИКА ЧАТА) --- */
+
+@media (max-width: 768px) {
+    .chat-wrapper {
+        position: relative;
+        gap: 0;
+    }
+
+    .chat-list,
+    .chat-window {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border: none;
+        transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    /* На мобилках по умолчанию виден список, окно скрыто */
+    .chat-window {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    /* Когда на body вешается .chat-active через JS */
+    body.chat-active .chat-list {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    body.chat-active .chat-window {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .chat-title-wrapper {
+        justify-content: flex-start;
+        margin-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media (min-width: 769px) {
+
+    .chat-list,
+    .chat-window {
+        position: static;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    .chat-window.hidden {
+        display: none !important;
+    }
+}
