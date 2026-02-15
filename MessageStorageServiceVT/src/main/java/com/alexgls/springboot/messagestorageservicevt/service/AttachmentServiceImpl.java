@@ -24,7 +24,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         List<Integer> membersList = participantsService.findUserIdsByChatId(chatId);
         if (membersList.contains(currentUserId)) {
             MessageType messageType = MessageType.valueOf(mediaTypeCorrect ? mediaType : "FILE");
-            return attachmentRepository.findAllByLogicTypeAndChatId(messageType, chatId);
+            return attachmentRepository.findAllByLogicTypeAndChatId(messageType, chatId, currentUserId);
         }
         throw new AccessDeniedException("Вы не состоите в данном чате.");
     }

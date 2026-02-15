@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
@@ -17,6 +17,10 @@ import ConfirmationModal from './components/ConfirmationModal';
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
 import ContextMenu from './components/ContextMenu';
+
+
+import useSound from 'use-sound';
+import messageSound from '../sound/message.mp3'
 
 import './Styles/Messages.css'
 import './Styles/PhotoViewer.css'
@@ -55,6 +59,11 @@ function ChatPage() {
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
 
+
+     const [playNotification] = useSound(messageSound, { 
+        volume: 0.5, // Громкость от 0 до 1
+    });
+    
     useEffect(() => {
         activeChatRef.current = activeChat;
     }, [activeChat]);
@@ -64,6 +73,11 @@ function ChatPage() {
         const curActive = activeChatRef.current;
         const isMsgForActive = curActive?.chatId === newMsg.chatId;
 
+
+         if (newMsg.senderId !== user.id) {
+            playNotification();
+        }
+
         // 1. Обновляем список чатов (бейджи, последнее сообщение)
         chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);
 
@@ -71,7 +85,7 @@ function ChatPage() {
         if (isMsgForActive) {
             setSocketUpdate({ ...newMsg, _ts: Date.now() });
         }
-    }, [user]);
+    }, [user, playNotification]);
 
     const onDeleteEvent = useCallback((info) => {
         setDeleteEvent({ ...info, _ts: Date.now() });
@@ -327,7 +341,7 @@ function ChatPage() {
                     socketUpdate={socketUpdate}
                     readEvent={readEvent}
                     deleteEvent={deleteEvent}
-                    onSendMessage={(msg) => sendMessage(msg)} // Используем sendMessage из хука
+                    onSendMessage={(msg) => sendMessage(msg)} а
                     apiBaseUrl={API_BASE_URL}
                     onMessageContextMenu={handleMessageContextMenu}
                 />

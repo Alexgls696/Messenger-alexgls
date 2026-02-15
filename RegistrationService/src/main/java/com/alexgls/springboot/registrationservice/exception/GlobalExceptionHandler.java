@@ -87,11 +87,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessToAuthServiceException.class)
     public ResponseEntity<ProblemDetail> handleAccessToAuthServiceException(AccessToAuthServiceException exception, Locale locale) {
         log.warn("Выброшено исключение: {}", exception.getMessage());
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, messageSource
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, messageSource
                 .getMessage("error.access_to_auth_service", new Object[0], "error.access_to_auth_service", locale));
         problemDetail.setProperty("error", exception.getMessage());
         return ResponseEntity
-                .badRequest()
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(problemDetail);
     }
 

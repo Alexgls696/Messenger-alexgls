@@ -12,8 +12,7 @@ spring:
           jwk-set-uri: http://localhost:8085/.well-known/jwks.json
 
 frontend:
-  url: http://localhost:8090
-  port: 8090
+  cors-address-list: "https://localhost:8090, https://192.168.0.103:8090, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
 
 
 services:

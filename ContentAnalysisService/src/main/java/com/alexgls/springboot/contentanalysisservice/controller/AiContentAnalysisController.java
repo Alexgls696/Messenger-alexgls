@@ -23,7 +23,6 @@ public class AiContentAnalysisController {
     @PostMapping
     public CompletableFuture<ResponseEntity<Void>> loadAndAnalyseFileRequest(@RequestParam("file") MultipartFile file, @RequestParam("chatId") int chatId, @RequestParam("fileId") int fileId) {
         log.info("LoadAndAnalyseFileRequest, file: {}", file.getOriginalFilename());
-
         Resource resource;
         try {
             byte[] bytes = file.getBytes();

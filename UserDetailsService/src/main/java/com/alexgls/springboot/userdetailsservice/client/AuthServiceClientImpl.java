@@ -2,6 +2,7 @@ package com.alexgls.springboot.userdetailsservice.client;
 
 import com.alexgls.springboot.userdetailsservice.dto.GetUserDto;
 import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserException;
+import com.alexgls.springboot.userdetailsservice.exception.ServiceUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,6 +22,7 @@ public class AuthServiceClientImpl implements AuthServiceClient {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token))
                 .retrieve()
                 .bodyToMono(GetUserDto.class)
-                .onErrorResume(WebClientResponseException.NotFound.class, exception -> Mono.error(new NoSuchUserException("User with id %d not found".formatted(id))));
+                .onErrorResume(WebClientResponseException.NotFound.class, exception -> Mono.error(new NoSuchUserException("User with id %d not found".formatted(id))))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, (exception)->Mono.error(new ServiceUnauthorizedException("Токен доступа недействителен.")));
     }
 }

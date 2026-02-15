@@ -16,6 +16,10 @@ function Login() {
     const gatewayAddress = `${window.location.hostname}:8080`;
     const API_BASE_URL = `https://${gatewayAddress}`;
 
+    const accessToken = localStorage.getItem('accessToken');
+    if(accessToken){
+        navigate('/')
+    }
     const handleSubmit = async (event) => {
         event.preventDefault(); // Предотвращаем перезагрузку страницы
         

@@ -32,6 +32,16 @@ public class GlobalExceptionHandler {
                 .body(problemDetail));
     }
 
+    @ExceptionHandler(ServiceUnauthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleServiceUnauthorizedException(ServiceUnauthorizedException exception, Locale locale) {
+        log.warn("handleServiceUnauthorizedException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
+                messageSource.getMessage("errors.unauthorized", new Object[0], "errors.unauthorized", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(FileSendingToAnalysisException.class)
     public Mono<ResponseEntity<ProblemDetail>> handleFileSendingToAnalysisException(FileSendingToAnalysisException exception, Locale locale) {
         log.warn("Handle FileSendingToAnalysisException.NotFound {}", exception.getMessage());

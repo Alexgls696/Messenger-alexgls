@@ -30,8 +30,8 @@ import java.util.List;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    @Value("${server.ssl.key-store-password}")
-    private String keyPassword;
+    @Value("${frontend.cors-address-list}")
+    private List<String> corsAddressList;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/.well-known/jwks.json",
                                 "/ws-chat/**",
+                                "/health/**",
                                 "/api/storage/proxy/download/**",
                                 "/api/verification/**",
                                 "/api/authentication/**"
@@ -65,7 +66,6 @@ public class SecurityConfig {
     }
 
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         return exchange -> {
@@ -76,7 +76,8 @@ public class SecurityConfig {
             }
 
             CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(List.of("https://localhost:8090", "https://192.168.0.103:8090","http://localhost:5173"));
+            //List.of("https://localhost:8090", "https://192.168.0.103:8090", "http://localhost:5173")
+            corsConfig.setAllowedOrigins(corsAddressList);
             corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             corsConfig.setAllowedHeaders(List.of("*"));
             corsConfig.setAllowCredentials(true);

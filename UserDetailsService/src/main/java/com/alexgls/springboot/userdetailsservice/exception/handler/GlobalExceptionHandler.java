@@ -1,9 +1,6 @@
 package com.alexgls.springboot.userdetailsservice.exception.handler;
 
-import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserAvatarException;
-import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserDetailsException;
-import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserException;
-import com.alexgls.springboot.userdetailsservice.exception.NoSuchUserImageException;
+import com.alexgls.springboot.userdetailsservice.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -41,6 +38,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchUserImageException.class)
     public Mono<ResponseEntity<ProblemDetail>> handleNoSuchUserImageException(NoSuchUserImageException exception, Locale locale) {
         return generateProblemDetailsByMessageForNotFound(exception, locale, "error.user_image_not_found");
+    }
+
+    @ExceptionHandler(ServiceUnauthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleServiceUnauthorizedException(ServiceUnauthorizedException exception, Locale locale) {
+        log.warn("handleServiceUnauthorizedException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
+                messageSource.getMessage("error.unauthorized", new Object[0], "error.unauthorized", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(problemDetail);
     }
 
     private Mono<ResponseEntity<ProblemDetail>> generateProblemDetailsByMessageForNotFound(Exception exception, Locale locale, String messageSourceValue) {

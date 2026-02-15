@@ -7,8 +7,8 @@ server:
     key-store-type: PKCS12
 
 frontend:
-  url: http://localhost:8090
-  port: 8090
+  cors-address-list: "https://localhost:8090, https://192.168.0.103:8090, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
+
 
 spring:
   application:
@@ -32,7 +32,7 @@ spring:
             - id: auth-public-route
               uri: http://localhost:8085
               predicates:
-                - Path=/auth/**, /.well-known/jwks.json
+                - Path=/auth/**, /.well-known/jwks.json, /health
 
             # Правило для защищенных эндпоинтов (пользователи)
             - id: users-service-route
@@ -94,3 +94,6 @@ spring:
               uri: http://localhost:8095
               predicates:
                 - Path=/api/metadata/**
+logging:
+  level:
+    debug:

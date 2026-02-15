@@ -2,6 +2,7 @@ package com.alexgls.springboot.searchdataservice.client;
 
 import com.alexgls.springboot.searchdataservice.dto.MessageDto;
 import com.alexgls.springboot.searchdataservice.dto.SearchMessageInChatRequest;
+import com.alexgls.springboot.searchdataservice.exception_handling.ServiceUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +31,8 @@ public class MessageStorageServiceClientImpl implements MessageStorageServiceCli
                     .body(searchMessageInChatRequest)
                     .retrieve()
                     .body(messageTypeReference);
+        } catch (HttpClientErrorException.Unauthorized exception) {
+            throw new ServiceUnauthorizedException("Токен доступа недействительный, повторите попытку");
         } catch (HttpClientErrorException exception) {
             throw new HttpClientErrorException(exception.getStatusCode(), "Ошибка при обращении к сервису сообщений: " + exception.getResponseBodyAsString());
         }
@@ -43,6 +46,8 @@ public class MessageStorageServiceClientImpl implements MessageStorageServiceCli
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .retrieve()
                     .body(userIds);
+        } catch (HttpClientErrorException.Unauthorized exception) {
+            throw new ServiceUnauthorizedException("Токен доступа недействительный, повторите попытку");
         } catch (HttpClientErrorException exception) {
             throw new HttpClientErrorException(exception.getStatusCode(), "Ошибка при обращении к сервису сообщений: " + exception.getResponseBodyAsString());
         }

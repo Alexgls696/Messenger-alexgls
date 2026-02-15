@@ -1,10 +1,13 @@
 package ru.alexgls.springboot.usersmessagingservice.client;
 
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import ru.alexgls.springboot.usersmessagingservice.dto.JwtValidationRequest;
 import ru.alexgls.springboot.usersmessagingservice.dto.JwtValidationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestClient;
+import ru.alexgls.springboot.usersmessagingservice.exception.ServiceUnauthorizedException;
 
 
 @RequiredArgsConstructor
@@ -21,9 +24,8 @@ public class AuthServiceClientImpl implements AuthServiceClient {
                     .body(new JwtValidationRequest(token))
                     .retrieve()
                     .body(JwtValidationResponse.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (HttpClientErrorException.Unauthorized exception) {
+            throw new ServiceUnauthorizedException("Токен доступа недействителен");
         }
     }
 
@@ -36,9 +38,8 @@ public class AuthServiceClientImpl implements AuthServiceClient {
                     .header("Authorization", "Bearer " + token)
                     .retrieve()
                     .body(String.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (HttpClientErrorException.Unauthorized exception) {
+            throw new ServiceUnauthorizedException("Токен доступа недействителен");
         }
     }
 }

@@ -293,28 +293,33 @@
 /* --- 6. ПРЕВЬЮ ПЕРЕД ОТПРАВКОЙ --- */
 
 .attachment-preview-container {
-    padding: 10px;
+    padding: 10px 15px;
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 10px;
-    background: var(--surface-secondary);
+    gap: 12px;
+    background: var(--bg-secondary); /* Чуть темнее основного фона */
     border-top: 1px solid var(--border-primary);
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .attachment-preview-item {
     position: relative;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: var(--surface-primary);
     border: 1px solid var(--border-primary);
-    box-shadow: 0 1px 3px var(--shadow-primary);
+    box-shadow: 0 2px 5px var(--shadow-primary);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
 }
 
+/* Стили для ПРЕВЬЮ ИЗОБРАЖЕНИЯ */
 .attachment-preview-item.is-image {
     width: 80px;
     height: 80px;
     overflow: hidden;
-    padding: 0;
 }
 
 .attachment-preview-item.is-image img {
@@ -323,11 +328,84 @@
     object-fit: cover;
 }
 
+/* Стили для ПРЕВЬЮ ФАЙЛА/ДОКУМЕНТА */
 .attachment-preview-item.is-file {
-    padding: 8px 12px;
+    padding: 10px 12px;
+    min-width: 150px;
+    max-width: 220px;
+    gap: 6px;
+}
+
+.file-preview-info {
     display: flex;
-    flex-direction: column;
-    max-width: 200px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.file-preview-info .file-icon {
+    font-size: 1.4em;
+    flex-shrink: 0;
+}
+
+.file-preview-info span {
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+/* Чекбокс анализа */
+.analyse-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.analyse-checkbox-wrapper input {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+}
+
+/* КНОПКА УДАЛЕНИЯ (Крестик в углу) */
+.attachment-preview-item .remove-attachment-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--text-secondary);
+    color: var(--surface-primary);
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    padding: 0;
+}
+
+.attachment-preview-item .remove-attachment-btn:hover {
+    background-color: var(--accent-negative);
+    transform: scale(1.1);
+}
+
+.attachment-preview-item.is-error {
+    border-color: var(--accent-negative);
 }
 
 /* --- 7. АДАПТИВНОСТЬ (ЛОГИКА ЧАТА) --- */

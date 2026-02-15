@@ -7,6 +7,8 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
     const stompClient = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
 
+
+
     // Используем рефы для обработчиков, чтобы избежать замыканий
     const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent });
     useEffect(() => {
@@ -19,10 +21,14 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
 
         const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`);
         const client = Stomp.over(socket);
+        client.heartbeat.outgoing = 10000;
+        client.heartbeat.incoming = 10000;
         client.debug = null;
 
         client.connect({}, () => {
+            console.log('Connected')
             setIsConnected(true);
+
 
             client.subscribe('/user/queue/messages', (m) =>
                 refs.current.onMessageReceived(JSON.parse(m.body))
@@ -50,7 +56,34 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
         };
     }, [url]);
 
-    // ФУНКЦИЯ ОТПРАВКИ (проверьте имя!)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            // Если пользователь открыл вкладку/разблокировал экран
+            if (document.visibilityState === 'visible') {
+                console.log("Вкладка активна, проверка соединения...");
+
+                // Проверяем, жива ли сессия
+                if (!stompClient.current || !stompClient.current.connected) {
+                    console.log("Соединение потеряно после сна, переподключаюсь...");
+                    connect();
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleVisibilityChange);
+        };
+    }, []);
+
+    useEffect(() => {
+        window.addEventListener('online', connect);
+        return () => window.removeEventListener('online', connect);
+    }, []);
+
     const sendMessage = (payload) => {
         if (stompClient.current && isConnected) {
             stompClient.current.send("/app/chat.send", {}, JSON.stringify(payload));

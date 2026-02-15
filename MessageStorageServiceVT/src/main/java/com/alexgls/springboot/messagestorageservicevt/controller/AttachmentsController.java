@@ -34,6 +34,7 @@ public class AttachmentsController {
         }
 
         int currentUserId = getSenderId(auth);
+
         return attachmentService.findAllByMediaTypeAndChatId(mediaType, chatId, currentUserId);
     }
 }

@@ -1,6 +1,7 @@
 package com.alexgls.springboot.searchdataservice.client;
 
 import com.alexgls.springboot.searchdataservice.dto.GetUserDto;
+import com.alexgls.springboot.searchdataservice.exception_handling.ServiceUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +41,10 @@ public class AuthServiceRestClientImpl implements AuthServiceRestClient {
                     .body(ids)
                     .retrieve()
                     .body(PARAMETERIZED_TYPE_REFERENCE);
-        } catch (HttpClientErrorException exception) {
+        } catch (HttpClientErrorException.Unauthorized exception) {
+            throw new ServiceUnauthorizedException("Токен доступа недействительный, повторите попытку");
+        }
+        catch (HttpClientErrorException exception) {
             throw new HttpClientErrorException(exception.getStatusCode(), "Ошибка при обращении к сервису пользователей: " + exception.getResponseBodyAsString());
         }
     }

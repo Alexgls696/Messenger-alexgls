@@ -1,5 +1,10 @@
 package ru.alexgls.springboot.usersmessagingservice.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import ru.alexgls.springboot.usersmessagingservice.client.AuthServiceClient;
 
 import lombok.RequiredArgsConstructor;
@@ -9,28 +14,46 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-
-
-
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${frontend.cors-address-list}")
+    private String[] corsAddressList;
 
     private final AuthServiceClient authServiceClient;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue", "/topic");
+        // 1. Создаем планировщик вручную
+        ThreadPoolTaskScheduler timer = new ThreadPoolTaskScheduler();
+        timer.setThreadNamePrefix("ws-heartbeat-thread-");
+        timer.setPoolSize(1);
+
+        timer.initialize();
+
+        registry.enableSimpleBroker("/queue", "/topic")
+                .setHeartbeatValue(new long[]{10000, 10000}) // Пинги раз в 10 секунд
+                .setTaskScheduler(timer); // Передаем наш проинициализированный таймер
+
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
+    }
+
+    @Bean
+    public TaskScheduler heartbeatTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setThreadNamePrefix("ws-heartbeat-thread-");
+        scheduler.setPoolSize(1);
+        scheduler.initialize();
+        return scheduler;
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("https://localhost:8090", "https://192.168.0.103:8090","http://localhost:5173")
+                .setAllowedOriginPatterns(corsAddressList)
                 .addInterceptors(new JwtHandshakeInterceptor(authServiceClient))
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();

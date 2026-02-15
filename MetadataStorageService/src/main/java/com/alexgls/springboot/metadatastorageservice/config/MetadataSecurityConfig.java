@@ -1,21 +1,14 @@
-package ru.alexgls.springboot.config;
+package com.alexgls.springboot.metadatastorageservice.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,35 +18,18 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
-@Slf4j
-public class WebSecurityConfig {
-
+public class MetadataSecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
-
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/.well-known/jwks.json").permitAll()
-                        .requestMatchers("/health/**").permitAll()
-                        .requestMatchers("/auth/register").permitAll()
-                        .requestMatchers("/auth/validate").permitAll()
-                        .requestMatchers("/auth/refresh").permitAll()
-                        .requestMatchers("/api/users/exists").permitAll()
-                        .requestMatchers("/auth/services/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(server -> server.jwt(jwt -> jwt

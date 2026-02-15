@@ -1,5 +1,6 @@
 package com.alexgls.springboot.client;
 
+import com.alexgls.springboot.exception.ServiceUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
@@ -7,6 +8,7 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 
@@ -38,7 +40,9 @@ public class ContentAnalysisClientImpl implements ContentAnalysisClient {
                             .header("Authorization", "Bearer " + token)
                             .body(BodyInserters.fromMultipartData(builder.build()))
                             .retrieve()
-                            .bodyToMono(Void.class);
+                            .bodyToMono(Void.class)
+                            .onErrorResume(WebClientResponseException.Unauthorized.class,
+                                    ex -> Mono.error(()->new ServiceUnauthorizedException("Не удалось связаться с сервисом анализа данных. Токен недействителен")));
                 });
     }
 
