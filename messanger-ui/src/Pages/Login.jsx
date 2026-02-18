@@ -48,7 +48,7 @@ function Login() {
             }
         } catch (err) {
             console.error('Ошибка сети:', err);
-            setError(`Не удалось подключиться к серверу аутентификации. ${API_BASE_URL}`);
+            setError(`Не удалось подключиться к серверу. `);
         } finally {
             setIsLoading(false); // Выключаем режим загрузки
         }

@@ -33,7 +33,6 @@ import './Styles/auth.css';
 const API_BASE_URL = `https://${window.location.hostname}:8080`;
 
 function ChatPage() {
-    const navigate = useNavigate();
 
     // --- Состояние ---
     const [profile, setProfile] = useState(null);
@@ -61,31 +60,25 @@ function ChatPage() {
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
 
-
-
-
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5, // Громкость от 0 до 1
     });
 
     useEffect(() => {
         activeChatRef.current = activeChat;
-    }, [activeChat]);
+    }, [activeChat])
 
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
         const curActive = activeChatRef.current;
         const isMsgForActive = curActive?.chatId === newMsg.chatId;
 
-
         if (newMsg.senderId !== user.id) {
             playMessageSound();
         }
 
-        // 1. Обновляем список чатов (бейджи, последнее сообщение)
         chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);
 
-        // 2. Если чат открыт — отправляем в ChatWindow (добавляем метку времени для срабатывания useEffect)
         if (isMsgForActive) {
             setSocketUpdate({ ...newMsg, _ts: Date.now() });
         }
@@ -111,7 +104,6 @@ function ChatPage() {
         fetchInitialNotifications();
     }, []);
 
-
     const onNotificationReceived = useCallback((notification) => {
         setNotifications(prev => [notification, ...prev]);
         setUnreadNotificationsCount(prev => prev + 1);
@@ -128,7 +120,15 @@ function ChatPage() {
         }
     }, [unreadNotificationsCount]);
 
-
+    const handleRemoveAllNotifications = async () => {
+        const response = await apiFetch('/api/notifications/delete-all', {
+            method: 'DELETE'
+        })
+        console.log(response)
+        if (response.ok) {
+            setNotifications([]);
+        }
+    }
     const { sendMessage } = useChatWebSocket(
         API_BASE_URL,
         onMessageReceived,
@@ -137,7 +137,6 @@ function ChatPage() {
         onNotificationReceived
     );
 
-    // --- Логика прочтения ---
     const markMessagesAsRead = useCallback(async (messagesToRead) => {
         if (!messagesToRead.length) return;
 
@@ -204,7 +203,7 @@ function ChatPage() {
     // --- Вспомогательные функции ---
     const handleChatSelect = (chat) => {
         setActiveChat(chat);
-        setSocketUpdate(null); // Сбрасываем старые обновления
+        setSocketUpdate(null);
         setIsGroupProfileOpen(false);
         document.body.classList.add('chat-active');
     };
@@ -358,6 +357,7 @@ function ChatPage() {
                 notifications={notifications}
                 unreadCount={unreadNotificationsCount}
                 onNotificationOpen={markAllNotificationsAsRead}
+                onDeleteAllNotificationsClick={handleRemoveAllNotifications}
             />
 
             <main className="chat-wrapper">

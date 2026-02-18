@@ -18,6 +18,3 @@ frontend:
 services:
   auth-service: http://localhost:8085
 
-logging:
-  level:
-    org.springframework.security: DEBUG

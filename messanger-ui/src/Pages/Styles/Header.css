@@ -88,6 +88,23 @@
     overflow: hidden;
 }
 
+.remove-all {
+    border-top: 4px solid var(--surface-primary);
+    margin: 0 0 0 0;
+}
+
+.remove-all p {
+    text-align: center;
+    margin: 0 0 0 0;
+    color: var(--text-primary);
+    text-decoration: underline;
+}
+
+.remove-all p:hover {
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
 .notification-dropdown-header {
     padding: 12px 15px;
     font-weight: bold;

@@ -164,15 +164,16 @@ public class MessagesService {
     }
 
 
+    @Transactional
     public MessageDto saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
         CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
                 null, "service");
-        return this.save(createMessagePayload);
+        return save(createMessagePayload);
     }
 
     private MessageDto savePublicGroupMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
         MessageDto dto = createMessageDto(createMessagePayload, savedMessage);
-        List<Integer> participants = participantsRepository.findUserIdsByChatId(dto.getChatId());
+        List<Integer> participants = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted(dto.getChatId());
         dto.setRecipientIds(participants);
         return dto;
     }
@@ -181,7 +182,6 @@ public class MessagesService {
     protected MessageDto savePrivateChatMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
         Integer recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
                 .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
-
         savedMessage.setRecipientId(recipientId);
         return createMessageDto(createMessagePayload, savedMessage);
     }

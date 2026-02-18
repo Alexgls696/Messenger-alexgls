@@ -4,64 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами.&#10;&#10;Залит звук сообщения">
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/config/KafkaConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/CreateNotificationRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/NotificationType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/KafkaSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/config/KafkaConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/config/NotificationsSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/controller/NotificationsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/dto/CreateNotificationRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/dto/NotificationDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/dto/UserNotificationDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/entity/Notification.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/entity/NotificationType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/entity/UserNotification.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/entity/UserNotificationId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/mapper/NotificationMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/NotificationsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/UserNotificationsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/service/KafkaSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/service/NotificationsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/util/SecurityUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/changeset/initialization.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/messages.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/NotificationsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/notifications/NotificationDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/notifications/NotificationToUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/notifications/UserNotificationDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Удален target AuthService из кеша git">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UserRolesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UserRolesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/config/WebSecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/config/WebSecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/JwkSetController.class" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/target/classes/ru/alexgls/springboot/controller/JwkSetController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/KafkaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/KafkaConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessageStorageServiceKafkaListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessageStorageServiceKafkaListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/ChatMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/CreateMessagePayload.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/MessageDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/MessageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/MessageType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/MessagingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/MessagingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/controller/NotificationsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/controller/NotificationsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/NotificationsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/NotificationsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/UserNotificationsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/repository/UserNotificationsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/service/NotificationsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/service/NotificationsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/UsersProfile.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/UsersProfile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/dateUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/dateUtils.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +123,7 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -556,7 +522,7 @@
       <workItem from="1771152591699" duration="15409000" />
       <workItem from="1771260114953" duration="2585000" />
       <workItem from="1771313493211" duration="9420000" />
-      <workItem from="1771402195573" duration="13005000" />
+      <workItem from="1771402195573" duration="23874000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -862,7 +828,31 @@
       <option name="project" value="LOCAL" />
       <updated>1771260141007</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте">
+      <option name="closed" value="true" />
+      <created>1771415397968</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1771415397968</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте">
+      <option name="closed" value="true" />
+      <created>1771415639673</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1771415639673</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Удален target AuthService из кеша git">
+      <option name="closed" value="true" />
+      <created>1771415908199</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1771415908199</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -880,9 +870,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлен сервис поиска, поиск пользователей, исправлены стили для мобильной версии." />
-    <MESSAGE value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным." />
-    <MESSAGE value="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания" />
     <MESSAGE value="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService" />
     <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
     <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
@@ -905,7 +892,10 @@
     <MESSAGE value="Полностью переписано на React клиентское приложение, временно убраны сертификаты SSL (HTTPS), добавлен список людей в поиске, с которыми пользователь когда-либо общался" />
     <MESSAGE value="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами." />
     <MESSAGE value="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами.&#10;&#10;Залит звук сообщения" />
-    <option name="LAST_COMMIT_MESSAGE" value="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами.&#10;&#10;Залит звук сообщения" />
+    <MESSAGE value="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
+    <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
+    <MESSAGE value="Удален target AuthService из кеша git" />
+    <option name="LAST_COMMIT_MESSAGE" value="Удален target AuthService из кеша git" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

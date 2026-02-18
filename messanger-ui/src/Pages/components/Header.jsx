@@ -5,8 +5,9 @@ import NotificationItem from './NotificationItem'
 import '../Styles/Header.css';
 
 import defaultProfile from '../images/profile-default.png'
+import { apiFetch } from '../utils/apiClient';
 
-function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick, onProfileClick, notifications, unreadCount, onNotificationOpen }) {
+function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick, onProfileClick, notifications, unreadCount, onNotificationOpen, onDeleteAllNotificationsClick }) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
@@ -43,13 +44,13 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                 setIsMobileMenuOpen(false);
             }
             if (isNotificationMenuOpen && notificationMenuRef.current && !notificationMenuRef.current.contains(event.target)) {
-                console.log('close')
-                setIsNotificationMenuOpen(false);
+                //setIsNotificationMenuOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isSettingsOpen, isMobileMenuOpen, isNotificationMenuOpen]);
+
 
     const handleToggleNotifications = () => {
         const isOpening = !isNotificationMenuOpen;
@@ -108,6 +109,11 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                                         <p className="placeholder">Уведомлений нет</p>
                                     )}
                                 </div>
+                                {notifications.length !== 0 && (
+                                    <div className='remove-all'>
+                                        <p onClick={onDeleteAllNotificationsClick}>Удалить все</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -161,6 +167,11 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                                         <p className="placeholder" style={{ padding: '20px' }}>Уведомлений нет</p>
                                     )}
                                 </div>
+                                {notifications.length !== 0 && (
+                                    <div className='remove-all'>
+                                        <p onClick={onDeleteAllNotificationsClick}>Удалить все</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -33,7 +33,7 @@ public class NotificationsService {
                 .map(notification -> {
                     boolean isRead = notification.getUserNotifications()
                             .stream()
-                            .anyMatch(un->un.getId().getUserId() == userId && un.isRead());
+                            .anyMatch(un -> un.getId().getUserId() == userId && un.isRead());
                     return NotificationDto.builder()
                             .id(notification.getId())
                             .title(notification.getTitle())
@@ -110,5 +110,10 @@ public class NotificationsService {
     @Transactional
     public void readOneNotification(int notificationId, int userId) {
         userNotificationsRepository.readByNotificationId(notificationId, userId);
+    }
+
+    @Transactional
+    public void deleteAllByUserId(int id) {
+        userNotificationsRepository.deleteAllByIdUserId(id);
     }
 }

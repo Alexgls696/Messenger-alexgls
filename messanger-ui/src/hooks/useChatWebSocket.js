@@ -61,11 +61,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
 
     useEffect(() => {
         const handleVisibilityChange = () => {
-            // Если пользователь открыл вкладку/разблокировал экран
             if (document.visibilityState === 'visible') {
-                console.log("Вкладка активна, проверка соединения...");
-
-                // Проверяем, жива ли сессия
                 if (!stompClient.current || !stompClient.current.connected) {
                     console.log("Соединение потеряно после сна, переподключаюсь...");
                     connect();

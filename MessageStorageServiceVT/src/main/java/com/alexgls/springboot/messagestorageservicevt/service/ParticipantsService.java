@@ -11,14 +11,20 @@ import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.RemoveUserServiceMessage;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.common.TemporalUnit;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +46,10 @@ public class ParticipantsService {
         var participants = participantsRepository.findAllByChatId(chatId);
         Map<Integer, Participants> participantsMap = participants.stream()
                 .collect(Collectors.toMap(Participants::getUserId, (participant -> participant)));
+        var currentUser = participantsMap.get(currentUserId);
+        if(Objects.isNull(currentUser)) {
+            throw new AccessDeniedException("У вас нет доступа для выполнения данной операции");
+        }
         List<GetUserDto> unsortedUsers = authRestClient.findAllUsers(participantsMap.keySet(), token)
                 .stream()
                 .map(user -> new GetUserDto(user.id(), user.name(), user.surname(), user.username(), ChatRole.getTranslate(participantsMap.get(user.id()).getRole())))
@@ -103,7 +113,7 @@ public class ParticipantsService {
                 throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
             }
         }
-        participantsRepository.removingUserFromGroupByChatIdAndUserId(chatId, removingUserId);
+        participantsRepository.removingUserFromGroupByChatIdAndUserId(chatId, removingUserId, Timestamp.from(Instant.now().plus(Duration.ofSeconds(1))));
     }
 
     protected ServiceMessage generateRemovingMessageContent(int removingUserId, int actorId, String token) {

@@ -20,4 +20,8 @@ public interface UserNotificationsRepository extends CrudRepository<UserNotifica
     @Modifying
     @Query("update UserNotification set read = true where id.userId = :userId and id.notificationId = :notificationId")
     void readByNotificationId(@Param("notificationId") long notificationId, @Param("userId") int userId);
+
+    @Modifying
+    @Query("delete from UserNotification where id.userId =:userId")
+    void deleteAllByIdUserId(@Param("userId") int userId);
 }

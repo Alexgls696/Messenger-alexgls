@@ -23,6 +23,10 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     const prevScrollHeightRef = useRef(0);
     const isInitialLoad = useRef(true);
 
+    const inputTextRef = useRef(null);
+
+    const [isForbidden, setIsForbidden] = useState(false);
+
     const fetchMessages = useCallback(async (chatId, pageNum, signal) => {
         try {
             const data = await apiFetch(`/api/messages?chatId=${chatId}&page=${pageNum}&pageSize=${PAGE_SIZE}`, { signal });
@@ -34,7 +38,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         }
     }, []);
 
-    // 1. Сброс и первичная загрузка при смене чата
     useEffect(() => {
         if (!activeChat) return;
         const controller = new AbortController();
@@ -47,6 +50,10 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
             isInitialLoad.current = true;
             setRecipientId(null);
 
+            // ИЗМЕНЕНИЕ: Сбрасываем блокировку при переключении чата
+            setIsForbidden(false);
+            setInputText('');
+
             try {
                 if (activeChat.group) {
                     setChatDetails({ title: activeChat.name, isGroup: true });
@@ -56,10 +63,22 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     setRecipientId(recipient.id);
                 }
 
-                const participants = await apiFetch(`/api/chats/${activeChat.chatId}/participants`);
-                participants.forEach(p => {
-                    participantCache[p.id] = `${p.name} ${p.surname}`;
-                });
+                try {
+                    const participants = await apiFetch(`/api/chats/${activeChat.chatId}/participants`, { signal: controller.signal });
+
+                    // Если запрос успешен, наполняем кеш
+                    participants.forEach(p => {
+                        participantCache[p.id] = `${p.name} ${p.surname}`;
+                    });
+                } catch (error) {
+                    if (error.status === 403) {
+                        setIsForbidden(true);
+                        setInputText('Вы не состоите в данном чате❗');
+                        setIsLoading(false);
+                        // Прерываем выполнение, сообщения грузить не нужно
+                    }
+                    //throw error; // Пробрасываем остальные ошибки в внешний catch
+                }
 
                 const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, 0, controller.signal);
 
@@ -69,7 +88,10 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     setPage(1);
                 }
             } catch (e) {
-                if (!controller.signal.aborted) setChatDetails({ title: 'Ошибка', isGroup: false });
+                if (!controller.signal.aborted) {
+                    console.error("Chat init error:", e);
+                    setChatDetails({ title: 'Ошибка', isGroup: false });
+                }
             } finally {
                 if (!controller.signal.aborted) setIsLoading(false);
             }
@@ -132,7 +154,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     //WebSocket---------------------------------------------------------
 
     useEffect(() => {
-        // ЗАЩИТА: Если чат закрыт или обновления нет — выходим
         if (!activeChat || !socketUpdate) return;
 
         if (socketUpdate.chatId === activeChat.chatId) {
@@ -227,6 +248,9 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     // --- ОТПРАВКА СООБЩЕНИЯ ---
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+
+        if (isForbidden) return;
+
         const content = inputText.trim();
         const filesToSend = [...pendingFiles];
 
@@ -378,7 +402,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
             </div>
 
             {/* ПРЕВЬЮ ВЛОЖЕНИЙ */}
-            {pendingFiles.length > 0 && (
+            {!isForbidden && pendingFiles.length > 0 && (
                 <div className="attachment-preview-container">
                     {pendingFiles.map(f => (
                         <div key={f.tempId} className={`attachment-preview-item ${f.previewUrl ? 'is-image' : 'is-file'}`}>
@@ -408,17 +432,23 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
             )}
 
             <form className="message-form" onSubmit={handleFormSubmit}>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    hidden
-                    multiple
-                />
-                <button type="button" className="attach-btn" onClick={() => fileInputRef.current.click()}>📎</button>
-                <textarea
+                {!isForbidden && (
+                    <>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            hidden
+                            multiple></input>
+                        <button type="button" className="attach-btn" onClick={() => fileInputRef.current.click()} disabled={isForbidden}>📎</button>
+                    </>
+                )}
+
+                <textarea ref={inputTextRef}
                     className="message-input"
                     value={inputText}
+                    readOnly={isForbidden}
+                    disabled={isForbidden}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -428,7 +458,12 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     }}
                     placeholder="Введите сообщение..."
                 />
-                <button type="submit" className="send-btn">Отправить</button>
+                {!isForbidden && (
+                    < button type="submit" className="send-btn" disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0)}>
+                        Отправить
+                    </button>
+                )}
+
             </form>
         </section>
     );

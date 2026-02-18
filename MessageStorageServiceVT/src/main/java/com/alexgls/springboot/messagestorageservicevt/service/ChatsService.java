@@ -52,16 +52,12 @@ public class ChatsService {
         List<ChatDto> result = new ArrayList<>();
         for (ChatWithUnread chatWithUnread : chats.getContent()) {
             ChatDto chatDto = ChatMapper.toDto(chatWithUnread.chat());
-            Message message = chatWithUnread.chat().getLastMessage();
-            if (!Objects.isNull(message)) {
-                Optional<Message> lastMessageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chatDto.getChatId(), userId);
-                if (lastMessageOptional.isPresent()) {
-                    Message lastMessage = lastMessageOptional.get();
-                    MessageDto lastMessageDto = MessageMapper.toMessageDto(lastMessage);
-                    lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
-                    chatDto.setLastMessage(lastMessageDto);
-                }
+            Optional<Message> messageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chatWithUnread.chat().getId(), userId);
+            if (messageOptional.isPresent()) {
+                Message message = messageOptional.get();
+                setLastMessageToChatDto(message, chatDto);
             }
+
             chatDto.setNumberOfUnreadMessages(chatWithUnread.unreadCount());
             result.add(chatDto);
         }
@@ -74,7 +70,13 @@ public class ChatsService {
         if (existingChatId.isPresent()) {
             Chat chat = chatsRepository.findById(existingChatId.get())
                     .orElseThrow(() -> new NoSuchUsersChatException("Чат с заданным id не найден"));
-            return ChatMapper.toDto(chat);
+            var chatDto = ChatMapper.toDto(chat);
+            Optional<Message> messageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chat.getId(), senderId);
+            if (messageOptional.isPresent()) {
+                Message message = messageOptional.get();
+                setLastMessageToChatDto(message, chatDto);
+            }
+            return chatDto;
         } else {
             Chat chat = new Chat();
             chat.setType("PRIVATE");
@@ -98,6 +100,15 @@ public class ChatsService {
             return ChatMapper.toDto(savedChat);
         }
     }
+
+    private void setLastMessageToChatDto(Message message, ChatDto chatDto) {
+        if (!Objects.isNull(message)) {
+            MessageDto lastMessageDto = MessageMapper.toMessageDto(message);
+            lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
+            chatDto.setLastMessage(lastMessageDto);
+        }
+    }
+
 
     @Transactional
     public ChatDto createGroup(CreateGroupDto createGroupDto, int creatorId) {
@@ -165,7 +176,7 @@ public class ChatsService {
 
     public Integer findChatIdByRecipientId(int recipientId, int myId) {
         return chatsRepository.findChatIdByUserId(recipientId, myId)
-                .orElseThrow(()->new NoSuchUsersChatException("Чат не найден"));
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
     }
 
     public GroupAccessDto getUserRightsByGroupId(long groupId, int userId) {

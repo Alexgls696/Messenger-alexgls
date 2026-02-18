@@ -14,9 +14,19 @@
     gap: 25px;
     padding: 25px;
 }
-.user-profile-body::-webkit-scrollbar { width: 6px; }
-.user-profile-body::-webkit-scrollbar-thumb { background-color: var(--border-primary); border-radius: 3px; }
-.user-profile-body::-webkit-scrollbar-track { background-color: var(--bg-secondary); }
+
+.user-profile-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-profile-body::-webkit-scrollbar-thumb {
+    background-color: var(--border-primary);
+    border-radius: 3px;
+}
+
+.user-profile-body::-webkit-scrollbar-track {
+    background-color: var(--bg-secondary);
+}
 
 /* --- Секция с информацией о профиле --- */
 .profile-header {
@@ -25,6 +35,7 @@
     gap: 20px;
     flex-shrink: 0;
 }
+
 .profile-avatar {
     width: 100px;
     height: 100px;
@@ -33,15 +44,18 @@
     border: 3px solid var(--surface-primary);
     box-shadow: 0 2px 8px var(--shadow-primary);
 }
+
 .profile-details {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
+
 .profile-info-item {
     font-size: 1em;
     color: var(--text-secondary);
 }
+
 .profile-info-item strong {
     color: var(--text-primary);
     margin-right: 8px;
@@ -50,12 +64,15 @@
 .photos-section,
 .attachments-section {
     padding-top: 20px;
-    margin-bottom: 10px; /* Добавляем отступ между секциями */
+    margin-bottom: 10px;
+    /* Добавляем отступ между секциями */
     border-top: 1px solid var(--border-secondary);
     width: 100%;
-    position: relative; /* Создаем контекст наслоения */
+    position: relative;
+    /* Создаем контекст наслоения */
     display: block;
 }
+
 .profile-section-title {
     font-size: 1.2em;
     font-weight: 600;
@@ -68,7 +85,8 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
     width: 100%;
-    margin-bottom: 20px; /* Отступ до следующей секции */
+    margin-bottom: 20px;
+    /* Отступ до следующей секции */
 }
 
 .profile-image-item {
@@ -77,10 +95,11 @@
     padding-top: 100%;
     background-color: var(--surface-secondary);
     border-radius: 8px;
-    overflow: hidden; 
+    overflow: hidden;
     cursor: pointer;
-    z-index: 1; 
+    z-index: 1;
 }
+
 .profile-image-item .skeleton,
 .profile-image-item img {
     position: absolute;
@@ -89,8 +108,9 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block; 
+    display: block;
 }
+
 /* --- Вкладки для переключения вложений --- */
 .attachments-tabs {
     display: flex;
@@ -98,11 +118,12 @@
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border-primary);
     padding-bottom: 10px;
-    
-    position: sticky; 
+
+    position: sticky;
     top: 0;
-    z-index: 10; 
-    background-color: var(--surface-primary); /* Обязательно фон, чтобы под кнопками не просвечивали фото */
+    z-index: 10;
+    background-color: var(--surface-primary);
+    /* Обязательно фон, чтобы под кнопками не просвечивали фото */
 }
 
 .attachments-tabs .tab-btn {
@@ -115,10 +136,12 @@
     border-radius: 6px;
     transition: all 0.2s ease;
 }
+
 .attachments-tabs .tab-btn:hover {
     background-color: var(--surface-secondary);
     color: var(--text-primary);
 }
+
 .attachments-tabs .tab-btn.active {
     background-color: var(--accent-primary);
     color: var(--text-on-accent);
@@ -140,40 +163,48 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
 }
+
 .attachments-list {
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Расстояние между файлами в списке */
+    gap: 12px;
+    /* Расстояние между файлами в списке */
 }
 
 .attachment-list-item {
     display: flex;
-    align-items: center; /* Выравниваем все по вертикальному центру */
-    justify-content: space-between; /* Раскидываем элементы по краям */
+    align-items: center;
+    /* Выравниваем все по вертикальному центру */
+    justify-content: space-between;
+    /* Раскидываем элементы по краям */
     padding: 12px 15px;
     border-radius: 8px;
     background-color: var(--surface-secondary);
     border: 1px solid var(--border-secondary);
-    position: relative; /* Нужно для позиционирования иконки AI */
+    position: relative;
+    /* Нужно для позиционирования иконки AI */
 }
 
 /* Контейнер для имени файла (слева) */
-.attachment-list-item > span {
+.attachment-list-item>span {
     font-weight: 500;
     color: var(--text-primary);
     /* Ограничиваем длинные имена файлов */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 10px; /* Отступ от правых элементов */
+    padding-right: 10px;
+    /* Отступ от правых элементов */
 }
 
 /* Контейнер для кнопок (справа) */
 .attachment-list-item .file-actions {
     display: flex;
     align-items: center;
-    gap: 15px; /* Расстояние между иконкой AI и кнопкой "Скачать" */
-    flex-shrink: 0; /* Запрещаем этому блоку сжиматься */
+    gap: 15px;
+    /* Расстояние между иконкой AI и кнопкой "Скачать" */
+    flex-shrink: 0;
+    /* Запрещаем этому блоку сжиматься */
 }
 
 /* Ссылка "Скачать" */
@@ -201,7 +232,8 @@
     position: absolute;
     bottom: 5px;
     right: 5px;
-    width: 24px; /* Немного увеличим для лучшей видимости */
+    width: 24px;
+    /* Немного увеличим для лучшей видимости */
     height: 24px;
     border-radius: 50%;
 
@@ -211,7 +243,8 @@
 
     font-size: 11px;
     font-weight: bold;
-    color: white; /* Текст "AI" всегда белый */
+    color: white;
+    /* Текст "AI" всегда белый */
 
     cursor: pointer;
     z-index: 1;
@@ -228,7 +261,8 @@
 
 #attachment-tooltip {
     position: absolute;
-    z-index: 3000; /* Выше модального окна */
+    z-index: 3000;
+    /* Выше модального окна */
     max-width: 300px;
     padding: 10px;
     background-color: var(--surface-primary);
@@ -248,4 +282,11 @@
 #attachment-tooltip.visible {
     opacity: 1;
     visibility: visible;
+}
+
+
+@media (max-width: 768px) {
+    .attachments-list {
+        width: 100%;
+    }
 }

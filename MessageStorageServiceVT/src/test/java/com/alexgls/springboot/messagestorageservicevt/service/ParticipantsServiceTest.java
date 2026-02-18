@@ -348,7 +348,7 @@ class ParticipantsServiceTest {
         verify(participantsRepository).findByChatIdAndUserId(chatId, actorId);
         verify(messagesService).saveServiceMessage(any(), eq(chatId), eq(actorId));
         verify(participantsRepository).findByChatIdAndUserId(chatId, removingUser);
-        verify(participantsRepository).removingUserFromGroupByChatIdAndUserId(chatId, removingUser);
+        verify(participantsRepository).removingUserFromGroupByChatIdAndUserId(chatId, removingUser, Timestamp.from(Instant.now()));
         verify(kafkaSenderService).sendMessage(any(MessageDto.class));
     }
 
@@ -391,7 +391,7 @@ class ParticipantsServiceTest {
         verify(participantsRepository).findByChatIdAndUserId(chatId, actorId);
         verify(messagesService).saveServiceMessage(any(), eq(chatId), eq(actorId));
         verify(participantsRepository).findByChatIdAndUserId(chatId, removingUser);
-        verify(participantsRepository).removingUserFromGroupByChatIdAndUserId(chatId, removingUser);
+        verify(participantsRepository).removingUserFromGroupByChatIdAndUserId(chatId, removingUser,  Timestamp.from(Instant.now()));
         verify(kafkaSenderService).sendMessage(any(MessageDto.class));
     }
 

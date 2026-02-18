@@ -38,12 +38,6 @@ public class NotificationsController {
         return notificationsService.findUnreadCountForUser(id);
     }
 
-    /*@PostMapping
-    public NotificationDto addNotification(@RequestBody CreateNotificationRequest createNotificationRequest) {
-        log.info("Add notification {}", createNotificationRequest);
-        return notificationsService.save(createNotificationRequest);
-    }*/
-
     @KafkaListener(topics = "create-notifications-topic", groupId = "notifications-consumer", containerFactory = "notificationsKafkaListenerContainerFactory")
     public void asyncAddNotification(CreateNotificationRequest createNotificationRequest) {
         log.info("Add notification {} from kafka", createNotificationRequest);
@@ -62,5 +56,12 @@ public class NotificationsController {
         int id = SecurityUtils.getSenderId(authentication);
         log.info("Read all notifications by user id {}", id);
         notificationsService.readAllNotifications(id);
+    }
+
+    @DeleteMapping("/delete-all")
+    public void deleteNotifications(Authentication authentication) {
+        int id = SecurityUtils.getSenderId(authentication);
+        log.info("Delete all notifications by user id {}", id);
+        notificationsService.deleteAllByUserId(id);
     }
 }

@@ -201,12 +201,12 @@ body[data-theme="dark"] .message.service {
 
 .message-input {
     flex: 1;
-    min-height: 4vh;
+    min-height: 2vh;
     padding: 10px 15px;
     border: 1px solid var(--border-primary);
     border-radius: 20px;
     outline: none;
-    font-size: 0.95em;
+    font-size: 1.2em;
     background-color: var(--surface-primary);
     color: var(--text-primary);
     transition: border-color 0.2s ease;
@@ -214,6 +214,11 @@ body[data-theme="dark"] .message.service {
 
 .message-input:focus {
     border-color: var(--accent-primary);
+}
+
+.message-input[readonly]{
+    background-color: var(--surface-secondary);
+    text-align: center;
 }
 
 .send-btn {

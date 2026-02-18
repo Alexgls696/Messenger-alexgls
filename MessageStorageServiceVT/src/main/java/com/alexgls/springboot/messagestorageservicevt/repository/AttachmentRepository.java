@@ -15,16 +15,23 @@ public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
 
     List<Attachment> findAllByMessageId(Long messageId);
 
-
     @Query("""
-             from Attachment
-             where logicType = :messageType and chatId =:chatId
-             and messageId not in (select dm.messageId from DeletedMessage dm where dm.userId = :userId)
-            """)
-    List<Attachment> findAllByLogicTypeAndChatId(@Param("messageType") MessageType messageType, @Param("chatId") long chatId, @Param("userId") int userId);
-
-    @Modifying
-    void deleteAllByMessageId(Long messageId);
+     select a from Attachment a
+     join Message m on a.messageId = m.id
+     join Participants p on p.chat.id = m.chatId
+     where a.logicType = :messageType
+     and a.chatId = :chatId
+     and p.userId = :userId
+     and a.messageId not in (
+         select dm.messageId from DeletedMessage dm where dm.userId = :userId
+     )
+     and m.createdAt <= COALESCE(p.removeAt, CURRENT_TIMESTAMP)
+    """)
+    List<Attachment> findAllByLogicTypeAndChatId(
+            @Param("messageType") MessageType messageType,
+            @Param("chatId") long chatId,
+            @Param("userId") int userId
+    );
 
     @Modifying
     void deleteAllByMessageIdIn(List<Long> messageIds);

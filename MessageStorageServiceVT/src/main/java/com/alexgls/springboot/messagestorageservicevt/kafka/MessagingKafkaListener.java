@@ -10,6 +10,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
 
+import java.util.Objects;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -21,11 +23,16 @@ public class MessagingKafkaListener {
 
     @KafkaListener(topics = "messaging-topic", groupId = "messaging-group", containerFactory = "kafkaCreateMessageListenerContainerFactory")
     public void listen(CreateMessagePayload createMessagePayload) {
-        log.info("Message received: {}", createMessagePayload);
         log.info("Starting message saving process in database...");
-        MessageDto savedMessageDto = messagingService.save(createMessagePayload);
-        log.info("Message has been successfully saved in database: {}", savedMessageDto);
-        kafkaSenderService.sendMessage(savedMessageDto);
+
+        try {
+            MessageDto savedMessageDto = messagingService.save(createMessagePayload);
+            log.info("Message has been successfully saved in database: {}", savedMessageDto);
+            kafkaSenderService.sendMessage(savedMessageDto);
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
+        }
+
     }
 
 }
