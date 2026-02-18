@@ -136,37 +136,8 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                     <h3>{userData?.name}</h3>
                 </div>
 
-                <div ref={mobileMenuRef} >
-                    <div className='mobile-header-right'>
-                        <button
-                            className="header-icon-btn find-user-btn"
-                            onClick={() => { isNotificationMenuOpen ? setIsNotificationMenuOpen(false) : setIsNotificationMenuOpen(true); }}
-                            title="Уведомления"
-                            style={{ marginLeft: '10px' }}
-                        >
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
-                        </button>
-                        <button className="header-icon-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                        </button>
-                    </div>
-                    {isMobileMenuOpen && (
-                        <div className="dropdown-menu" id="mobileDropdownMenu">
-                            <div className="dropdown-item" onClick={() => { onSearchClick(); setIsMobileMenuOpen(false); }}>
-                                🔍 Поиск людей
-                            </div>
-                            <div className="dropdown-item" onClick={() => { onCreateGroupClick(); setIsMobileMenuOpen(false); }}>
-                                ➕ Создать группу
-                            </div>
-                            <div className="dropdown-item" onClick={toggleTheme}>
-                                <span>{isDark ? '☀️' : '🌙'}</span> Сменить тему
-                            </div>
-                            <div className="dropdown-item danger" onClick={onLogout}>Выйти</div>
-                        </div>
-                    )}
+                <div className='mobile-header-right'>
+                    {/* КНОПКА УВЕДОМЛЕНИЙ (Мобильная) */}
                     <div ref={notificationMenuRef} className="notification-wrapper">
                         <button
                             className="header-icon-btn"
@@ -177,20 +148,45 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
-                            {/* КРАСНАЯ ТОЧКА */}
-                            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                            {unreadCount > 0 && <span className="notification-badge-header">{unreadCount}</span>}
                         </button>
 
                         {isNotificationMenuOpen && (
-                            <div className="notification-dropdown-menu">
+                            <div className="notification-dropdown-menu mobile-dropdown">
                                 <div className="notification-dropdown-header">Уведомления</div>
                                 <div className="notification-list-container">
                                     {notifications.length > 0 ? (
                                         notifications.map(n => <NotificationItem key={n.id} ntf={n} />)
                                     ) : (
-                                        <p className="placeholder">Уведомлений нет</p>
+                                        <p className="placeholder" style={{ padding: '20px' }}>Уведомлений нет</p>
                                     )}
                                 </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* КНОПКА МЕНЮ (Бургер) */}
+                    <div ref={mobileMenuRef} style={{ position: 'relative' }}>
+                        <button className="header-icon-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+
+                        {isMobileMenuOpen && (
+                            <div className="dropdown-menu" id="mobileDropdownMenu">
+                                <div className="dropdown-item" onClick={() => { onSearchClick(); setIsMobileMenuOpen(false); }}>
+                                    🔍 Поиск людей
+                                </div>
+                                <div className="dropdown-item" onClick={() => { onCreateGroupClick(); setIsMobileMenuOpen(false); }}>
+                                    ➕ Создать группу
+                                </div>
+                                <div className="dropdown-item" onClick={toggleTheme}>
+                                    <span>{isDark ? '☀️' : '🌙'}</span> Сменить тему
+                                </div>
+                                <div className="dropdown-item danger" onClick={onLogout}>Выйти</div>
                             </div>
                         )}
                     </div>
