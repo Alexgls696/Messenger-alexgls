@@ -1,9 +1,10 @@
-package ru.alexgls.springboot.usersmessagingservice.dto;
+package ru.alexgls.springboot.usersmessagingservice.dto.messages;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.alexgls.springboot.usersmessagingservice.dto.Attachment;
 
 import java.sql.Timestamp;
 import java.util.List;

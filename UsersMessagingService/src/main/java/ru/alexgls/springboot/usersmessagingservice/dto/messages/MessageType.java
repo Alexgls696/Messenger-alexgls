@@ -1,4 +1,4 @@
-package ru.alexgls.springboot.usersmessagingservice.dto;
+package ru.alexgls.springboot.usersmessagingservice.dto.messages;
 
 public enum MessageType {
     TEXT,

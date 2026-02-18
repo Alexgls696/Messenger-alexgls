@@ -26,5 +26,5 @@ public interface UserRolesRepository extends CrudRepository<Role, Integer> {
     @Query(value = "delete from users_roles ur where user_id = :userId", nativeQuery = true)
     void removeAllByUserId(@Param("userId") int userId);
 
-     Optional<Role> findRoleByName(String name);
+    Optional<Role> findRoleByName(String name);
 }

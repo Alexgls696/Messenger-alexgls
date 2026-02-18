@@ -1,11 +1,10 @@
 package ru.alexgls.springboot.usersmessagingservice.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import ru.alexgls.springboot.usersmessagingservice.dto.CreateMessagePayload;
+import ru.alexgls.springboot.usersmessagingservice.dto.*;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -14,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import ru.alexgls.springboot.usersmessagingservice.dto.DeleteMessageResponse;
-import ru.alexgls.springboot.usersmessagingservice.dto.MessageDto;
-import ru.alexgls.springboot.usersmessagingservice.dto.ReadMessagePayload;
+import ru.alexgls.springboot.usersmessagingservice.dto.messages.CreateMessagePayload;
+import ru.alexgls.springboot.usersmessagingservice.dto.messages.MessageDto;
+import ru.alexgls.springboot.usersmessagingservice.dto.notifications.NotificationDto;
 
 
 import java.util.HashMap;
@@ -114,6 +113,26 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, DeleteMessageResponse> kafkaDeleteMessagesConsumerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, DeleteMessageResponse> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deleteMessagesKafkaConsumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, NotificationDto> notificationsConsumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        JsonDeserializer<NotificationDto> deserializer = new JsonDeserializer<>(NotificationDto.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("/**");
+        deserializer.setUseTypeMapperForKey(true);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, NotificationDto> kafkaNotificationsConsumerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, NotificationDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(notificationsConsumerFactory());
         return factory;
     }
 }

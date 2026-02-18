@@ -10,7 +10,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative; /* Для абсолютного позиционирования центрального блока */
+    position: relative;
+    /* Для абсолютного позиционирования центрального блока */
     padding: 10px 0;
     margin-bottom: 15px;
     height: 60px;
@@ -43,10 +44,213 @@
     color: var(--text-primary);
 }
 
+
+
+
+.notification-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notification-badge-header {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: var(--accent-negative);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--surface-primary);
+    pointer-events: none;
+}
+
+/* Стили самого выпадающего списка (если не было) */
+.notification-dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 320px;
+    max-height: 400px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow-primary);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.notification-dropdown-header {
+    padding: 12px 15px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-secondary);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.notification-list-container {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Стили элемента уведомления */
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-secondary);
+    transition: background-color 0.2s;
+    cursor: default;
+}
+
+.notification-item:hover {
+    background-color: var(--surface-secondary);
+}
+
+.notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-time {
+    font-size: 0.75em;
+    color: var(--text-placeholder);
+}
+
+.notification-text {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.notification-link {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 0.85em;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.notification-link:hover {
+    text-decoration: underline;
+}
+
+/* Специфичные стили для типов (опционально) */
+.notification-item.system {
+    border-left: 3px solid #f1c40f;
+}
+
+.notification-item.invite {
+    border-left: 3px solid #2ecc71;
+}
+
+.unread-badge-mini {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: var(--accent-negative);
+    color: white;
+    font-size: 10px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border: 2px solid var(--surface-primary);
+}
+
+.notification-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 10px;
+}
+
+.notification-date {
+    font-size: 0.75em;
+    color: var(--text-placeholder);
+    white-space: nowrap;
+}
+
+.notification-dropdown-item {
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.notification-info {
+    flex-grow: 1;
+    min-width: 0;
+    /* Чтобы текст не распирал контейнер */
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-primary);
+    /* Обрезаем длинный заголовок в одну строку */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-text {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+
+    /* Ограничиваем текст уведомления, например, двумя строками */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
 /* --- 2. МОБИЛЬНАЯ ШАПКА (.mobile-header) --- */
 
 .mobile-header {
-    display: none; /* Скрыта на десктопе по умолчанию */
+    display: none;
+    /* Скрыта на десктопе по умолчанию */
     flex-shrink: 0;
     padding: 10px 15px;
     background-color: var(--surface-primary);
@@ -154,10 +358,21 @@
 
 @media (max-width: 768px) {
     .main-header {
-        display: none; /* Прячем десктопную */
+        display: none;
+        /* Прячем десктопную */
     }
 
     .mobile-header {
-        display: flex; /* Показываем мобильную */
+        display: flex;
+        /* Показываем мобильную */
+    }
+
+    .mobile-header-right {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .notification-dropdown-menu {
+        min-width: auto;
     }
 }

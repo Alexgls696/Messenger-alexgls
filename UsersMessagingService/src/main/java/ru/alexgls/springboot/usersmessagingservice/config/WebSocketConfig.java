@@ -3,7 +3,6 @@ package ru.alexgls.springboot.usersmessagingservice.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import ru.alexgls.springboot.usersmessagingservice.client.AuthServiceClient;
 

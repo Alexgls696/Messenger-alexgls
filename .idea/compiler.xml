@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="UsersMessagingService" />
+        <module name="NotificationsService" />
         <module name="SearchDataService" />
         <module name="ApiGatewayService" />
         <module name="AuthService" />
@@ -35,6 +36,7 @@
       <module name="MessageStorageService" options="-parameters" />
       <module name="MessageStorageServiceVT" options="-parameters" />
       <module name="MetadataStorageService" options="-parameters" />
+      <module name="NotificationsService" options="-parameters" />
       <module name="RatingLogClientApplication" options="-parameters" />
       <module name="RegistrationService" options="-parameters" />
       <module name="SearchDataService" options="-parameters" />

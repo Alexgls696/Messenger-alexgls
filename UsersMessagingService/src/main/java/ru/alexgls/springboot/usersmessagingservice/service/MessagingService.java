@@ -1,8 +1,8 @@
 package ru.alexgls.springboot.usersmessagingservice.service;
 
-import ru.alexgls.springboot.usersmessagingservice.dto.ChatMessage;
+import ru.alexgls.springboot.usersmessagingservice.dto.messages.ChatMessage;
 import ru.alexgls.springboot.usersmessagingservice.dto.CreateAttachmentPayload;
-import ru.alexgls.springboot.usersmessagingservice.dto.CreateMessagePayload;
+import ru.alexgls.springboot.usersmessagingservice.dto.messages.CreateMessagePayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

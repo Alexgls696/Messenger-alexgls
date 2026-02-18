@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import ru.alexgls.springboot.usersmessagingservice.dto.DeleteMessageResponse;
 import ru.alexgls.springboot.usersmessagingservice.dto.DeleteMessageResponseToUser;
-import ru.alexgls.springboot.usersmessagingservice.dto.MessageDto;
+import ru.alexgls.springboot.usersmessagingservice.dto.messages.MessageDto;
 import ru.alexgls.springboot.usersmessagingservice.dto.ReadMessagePayload;
 
 import java.util.List;
@@ -33,7 +33,11 @@ public class MessageStorageServiceKafkaListener {
                 messagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/messages", createdMessageDto);
             }
         }
+    }
 
+    @KafkaListener(topics = "notifications-topic", groupId = "notification-group-id")
+    public void listenNotifications(){
+        log.info("Notification received");
     }
 
     @KafkaListener(topics = "read-message-topic", groupId = "message-read-group", containerFactory = "kafkaReadMessagesConsumerFactory")

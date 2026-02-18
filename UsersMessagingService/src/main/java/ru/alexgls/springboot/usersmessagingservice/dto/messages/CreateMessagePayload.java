@@ -1,4 +1,6 @@
-package ru.alexgls.springboot.usersmessagingservice.dto;
+package ru.alexgls.springboot.usersmessagingservice.dto.messages;
+
+import ru.alexgls.springboot.usersmessagingservice.dto.CreateAttachmentPayload;
 
 import java.util.List;
 

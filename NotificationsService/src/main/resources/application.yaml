@@ -1,0 +1,18 @@
+server:
+  port: 8091
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5441/notifications_db
+    username: alexgls
+    password: AS04SERa1
+
+
+  kafka:
+    bootstrap-servers: localhost:29092
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8085/.well-known/jwks.json

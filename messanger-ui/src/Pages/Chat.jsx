@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo} from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
@@ -40,6 +40,8 @@ function ChatPage() {
     const [user, setUser] = useState(null);
     const [activeChat, setActiveChat] = useState(null);
     const [participantCache, setParticipantCache] = useState({});
+    const [notifications, setNotifications] = useState([]);
+    const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
     // Состояния модальных окон
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -60,10 +62,12 @@ function ChatPage() {
     const activeChatRef = useRef(null);
 
 
-     const [playNotification] = useSound(messageSound, { 
+
+
+    const [playMessageSound] = useSound(messageSound, {
         volume: 0.5, // Громкость от 0 до 1
     });
-    
+
     useEffect(() => {
         activeChatRef.current = activeChat;
     }, [activeChat]);
@@ -74,8 +78,8 @@ function ChatPage() {
         const isMsgForActive = curActive?.chatId === newMsg.chatId;
 
 
-         if (newMsg.senderId !== user.id) {
-            playNotification();
+        if (newMsg.senderId !== user.id) {
+            playMessageSound();
         }
 
         // 1. Обновляем список чатов (бейджи, последнее сообщение)
@@ -85,18 +89,52 @@ function ChatPage() {
         if (isMsgForActive) {
             setSocketUpdate({ ...newMsg, _ts: Date.now() });
         }
-    }, [user, playNotification]);
+    }, [user, playMessageSound]);
 
     const onDeleteEvent = useCallback((info) => {
         setDeleteEvent({ ...info, _ts: Date.now() });
     }, []);
 
+    useEffect(() => {
+        const fetchInitialNotifications = async () => {
+            try {
+                const [list, count] = await Promise.all([
+                    apiFetch('/api/notifications?page=0&size=10'),
+                    apiFetch('/api/notifications/unread-count')
+                ]);
+                setNotifications(list || []);
+                setUnreadNotificationsCount(count || 0);
+            } catch (e) {
+                console.error("Ошибка загрузки уведомлений", e);
+            }
+        };
+        fetchInitialNotifications();
+    }, []);
+
+
+    const onNotificationReceived = useCallback((notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        setUnreadNotificationsCount(prev => prev + 1);
+    }, []);
+
+
+    const markAllNotificationsAsRead = useCallback(async () => {
+        if (unreadNotificationsCount === 0) return;
+        try {
+            setUnreadNotificationsCount(0);
+            await apiFetch('/api/notifications/read-all', { method: 'POST' });
+        } catch (e) {
+            console.error("Не удалось отметить уведомления прочитанными", e);
+        }
+    }, [unreadNotificationsCount]);
+
 
     const { sendMessage } = useChatWebSocket(
         API_BASE_URL,
         onMessageReceived,
-        (info) => setReadEvent(info),
-        onDeleteEvent
+        setReadEvent,
+        onDeleteEvent,
+        onNotificationReceived
     );
 
     // --- Логика прочтения ---
@@ -317,6 +355,9 @@ function ChatPage() {
                 onCreateGroupClick={() => setIsCreateGroupOpen(true)}
                 onProfileClick={() => setIsProfileOpen(true)}
                 avatarId={profile?.avatarId}
+                notifications={notifications}
+                unreadCount={unreadNotificationsCount}
+                onNotificationOpen={markAllNotificationsAsRead}
             />
 
             <main className="chat-wrapper">

@@ -3,6 +3,7 @@ volumes:
   messaging_db_data:
   images_db_data:
   user-details-data:
+  notifications-data:
   redis_data:
   es_data:
     driver: local
@@ -39,6 +40,18 @@ services:
       - messaging_db_data:/var/lib/postgresql/data
     ports:
       - "5436:5432"
+
+  notifications-database:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_NOTIFICATIONS_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - notifications-data:/var/lib/postgresql/data
+    ports:
+      - "5441:5432"
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4

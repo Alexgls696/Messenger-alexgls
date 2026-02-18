@@ -3,16 +3,16 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient'
 
-export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent) => {
+export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived) => {
     const stompClient = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
 
 
 
     // Используем рефы для обработчиков, чтобы избежать замыканий
-    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent });
+    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived });
     useEffect(() => {
-        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent };
+        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived };
     });
 
     const connect = () => {
@@ -29,7 +29,6 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
             console.log('Connected')
             setIsConnected(true);
 
-
             client.subscribe('/user/queue/messages', (m) =>
                 refs.current.onMessageReceived(JSON.parse(m.body))
             );
@@ -38,6 +37,10 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
             );
             client.subscribe('/user/queue/delete-event', (m) =>
                 refs.current.onDeleteEvent(JSON.parse(m.body))
+            );
+
+            client.subscribe('/user/queue/notifications', (m) => refs.current.onNotificationReceived(JSON.parse(m.body))
+
             );
         }, async (error) => {
             setIsConnected(false);

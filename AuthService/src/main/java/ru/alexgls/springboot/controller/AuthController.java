@@ -17,9 +17,11 @@ import ru.alexgls.springboot.dto.*;
 import ru.alexgls.springboot.entity.RefreshToken;
 import ru.alexgls.springboot.entity.User;
 import ru.alexgls.springboot.exceptions.RefreshTokenNotFoundException;
+import ru.alexgls.springboot.service.KafkaSender;
 import ru.alexgls.springboot.service.RefreshTokenService;
 import ru.alexgls.springboot.service.UsersService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,9 @@ public class AuthController {
 
     private final JwtUtil jwtUtil;
     private final UsersService usersService;
+
+    private final KafkaSender kafkaSender;
+
     private final RefreshTokenService refreshTokenService;
 
     public record LoginRequest(String username, String password) {
@@ -107,6 +112,14 @@ public class AuthController {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
         JwtResponse jwtResponse = new JwtResponse(accessToken, refreshToken.getToken());
+        kafkaSender.send(CreateNotificationRequest.builder()
+                .title("В ваш аккаунт был выполнен вход")
+                .content("В ваш аккаунт был выполнен вход, смените пароль, если это не вы")
+                .users(List.of(user.getId()))
+                .imageId(null)
+                .metadata(null)
+                .notificationType(NotificationType.LOGIN)
+                .build());
         return ResponseEntity.ok(jwtResponse);
     }
 }
