@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
@@ -58,6 +59,8 @@ function ChatPage() {
 
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
+
+    const navigate = useNavigate();
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5, // Громкость от 0 до 1
@@ -123,7 +126,6 @@ function ChatPage() {
         const response = await apiFetch('/api/notifications/delete-all', {
             method: 'DELETE'
         })
-        console.log(response)
         if (response.ok) {
             setNotifications([]);
         }
@@ -186,7 +188,9 @@ function ChatPage() {
             .then(profData => setProfile(profData))
             .catch(err => {
                 console.error("Ошибка инициализации", err);
-                console.log(err.status)
+                if(err.status===404){
+                    navigate('/setup-profile')
+                }
                 logout();
             });
     }, []);

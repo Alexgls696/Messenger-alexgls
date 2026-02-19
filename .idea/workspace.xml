@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Удален target AuthService из кеша git">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="??Исправлено создание профиля после регистрации">
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -504,7 +503,7 @@
       <workItem from="1771260114953" duration="2585000" />
       <workItem from="1771313493211" duration="9420000" />
       <workItem from="1771402195573" duration="23874000" />
-      <workItem from="1771530720242" duration="2410000" />
+      <workItem from="1771530720242" duration="5511000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -834,7 +833,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771415908199</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="??Исправлено создание профиля после регистрации">
+      <option name="closed" value="true" />
+      <created>1771535163138</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1771535163138</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -852,7 +859,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService" />
     <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
     <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
     <MESSAGE value="Дополнен сервис анализа файлов, загрузка и анализ в одном запросе, добавлена конфигурация Kafka и отправка в топик metadata-topic. TODO: сервис хранения метаданных в ClickHouse, JDBC + отправка данных пачками в ClickHouse через Kafka" />
@@ -877,7 +883,8 @@
     <MESSAGE value="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Удален target AuthService из кеша git" />
-    <option name="LAST_COMMIT_MESSAGE" value="Удален target AuthService из кеша git" />
+    <MESSAGE value="??Исправлено создание профиля после регистрации" />
+    <option name="LAST_COMMIT_MESSAGE" value="??Исправлено создание профиля после регистрации" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
