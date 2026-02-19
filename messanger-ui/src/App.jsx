@@ -23,6 +23,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/simple-login" element={<SimpleLogin />} />
+                <Route path="/setup-profile" element={<SimpleLogin />} />
 
                 {/* Защищенный маршрут: Чат (Главная) */}
                 <Route

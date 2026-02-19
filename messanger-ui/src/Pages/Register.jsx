@@ -79,7 +79,7 @@ function Register() {
                 if (data.accessToken && data.refreshToken) {
                     localStorage.setItem('accessToken', data.accessToken);
                     localStorage.setItem('refreshToken', data.refreshToken);
-                    navigate('/'); // На главную
+                    navigate('/setup-profile');
                 } else {
                     setError('Сервер не вернул токены.');
                 }

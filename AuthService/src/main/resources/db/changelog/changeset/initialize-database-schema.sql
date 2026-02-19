@@ -35,6 +35,4 @@ create table refresh_tokens
 );
 
 insert into roles(name)
-values ('ROLE_USER'),
-       ('ROLE_TEACHER'),
-       ('ROLE_MANAGER');
+values ('ROLE_USER');

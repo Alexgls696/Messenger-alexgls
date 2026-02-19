@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
@@ -187,6 +186,7 @@ function ChatPage() {
             .then(profData => setProfile(profData))
             .catch(err => {
                 console.error("Ошибка инициализации", err);
+                console.log(err.status)
                 logout();
             });
     }, []);
