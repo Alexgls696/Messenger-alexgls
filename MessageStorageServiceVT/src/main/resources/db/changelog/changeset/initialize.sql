@@ -18,7 +18,8 @@ create table participants
     id        integer primary key generated always as identity,
     user_id   integer,
     chat_id   integer references chats (chat_id),
-    joined_at timestamp
+    joined_at timestamp,
+    unique (user_id, chat_id)
 );
 
 create table messages

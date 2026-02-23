@@ -89,10 +89,10 @@ function Login() {
                     {isLoading ? 'Вход...' : 'Войти'}
                 </button>
 
-                <div className="form-link">
+                {/* <div className="form-link">
                     Другие способы входа: <br />
                     <Link to="/simple-login">Войти по коду</Link>
-                </div>
+                </div> */}
                 <div className="form-link">
                     Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
                 </div>

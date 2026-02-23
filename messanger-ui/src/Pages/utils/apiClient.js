@@ -7,8 +7,8 @@ let isRefreshing = false;
 let refreshPromise = null;
 
 export const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+   localStorage.removeItem('accessToken');
+   localStorage.removeItem('refreshToken');
     // В React-приложении жесткий редирект гарантирует очистку всего стейта
     window.location.href = '/login';
 };
@@ -44,6 +44,8 @@ export const handleTokenRefresh = () => {
             const data = await response.json();
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
+
+
             
             resolve(data.accessToken);
         } catch (error) {

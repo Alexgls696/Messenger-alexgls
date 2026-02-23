@@ -7,7 +7,7 @@ import userProfileDefault from '../images/profile-default.png'
 
 let cachedUsersFromChats = null;
 
-const UserSearchModal = ({ isOpen, onClose, onUserSelect }) => {
+const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
     const [username, setUsername] = useState('');
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -55,7 +55,8 @@ const UserSearchModal = ({ isOpen, onClose, onUserSelect }) => {
 
         try {
             const data = await apiFetch(`/api/search/users/by-username/${query}`);
-            setResults(data || []);
+            const users = data.filter(user => user.id !== currentUserId);
+            setResults(users || []);
         } catch (error) {
             console.error("Ошибка поиска:", error);
             setResults([]);

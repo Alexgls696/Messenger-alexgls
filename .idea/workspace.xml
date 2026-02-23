@@ -4,10 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="??Исправлено создание профиля после регистрации">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлено удаление всех уведомлений, исправлена логика для удаленных пользователей в группах, отображение вложений для удаленных пользователей и другие баги">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/422d17ed-ab5d-488c-9d9c-6b22e679e706.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/422d17ed-ab5d-488c-9d9c-6b22e679e706/storage_v2/_src_/database/user_details_db.j-zdEQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/422d17ed-ab5d-488c-9d9c-6b22e679e706/storage_v2/_src_/database/user_details_db.j-zdEQ/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5285a789-2ef7-49d6-a2fb-94f86383f857/storage_v2/_src_/database/messaging_db.mav4ug/schema/public.abK9xQ.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/53007c7d-d3e5-415a-9377-61a4d0ce3c07.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/53007c7d-d3e5-415a-9377-61a4d0ce3c07/storage_v2/_src_/database/security_users_db.NKgwdw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/53007c7d-d3e5-415a-9377-61a4d0ce3c07/storage_v2/_src_/database/security_users_db.NKgwdw/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c8db38a8-8342-41a3-9a10-a38496e48f96.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c8db38a8-8342-41a3-9a10-a38496e48f96/storage_v2/_src_/database/notifications_db.NdMbYA.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c8db38a8-8342-41a3-9a10-a38496e48f96/storage_v2/_src_/database/notifications_db.NdMbYA/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/ChatDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/ChatDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ProtectedRoute.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ProtectedRoute.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,12 +66,12 @@
     &quot;assignee&quot;: &quot;Alexgls696&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Alexgls696/Messenger-alexgls.git",
-    "accountId": "09d82c74-2524-41c5-9281-20c68f1baea6"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Alexgls696/PrivateChatSpringBoot&quot;,
+    &quot;accountId&quot;: &quot;d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -112,11 +138,12 @@
     "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "openjdk-25",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/MessageStorageServiceVT/src/main/resources",
+    "last_opened_file_path": "C:/Users/Alexandr/users.csv",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -214,7 +241,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.yaml.notifications-database: Compose Deployment">
+  <component name="RunManager" selected="Spring Boot.NotificationsServiceApplication">
     <configuration name="ChatsControllerIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MessageStorageServiceVT" />
       <extension name="coverage">
@@ -392,6 +419,7 @@
       <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" />
+      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.NotificationsServiceApplication" />
       <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
       <item itemvalue="Spring Boot.MetadataStorageServiceApplication" />
@@ -402,7 +430,6 @@
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.UserDetailsServiceApplication" />
       <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
-      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
     </list>
@@ -419,8 +446,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.23726.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.23726.103" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.300" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.300" />
       </set>
     </attachedChunks>
   </component>
@@ -503,7 +530,7 @@
       <workItem from="1771260114953" duration="2585000" />
       <workItem from="1771313493211" duration="9420000" />
       <workItem from="1771402195573" duration="23874000" />
-      <workItem from="1771530720242" duration="5511000" />
+      <workItem from="1771863654710" duration="5864000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -833,15 +860,7 @@
       <option name="project" value="LOCAL" />
       <updated>1771415908199</updated>
     </task>
-    <task id="LOCAL-00042" summary="??Исправлено создание профиля после регистрации">
-      <option name="closed" value="true" />
-      <created>1771535163138</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1771535163138</updated>
-    </task>
-    <option name="localTasksCounter" value="43" />
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -859,6 +878,7 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService" />
     <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
     <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
     <MESSAGE value="Дополнен сервис анализа файлов, загрузка и анализ в одном запросе, добавлена конфигурация Kafka и отправка в топик metadata-topic. TODO: сервис хранения метаданных в ClickHouse, JDBC + отправка данных пачками в ClickHouse через Kafka" />
@@ -883,8 +903,7 @@
     <MESSAGE value="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Удален target AuthService из кеша git" />
-    <MESSAGE value="??Исправлено создание профиля после регистрации" />
-    <option name="LAST_COMMIT_MESSAGE" value="??Исправлено создание профиля после регистрации" />
+    <option name="LAST_COMMIT_MESSAGE" value="Удален target AuthService из кеша git" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import {useEffect} from 'react'
+import { useEffect } from 'react'
 import LoginPage from './Pages/Login';
 import ChatPage from './Pages/Chat';
 import ProtectedRoute from './Pages/components/ProtectedRoute'
-import Register from './Pages/Register'
-import SimpleLogin from './Pages/SimpleLogin';
+import OneStepRegister from './Pages/OneStepRegister'
 import SetupProfile from './Pages/SetupProfile';
+
 
 import './Pages/Styles/Global.css';
 
@@ -21,9 +21,12 @@ function App() {
             <Routes>
                 {/* Публичный маршрут: Логин */}
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/simple-login" element={<SimpleLogin />} />
-                <Route path="/setup-profile" element={<SetupProfile />} />
+                <Route path="/register" element={<OneStepRegister />} />
+                <Route path='/setup-profile' element={
+                    <ProtectedRoute>
+                        <SetupProfile />
+                    </ProtectedRoute>
+                } />
 
                 {/* Защищенный маршрут: Чат (Главная) */}
                 <Route
@@ -35,12 +38,6 @@ function App() {
                     }
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
-                <Route path='setup-profile'
-                    element={
-                        <ProtectedRoute>
-                            <SetupProfile />
-                        </ProtectedRoute>
-                    } />
             </Routes>
         </Router>
     );

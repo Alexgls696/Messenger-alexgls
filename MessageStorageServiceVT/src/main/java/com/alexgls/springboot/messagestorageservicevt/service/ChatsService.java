@@ -65,7 +65,7 @@ public class ChatsService {
     }
 
     @Transactional
-    public ChatDto findOrCreatePrivateChat(int senderId, int receiverId) {
+    public ChatDto findPrivateChat(int senderId, int receiverId) {
         Optional<Long> existingChatId = chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId);
         if (existingChatId.isPresent()) {
             Chat chat = chatsRepository.findById(existingChatId.get())
@@ -77,7 +77,14 @@ public class ChatsService {
                 setLastMessageToChatDto(message, chatDto);
             }
             return chatDto;
-        } else {
+        }
+        return createPrivateChat(senderId, receiverId);
+    }
+
+    @Transactional
+    public ChatDto createPrivateChat(int senderId, int receiverId) {
+        Optional<Long> existingChatId = chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId);
+        if (existingChatId.isEmpty()) {
             Chat chat = new Chat();
             chat.setType("PRIVATE");
             chat.setCreatedAt(Timestamp.from(Instant.now()));
@@ -99,6 +106,7 @@ public class ChatsService {
             participantsRepository.saveAll(List.of(p1, p2));
             return ChatMapper.toDto(savedChat);
         }
+        return findPrivateChat(senderId, receiverId);
     }
 
     private void setLastMessageToChatDto(Message message, ChatDto chatDto) {
@@ -116,7 +124,9 @@ public class ChatsService {
         Chat savedChat = chatsRepository.save(chat);
         List<Participants> participants = createGroupDto.membersIds()
                 .stream()
-                .map(id -> createParticipantForGroup(ChatRole.MEMBER, id, savedChat)).collect(Collectors.toList());
+                .filter(id -> id != creatorId)
+                .map(id -> createParticipantForGroup(ChatRole.MEMBER, id, savedChat))
+                .collect(Collectors.toList());
         participants.add(createParticipantForGroup(ChatRole.OWNER, creatorId, savedChat));
 
         participantsRepository.saveAll(participants);
@@ -146,19 +156,6 @@ public class ChatsService {
         return ChatMapper.toDto(chatsRepository.save(chat));
     }
 
-    public ChatDto findById(long chatId, int currentUserId) {
-        Chat chat = chatsRepository.findById(chatId)
-                .orElseThrow(() -> new NoSuchUsersChatException("Чат с заданным id не найден"));
-        Message lastMessage = messagesRepository.findLastMessageByChatIdAndUserId(chat.getId(), currentUserId)
-                .orElse(null);
-        ChatDto chatDto = ChatMapper.toDto(chat);
-        if (!Objects.isNull(lastMessage)) {
-            MessageDto messageDto = MessageMapper.toMessageDto(lastMessage);
-            messageDto.setContent(encryptUtils.decrypt(messageDto.getContent()));
-            chatDto.setLastMessage(messageDto);
-        }
-        return chatDto;
-    }
 
     @Transactional
     public void deleteChatById(long chatId, int userId) {

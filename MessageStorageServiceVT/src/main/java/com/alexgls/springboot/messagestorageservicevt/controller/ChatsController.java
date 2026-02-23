@@ -38,10 +38,10 @@ public class ChatsController {
     @GetMapping("/{id}")
     public ChatDto getChatById(@PathVariable int id, Authentication authentication) {
         int userId = getSenderId(authentication);
-        return chatsService.findById(id, userId);
+        return chatsService.findPrivateChat(id, userId);
     }
 
-    @GetMapping("/find-by-id/{page}")
+    @GetMapping("/find-all/{page}")
     public List<ChatDto> findUserChatsById(
             @PathVariable("page") int page,
             Authentication authentication) {
@@ -64,7 +64,7 @@ public class ChatsController {
     public ChatDto createPrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
         log.info("Find or create private chat, receiver id: {}", id);
         Integer userId = getSenderId(authentication);
-        return chatsService.findOrCreatePrivateChat(userId, id);
+        return chatsService.findPrivateChat(userId, id);
     }
 
     //unused

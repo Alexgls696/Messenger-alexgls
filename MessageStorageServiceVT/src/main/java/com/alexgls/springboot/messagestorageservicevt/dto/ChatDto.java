@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"createdAt", "updatedAt"})
+@Builder
 @ToString
 public class ChatDto {
     private long chatId;

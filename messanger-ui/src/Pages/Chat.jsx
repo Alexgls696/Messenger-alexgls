@@ -49,7 +49,7 @@ function ChatPage() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
-    const [contextMenu, setContextMenu] = useState(null); // { x, y, options }
+    const [contextMenu, setContextMenu] = useState(null);
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null });
 
     // События WebSocket
@@ -63,7 +63,7 @@ function ChatPage() {
     const navigate = useNavigate();
 
     const [playMessageSound] = useSound(messageSound, {
-        volume: 0.5, // Громкость от 0 до 1
+        volume: 0.5,
     });
 
     useEffect(() => {
@@ -169,7 +169,7 @@ function ChatPage() {
                     chatId: activeChatRef.current?.chatId // Берем из рефа
                 };
             })
-            .filter(m => m.chatId); // Убеждаемся, что chatId есть
+            .filter(m => m.chatId);
 
         if (toRead.length > 0) markMessagesAsRead(toRead);
     }, { threshold: 0.5 }), [markMessagesAsRead]);
@@ -188,10 +188,10 @@ function ChatPage() {
             .then(profData => setProfile(profData))
             .catch(err => {
                 console.error("Ошибка инициализации", err);
-                if(err.status===404){
+                if (err.status === 404) {
                     navigate('/setup-profile')
                 }
-                logout();
+                //logout();
             });
     }, []);
 
@@ -425,6 +425,7 @@ function ChatPage() {
                 />
 
                 <UserSearchModal
+                    currentUserId={user?.id}
                     isOpen={isUserSearchOpen}
                     onClose={() => setIsUserSearchOpen(false)}
                     onUserSelect={handleStartChat}

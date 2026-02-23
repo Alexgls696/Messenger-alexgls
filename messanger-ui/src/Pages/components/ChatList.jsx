@@ -94,7 +94,7 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
 
         setIsLoading(true);
         try {
-            const data = await apiFetch(`/api/chats/find-by-id/${page}`);
+            const data = await apiFetch(`/api/chats/find-all/${page}`);
 
             if (Array.isArray(data) && data.length > 0) {
                 setChats(prev => [...prev, ...data]);

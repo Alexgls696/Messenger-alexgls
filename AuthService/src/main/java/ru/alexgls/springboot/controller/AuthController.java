@@ -48,6 +48,7 @@ public class AuthController {
     public static class JwtResponse {
         private String accessToken;
         private String refreshToken;
+        private transient int userId;
     }
 
     @PostMapping("/login")
@@ -55,7 +56,16 @@ public class AuthController {
         log.info("Login request: username={}", loginRequest.username);
         boolean credentialsValid = usersService.checkCredentials(loginRequest.username, loginRequest.password);
         if (credentialsValid) {
-            return getLoginResponseByUsername(loginRequest.username);
+            JwtResponse response = getLoginResponseByUsername(loginRequest.username);
+            kafkaSender.send(CreateNotificationRequest.builder()
+                    .title("В ваш аккаунт был выполнен вход")
+                    .content("В ваш аккаунт был выполнен вход, срочно смените пароль, если это были не вы.")
+                    .users(List.of(response.getUserId()))
+                    .imageId(null)
+                    .metadata(null)
+                    .notificationType(NotificationType.LOGIN)
+                    .build());
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Неверное имя пользователя или пароль"));
@@ -68,7 +78,7 @@ public class AuthController {
         String email = body.get("email");
         log.info("Login request for user with email: userId={}", email);
         GetUserDto userDto = usersService.findUserByEmail(email);
-        return getLoginResponseByUsername(userDto.username());
+        return ResponseEntity.ok(getLoginResponseByUsername(userDto.username()));
     }
 
     @Transactional
@@ -88,14 +98,24 @@ public class AuthController {
 
         String newAccessToken = jwtUtil.generateToken(user.getUsername(), user.getId(), roles);
 
-        return ResponseEntity.ok(new JwtResponse(newAccessToken, newRefreshToken.getToken()));
+        return ResponseEntity.ok(new JwtResponse(newAccessToken, newRefreshToken.getToken(), user.getId()));
     }
 
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@RequestBody UserRegisterDto userRegisterDto) {
         log.info("Register user: username={} email={}", userRegisterDto.username(), userRegisterDto.email());
         GetUserDto dto = usersService.saveUser(userRegisterDto);
-        return getLoginResponseByUsername(dto.username());
+
+        var response = getLoginResponseByUsername(dto.username());
+        kafkaSender.send(CreateNotificationRequest.builder()
+                .title("Вы успешно зарегистрировались!")
+                .content("Никому не сообщайте данные от вашего аккаунта.")
+                .users(List.of(response.getUserId()))
+                .imageId(null)
+                .metadata(null)
+                .notificationType(NotificationType.LOGIN)
+                .build());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/validate")
@@ -105,21 +125,12 @@ public class AuthController {
                 .ok(jwtUtil.validateTokenAndGetJwtValidationResponse(tokenRequest.getToken()));
     }
 
-    private ResponseEntity<JwtResponse> getLoginResponseByUsername(String username) {
+    private JwtResponse getLoginResponseByUsername(String username) {
         User user = usersService.getUserByUsername(username);
         List<String> roles = usersService.getUserRoles(user.getId());
         String accessToken = jwtUtil.generateToken(username, user.getId(), roles);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        JwtResponse jwtResponse = new JwtResponse(accessToken, refreshToken.getToken());
-        kafkaSender.send(CreateNotificationRequest.builder()
-                .title("В ваш аккаунт был выполнен вход")
-                .content("В ваш аккаунт был выполнен вход, смените пароль, если это не вы")
-                .users(List.of(user.getId()))
-                .imageId(null)
-                .metadata(null)
-                .notificationType(NotificationType.LOGIN)
-                .build());
-        return ResponseEntity.ok(jwtResponse);
+        return new JwtResponse(accessToken, refreshToken.getToken(), user.getId());
     }
 }
