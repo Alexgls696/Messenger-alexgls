@@ -1,4 +1,4 @@
-package ru.alexgls.springboot.dto;
+package com.alexgls.springboot.messagestorageservicevt.dto.notifications;
 
 import lombok.Builder;
 

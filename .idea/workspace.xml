@@ -4,25 +4,55 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Скрыта регистрация по коду. TODO: Создание чата только при отправке сообщения">
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/RetryConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/CreateGroupServiceMessage.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлена отправка вложений для анализа (использован retry).">
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/AddParticipantsToGroupDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/GroupParticipantsDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/notifications/CreateNotificationRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/notifications/NotificationType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/InviteGroupServiceMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/client/AiContentAnalysisClientImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/AsyncConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/config/AsyncConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/AiContentAnalysisService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/controller/StorageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/CreateNotificationRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/dto/CreateNotificationRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/ChatDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/ChatDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/ChatWithUnread.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/ChatWithUnread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/CreateAttachmentPayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/attachments/CreateAttachmentPayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/CreateGroupDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/CreateGroupDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/DeleteMessageRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/DeleteMessageRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/DeleteMessageResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/DeleteMessageResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/GroupAccessDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/GroupAccessDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/MessageWithAttachments.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageWithAttachments.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/ReadMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ReadMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/SearchMessageInChatRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/SearchMessageInChatRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/UpdateGroupDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/UpdateGroupDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/UpdateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/UpdateMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Participants.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Participants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/ChatMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/ChatMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/LeaveUserServiceMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/LeaveUserServiceMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/KafkaSenderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/KafkaSenderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/SecurityUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/SecurityUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/UsersProfile.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/UsersProfile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,11 +67,11 @@
       <list>
         <option value="CSS File" />
         <option value="JavaScript File" />
-        <option value="Record" />
         <option value="JUnit5 Test Class" />
         <option value="Exception" />
         <option value="Interface" />
         <option value="Enum" />
+        <option value="Record" />
         <option value="Class" />
       </list>
     </option>
@@ -127,7 +157,7 @@
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
     "Spring Boot.SearchDataServiceApplication.executor": "Run",
     "Spring Boot.UserDetailsServiceApplication.executor": "Run",
-    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
+    "Spring Boot.UsersMessagingServiceApplication.executor": "Debug",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
@@ -411,6 +441,7 @@
       <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" />
+      <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.NotificationsServiceApplication" />
       <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
@@ -421,7 +452,6 @@
       <item itemvalue="Spring Boot.RegistrationServiceApplication" />
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.UserDetailsServiceApplication" />
-      <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
     </list>
@@ -523,7 +553,8 @@
       <workItem from="1771313493211" duration="9420000" />
       <workItem from="1771402195573" duration="23874000" />
       <workItem from="1771863654710" duration="6039000" />
-      <workItem from="1771919958428" duration="8574000" />
+      <workItem from="1771919958428" duration="8695000" />
+      <workItem from="1771944385365" duration="13577000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -861,7 +892,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771870605990</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="Исправлена отправка вложений для анализа (использован retry).">
+      <option name="closed" value="true" />
+      <created>1771931679954</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1771931679954</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -879,7 +918,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Исправлена ошибка при отсутствии лемм" />
     <MESSAGE value="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch" />
     <MESSAGE value="Дополнен сервис анализа файлов, загрузка и анализ в одном запросе, добавлена конфигурация Kafka и отправка в топик metadata-topic. TODO: сервис хранения метаданных в ClickHouse, JDBC + отправка данных пачками в ClickHouse через Kafka" />
     <MESSAGE value="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам." />
@@ -904,7 +942,8 @@
     <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Удален target AuthService из кеша git" />
     <MESSAGE value="Скрыта регистрация по коду. TODO: Создание чата только при отправке сообщения" />
-    <option name="LAST_COMMIT_MESSAGE" value="Скрыта регистрация по коду. TODO: Создание чата только при отправке сообщения" />
+    <MESSAGE value="Исправлена отправка вложений для анализа (использован retry)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлена отправка вложений для анализа (использован retry)." />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

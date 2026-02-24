@@ -1,7 +1,10 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
 import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
-import com.alexgls.springboot.messagestorageservicevt.dto.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNotificationRequest;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.NotificationType;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
@@ -18,22 +21,18 @@ import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRep
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.CreateGroupServiceMessage;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.InviteGroupServiceMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -48,6 +47,7 @@ public class ChatsService {
     private final DeletedMessagesRepository deletedMessagesRepository;
     private final AuthRestClient authRestClient;
 
+    private final KafkaSenderService kafkaSenderService;
     private final EncryptUtils encryptUtils;
     private final MessagesService messagesService;
 
@@ -136,9 +136,22 @@ public class ChatsService {
         participantsRepository.saveAll(participants);
 
         var actor = authRestClient.findUserById(creatorId, token);
-        messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.username(), chat.getName()), (int)chat.getId(), creatorId);
-        return ChatMapper.toDto(savedChat);
+        MessageDto messageDto = messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.username(), chat.getName()), (int) chat.getId(), creatorId);
+        ChatDto chatDto = ChatMapper.toDto(savedChat);
+        chatDto.setLastMessage(messageDto);
+
+        kafkaSenderService.sendMessage(messageDto);
+        kafkaSenderService.sendNotification(CreateNotificationRequest
+                .builder()
+                .title("Вы были добавлены в группу %s".formatted(chat.getName()))
+                .users(createGroupDto.membersIds())
+                .metadata(Map.of("chatId", chat.getId(), "userId", creatorId))
+                .notificationType(NotificationType.INVITE)
+                .build());
+        return chatDto;
     }
+
+
 
     private Participants createParticipantForGroup(ChatRole chatRole, int userId, Chat chat) {
         Participants participant = new Participants();

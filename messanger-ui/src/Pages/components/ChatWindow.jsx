@@ -75,17 +75,20 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 }
 
                 try {
-                    const participants = await apiFetch(`/api/chats/${activeChat.chatId}/participants`, { signal: controller.signal });
-                    participants.forEach(p => {
+                    const participantsDto = await apiFetch(`/api/chats/${activeChat.chatId}/participants`, { signal: controller.signal });
+                    participantsDto.participants.forEach(p => {
                         participantCache[p.id] = `${p.name} ${p.surname}`;
                     });
-                } catch (error) {
-                    if (error.status === 403) {
+                    if(participantsDto.removed){
                         setIsForbidden(true);
-                        setInputText('Вы не состоите в данном чате❗');
+                        setInputText('Вы не состоите в этой группе❗ ');
+                        setIsLoading(false);
+                    }
+                } catch (error) {
+                        setIsForbidden(true);
+                        setInputText('Произошла ошибка при загрузке чата❗ '+error);
                         setIsLoading(false);
                         return;
-                    }
                 }
 
                 const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, 0, controller.signal);

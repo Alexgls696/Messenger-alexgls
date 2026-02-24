@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class Participants {
 
     @Id
@@ -29,9 +30,6 @@ public class Participants {
 
     @Column(name = "joined_at")
     private Timestamp joinedAt;
-
-    @Column(name = "is_deleted_by_user")
-    private boolean isDeletedByUser;
 
     @Column(name = "last_read_message_id")
     private Long lastReadMessageId;
@@ -48,6 +46,9 @@ public class Participants {
 
     @Column(name = "is_removed")
     private boolean removed;
+
+    @Column(name = "is_deleted_by_user")
+    private boolean isDeletedByUser;
 
     @Column(name = "remove_at")
     private Timestamp removeAt;

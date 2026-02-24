@@ -1,6 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt.repository;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatWithUnread;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatWithUnread;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import org.hibernate.annotations.BatchSize;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ public interface ChatsRepository extends CrudRepository<Chat, Long> {
 
 
     @Query("""
-                select new com.alexgls.springboot.messagestorageservicevt.dto.ChatWithUnread(c, p.unreadCount)
+                select new com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatWithUnread(c, p.unreadCount)
                 from Chat c
                 join c.participants p
                 where p.userId = :userId

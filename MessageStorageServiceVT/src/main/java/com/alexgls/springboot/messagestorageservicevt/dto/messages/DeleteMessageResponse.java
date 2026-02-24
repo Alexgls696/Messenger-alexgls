@@ -1,4 +1,4 @@
-package com.alexgls.springboot.messagestorageservicevt.dto;
+package com.alexgls.springboot.messagestorageservicevt.dto.messages;
 
 import java.util.List;
 

@@ -1,4 +1,6 @@
-package com.alexgls.springboot.messagestorageservicevt.dto;
+package com.alexgls.springboot.messagestorageservicevt.dto.messages;
+
+import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 
 import java.util.List;
 

@@ -14,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface ParticipantsRepository extends CrudRepository<Participants, Long> {
 
+    @Query("from Participants where chat.id = :chatId and removed = true or leave = true ")
+    List<Participants>findAllRemovedParticipants(@Param("chatId") long chatId);
+
     @Query("from Participants " +
             "where chat.id = :currentChatId and removed is false " +
             "and leave is false")
@@ -30,7 +33,6 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     Optional<Participants> findByChatIdAndUserId(long chatId, int userId);
 
     boolean existsByChatIdAndUserId(long chatId, int userId);
-
 
     @Modifying
     @Query("update Participants set isDeletedByUser = false " +

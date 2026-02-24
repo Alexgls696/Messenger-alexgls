@@ -1,8 +1,9 @@
 package com.alexgls.springboot.messagestorageservicevt.controller;
 
 import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatDto;
 import com.alexgls.springboot.messagestorageservicevt.dto.GetUserDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.GroupParticipantsDto;
 import com.alexgls.springboot.messagestorageservicevt.service.ChatsService;
 import com.alexgls.springboot.messagestorageservicevt.service.ParticipantsService;
 import lombok.RequiredArgsConstructor;
@@ -94,9 +95,9 @@ public class ChatsController {
         return user;
     }
 
-    //Необходимо для загрузки участников групп
+    //Необходимо для загрузки участников групп и права доступа текущего пользователя
     @GetMapping("/{id}/participants")
-    public List<GetUserDto> findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
+    public GroupParticipantsDto findParticipantsByChatId(@PathVariable("id") int chatId, Authentication authentication) {
         log.info("Find participants by chat id: {}", chatId);
         String token = getToken(authentication);
         int userId = getSenderId(authentication);

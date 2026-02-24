@@ -1,7 +1,7 @@
 package com.alexgls.springboot.messagestorageservicevt.util;
 
 
-import com.alexgls.springboot.messagestorageservicevt.dto.GroupAccessDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.GroupAccessDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;

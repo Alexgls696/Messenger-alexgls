@@ -1,9 +1,8 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatDto;
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatWithUnread;
-import com.alexgls.springboot.messagestorageservicevt.dto.CreateGroupDto;
-import com.alexgls.springboot.messagestorageservicevt.dto.UpdateGroupDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.CreateGroupDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.UpdateGroupDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
@@ -162,7 +161,7 @@ class ChatsServiceTest {
         when(participantsRepository.saveAll(anyList()))
                 .thenReturn(List.of());
 
-        ChatDto result = chatsService.createGroup(createGroupDto, creatorId);
+        ChatDto result = chatsService.createGroup(createGroupDto, creatorId, );
 
         //then
 

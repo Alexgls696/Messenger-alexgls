@@ -1,6 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt.controller;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;

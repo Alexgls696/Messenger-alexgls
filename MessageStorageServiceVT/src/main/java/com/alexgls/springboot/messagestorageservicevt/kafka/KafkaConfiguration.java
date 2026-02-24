@@ -1,6 +1,7 @@
 package com.alexgls.springboot.messagestorageservicevt.kafka;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNotificationRequest;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -89,6 +90,21 @@ public class KafkaConfiguration {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
         JacksonJsonSerializer<DeleteMessageResponse> jsonSerializer = new JacksonJsonSerializer<>();
         return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
+    }
+
+    @Bean
+    public ProducerFactory<String, CreateNotificationRequest> createNotificationRequestProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        JacksonJsonSerializer<CreateNotificationRequest> jsonSerializer = new JacksonJsonSerializer<>();
+        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
+    }
+
+    @Bean
+    public KafkaTemplate<String, CreateNotificationRequest> createNotificationRequestKafkaTemplate() {
+        return new KafkaTemplate<>(createNotificationRequestProducerFactory());
     }
 
     @Bean

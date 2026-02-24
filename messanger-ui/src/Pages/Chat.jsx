@@ -200,7 +200,7 @@ function ChatPage() {
             setProfile(profileData);
         } catch (error) { console.error("Ошибка обновления данных:", error); }
     };
-    
+
     const handleChatSelect = (chat) => {
         setActiveChat(chat);
         setSocketUpdate(null);
@@ -413,6 +413,7 @@ function ChatPage() {
                     imageObserver={imageObserver}
                     onOpenUserProfile={(p) => setSelectedUserProfile({ id: p.id, chatId: null, name: `${p.name} ${p.surname}` })}
                     onOpenConfirm={openConfirm}
+                    participantCache={participantCache}
                 />
 
                 <ChatSearchModal

@@ -1,6 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatDto;
 import com.alexgls.springboot.messagestorageservicevt.utils.AuthHttpClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -284,6 +284,11 @@
     visibility: visible;
 }
 
+.group-actions {
+    display: flex;
+    flex-direction: row;
+}
+
 
 @media (max-width: 768px) {
     .attachments-list {

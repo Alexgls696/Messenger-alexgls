@@ -1,8 +1,9 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.DeleteMessageResponse;
-import com.alexgls.springboot.messagestorageservicevt.dto.MessageDto;
-import com.alexgls.springboot.messagestorageservicevt.dto.ReadMessagePayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.DeleteMessageResponse;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.ReadMessagePayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNotificationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,6 +23,9 @@ public class KafkaSenderService {
     private final KafkaTemplate<String, ReadMessagePayload> readMessageTemplate;
 
     private final KafkaTemplate<String, DeleteMessageResponse> deleteMessageTemplate;
+
+    private final KafkaTemplate<String, CreateNotificationRequest> createNotificationTemplate;
+
 
 
     public void sendMessage(MessageDto createdMessageDto) {
@@ -60,5 +64,19 @@ public class KafkaSenderService {
         } else {
             log.info("Successfully sent via kafka");
         }
+    }
+
+
+
+    public void sendNotification(CreateNotificationRequest request) {
+        log.info("Send new notification request to kafka: {}", request);
+        var futureResult =  createNotificationTemplate.send("create-notifications-topic", request).toCompletableFuture();
+        futureResult.whenComplete((result, throwable)->{
+            if(throwable != null) {
+                log.error(throwable.getMessage(), throwable);
+            } else{
+                log.info("Successfully sent notification to kafka: {}", request);
+            }
+        });
     }
 }

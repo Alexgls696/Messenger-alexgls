@@ -1,8 +1,8 @@
 package com.alexgls.springboot.messagestorageservicevt.mapper;
 
 
-import com.alexgls.springboot.messagestorageservicevt.dto.CreateMessagePayload;
-import com.alexgls.springboot.messagestorageservicevt.dto.MessageDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.CreateMessagePayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageType;
 

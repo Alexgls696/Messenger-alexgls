@@ -1,9 +1,8 @@
 package com.alexgls.springboot.messagestorageservicevt.mapper;
 
 
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatDto;
-import com.alexgls.springboot.messagestorageservicevt.dto.ChatWithUnread;
-import com.alexgls.springboot.messagestorageservicevt.dto.CreateGroupDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.ChatDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.CreateGroupDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 
 import java.sql.Timestamp;

@@ -1,17 +1,25 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
 import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.AddParticipantsToGroupDto;
 import com.alexgls.springboot.messagestorageservicevt.dto.GetUserDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.chats.GroupParticipantsDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNotificationRequest;
+import com.alexgls.springboot.messagestorageservicevt.dto.notifications.NotificationType;
+import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
 import com.alexgls.springboot.messagestorageservicevt.entity.Participants;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUserException;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
+import com.alexgls.springboot.messagestorageservicevt.repository.ChatsRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.InviteGroupServiceMessage;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.RemoveUserServiceMessage;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.common.TemporalUnit;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,14 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,21 +41,22 @@ public class ParticipantsService {
 
     private final ParticipantsRepository participantsRepository;
 
+    private final ChatsRepository chatsRepository;
+
     private final AuthRestClient authRestClient;
 
-    public List<GetUserDto> findAllByChatId(int chatId, String token, int currentUserId) {
+    public GroupParticipantsDto findAllByChatId(int chatId, String token, int currentUserId) {
         var participants = participantsRepository.findAllByChatId(chatId);
         Map<Integer, Participants> participantsMap = participants.stream()
                 .collect(Collectors.toMap(Participants::getUserId, (participant -> participant)));
         var currentUser = participantsMap.get(currentUserId);
-        if(Objects.isNull(currentUser)) {
-            throw new AccessDeniedException("У вас нет доступа для выполнения данной операции");
-        }
+        boolean removed = Objects.isNull(currentUser);
         List<GetUserDto> unsortedUsers = authRestClient.findAllUsers(participantsMap.keySet(), token)
                 .stream()
                 .map(user -> new GetUserDto(user.id(), user.name(), user.surname(), user.username(), ChatRole.getTranslate(participantsMap.get(user.id()).getRole())))
                 .toList();
-        return sortUsersList(unsortedUsers, currentUserId);
+        var sortedUsers = sortUsersList(unsortedUsers, currentUserId);
+        return new GroupParticipantsDto(sortedUsers, removed);
     }
 
     private List<GetUserDto> sortUsersList(List<GetUserDto> unsorted, int currentUserId) {
@@ -141,5 +143,69 @@ public class ParticipantsService {
      */
     public Iterable<Integer> findAllUsersWhoHadChatWith(Integer userId) {
         return participantsRepository.findAllUsersWhoHadChatWith(userId);
+    }
+
+    @Transactional
+    public void addParticipantsToGroup(AddParticipantsToGroupDto addParticipantsToGroupDto, Integer userId, String token) {
+        Chat chat = chatsRepository.findById(addParticipantsToGroupDto.chatId())
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат для добавления пользователей не найден"));
+        Participants participants = participantsRepository.findByChatIdAndUserId(addParticipantsToGroupDto.chatId(), userId)
+                .orElseThrow(() -> new NoSuchParticipantException("Вы не состоите в этом чате, действие невозможно"));
+        var access = SecurityUtils.determinateGroupAccess(participants.getRole());
+        if (!access.canRemoveMembers()) {
+            throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
+        }
+
+        List<Participants> removedParticipants = participantsRepository.findAllRemovedParticipants(addParticipantsToGroupDto.chatId())
+                .stream()
+                .filter(p -> addParticipantsToGroupDto.participantsIds().contains(p.getUserId()))
+                .peek(p -> {
+                    p.setLeave(false);
+                    p.setRemoved(false);
+                    addParticipantsToGroupDto.participantsIds().remove(p.getUserId());
+                })
+                .toList();
+        participantsRepository.saveAll(removedParticipants);
+
+        List<Participants> newParticipantsList = addParticipantsToGroupDto.participantsIds()
+                .stream()
+                .map(participantUserId -> Participants.builder()
+                        .chat(chat)
+                        .leave(false)
+                        .isDeletedByUser(false)
+                        .joinedAt(Timestamp.from(Instant.now()))
+                        .userId(participantUserId)
+                        .unreadCount(0)
+                        .role(ChatRole.MEMBER)
+                        .lastReadMessageId(null)
+                        .build())
+                .toList();
+        participantsRepository.saveAll(newParticipantsList);
+
+        var sendToUsersIds = getToUsersIdsList(removedParticipants, addParticipantsToGroupDto.participantsIds());
+
+        kafkaSenderService.sendNotification(CreateNotificationRequest
+                .builder()
+                .title("Вы были добавлены в группу \"%s\"".formatted(chat.getName()))
+                .users(sendToUsersIds)
+                .notificationType(NotificationType.INVITE)
+                .metadata(Map.of("chatId", chat.getId(), "userId", userId))
+                .build());
+
+        var actor = authRestClient.findUserById(userId, token);
+        var invitedUsers = authRestClient.findAllUsers(sendToUsersIds, token);
+        for (var user : invitedUsers) {
+            MessageDto serviceInviteMessage = messagesService.saveServiceMessage(new InviteGroupServiceMessage(actor.username(), user.username()), (int) chat.getId(), userId);
+            kafkaSenderService.sendMessage(serviceInviteMessage);
+        }
+    }
+
+    private List<Integer> getToUsersIdsList(List<Participants> participants, Set<Integer> ids) {
+        var result = new ArrayList<Integer>();
+        for (Participants p : participants) {
+            result.add(p.getUserId());
+        }
+        result.addAll(ids);
+        return result;
     }
 }

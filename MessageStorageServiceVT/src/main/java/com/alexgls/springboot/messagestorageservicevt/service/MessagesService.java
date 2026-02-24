@@ -1,6 +1,7 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
-import com.alexgls.springboot.messagestorageservicevt.dto.*;
+import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.*;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.DeleteMessageAccessDeniedException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +63,7 @@ public class MessagesService {
                     boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
                     message.setRead(isReadByCurrentUser);
                 }
-            }else{
+            } else {
                 message.setRead(false);
             }
             if (!message.isRead()) {
@@ -162,6 +164,7 @@ public class MessagesService {
         participantsRepository.resetCountForCurrentUser(message.getChatId(), messageDto.getSenderId());
         return messageDto;
     }
+
 
 
     @Transactional

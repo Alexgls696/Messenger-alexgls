@@ -23,7 +23,6 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
         }
     };
 
-    // Экспортируем метод prependChat для родителя (ChatPage)
     useImperativeHandle(ref, () => ({
         // Метод для обновления метаданных чата при новом сообщении
         removeChatFromList(chatId) {

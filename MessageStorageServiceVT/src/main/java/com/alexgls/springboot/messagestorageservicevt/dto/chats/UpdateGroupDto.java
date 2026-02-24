@@ -1,4 +1,4 @@
-package com.alexgls.springboot.messagestorageservicevt.dto;
+package com.alexgls.springboot.messagestorageservicevt.dto.chats;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,16 +1,14 @@
 package com.alexgls.springboot.messagestorageservicevt.kafka;
 
 
-import com.alexgls.springboot.messagestorageservicevt.dto.CreateMessagePayload;
-import com.alexgls.springboot.messagestorageservicevt.dto.MessageDto;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.CreateMessagePayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
-
-import java.util.Objects;
 
 @Component
 @Slf4j
