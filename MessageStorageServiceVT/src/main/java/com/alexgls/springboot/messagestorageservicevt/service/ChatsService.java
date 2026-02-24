@@ -1,5 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
+import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
 import com.alexgls.springboot.messagestorageservicevt.dto.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
@@ -16,6 +17,7 @@ import com.alexgls.springboot.messagestorageservicevt.repository.MessagesReposit
 import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.CreateGroupServiceMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -43,8 +46,10 @@ public class ChatsService {
     private final ParticipantsRepository participantsRepository;
     private final MessagesRepository messagesRepository;
     private final DeletedMessagesRepository deletedMessagesRepository;
+    private final AuthRestClient authRestClient;
 
     private final EncryptUtils encryptUtils;
+    private final MessagesService messagesService;
 
     @Transactional(readOnly = true)
     public List<ChatDto> findAllChatsByUserId(int userId, Pageable pageable) {
@@ -64,49 +69,49 @@ public class ChatsService {
         return result;
     }
 
+    public ChatDto findChatById(long chatId, int userId) {
+        Chat chat = chatsRepository.findById(chatId)
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат с заданным id не найден"));
+        var chatDto = ChatMapper.toDto(chat);
+        Optional<Message> messageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chat.getId(), userId);
+        if (messageOptional.isPresent()) {
+            Message message = messageOptional.get();
+            setLastMessageToChatDto(message, chatDto);
+        }
+        return chatDto;
+    }
+
     @Transactional
     public ChatDto findPrivateChat(int senderId, int receiverId) {
         Optional<Long> existingChatId = chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId);
         if (existingChatId.isPresent()) {
-            Chat chat = chatsRepository.findById(existingChatId.get())
-                    .orElseThrow(() -> new NoSuchUsersChatException("Чат с заданным id не найден"));
-            var chatDto = ChatMapper.toDto(chat);
-            Optional<Message> messageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chat.getId(), senderId);
-            if (messageOptional.isPresent()) {
-                Message message = messageOptional.get();
-                setLastMessageToChatDto(message, chatDto);
-            }
-            return chatDto;
+            return findChatById(existingChatId.get(), senderId);
         }
         return createPrivateChat(senderId, receiverId);
     }
 
     @Transactional
     public ChatDto createPrivateChat(int senderId, int receiverId) {
-        Optional<Long> existingChatId = chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId);
-        if (existingChatId.isEmpty()) {
-            Chat chat = new Chat();
-            chat.setType("PRIVATE");
-            chat.setCreatedAt(Timestamp.from(Instant.now()));
-            chat.setUpdatedAt(Timestamp.from(Instant.now()));
+        Chat chat = new Chat();
+        chat.setType("PRIVATE");
+        chat.setCreatedAt(Timestamp.from(Instant.now()));
+        chat.setUpdatedAt(Timestamp.from(Instant.now()));
 
-            Chat savedChat = chatsRepository.save(chat);
-            Participants p1 = new Participants();
-            p1.setUserId(senderId);
-            p1.setChat(chat);
-            p1.setJoinedAt(Timestamp.from(Instant.now()));
-            p1.setRole(ChatRole.MEMBER);
+        Chat savedChat = chatsRepository.save(chat);
+        Participants p1 = new Participants();
+        p1.setUserId(senderId);
+        p1.setChat(chat);
+        p1.setJoinedAt(Timestamp.from(Instant.now()));
+        p1.setRole(ChatRole.MEMBER);
 
-            Participants p2 = new Participants();
-            p2.setUserId(receiverId);
-            p2.setChat(chat);
-            p2.setJoinedAt(Timestamp.from(Instant.now()));
-            p2.setRole(ChatRole.MEMBER);
+        Participants p2 = new Participants();
+        p2.setUserId(receiverId);
+        p2.setChat(chat);
+        p2.setJoinedAt(Timestamp.from(Instant.now()));
+        p2.setRole(ChatRole.MEMBER);
 
-            participantsRepository.saveAll(List.of(p1, p2));
-            return ChatMapper.toDto(savedChat);
-        }
-        return findPrivateChat(senderId, receiverId);
+        participantsRepository.saveAll(List.of(p1, p2));
+        return ChatMapper.toDto(savedChat);
     }
 
     private void setLastMessageToChatDto(Message message, ChatDto chatDto) {
@@ -119,7 +124,7 @@ public class ChatsService {
 
 
     @Transactional
-    public ChatDto createGroup(CreateGroupDto createGroupDto, int creatorId) {
+    public ChatDto createGroup(CreateGroupDto createGroupDto, int creatorId, String token) {
         Chat chat = ChatMapper.createGroupDtoToEntity(createGroupDto);
         Chat savedChat = chatsRepository.save(chat);
         List<Participants> participants = createGroupDto.membersIds()
@@ -128,8 +133,10 @@ public class ChatsService {
                 .map(id -> createParticipantForGroup(ChatRole.MEMBER, id, savedChat))
                 .collect(Collectors.toList());
         participants.add(createParticipantForGroup(ChatRole.OWNER, creatorId, savedChat));
-
         participantsRepository.saveAll(participants);
+
+        var actor = authRestClient.findUserById(creatorId, token);
+        messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.username(), chat.getName()), (int)chat.getId(), creatorId);
         return ChatMapper.toDto(savedChat);
     }
 

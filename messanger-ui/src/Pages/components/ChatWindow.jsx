@@ -7,7 +7,7 @@ const PAGE_SIZE = 50;
 
 function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver,
     messageReadObserver, photoViewer, onOpenProfile, onBack, onOpenGroupProfile,
-    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, onSendMessage, apiBaseUrl }) {
+    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, onSendMessage, apiBaseUrl, onChatCreated }) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -44,16 +44,27 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
 
         const initChat = async () => {
             setMessages([]);
-            setIsLoading(true);
             setPage(0);
             setHasMore(true);
             isInitialLoad.current = true;
-            setRecipientId(null);
-
-            // ИЗМЕНЕНИЕ: Сбрасываем блокировку при переключении чата
             setIsForbidden(false);
             setInputText('');
 
+            if (activeChat.isNew) {
+                setChatDetails({
+                    title: `Чат с ${activeChat.recipient.name} ${activeChat.recipient.surname}`,
+                    isGroup: false
+                });
+                setRecipientId(activeChat.recipient.id);
+                participantCache[activeChat.recipient.id] = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
+
+                setHasMore(false); 
+                setIsLoading(false);
+                return; 
+            }
+
+            // --- ЛОГИКА ДЛЯ СУЩЕСТВУЮЩЕГО ЧАТА ---
+            setIsLoading(true);
             try {
                 if (activeChat.group) {
                     setChatDetails({ title: activeChat.name, isGroup: true });
@@ -65,8 +76,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
 
                 try {
                     const participants = await apiFetch(`/api/chats/${activeChat.chatId}/participants`, { signal: controller.signal });
-
-                    // Если запрос успешен, наполняем кеш
                     participants.forEach(p => {
                         participantCache[p.id] = `${p.name} ${p.surname}`;
                     });
@@ -75,13 +84,11 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                         setIsForbidden(true);
                         setInputText('Вы не состоите в данном чате❗');
                         setIsLoading(false);
-                        // Прерываем выполнение, сообщения грузить не нужно
+                        return;
                     }
-                    //throw error; // Пробрасываем остальные ошибки в внешний catch
                 }
 
                 const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, 0, controller.signal);
-
                 if (!controller.signal.aborted) {
                     setMessages(fetchedMessages);
                     setHasMore(hasMoreData);
@@ -89,7 +96,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 }
             } catch (e) {
                 if (!controller.signal.aborted) {
-                    console.error("Chat init error:", e);
                     setChatDetails({ title: 'Ошибка', isGroup: false });
                 }
             } finally {
@@ -249,6 +255,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
+        // 0. Базовые проверки
         if (isForbidden) return;
 
         const content = inputText.trim();
@@ -257,52 +264,71 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         if (!content && filesToSend.length === 0) return;
 
         const tempId = generateTempId();
+        
+        // Переменные для хранения актуального ID чата (если чат новый, он обновится)
+        let currentChatId = activeChat.chatId;
+        const isNewChat = activeChat.isNew;
 
-        // 1. Оптимистичное обновление UI
-        const optimisticMsg = {
-            tempId: tempId,
-            chatId: activeChat.chatId,
-            senderId: currentUserId,
-            content: content,
-            createdAt: new Date().toISOString(),
-            isPending: true, // Флаг для стилизации "Отправка..."
-            attachments: filesToSend.map(f => ({
-                fileId: f.tempId, // временный ID
-                fileName: f.file.name,
-                mimeType: f.file.type,
-                localUrl: f.previewUrl // передаем локальный URL для мгновенного показа
-            }))
-        };
-
-        setMessages(prev => [...prev, optimisticMsg]);
-        setInputText('');
-        setPendingFiles([]);
-
-        // Прокрутка вниз
-        setTimeout(() => {
-            if (scrollContainerRef.current)
-                scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-        }, 50);
-
-        // 2. Фоновая загрузка файлов
         try {
+            // 1. ЛЕНИВОЕ СОЗДАНИЕ ЧАТА (если это первое сообщение)
+            if (isNewChat) {
+                // Создаем чат в базе данных
+                const createdChat = await apiFetch(`/api/chats/private/${activeChat.recipient.id}`, {
+                    method: 'POST'
+                });
+                
+                currentChatId = createdChat.chatId;
+
+                if (onChatCreated) {
+                    onChatCreated(createdChat);
+                }
+
+                activeChat.isNew = false;
+                activeChat.chatId = currentChatId;
+            }
+
+            // 2. Оптимистичное обновление UI
+            const optimisticMsg = {
+                tempId: tempId,
+                chatId: currentChatId,
+                senderId: currentUserId,
+                content: content,
+                createdAt: new Date().toISOString(),
+                isPending: true, 
+                attachments: filesToSend.map(f => ({
+                    fileId: f.tempId,
+                    fileName: f.file.name,
+                    mimeType: f.file.type,
+                    localUrl: f.previewUrl 
+                }))
+            };
+
+            setMessages(prev => [...prev, optimisticMsg]);
+            setInputText('');
+            setPendingFiles([]);
+
+            setTimeout(() => {
+                if (scrollContainerRef.current)
+                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+            }, 50);
+
             const uploadedAttachments = [];
             for (const item of filesToSend) {
                 const formData = new FormData();
                 formData.append('file', item.file);
+                
                 if (item.isAnalysed) {
                     formData.append('isAnalyse', 'true');
-                    formData.append('chatId', activeChat.chatId);
+                    formData.append('chatId', currentChatId); 
                 }
 
-                // Загружаем файл на сервер хранения
                 const response = await fetch(`${apiBaseUrl}/api/storage/upload`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                     body: formData
                 });
 
-                if (!response.ok) throw new Error("Upload failed");
+                if (!response.ok) throw new Error(`Ошибка загрузки файла: ${item.file.name}`);
                 const result = await response.json();
 
                 uploadedAttachments.push({
@@ -313,17 +339,17 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 });
             }
 
-            // 3. Отправка итогового сообщения через WebSocket
+
             onSendMessage({
-                chatId: activeChat.chatId,
+                chatId: currentChatId,
                 content: content,
                 attachments: uploadedAttachments,
                 tempId: tempId
             });
 
         } catch (err) {
-            console.error("Ошибка отправки:", err);
-            // Помечаем сообщение как ошибочное в UI
+            console.error("Ошибка при выполнении отправки:", err);
+            // Визуально помечаем сообщение как ошибочное
             setMessages(prev => prev.map(m =>
                 m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
             ));

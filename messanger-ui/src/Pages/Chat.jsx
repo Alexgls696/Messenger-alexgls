@@ -188,10 +188,7 @@ function ChatPage() {
             .then(profData => setProfile(profData))
             .catch(err => {
                 console.error("Ошибка инициализации", err);
-                if (err.status === 404) {
-                    navigate('/setup-profile')
-                }
-                //logout();
+                logout();
             });
     }, []);
 
@@ -203,8 +200,7 @@ function ChatPage() {
             setProfile(profileData);
         } catch (error) { console.error("Ошибка обновления данных:", error); }
     };
-
-    // --- Вспомогательные функции ---
+    
     const handleChatSelect = (chat) => {
         setActiveChat(chat);
         setSocketUpdate(null);
@@ -217,19 +213,16 @@ function ChatPage() {
         document.body.classList.remove('chat-active');
     };
 
-    const handleStartChat = async (targetUser) => {
-        try {
-            const chat = await apiFetch(`/api/chats/private/${targetUser.id}`, {
-                method: 'POST'
-            });
+    const handleStartChat = (targetUser) => {
+        const pseudoChat = {
+            chatId: null,
+            name: `${targetUser.name} ${targetUser.surname || ''}`,
+            isGroup: false,
+            isNew: true,
+            recipient: targetUser
+        };
 
-            if (chatListRef.current) {
-                chatListRef.current.prependChat(chat);
-            }
-            handleChatSelect(chat);
-        } catch (error) {
-            alert("Не удалось создать чат");
-        }
+        handleChatSelect(pseudoChat);
     };
 
     const openConfirm = useCallback((message, action) => {
@@ -317,6 +310,10 @@ function ChatPage() {
 
         const options = [
             {
+                label: 'Изменить',
+                action: () => console.log('Запрос на изменение')
+            },
+            {
                 label: 'Удалить у себя',
                 action: () => deleteMessages([msg.id], false)
             }
@@ -389,6 +386,7 @@ function ChatPage() {
                     onSendMessage={(msg) => sendMessage(msg)} а
                     apiBaseUrl={API_BASE_URL}
                     onMessageContextMenu={handleMessageContextMenu}
+                    onChatCreated={handleGroupCreated}
                 />
 
                 {/* Модальные окна */}

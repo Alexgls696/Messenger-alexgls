@@ -4,6 +4,7 @@ import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisCli
 import com.alexgls.springboot.contentanalysisservice.dto.*;
 
 import com.alexgls.springboot.contentanalysisservice.exception.InvalidAnalysisRequestException;
+import com.alexgls.springboot.contentanalysisservice.exception.LoadFileToAiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +32,27 @@ public class AiContentAnalysisService {
 
     private final KafkaTemplate<String, ElasticSearchStorageServiceRequest> kafkaTemplate;
 
+    private final RetryTemplate retryTemplate;
+
 
     @Async
     public CompletableFuture<Void> analyseFile(Resource safeResource, int chatId, int fileId) {
-        return CompletableFuture.supplyAsync(() -> aiContentAnalysisClient.loadTheFile(safeResource))
-                .thenApply(loadFileResponse -> new AiContentAnalysisRequest(loadFileResponse.id()))
-                .thenApply(aiContentAnalysisClient::analyzeTheFileById)
-                .thenApply(this::convertAnalysisResponseToFileMetadata)
-                .thenAccept(metadata -> sendMetadataToKafka(metadata, chatId, fileId));
+        return CompletableFuture.runAsync(() -> {
+            retryTemplate.execute(context -> {
+                log.info("Попытка анализа файла {}, попытка №{}", fileId, context.getRetryCount() + 1);
+
+                LoadFileResponse loadFileResponse = aiContentAnalysisClient.loadTheFile(safeResource);
+
+                var analysisResponse = aiContentAnalysisClient.analyzeTheFileById(
+                        new AiContentAnalysisRequest(loadFileResponse.id())
+                );
+
+                var metadata = convertAnalysisResponseToFileMetadata(analysisResponse);
+                sendMetadataToKafka(metadata, chatId, fileId);
+
+                return null;
+            });
+        });
     }
 
     private void sendMetadataToKafka(FileMetadataDto fileMetadata, int chatId, int fileId) {

@@ -7,9 +7,6 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
     const stompClient = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
 
-
-
-    // Используем рефы для обработчиков, чтобы избежать замыканий
     const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived });
     useEffect(() => {
         refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived };
@@ -39,8 +36,8 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 refs.current.onDeleteEvent(JSON.parse(m.body))
             );
 
-            client.subscribe('/user/queue/notifications', (m) => refs.current.onNotificationReceived(JSON.parse(m.body))
-
+            client.subscribe('/user/queue/notifications', (m) => 
+                refs.current.onNotificationReceived(JSON.parse(m.body))
             );
         }, async (error) => {
             setIsConnected(false);

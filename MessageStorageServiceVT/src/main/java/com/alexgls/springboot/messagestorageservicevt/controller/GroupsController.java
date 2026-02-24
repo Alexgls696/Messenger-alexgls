@@ -12,7 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.getSenderId;
+
+import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/chats/groups")
@@ -25,9 +26,10 @@ public class GroupsController {
 
     @PostMapping
     public ChatDto createGroupChat(@RequestBody CreateGroupDto createGroupDto, Authentication authentication) {
-        Integer id = getSenderId(authentication);
+        Integer id = SecurityUtils.getSenderId(authentication);
+        String token = SecurityUtils.getToken(authentication);
         log.info("Creating group chat, creator id: : {}", id);
-        return chatsService.createGroup(createGroupDto, id);
+        return chatsService.createGroup(createGroupDto, id, token);
     }
 
     /**
@@ -40,22 +42,23 @@ public class GroupsController {
     @GetMapping("/{id}/access")
     public GroupAccessDto getUserRightsByGroupId(@PathVariable("id") int groupId, Authentication authentication) {
         log.info("Get user rights by group id: {}", groupId);
-        Integer userId = getSenderId(authentication);
+        Integer userId = SecurityUtils.getSenderId(authentication);
         return chatsService.getUserRightsByGroupId(groupId, userId);
     }
 
     @PostMapping("/update")
     public ChatDto updateGroupChat(@Valid @RequestBody UpdateGroupDto updateGroupDto, Authentication authentication) {
         log.info("Update group chat, actor id: {}", updateGroupDto.chatId());
-        int userId = getSenderId(authentication);
+        int userId = SecurityUtils.getSenderId(authentication);
         return chatsService.updateGroup(updateGroupDto, userId);
     }
 
     @PostMapping("/{id}/leave")
     public void leaveGroup(@PathVariable("id") int chatId, Authentication authentication) {
-        Integer userId = getSenderId(authentication);
+        Integer userId = SecurityUtils.getSenderId(authentication);
         log.info("Leave group chat, actor id: {}", userId);
         participantsService.leaveGroup(chatId, userId);
     }
+
 
 }

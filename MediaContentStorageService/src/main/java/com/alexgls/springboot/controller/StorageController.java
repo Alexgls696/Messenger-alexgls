@@ -37,7 +37,6 @@ public class StorageController {
                 chatId = Integer.parseInt(chatIdStr);
             } catch (NumberFormatException e) {
                 log.warn("Invalid chatId format received: {}", chatIdStr);
-                // Возвращаем ошибку, если chatId пришел, но он не является числом
                 return Mono.just(ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "Invalid chatId format", "code", HttpStatus.BAD_REQUEST.value())));

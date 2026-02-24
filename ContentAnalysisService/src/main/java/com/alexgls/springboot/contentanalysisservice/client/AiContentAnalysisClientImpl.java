@@ -6,14 +6,18 @@ import com.alexgls.springboot.contentanalysisservice.dto.LoadFileResponse;
 import com.alexgls.springboot.contentanalysisservice.exception.GetOauthTokenFailedException;
 import com.alexgls.springboot.contentanalysisservice.exception.LoadFileToAiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 
+@Slf4j
 @RequiredArgsConstructor
 public class AiContentAnalysisClientImpl implements AiContentAnalysisClient {
 
@@ -45,7 +49,7 @@ public class AiContentAnalysisClientImpl implements AiContentAnalysisClient {
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", resource);
             body.add("purpose", "general");
-
+            log.info("Try to send file");
             return restClient
                     .post()
                     .uri("/files")

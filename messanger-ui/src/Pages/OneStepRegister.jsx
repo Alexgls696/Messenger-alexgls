@@ -66,7 +66,7 @@ function Register() {
                 setError(errorData.message || 'Произошла ошибка при регистрации. Попробуйте позже.');
             }
 
-            await createUserProfile( localStorage.getItem('accessToken'));
+            await createUserProfile(localStorage.getItem('accessToken'));
         } catch (err) {
             console.error('Ошибка сети:', err);
             setError('Не удалось подключиться к серверу.');

@@ -76,8 +76,9 @@
     position: absolute;
     top: 50px;
     right: 0;
-    width: 320px;
+    width: 480px;
     max-height: 400px;
+    min-height: 400px;
     background: var(--surface-primary);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
@@ -393,7 +394,7 @@
 
     .notification-dropdown-menu.mobile-dropdown {
         position: fixed;
-        /* Фиксируем относительно экрана */
+
         top: 60px;
         /* Сразу под мобильной шапкой */
         left: 10px;
