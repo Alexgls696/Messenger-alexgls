@@ -7,7 +7,7 @@ const PAGE_SIZE = 50;
 
 function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver,
     messageReadObserver, photoViewer, onOpenProfile, onBack, onOpenGroupProfile,
-    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, onSendMessage, apiBaseUrl, onChatCreated }) {
+    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, onSendMessage, apiBaseUrl, onChatCreated, messageUpdateEvent, editingMessage, setEditingMessage }) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -58,9 +58,9 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 setRecipientId(activeChat.recipient.id);
                 participantCache[activeChat.recipient.id] = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
 
-                setHasMore(false); 
+                setHasMore(false);
                 setIsLoading(false);
-                return; 
+                return;
             }
 
             // --- ЛОГИКА ДЛЯ СУЩЕСТВУЮЩЕГО ЧАТА ---
@@ -79,16 +79,16 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     participantsDto.participants.forEach(p => {
                         participantCache[p.id] = `${p.name} ${p.surname}`;
                     });
-                    if(participantsDto.removed){
+                    if (participantsDto.removed) {
                         setIsForbidden(true);
                         setInputText('Вы не состоите в этой группе❗ ');
                         setIsLoading(false);
                     }
                 } catch (error) {
-                        setIsForbidden(true);
-                        setInputText('Произошла ошибка при загрузке чата❗ '+error);
-                        setIsLoading(false);
-                        return;
+                    setIsForbidden(true);
+                    setInputText('Произошла ошибка при загрузке чата❗ ' + error);
+                    setIsLoading(false);
+                    return;
                 }
 
                 const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, 0, controller.signal);
@@ -139,6 +139,20 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         }
     }, [messages, currentUserId]);
 
+
+    // Редактирование
+    useEffect(() => {
+        if (editingMessage) {
+            setInputText(editingMessage.content);
+            inputTextRef.current?.focus();
+        }
+    }, [editingMessage]);
+
+    const cancelEdit = () => {
+        setEditingMessage(null);
+        setInputText('');
+    };
+
     const handleScroll = async (e) => {
         const container = e.currentTarget;
         // Порог срабатывания (100px до верха), чтобы не ждать ровно 0
@@ -182,9 +196,20 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
             }, 50);
         }
-    }, [socketUpdate, activeChat]); // Добавили activeChat в зависимости
+    }, [socketUpdate, activeChat]);
 
-    // 2. Обработка прочтения (readEvent)
+    useEffect(() => {
+        if (messageUpdateEvent && activeChat && messageUpdateEvent.chatId === activeChat.chatId) {
+            setMessages(prev => prev.map(message => {
+                if (message.id === messageUpdateEvent.id) {
+                    return messageUpdateEvent;
+                }
+                return message;
+            }));
+        }
+    }, [messageUpdateEvent, activeChat?.chatId]);
+
+    //  Обработка прочтения (readEvent)
     useEffect(() => {
         // ЗАЩИТА
         if (!activeChat || !readEvent) return;
@@ -196,7 +221,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         }
     }, [readEvent, activeChat]);
 
-    // 3. Обработка удаления (deleteEvent)
+    // Обработка удаления (deleteEvent)
     useEffect(() => {
         // ЗАЩИТА
         if (!activeChat || !deleteEvent) return;
@@ -238,6 +263,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         e.target.value = ''; // сброс инпута
     };
 
+
     const removeFile = (tempId) => {
         setPendingFiles(prev => {
             const filtered = prev.filter(f => f.tempId !== tempId);
@@ -258,7 +284,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        // 0. Базовые проверки
         if (isForbidden) return;
 
         const content = inputText.trim();
@@ -267,95 +292,115 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         if (!content && filesToSend.length === 0) return;
 
         const tempId = generateTempId();
-        
-        // Переменные для хранения актуального ID чата (если чат новый, он обновится)
+
         let currentChatId = activeChat.chatId;
         const isNewChat = activeChat.isNew;
 
-        try {
-            // 1. ЛЕНИВОЕ СОЗДАНИЕ ЧАТА (если это первое сообщение)
-            if (isNewChat) {
-                // Создаем чат в базе данных
-                const createdChat = await apiFetch(`/api/chats/private/${activeChat.recipient.id}`, {
-                    method: 'POST'
-                });
-                
-                currentChatId = createdChat.chatId;
+        if (editingMessage) {
+            try {
+                const payload = {
+                    content: content,
+                    chatId: activeChat.chatId
+                };
 
-                if (onChatCreated) {
-                    onChatCreated(createdChat);
+                await apiFetch(`/api/messages/${editingMessage.id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(payload)
+                });
+
+                setEditingMessage(null);
+                setInputText('');
+
+            } catch (error) {
+                console.error('Ошибка при обновлении:', error);
+                alert("Не удалось сохранить изменения");
+            }
+        } else {
+            try {
+                // 1. ЛЕНИВОЕ СОЗДАНИЕ ЧАТА (если это первое сообщение)
+                if (isNewChat) {
+                    // Создаем чат в базе данных
+                    const createdChat = await apiFetch(`/api/chats/private/${activeChat.recipient.id}`, {
+                        method: 'POST'
+                    });
+
+                    currentChatId = createdChat.chatId;
+
+                    if (onChatCreated) {
+                        onChatCreated(createdChat);
+                    }
+
+                    activeChat.isNew = false;
+                    activeChat.chatId = currentChatId;
                 }
 
-                activeChat.isNew = false;
-                activeChat.chatId = currentChatId;
-            }
+                // 2. Оптимистичное обновление UI
+                const optimisticMsg = {
+                    tempId: tempId,
+                    chatId: currentChatId,
+                    senderId: currentUserId,
+                    content: content,
+                    createdAt: new Date().toISOString(),
+                    isPending: true,
+                    attachments: filesToSend.map(f => ({
+                        fileId: f.tempId,
+                        fileName: f.file.name,
+                        mimeType: f.file.type,
+                        localUrl: f.previewUrl
+                    }))
+                };
 
-            // 2. Оптимистичное обновление UI
-            const optimisticMsg = {
-                tempId: tempId,
-                chatId: currentChatId,
-                senderId: currentUserId,
-                content: content,
-                createdAt: new Date().toISOString(),
-                isPending: true, 
-                attachments: filesToSend.map(f => ({
-                    fileId: f.tempId,
-                    fileName: f.file.name,
-                    mimeType: f.file.type,
-                    localUrl: f.previewUrl 
-                }))
-            };
+                setMessages(prev => [...prev, optimisticMsg]);
+                setInputText('');
+                setPendingFiles([]);
 
-            setMessages(prev => [...prev, optimisticMsg]);
-            setInputText('');
-            setPendingFiles([]);
+                setTimeout(() => {
+                    if (scrollContainerRef.current)
+                        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+                }, 50);
 
-            setTimeout(() => {
-                if (scrollContainerRef.current)
-                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-            }, 50);
+                const uploadedAttachments = [];
+                for (const item of filesToSend) {
+                    const formData = new FormData();
+                    formData.append('file', item.file);
 
-            const uploadedAttachments = [];
-            for (const item of filesToSend) {
-                const formData = new FormData();
-                formData.append('file', item.file);
-                
-                if (item.isAnalysed) {
-                    formData.append('isAnalyse', 'true');
-                    formData.append('chatId', currentChatId); 
+                    if (item.isAnalysed) {
+                        formData.append('isAnalyse', 'true');
+                        formData.append('chatId', currentChatId);
+                    }
+
+                    const response = await fetch(`${apiBaseUrl}/api/storage/upload`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(`Ошибка загрузки файла: ${item.file.name}`);
+                    const result = await response.json();
+
+                    uploadedAttachments.push({
+                        fileId: result.id,
+                        mimeType: item.file.type,
+                        fileName: item.file.name,
+                        hasAnalysis: item.isAnalysed
+                    });
                 }
 
-                const response = await fetch(`${apiBaseUrl}/api/storage/upload`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
-                    body: formData
+
+                onSendMessage({
+                    chatId: currentChatId,
+                    content: content,
+                    attachments: uploadedAttachments,
+                    tempId: tempId
                 });
 
-                if (!response.ok) throw new Error(`Ошибка загрузки файла: ${item.file.name}`);
-                const result = await response.json();
-
-                uploadedAttachments.push({
-                    fileId: result.id,
-                    mimeType: item.file.type,
-                    fileName: item.file.name,
-                    hasAnalysis: item.isAnalysed
-                });
+            } catch (err) {
+                console.error("Ошибка при выполнении отправки:", err);
+                // Визуально помечаем сообщение как ошибочное
+                setMessages(prev => prev.map(m =>
+                    m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
+                ));
             }
-
-
-            onSendMessage({
-                chatId: currentChatId,
-                content: content,
-                attachments: uploadedAttachments,
-                tempId: tempId
-            });
-
-        } catch (err) {
-            console.error("Ошибка при выполнении отправки:", err);
-            // Визуально помечаем сообщение как ошибочное
-            setMessages(prev => prev.map(m =>
-                m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
-            ));
         }
     };
 
@@ -460,6 +505,17 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 </div>
             )}
 
+            {editingMessage && (
+                <div className="edit-message-bar">
+                    <div className="edit-bar-icon">✎</div>
+                    <div className="edit-bar-content">
+                        <div className="edit-bar-title">Редактирование сообщения</div>
+                        <div className="edit-bar-text">{editingMessage.content}</div>
+                    </div>
+                    <button className="edit-bar-close" onClick={cancelEdit}>&times;</button>
+                </div>
+            )}
+
             <form className="message-form" onSubmit={handleFormSubmit}>
                 {!isForbidden && (
                     <>
@@ -483,6 +539,9 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             handleFormSubmit(e);
+                        }
+                        if (e.key === 'Escape' && editingMessage) {
+                            cancelEdit(); 
                         }
                     }}
                     placeholder="Введите сообщение..."

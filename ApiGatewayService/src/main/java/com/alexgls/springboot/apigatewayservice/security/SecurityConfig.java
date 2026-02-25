@@ -76,9 +76,8 @@ public class SecurityConfig {
             }
 
             CorsConfiguration corsConfig = new CorsConfiguration();
-            //List.of("https://localhost:8090", "https://192.168.0.103:8090", "http://localhost:5173")
             corsConfig.setAllowedOrigins(corsAddressList);
-            corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
             corsConfig.setAllowedHeaders(List.of("*"));
             corsConfig.setAllowCredentials(true);
 

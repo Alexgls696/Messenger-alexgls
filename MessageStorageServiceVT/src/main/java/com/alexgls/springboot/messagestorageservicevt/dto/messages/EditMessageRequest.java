@@ -1,8 +1,7 @@
 package com.alexgls.springboot.messagestorageservicevt.dto.messages;
 
-public record UpdateMessagePayload(
-        long id,
-        int chatId,
+public record EditMessageRequest(
+        long chatId,
         String content
 ) {
 }

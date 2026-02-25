@@ -56,11 +56,12 @@ function ChatPage() {
     const [socketUpdate, setSocketUpdate] = useState(null);
     const [readEvent, setReadEvent] = useState(null);
     const [deleteEvent, setDeleteEvent] = useState(null);
+    const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
+    const [editingMessage, setEditingMessage] = useState(null);
+
 
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
-
-    const navigate = useNavigate();
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5,
@@ -85,6 +86,13 @@ function ChatPage() {
             setSocketUpdate({ ...newMsg, _ts: Date.now() });
         }
     }, [user, playMessageSound]);
+
+    const onMessageUpdate = useCallback((updatedMsg) => {
+        if (activeChatRef.current?.chatId === updatedMsg.chatId) {
+            setMessageUpdateEvent({ ...updatedMsg, _ts: Date.now() });
+        }
+        chatListRef.current?.updateChatFromSocket(updatedMsg, true);
+    }, []);
 
     const onDeleteEvent = useCallback((info) => {
         setDeleteEvent({ ...info, _ts: Date.now() });
@@ -135,7 +143,8 @@ function ChatPage() {
         onMessageReceived,
         setReadEvent,
         onDeleteEvent,
-        onNotificationReceived
+        onNotificationReceived,
+        onMessageUpdate
     );
 
     const markMessagesAsRead = useCallback(async (messagesToRead) => {
@@ -284,6 +293,22 @@ function ChatPage() {
         }
     };
 
+    const updateMessage = async (messageid, chatId, content) => {
+        const payload = {
+            content: content,
+            chatId: chatId
+        };
+        try {
+            const updatedMessage = await apiFetch(`/api/messages/${messageid}`, {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            });
+            //setMessages(prev => prev.map(m => m.id === messageid ? updatedMessage : m));
+        } catch (error) {
+            console.error('Ошибка при обновлении сообщения:', error);
+        }
+    }
+
     const deleteChat = useCallback((chatId) => {
         openConfirm(
             "Вы действительно хотите удалить этот чат? Это действие необратимо.",
@@ -305,19 +330,21 @@ function ChatPage() {
         e.preventDefault();
         e.stopPropagation();
 
-        // Проверяем, кто отправитель (используем user.id из стейта)
         const isSentByMe = msg.senderId === user?.id;
 
-        const options = [
-            {
+        const options = [];
+
+        if (isSentByMe && msg.type === 'TEXT') {
+            options.push({
                 label: 'Изменить',
-                action: () => console.log('Запрос на изменение')
-            },
-            {
-                label: 'Удалить у себя',
-                action: () => deleteMessages([msg.id], false)
-            }
-        ];
+                action: () => setEditingMessage(msg)
+            });
+        }
+
+        options.push({
+            label: 'Удалить у себя',
+            action: () => deleteMessages([msg.id], false)
+        });
 
         if (isSentByMe) {
             options.push({
@@ -327,12 +354,7 @@ function ChatPage() {
             });
         }
 
-        // Используем clientX/Y для fixed позиционирования
-        setContextMenu({
-            x: e.clientX,
-            y: e.clientY,
-            options: options
-        });
+        setContextMenu({ x: e.clientX, y: e.clientY, options });
     }, [user, deleteMessages]);
 
     const handleChatContextMenu = useCallback((e, chatId) => {
@@ -387,6 +409,9 @@ function ChatPage() {
                     apiBaseUrl={API_BASE_URL}
                     onMessageContextMenu={handleMessageContextMenu}
                     onChatCreated={handleGroupCreated}
+                    messageUpdateEvent={messageUpdateEvent}
+                    editingMessage={editingMessage}
+                    setEditingMessage={setEditingMessage} 
                 />
 
                 {/* Модальные окна */}

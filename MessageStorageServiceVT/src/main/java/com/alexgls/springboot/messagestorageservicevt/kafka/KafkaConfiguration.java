@@ -48,21 +48,6 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConsumerFactory<String, UpdateMessagePayload> updateMessageConsumerFactory() {
-        Map<String, Object> props = initializeProperties();
-        JacksonJsonDeserializer<UpdateMessagePayload> jsonDeserializer = new JacksonJsonDeserializer<>(UpdateMessagePayload.class);
-        jsonDeserializer.addTrustedPackages("*");
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), jsonDeserializer);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UpdateMessagePayload> kafkaUpdateMessageListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, UpdateMessagePayload> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(updateMessageConsumerFactory());
-        return factory;
-    }
-
-    @Bean
     public ProducerFactory<String, MessageDto> messageProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
@@ -103,6 +88,21 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    public ProducerFactory<String, MessageDto> updateMessageProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        JacksonJsonSerializer<MessageDto> jsonSerializer = new JacksonJsonSerializer<>();
+        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
+    }
+
+    @Bean
+    public KafkaTemplate<String, MessageDto> updateMessageKafkaTemplate() {
+        return new KafkaTemplate<>(updateMessageProducerFactory());
+    }
+
+    @Bean
     public KafkaTemplate<String, CreateNotificationRequest> createNotificationRequestKafkaTemplate() {
         return new KafkaTemplate<>(createNotificationRequestProducerFactory());
     }
@@ -127,6 +127,13 @@ public class KafkaConfiguration {
     public NewTopic eventsTopic() {
         return TopicBuilder
                 .name("events-message-created")
+                .build();
+    }
+
+    @Bean
+    public NewTopic updateMessageTopic() {
+        return TopicBuilder
+                .name("update-message-topic")
                 .build();
     }
 

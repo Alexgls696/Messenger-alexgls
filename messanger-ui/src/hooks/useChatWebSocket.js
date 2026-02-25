@@ -3,13 +3,13 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient'
 
-export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived) => {
+export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate) => {
     const stompClient = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
 
-    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived });
+    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate });
     useEffect(() => {
-        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived };
+        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate };
     });
 
     const connect = () => {
@@ -29,6 +29,11 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
             client.subscribe('/user/queue/messages', (m) =>
                 refs.current.onMessageReceived(JSON.parse(m.body))
             );
+
+            client.subscribe('/user/queue/updated-message', (m) => {
+                refs.current.onMessageUpdate(JSON.parse(m.body));
+            });
+
             client.subscribe('/user/queue/read-status', (m) =>
                 refs.current.onReadStatus(JSON.parse(m.body))
             );
@@ -36,7 +41,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 refs.current.onDeleteEvent(JSON.parse(m.body))
             );
 
-            client.subscribe('/user/queue/notifications', (m) => 
+            client.subscribe('/user/queue/notifications', (m) =>
                 refs.current.onNotificationReceived(JSON.parse(m.body))
             );
         }, async (error) => {

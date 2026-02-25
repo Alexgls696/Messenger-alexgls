@@ -23,7 +23,6 @@ public class MessageStorageServiceKafkaListener {
     @KafkaListener(topics = "events-message-created", groupId = "event-message-group", containerFactory = "kafkaMessageListenerContainerFactory")
     public void listen(MessageDto createdMessageDto) {
         log.info("Received message, which was saved to database: {}", createdMessageDto);
-
         if (createdMessageDto.getRecipientIds() == null || createdMessageDto.getRecipientIds().isEmpty()) {
             messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getRecipientId()), "/queue/messages", createdMessageDto);
             messagingTemplate.convertAndSendToUser(String.valueOf(createdMessageDto.getSenderId()), "/queue/messages", createdMessageDto);
@@ -35,8 +34,23 @@ public class MessageStorageServiceKafkaListener {
         }
     }
 
+    @KafkaListener(topics = "update-message-topic", groupId = "update-message-group", containerFactory = "kafkaMessageListenerContainerFactory")
+    public void listenUpdatedMessage(MessageDto updatedMessageDto) {
+        log.info("Received updated message: {}", updatedMessageDto);
+        if (updatedMessageDto.getRecipientIds() == null || updatedMessageDto.getRecipientIds().isEmpty()) {
+            messagingTemplate.convertAndSendToUser(String.valueOf(updatedMessageDto.getRecipientId()), "/queue/updated-message", updatedMessageDto);
+            messagingTemplate.convertAndSendToUser(String.valueOf(updatedMessageDto.getSenderId()), "/queue/updated-message", updatedMessageDto);
+        } else {
+            var participants = updatedMessageDto.getRecipientIds();
+            for (int receiverId : participants) {
+                messagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/updated-message", updatedMessageDto);
+            }
+        }
+    }
+
+
     @KafkaListener(topics = "notifications-topic", groupId = "notification-group-id")
-    public void listenNotifications(){
+    public void listenNotifications() {
         log.info("Notification received");
     }
 

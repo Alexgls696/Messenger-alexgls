@@ -41,6 +41,19 @@ public class KafkaSenderService {
         });
     }
 
+    public void sendUpdatedMessage(MessageDto messageDto){
+        log.info("Try to sending updated message to kafka: {}", messageDto);
+        CompletableFuture<SendResult<String, MessageDto>> future = kafkaTemplate
+                .send("update-message-topic", messageDto).toCompletableFuture();
+        future.whenComplete((result, throwable) -> {
+            if (throwable != null) {
+                log.error(throwable.getMessage(), throwable);
+            }else{
+                log.info("Message sent: {}", messageDto);
+            }
+        });
+    }
+
     public void sendReadMessagesToKafka(List<ReadMessagePayload> messages) {
         messages.forEach(message -> {
             CompletableFuture<SendResult<String, ReadMessagePayload>> futureResult = readMessageTemplate.send("read-message-topic", message).toCompletableFuture();
@@ -79,4 +92,6 @@ public class KafkaSenderService {
             }
         });
     }
+
+
 }

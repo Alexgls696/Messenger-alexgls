@@ -2,6 +2,7 @@ package com.alexgls.springboot.messagestorageservicevt.repository;
 
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageToken;
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageTokenId;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,10 @@ import java.util.List;
 
 @Repository
 public interface MessageTokenRepository extends CrudRepository<MessageToken, MessageTokenId> {
+
+    @Modifying
+    @Query("delete MessageToken where id.messageId = :messageId")
+    void deleteAllByMessageId(@Param("messageId") long messageId);
 
     @Query(value = "SELECT t.message_id FROM message_tokens t " +
             "JOIN messages m ON t.message_id = m.message_id " +

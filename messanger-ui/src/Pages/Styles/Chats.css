@@ -298,7 +298,8 @@
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 12px;
-    background: var(--bg-secondary); /* Чуть темнее основного фона */
+    background: var(--bg-secondary);
+    /* Чуть темнее основного фона */
     border-top: 1px solid var(--border-primary);
     max-height: 200px;
     overflow-y: auto;
@@ -395,7 +396,7 @@
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     padding: 0;
 }
 
@@ -406,6 +407,77 @@
 
 .attachment-preview-item.is-error {
     border-color: var(--accent-negative);
+}
+
+.message-edited-label {
+    font-size: 0.85em;
+    font-style: italic;
+    opacity: 0.6;
+    margin-right: 4px;
+    user-select: none;
+}
+
+.edit-message-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: var(--surface-secondary);
+    border-top: 1px solid var(--border-primary);
+    border-left: 4px solid var(--accent-primary);
+    /* Синяя полоска слева */
+    gap: 12px;
+    animation: slideUp 0.2s ease-out;
+}
+
+.edit-bar-icon {
+    color: var(--accent-primary);
+    font-size: 1.2em;
+}
+
+.edit-bar-content {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-bar-title {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.edit-bar-text {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.edit-bar-close {
+    background: none;
+    border: none;
+    color: var(--text-placeholder);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.edit-bar-close:hover {
+    color: var(--accent-negative);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* --- 7. АДАПТИВНОСТЬ (ЛОГИКА ЧАТА) --- */
@@ -453,7 +525,7 @@
         margin-left: 0;
         padding-right: 0;
     }
-    
+
 }
 
 @media (min-width: 769px) {

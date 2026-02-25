@@ -35,6 +35,15 @@ public class MessagesController {
                 .toList();
     }
 
+    @PatchMapping("/{id}")
+    public MessageDto updateMessage(@PathVariable("id") long messageId, @RequestBody EditMessageRequest editMessageRequest, Authentication authentication) {
+        log.info("Edit message with id: {}", messageId);
+        int userId = getSenderId(authentication);
+        var updatedMessageDto = messagesService.updateMessage(messageId, userId, editMessageRequest);
+        kafkaSenderService.sendUpdatedMessage(updatedMessageDto);
+        return updatedMessageDto;
+    }
+
     @PostMapping("/find-by-content-in-chat")
     public List<MessageDto> findMessagesByChatId(@RequestBody SearchMessageInChatRequest request, Authentication authentication) {
         log.info("find messages by content in the chat : {}", request);

@@ -14,6 +14,7 @@ import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyze
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -108,6 +109,38 @@ public class MessagesService {
         long lastReadMessageId = Collections.max(messageIds);
         int countMessagesRead = messageIds.size();
         readMessages(new ReadMessageDatabaseRequest(messageIds, chatId, readerId, lastReadMessageId, countMessagesRead));
+    }
+
+    @Transactional
+    public MessageDto updateMessage(long messageId, int userId, EditMessageRequest editMessageRequest) {
+        Message message = messagesRepository.findById(messageId)
+                .orElseThrow(()->new NoSuchMessageException("Сообщение не найдено"));
+        Chat chat = chatsRepository.findById(editMessageRequest.chatId())
+                .orElseThrow(()->new NoSuchUsersChatException("Чат не найден"));
+
+        if(message.getSenderId() != userId){
+            throw new AccessDeniedException("У вас нет доступа для выполнения данной операции. ");
+        }
+        message.setContent(editMessageRequest.content());
+        message.setUpdatedAt(Timestamp.from(Instant.now()));
+        processAndEncryptMessage(message);
+        var savedMessage = messagesRepository.save(message);
+        messageTokenRepository.deleteAllByMessageId(messageId);
+        saveMessageTokens(savedMessage);
+
+        var messageDto = MessageMapper.toMessageDto(message);
+        messageDto.setContent(encryptUtils.decrypt(message.getContent()));
+        messageDto.setAttachments(message.getAttachments());
+
+        if(chat.isGroup()){
+            List<Integer> participants = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted((int) chat.getId());
+            messageDto.setRecipientIds(participants);
+        }else{
+            Integer recipientId = chatsRepository.findRecipientIdByChatId((int)chat.getId(), userId)
+                    .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + chat.getId()));
+            messageDto.setRecipientId(recipientId);
+        }
+        return messageDto;
     }
 
     public record ReadMessageDatabaseRequest

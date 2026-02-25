@@ -96,6 +96,8 @@ const Message = ({
     const statusText = isSentByMe ? (msg.read ? 'Прочитано' : 'Доставлено') : '';
     const statusClass = isSentByMe && msg.read ? 'read' : '';
 
+    const isEdited = msg.updatedAt !== null;
+
     return (
         <div
             ref={msgRef}
@@ -122,6 +124,7 @@ const Message = ({
             )}
 
             <div className="message-meta">
+                {isEdited && <span className="message-edited-label">изменено</span>}
                 <span>{formatDate(msg.createdAt)}</span>
                 <span className={`message-status ${statusClass}`}>{statusText}</span>
             </div>
