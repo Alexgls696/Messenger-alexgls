@@ -57,8 +57,6 @@ function Register() {
 
                 localStorage.setItem('accessToken', data.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken);
-
-                navigate('/');
             } else if (response.status === 409) {
                 setError('Пользователь с таким именем или email уже существует.');
             } else {
@@ -68,8 +66,7 @@ function Register() {
 
             await createUserProfile(localStorage.getItem('accessToken'));
         } catch (err) {
-            console.error('Ошибка сети:', err);
-            setError('Не удалось подключиться к серверу.');
+            console.error('Ошибка при регистрации:', err);
         } finally {
             setIsLoading(false);
         }

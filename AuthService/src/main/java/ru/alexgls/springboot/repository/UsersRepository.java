@@ -16,7 +16,9 @@ public interface UsersRepository extends CrudRepository<User, Integer> {
 
     Optional<User> findByEmail(String email);
 
-    Boolean existsByUsernameOrEmail(String username, String email);
+    boolean existsByUsernameOrEmail(String username, String email);
+
+    boolean existsByUsername(String username);
 
     @Query(nativeQuery = true, value = "select * from users where username ilike (concat(:username,'%'))")
     List<User> findAllByUsername(String username);

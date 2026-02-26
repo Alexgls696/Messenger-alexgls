@@ -1,6 +1,7 @@
 package ru.alexgls.springboot.service;
 
 import lombok.RequiredArgsConstructor;
+import org.postgresql.util.PSQLException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import ru.alexgls.springboot.entity.Role;
 import ru.alexgls.springboot.entity.User;
 import ru.alexgls.springboot.exceptions.NoSuchUserException;
 import ru.alexgls.springboot.exceptions.NoSuchUserRoleException;
+import ru.alexgls.springboot.exceptions.UsernameExistsException;
 import ru.alexgls.springboot.mapper.UserMapper;
 import ru.alexgls.springboot.repository.UserRolesRepository;
 import ru.alexgls.springboot.repository.UsersRepository;
@@ -90,6 +92,10 @@ public class UsersService {
 
     @Transactional
     public GetUserDto saveUser(UserRegisterDto userRegisterDto) {
+        boolean usernameExists = usersRepository.existsByUsername(userRegisterDto.username());
+        if(usernameExists) {
+            throw new UsernameExistsException("Пользователь с указанным вами именем уже существует");
+        }
         User userToSave = UserMapper.fromUserRegisterDto(userRegisterDto, passwordEncoder);
         User savedUser = usersRepository.save(userToSave);
 

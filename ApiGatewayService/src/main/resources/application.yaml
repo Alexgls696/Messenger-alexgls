@@ -25,7 +25,6 @@ spring:
     gateway:
       server:
         webflux:
-
           routes:
             # --- 1. Маршруты для AuthService (:8085) ---
             # Правило для публичных эндпоинтов (логин, ключи)
@@ -34,11 +33,10 @@ spring:
               predicates:
                 - Path=/auth/**, /.well-known/jwks.json, /health
 
-            # Правило для защищенных эндпоинтов (пользователи)
             - id: users-service-route
               uri: http://localhost:8085
               predicates:
-                - Path=/api/users/**
+                - Path=/api/users/**, /api/profiles/**
 
             # --- 2. Маршрут для сервиса сообщений (:8087) ---
             - id: messaging-service-route
@@ -65,37 +63,31 @@ spring:
               predicates:
                 - Path=/api/verification/**, /api/authentication/**
 
-
-            # --- 6. Маршрут для сервиса пользовательской информации (:8092) ---
-            - id: user-details-service-route
-              uri: http://localhost:8092
-              predicates:
-                - Path=/api/profiles/**
-
-            # --- 7. Маршрут для WebSocket сервиса (:8086) ---
+            # --- 6. Маршрут для WebSocket сервиса (:8086) ---
             - id: websocket-route
               uri: http://localhost:8086
               predicates:
                 - Path=/ws-chat/**
 
-            # --- 8. Маршрут для поискового сервиса (:8093) ---
+            # --- 7. Маршрут для поискового сервиса (:8093) ---
             - id: search-service-route
               uri: http://localhost:8093
               predicates:
                 - Path=/api/search/**
 
+            # --- 8. Маршрут для сервиса анализа (:8094) ---
             - id: analysis-service-route
               uri: http://localhost:8094
               predicates:
                 - Path=/api/analysis/**
 
-            # --- 10. Маршрут для сервиса хранения метаданных (:8095) ---
+            # --- 9. Маршрут для сервиса хранения метаданных (:8095) ---
             - id: metadata-storage-route
               uri: http://localhost:8095
               predicates:
                 - Path=/api/metadata/**
 
-            # --- 11. Маршрут для сервиса уведомлений (:8091) ---
+            # --- 10. Маршрут для сервиса уведомлений (:8091) ---
             - id: notifications-service
               uri: http://localhost:8091
               predicates:

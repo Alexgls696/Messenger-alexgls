@@ -1,5 +1,3 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/initialize-database-schema.sql
-  - include:
-      file: db/changelog/changeset/add_oauth2_table.sql

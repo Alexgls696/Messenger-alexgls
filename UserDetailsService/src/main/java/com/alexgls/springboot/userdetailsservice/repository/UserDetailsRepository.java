@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
 public interface UserDetailsRepository extends ReactiveCrudRepository<UserDetails, Integer> {
     Mono<UserDetails> findByUserId(Integer userId);
 
-    Mono<Void> deleteByUserId(Integer userId);
 
     Mono<Boolean>existsByUserId(Integer userId);
 }
