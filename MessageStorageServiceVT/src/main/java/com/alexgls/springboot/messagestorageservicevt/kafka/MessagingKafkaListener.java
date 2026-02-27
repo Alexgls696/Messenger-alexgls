@@ -30,7 +30,6 @@ public class MessagingKafkaListener {
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
         }
-
     }
 
 }

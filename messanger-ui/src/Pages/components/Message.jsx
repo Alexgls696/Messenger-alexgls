@@ -93,7 +93,7 @@ const Message = ({
     };
 
     const senderName = isSentByMe ? '' : (participantCache[msg.senderId] || `Пользователь #${msg.senderId}`);
-    const statusText = isSentByMe ? (msg.read ? 'Прочитано' : 'Доставлено') : '';
+    let statusText = isSentByMe ? (msg.read ? 'Прочитано' : 'Доставлено') : '';
     const statusClass = isSentByMe && msg.read ? 'read' : '';
 
     const isEdited = msg.updatedAt !== null;
@@ -118,7 +118,6 @@ const Message = ({
 
             {renderAttachments()}
 
-            {/* Контент сообщения (текст) */}
             {msg.content && (
                 <div className="message-content">{msg.content}</div>
             )}
@@ -126,7 +125,7 @@ const Message = ({
             <div className="message-meta">
                 {isEdited && <span className="message-edited-label">изменено</span>}
                 <span>{formatDate(msg.createdAt)}</span>
-                <span className={`message-status ${statusClass}`}>{statusText}</span>
+                <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка..."}</span>
             </div>
         </div>
     );

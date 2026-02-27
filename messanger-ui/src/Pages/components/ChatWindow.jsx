@@ -336,11 +336,13 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
 
                 // 2. Оптимистичное обновление UI
                 const optimisticMsg = {
+                    optimistic: true,
                     tempId: tempId,
                     chatId: currentChatId,
                     senderId: currentUserId,
                     content: content,
                     createdAt: new Date().toISOString(),
+                    updatedAt: null,
                     isPending: true,
                     attachments: filesToSend.map(f => ({
                         fileId: f.tempId,
