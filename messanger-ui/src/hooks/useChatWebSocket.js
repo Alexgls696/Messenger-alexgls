@@ -16,13 +16,19 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) return;
 
+        // 1. Токен в URL нужен для HandshakeInterceptor
         const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`);
         const client = Stomp.over(socket);
         client.heartbeat.outgoing = 10000;
         client.heartbeat.incoming = 10000;
         client.debug = null;
 
-        client.connect({}, () => {
+        // 2. Добавляем заголовок авторизации для самого протокола STOMP
+        const headers = {
+            'Authorization': `Bearer ${accessToken}`
+        };
+
+        client.connect(headers, () => {
             console.log('Connected')
             setIsConnected(true);
 

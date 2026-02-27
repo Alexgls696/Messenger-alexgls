@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { apiFetch } from '../utils/apiClient';
 import { imageLoader } from '../utils/imageLoader';
 import photoViewer from '../utils/photoViewer';
+import defaultProfileImage from '../images/profile-default.png'
 
 const MyProfileManager = ({ 
     isOpen, 
@@ -301,7 +302,7 @@ const MyProfileManager = ({
 // --- Вспомогательные компоненты для работы с imageLoader ---
 
 const AvatarImage = ({ avatarId }) => {
-    const [src, setSrc] = useState("/images/profile-default.png");
+    const [src, setSrc] = useState(defaultProfileImage);
     useEffect(() => {
         if (avatarId) {
             imageLoader.getImageSrc(avatarId).then(setSrc);

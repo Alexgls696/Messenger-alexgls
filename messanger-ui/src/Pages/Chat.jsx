@@ -175,7 +175,7 @@ function ChatPage() {
                 return {
                     messageId: parseInt(e.target.dataset.messageId),
                     senderId: parseInt(e.target.dataset.senderId),
-                    chatId: activeChatRef.current?.chatId // Берем из рефа
+                    chatId: activeChatRef.current?.chatId 
                 };
             })
             .filter(m => m.chatId);

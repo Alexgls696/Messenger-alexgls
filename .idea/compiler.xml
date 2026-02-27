@@ -14,7 +14,6 @@
         <module name="AuthService" />
         <module name="MetadataStorageService" />
         <module name="InDatabaseContentStorageService" />
-        <module name="UserDetailsService" />
         <module name="ContentAnalysisService" />
         <module name="RegistrationService" />
         <module name="MediaContentStorageService" />
@@ -24,6 +23,7 @@
     <bytecodeTargetLevel>
       <module name="MessageStorageService" target="17" />
       <module name="RatingLogClientApplication" target="17" />
+      <module name="UserDetailsService" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

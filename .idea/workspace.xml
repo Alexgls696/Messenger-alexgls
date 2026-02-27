@@ -4,35 +4,55 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлено редактирование сообщений">
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UserImagesController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UserProfileController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/entity/user_details/UserAvatar.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/entity/user_details/UserDetails.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/entity/user_details/UserImage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/NoSuchUserAvatarException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/NoSuchUserDetailsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/NoSuchUserImageException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/ServiceUnauthorizedException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/UsernameExistsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/mapper/UserDetailsMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UserAvatarsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UserDetailsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UserImagesRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileServiceImpl.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Сервис пользовательской информации объединен с auth service">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exception_handler/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/exceptions/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UsersRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/repository/UsersRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UsersService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/db/changelog/changeset/add_oauth2_table.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/db/changelog/changeset/initialize-database-schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/db/changelog/changeset/initialize-database-schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserDetailsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserDetailsRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/config/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/config/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/UserDetailsServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/client/AuthServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/client/AuthServiceClientImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/config/UserDetailsSecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/config/WebClientsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserImagesController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/controller/UserProfileController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/AddProfileImageRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/GetUserDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UpdateUserDetailsRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserDetailsResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/dto/UserProfileResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserAvatar.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserDetails.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/entity/UserImage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/NoSuchUserAvatarException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/NoSuchUserDetailsException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/NoSuchUserException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/NoSuchUserImageException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/ServiceUnauthorizedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/exception/handler/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/mapper/UserDetailsMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserAvatarsRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserDetailsRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/repository/UserImagesRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/java/com/alexgls/springboot/userdetailsservice/service/UserProfileServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/db/changelog/changeset/initialize_schema.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/main/resources/messages.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserDetailsService/src/test/java/com/alexgls/springboot/userdetailsservice/UserDetailsServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +145,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
-    "Spring Boot.AuthServiceSpringBootApplication.executor": "Debug",
+    "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
@@ -539,7 +559,8 @@
       <workItem from="1771944385365" duration="14428000" />
       <workItem from="1772030692693" duration="1590000" />
       <workItem from="1772048615349" duration="5291000" />
-      <workItem from="1772091668834" duration="5266000" />
+      <workItem from="1772091668834" duration="5319000" />
+      <workItem from="1772177839880" duration="7159000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -901,7 +922,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772054040752</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="Сервис пользовательской информации объединен с auth service">
+      <option name="closed" value="true" />
+      <created>1772097013534</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1772097013534</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -919,7 +948,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам." />
     <MESSAGE value="Добавлен поиск по вложения со стороны клиента." />
     <MESSAGE value="Исправлено отображение поиска, скачивание файлов при поиске." />
     <MESSAGE value="Исправлены ошибки отображения, изменен стиль списка вложений, добавлен значок AI анализа, отображение информации - анализа" />
@@ -944,7 +972,8 @@
     <MESSAGE value="Исправлена отправка вложений для анализа (использован retry)." />
     <MESSAGE value="Добавлена иконка приложения, исправлены некоторые баги в группах. Добавлено изменение описания и названия группы, добавление пользователей, рассылка уведомлений при добавлении. &#10;//TODO - фиксы найденных багов." />
     <MESSAGE value="Добавлено редактирование сообщений" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлено редактирование сообщений" />
+    <MESSAGE value="Сервис пользовательской информации объединен с auth service" />
+    <option name="LAST_COMMIT_MESSAGE" value="Сервис пользовательской информации объединен с auth service" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

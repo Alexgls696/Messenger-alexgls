@@ -73,20 +73,22 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Transactional
     @Override
     public void addImageToUserProfile(int imageId, int userId) {
-        UserImage saved = userImagesRepository.save(new UserImage(0, userId, imageId, Timestamp.from(Instant.now())));
+        UserImage savedUserImage = userImagesRepository.save(new UserImage(0, userId, imageId, Timestamp.from(Instant.now())));
         saveOrUpdateUserAvatar(imageId, userId);
+
+        Optional<UserAvatar> avatar = userAvatarsRepository.findByUserId(userId);
+        if (avatar.isPresent()) {
+            UserAvatar userAvatar = avatar.get();
+            userAvatar.setUserImageId(savedUserImage.getId());
+            userAvatarsRepository.save(userAvatar);
+        } else {
+            userAvatarsRepository.save(new UserAvatar(0, savedUserImage.getId(), userId));
+        }
     }
 
     @Transactional
     protected void saveOrUpdateUserAvatar(int userImageId, int userId) {
-        Optional<UserAvatar> avatar = userAvatarsRepository.findByUserId(userId);
-        if (avatar.isPresent()) {
-            UserAvatar userAvatar = avatar.get();
-            userAvatar.setUserImageId(userImageId);
-            userAvatarsRepository.save(userAvatar);
-        } else {
-            userAvatarsRepository.save(new UserAvatar(0, userImageId, userId));
-        }
+
     }
 
 

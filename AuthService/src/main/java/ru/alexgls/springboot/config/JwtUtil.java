@@ -68,7 +68,7 @@ public class JwtUtil {
 
     public String generateTokenForService(String serviceClientId, List<String> roles) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", roles); // Добавляем роли, чтобы @PreAuthorize("hasRole('SERVICE')") работало
+        claims.put("roles", roles);
 
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);

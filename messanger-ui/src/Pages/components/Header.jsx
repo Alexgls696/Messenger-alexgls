@@ -17,6 +17,7 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
     const settingsRef = useRef(null);
     const mobileMenuRef = useRef(null);
     const notificationMenuRef = useRef(null);
+    const notificationMenuMobileRef = useRef(null);
 
     // Загрузка аватара
     useEffect(() => {
@@ -37,20 +38,32 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (isSettingsOpen && settingsRef.current && !settingsRef.current.contains(event.target)) {
+            const target = event.target;
+
+            // Настройки
+            if (isSettingsOpen && settingsRef.current && !settingsRef.current.contains(target)) {
                 setIsSettingsOpen(false);
             }
-            if (isMobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+
+            // Мобильное меню
+            if (isMobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
                 setIsMobileMenuOpen(false);
             }
-            if (isNotificationMenuOpen && notificationMenuRef.current && !notificationMenuRef.current.contains(event.target)) {
-                //setIsNotificationMenuOpen(false);
+
+            // Уведомления (проверяем оба контейнера)
+            if (isNotificationMenuOpen) {
+                const clickedInsideDesktop = notificationMenuRef.current?.contains(target);
+                const clickedInsideMobile = notificationMenuMobileRef.current?.contains(target);
+
+                if (!clickedInsideDesktop && !clickedInsideMobile) {
+                    setIsNotificationMenuOpen(false);
+                }
             }
         };
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isSettingsOpen, isMobileMenuOpen, isNotificationMenuOpen]);
-
 
     const handleToggleNotifications = () => {
         const isOpening = !isNotificationMenuOpen;
@@ -103,7 +116,7 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                             <div className="notification-dropdown-menu">
                                 <div className="notification-dropdown-header">
                                     <p>Уведомления</p>
-                                    <button className="header-icon-btn" title="Закрыть уведомления" onClick={()=>setIsNotificationMenuOpen(false)}>
+                                    <button className="header-icon-btn" title="Закрыть уведомления" onClick={() => setIsNotificationMenuOpen(false)}>
                                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -152,7 +165,7 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
 
                 <div className='mobile-header-right'>
                     {/* КНОПКА УВЕДОМЛЕНИЙ (Мобильная) */}
-                    <div ref={notificationMenuRef} className="notification-wrapper">
+                    <div ref={notificationMenuMobileRef} className="notification-wrapper">
                         <button
                             className="header-icon-btn"
                             onClick={handleToggleNotifications}

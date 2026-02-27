@@ -4,7 +4,6 @@ import { apiFetch } from '../utils/apiClient';
 
 import '../Styles/Chats.css'
 
-// Используем forwardRef, чтобы родитель мог получить доступ к методам компонента
 const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref) => {
     const [chats, setChats] = useState([]);
     const [page, setPage] = useState(0);
@@ -24,7 +23,6 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
     };
 
     useImperativeHandle(ref, () => ({
-        // Метод для обновления метаданных чата при новом сообщении
         removeChatFromList(chatId) {
             setChats(prev => prev.filter(c => c.chatId !== chatId));
         },
@@ -41,7 +39,6 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
 
                     targetChat.lastMessage = newMsg;
 
-                    // Увеличиваем счетчик, если чат не активен и сообщение не наше
                     if (!isCurrentActive) {
                         targetChat.numberOfUnreadMessages = (targetChat.numberOfUnreadMessages || 0) + 1;
                     }
