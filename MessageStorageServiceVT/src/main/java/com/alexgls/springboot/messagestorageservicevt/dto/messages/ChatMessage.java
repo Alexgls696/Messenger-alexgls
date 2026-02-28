@@ -1,7 +1,7 @@
-package ru.alexgls.springboot.usersmessagingservice.dto.messages;
+package com.alexgls.springboot.messagestorageservicevt.dto.messages;
 
+import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 import lombok.*;
-import ru.alexgls.springboot.usersmessagingservice.dto.CreateAttachmentPayload;
 
 import java.util.List;
 
@@ -15,4 +15,5 @@ public class ChatMessage {
     private String content;
     private List<CreateAttachmentPayload> attachments;
     private String tempId;
+    private Long replyMessageId;
 }

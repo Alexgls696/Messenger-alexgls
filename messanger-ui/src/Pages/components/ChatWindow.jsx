@@ -7,7 +7,8 @@ const PAGE_SIZE = 50;
 
 function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver,
     messageReadObserver, photoViewer, onOpenProfile, onBack, onOpenGroupProfile,
-    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, onSendMessage, apiBaseUrl, onChatCreated, messageUpdateEvent, editingMessage, setEditingMessage }) {
+    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, apiBaseUrl, onChatCreated, messageUpdateEvent, editingMessage, setEditingMessage,
+    replyingTo, setReplyingTo, replyCache }) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -389,12 +390,19 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 }
 
 
-                onSendMessage({
+                const messagePayload = {
                     chatId: currentChatId,
                     content: content,
                     attachments: uploadedAttachments,
-                    tempId: tempId
+                    tempId: tempId,
+                    replyMessageId: replyingTo?.id || null
+                };
+
+                await apiFetch('/api/messages', {
+                    method: 'POST',
+                    body: JSON.stringify(messagePayload)
                 });
+                setReplyingTo(null);
 
             } catch (err) {
                 console.error("Ошибка при выполнении отправки:", err);
@@ -460,7 +468,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 className="messages"
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                style={{ overflowAnchor: 'none' }} // Отключаем браузерную "помощь"
+                style={{ overflowAnchor: 'none' }}
             >
                 {messages.map((msg) => (
                     <Message
@@ -473,6 +481,8 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                         onOpenProfile={onOpenProfile}
                         photoViewer={photoViewer}
                         onContextMenu={onMessageContextMenu}
+                        allMessages={messages}
+                        replyCache={replyCache}
                     />
                 ))}
             </div>
@@ -518,6 +528,17 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 </div>
             )}
 
+            {replyingTo && (
+                <div className="edit-message-bar reply-bar">
+                    <div className="edit-bar-icon">➦</div>
+                    <div className="edit-bar-content">
+                        <div className="edit-bar-title">Ответ пользователю {participantCache[replyingTo.senderId]}</div>
+                        <div className="edit-bar-text">{replyingTo.content}</div>
+                    </div>
+                    <button className="edit-bar-close" onClick={() => setReplyingTo(null)}>&times;</button>
+                </div>
+            )}
+
             <form className="message-form" onSubmit={handleFormSubmit}>
                 {!isForbidden && (
                     <>
@@ -543,7 +564,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                             handleFormSubmit(e);
                         }
                         if (e.key === 'Escape' && editingMessage) {
-                            cancelEdit(); 
+                            cancelEdit();
                         }
                     }}
                     placeholder="Введите сообщение..."

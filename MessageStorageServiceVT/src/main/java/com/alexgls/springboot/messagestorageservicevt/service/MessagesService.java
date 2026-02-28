@@ -48,7 +48,17 @@ public class MessagesService {
 
     private final ExecutorService executorService = Executors.newWorkStealingPool();
 
-    public List<Message> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
+    public record ReadMessageDatabaseRequest
+            (
+                    List<Long> messageIds,
+                    int chatId,
+                    int readerId,
+                    long lastReadMessageId,
+                    int countMessagesRead
+            ) {
+    }
+
+    public List<MessageDto> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Message> messages = messagesRepository.findAllMessagesByChatId(chatId, currentUserId, pageable);
         Participants participants = participantsRepository.findByChatIdAndUserId(chatId, currentUserId)
@@ -73,6 +83,7 @@ public class MessagesService {
         }
         return messages.stream()
                 .sorted(Comparator.comparing(Message::getCreatedAt))
+                .map(MessageMapper::toMessageDto)
                 .toList();
     }
 
@@ -114,11 +125,11 @@ public class MessagesService {
     @Transactional
     public MessageDto updateMessage(long messageId, int userId, EditMessageRequest editMessageRequest) {
         Message message = messagesRepository.findById(messageId)
-                .orElseThrow(()->new NoSuchMessageException("Сообщение не найдено"));
+                .orElseThrow(() -> new NoSuchMessageException("Сообщение не найдено"));
         Chat chat = chatsRepository.findById(editMessageRequest.chatId())
-                .orElseThrow(()->new NoSuchUsersChatException("Чат не найден"));
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
 
-        if(message.getSenderId() != userId){
+        if (message.getSenderId() != userId) {
             throw new AccessDeniedException("У вас нет доступа для выполнения данной операции. ");
         }
         message.setContent(editMessageRequest.content());
@@ -132,25 +143,15 @@ public class MessagesService {
         messageDto.setContent(encryptUtils.decrypt(message.getContent()));
         messageDto.setAttachments(message.getAttachments());
 
-        if(chat.isGroup()){
+        if (chat.isGroup()) {
             List<Integer> participants = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted((int) chat.getId());
             messageDto.setRecipientIds(participants);
-        }else{
-            Integer recipientId = chatsRepository.findRecipientIdByChatId((int)chat.getId(), userId)
+        } else {
+            Integer recipientId = chatsRepository.findRecipientIdByChatId((int) chat.getId(), userId)
                     .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + chat.getId()));
             messageDto.setRecipientId(recipientId);
         }
         return messageDto;
-    }
-
-    public record ReadMessageDatabaseRequest
-            (
-                    List<Long> messageIds,
-                    int chatId,
-                    int readerId,
-                    long lastReadMessageId,
-                    int countMessagesRead
-            ) {
     }
 
     @Transactional
@@ -199,11 +200,10 @@ public class MessagesService {
     }
 
 
-
     @Transactional
     public MessageDto saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
         CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
-                null, "service");
+                null, "service", null);
         return save(createMessagePayload);
     }
 

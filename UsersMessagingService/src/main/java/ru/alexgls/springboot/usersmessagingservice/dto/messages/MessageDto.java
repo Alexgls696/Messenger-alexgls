@@ -41,4 +41,10 @@ public class MessageDto {
     private String tempId;
 
     private boolean isService;
+
+    private Long replyToId;
+
+    private Integer forwardFromUserId;
+
+    private boolean forwarded;
 }

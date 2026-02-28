@@ -25,6 +25,9 @@ public class MessageMapper {
         messageDto.setReadAt(message.getReadAt());
         messageDto.setChatId(message.getChatId());
         messageDto.setService(message.isService());
+        messageDto.setReplyToId(message.getReplyToMessageId());
+        messageDto.setForwarded(message.isForwarded());
+        messageDto.setForwardFromUserId(message.getForwardFromUserId());
         return messageDto;
     }
 
@@ -39,6 +42,7 @@ public class MessageMapper {
         );
         message.setSenderId(payload.senderId());
         message.setChatId(payload.chatId());
+        message.setReplyToMessageId(payload.replyMessageId());
         boolean isService = payload.tempId().equals("service");
         message.setService(isService);
         return message;

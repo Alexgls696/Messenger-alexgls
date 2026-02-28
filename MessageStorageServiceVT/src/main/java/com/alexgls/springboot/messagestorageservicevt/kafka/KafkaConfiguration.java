@@ -32,22 +32,6 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConsumerFactory<String, CreateMessagePayload> createMessageConsumerFactory() {
-        Map<String, Object> props = initializeProperties();
-        JacksonJsonDeserializer<CreateMessagePayload> jsonDeserializer = new JacksonJsonDeserializer<>(CreateMessagePayload.class);
-        jsonDeserializer.addTrustedPackages("*");
-        jsonDeserializer.setUseTypeHeaders(false);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), jsonDeserializer);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, CreateMessagePayload> kafkaCreateMessageListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, CreateMessagePayload> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(createMessageConsumerFactory());
-        return factory;
-    }
-
-    @Bean
     public ProducerFactory<String, MessageDto> messageProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");

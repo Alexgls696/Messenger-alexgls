@@ -1,9 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { formatDate } from '../utils/dateUtils';
+
+import { apiFetch } from '../utils/apiClient';
 
 // Константу API_BASE_URL лучше импортировать из конфига
 const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
+
+//document.querySelector([data-message-id='...']).scrollIntoView(). -- прокрутка к оригиналу
+ 
 const Message = ({
     msg,
     isSentByMe,
@@ -12,10 +17,14 @@ const Message = ({
     messageReadObserver,
     imageObserver,
     photoViewer,
-    onOpenProfile
+    onOpenProfile,
+    allMessages,
+    replyCache
 }) => {
     const msgRef = useRef(null);
     const isService = msg.service || msg.isService;
+
+    const [replyMsg, setReplyMsg] = useState(null);
 
     // --- Эффект для регистрации в Observer (прочтение сообщения) ---
     useEffect(() => {
@@ -98,6 +107,30 @@ const Message = ({
 
     const isEdited = msg.updatedAt !== null;
 
+    //Ответы на сообщения
+    useEffect(() => {
+        if (!msg.replyToId) return;
+
+        const found = allMessages.find(m => m.id === msg.replyToId);
+        if (found) {
+            setReplyMsg(found);
+            return;
+        }
+
+        if (replyCache.has(msg.replyToId)) {
+            setReplyMsg(replyCache.get(msg.replyToId));
+            return;
+        }
+
+        apiFetch(`/api/messages/${msg.replyToId}`)
+            .then(data => {
+                replyCache.set(msg.replyToId, data);
+                setReplyMsg(data);
+            })
+            .catch(() => setReplyMsg({ content: "Сообщение удалено", senderId: null }));
+
+    }, [msg.replyToId, allMessages, replyCache]);
+
     return (
         <div
             ref={msgRef}
@@ -116,6 +149,17 @@ const Message = ({
                 </div>
             )}
 
+            {msg.replyToId && (
+                <div className="message-reply-preview" onClick={() => /* логика прокрутки к оригиналу */ { }}>
+                    <span className="reply-sender">
+                        {replyMsg ? participantCache[replyMsg.senderId] : "..."}
+                    </span>
+                    <p className="reply-content">
+                        {replyMsg ? replyMsg.content : "Загрузка..."}
+                    </p>
+                </div>
+            )}
+
             {renderAttachments()}
 
             {msg.content && (
@@ -125,7 +169,7 @@ const Message = ({
             <div className="message-meta">
                 {isEdited && <span className="message-edited-label">изменено</span>}
                 <span>{formatDate(msg.createdAt)}</span>
-                <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка..."}</span>
+                <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
             </div>
         </div>
     );

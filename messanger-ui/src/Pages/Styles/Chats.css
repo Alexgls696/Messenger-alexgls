@@ -468,6 +468,43 @@
     color: var(--accent-negative);
 }
 
+/* <-- ответ на сообщение --> */
+
+.message-reply-preview {
+    background: rgba(0, 0, 0, 0.1);
+    border-left: 3px solid var(--accent-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.message.sent .message-reply-preview {
+    background: rgba(255, 255, 255, 0.2);
+    border-left-color: white;
+}
+
+.reply-sender {
+    display: block;
+    font-weight: bold;
+    font-size: 0.85em;
+    color: var(--accent-primary);
+}
+
+.message.sent .reply-sender {
+    color: white;
+}
+
+.reply-content {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
 @keyframes slideUp {
     from {
         transform: translateY(100%);

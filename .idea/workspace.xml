@@ -4,12 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Вырезан UserDetails сервис (совмещен с auth). Частичное исправление багов с токенами и соединением">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки">
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ReplyMessageRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_forward_messages.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UserImagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/controller/UserImagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/KafkaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/KafkaConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessagesController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/ChatMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/CreateMessagePayload.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/MessagingService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +128,7 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -517,7 +537,8 @@
       <workItem from="1772030692693" duration="1590000" />
       <workItem from="1772048615349" duration="5291000" />
       <workItem from="1772091668834" duration="5319000" />
-      <workItem from="1772177839880" duration="11612000" />
+      <workItem from="1772177839880" duration="15558000" />
+      <workItem from="1772264805909" duration="8240000" />
     </task>
     <task id="LOCAL-00001" summary="Исправлен проект">
       <option name="closed" value="true" />
@@ -895,7 +916,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772185505296</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки">
+      <option name="closed" value="true" />
+      <created>1772193049452</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1772193049452</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -913,7 +942,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Исправлено отображение поиска, скачивание файлов при поиске." />
     <MESSAGE value="Исправлены ошибки отображения, изменен стиль списка вложений, добавлен значок AI анализа, отображение информации - анализа" />
     <MESSAGE value="Исправлены ошибки отправки файлов" />
     <MESSAGE value="Фиксы багов с отображением фотографий, обновлением профиля и отображением зашифрованного сообщения при первом его получении" />
@@ -938,18 +966,10 @@
     <MESSAGE value="Добавлено редактирование сообщений" />
     <MESSAGE value="Сервис пользовательской информации объединен с auth service" />
     <MESSAGE value="Вырезан UserDetails сервис (совмещен с auth). Частичное исправление багов с токенами и соединением" />
-    <option name="LAST_COMMIT_MESSAGE" value="Вырезан UserDetails сервис (совмещен с auth). Частичное исправление багов с токенами и соединением" />
+    <MESSAGE value="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/MessagingKafkaListener.java</url>
-          <line>23</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="SpringBootApplicationConfigurationType">
         <watch expression="import java.util.List;" />

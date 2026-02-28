@@ -1,16 +1,19 @@
 package com.alexgls.springboot.messagestorageservicevt.controller;
 
+import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -22,17 +25,40 @@ public class MessagesController {
 
     private final KafkaSenderService kafkaSenderService;
 
+    @PostMapping
+    public ResponseEntity<Void> createMessage(@RequestBody ChatMessage message, Authentication authentication) {
+        var payload = getCreateMessagePayload(message, authentication);
+        MessageDto savedMessageDto = messagesService.save(payload);
+        log.info("Message has been successfully saved in database: {}", savedMessageDto);
+        kafkaSenderService.sendMessage(savedMessageDto);
+        return ResponseEntity
+                .ok()
+                .build();
+    }
+
+    private CreateMessagePayload getCreateMessagePayload(ChatMessage message, Authentication authentication) {
+        Integer senderId = getSenderId(authentication);
+        List<CreateAttachmentPayload> attachments = message.getAttachments() != null ? message.getAttachments() : Collections.emptyList();
+
+        return new CreateMessagePayload(
+                Integer.parseInt(message.getChatId()),
+                senderId,
+                message.getContent(),
+                attachments,
+                message.getTempId(),
+                message.getReplyMessageId()
+        );
+    }
+
     @GetMapping
-    public List<Message> findMessagesByChatId(
+    public List<MessageDto> findMessagesByChatId(
             @RequestParam("chatId") int chatId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "50") int pageSize,
             Authentication authentication) {
         int currentUserId = getSenderId(authentication);
         log.info("findMessagesByChatId chatId={}, page={}, size={}", chatId, page, pageSize);
-        return messagesService.getMessagesByChatId(chatId, page, pageSize, currentUserId)
-                .stream()
-                .toList();
+        return messagesService.getMessagesByChatId(chatId, page, pageSize, currentUserId);
     }
 
     @PatchMapping("/{id}")

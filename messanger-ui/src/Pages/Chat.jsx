@@ -42,6 +42,9 @@ function ChatPage() {
     const [notifications, setNotifications] = useState([]);
     const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
+    const [replyingTo, setReplyingTo] = useState(null);
+    const replyCache = useRef(new Map()); //Кеш сообщений для ответов
+
     // Состояния модальных окон
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [selectedUserProfile, setSelectedUserProfile] = useState(null);
@@ -175,7 +178,7 @@ function ChatPage() {
                 return {
                     messageId: parseInt(e.target.dataset.messageId),
                     senderId: parseInt(e.target.dataset.senderId),
-                    chatId: activeChatRef.current?.chatId 
+                    chatId: activeChatRef.current?.chatId
                 };
             })
             .filter(m => m.chatId);
@@ -334,6 +337,8 @@ function ChatPage() {
 
         const options = [];
 
+        options.push({ label: 'Ответить', action: () => setReplyingTo(msg) });
+
         if (isSentByMe && msg.type === 'TEXT') {
             options.push({
                 label: 'Изменить',
@@ -345,6 +350,8 @@ function ChatPage() {
             label: 'Удалить у себя',
             action: () => deleteMessages([msg.id], false)
         });
+
+
 
         if (isSentByMe) {
             options.push({
@@ -405,13 +412,16 @@ function ChatPage() {
                     socketUpdate={socketUpdate}
                     readEvent={readEvent}
                     deleteEvent={deleteEvent}
-                    onSendMessage={(msg) => sendMessage(msg)} а
                     apiBaseUrl={API_BASE_URL}
                     onMessageContextMenu={handleMessageContextMenu}
                     onChatCreated={handleGroupCreated}
                     messageUpdateEvent={messageUpdateEvent}
                     editingMessage={editingMessage}
-                    setEditingMessage={setEditingMessage} 
+                    setEditingMessage={setEditingMessage}
+                    
+                    replyingTo={replyingTo}
+                    setReplyingTo={setReplyingTo}
+                    replyCache={replyCache.current}
                 />
 
                 {/* Модальные окна */}

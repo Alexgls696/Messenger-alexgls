@@ -51,6 +51,15 @@ public class Message {
     @Column(name = "is_service")
     private boolean isService;
 
+    @Column(name = "reply_to_message_id")
+    private Long replyToMessageId;
+
+    @Column(name = "forward_from_user_id")
+    private Integer forwardFromUserId;
+
+    @Column(name = "is_forwarded", nullable = false)
+    private boolean forwarded;
+
     @Transient
     private int recipientId;
 
