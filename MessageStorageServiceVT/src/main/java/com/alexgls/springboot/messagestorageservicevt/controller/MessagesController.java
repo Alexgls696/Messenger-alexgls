@@ -7,6 +7,7 @@ import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -59,6 +62,18 @@ public class MessagesController {
         int currentUserId = getSenderId(authentication);
         log.info("findMessagesByChatId chatId={}, page={}, size={}", chatId, page, pageSize);
         return messagesService.getMessagesByChatId(chatId, page, pageSize, currentUserId);
+    }
+
+    @GetMapping("/by-id")
+    public ResponseEntity<?> findMessageById(@RequestParam Long messageId, @RequestParam Long chatId, Authentication authentication) {
+        if(Objects.isNull(messageId) || Objects.isNull(chatId)) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error","Чат и id сообщение должны быть указаны"));
+        }
+        int sender = getSenderId(authentication);
+        var message =  messagesService.findById(messageId,chatId,sender);
+        return ResponseEntity.ok(message);
     }
 
     @PatchMapping("/{id}")

@@ -4,6 +4,7 @@ package com.alexgls.springboot.messagestorageservicevt.exceptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -53,14 +54,25 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(NoSuchMessageException.class)
+    public ResponseEntity<ProblemDetail> handleNoSuchMessageException(NoSuchMessageException exception, Locale locale) {
+        log.warn("Handle NoSuchUserException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.message_not_found", new Object[0], "error.message_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(DeleteMessageAccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleDeleteMessageAccessDeniedException(DeleteMessageAccessDeniedException exception, Locale locale) {
         log.warn("Handle DeleteMessageAccessDeniedException: {}", exception.getMessage());
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.OK,
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
                 messageSource.getMessage("errors.access_denied", new Object[0], "errors.access_denied", locale));
         problemDetail.setProperty("error", exception.getMessage());
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.FORBIDDEN)
                 .body(problemDetail);
     }
 

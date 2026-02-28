@@ -87,6 +87,18 @@ public class MessagesService {
                 .toList();
     }
 
+    public MessageDto findById(long messageId, long chatId, int sender){
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId,sender)
+                .orElseThrow(()->new NoSuchParticipantException("Вы не принадлежите этому чату"));
+        return messagesRepository.findById(messageId)
+                .map(MessageMapper::toMessageDto)
+                .map(msq-> {
+                    msq.setContent(encryptUtils.decrypt(msq.getContent()));
+                    return msq;
+                })
+                .orElseThrow(()-> new NoSuchMessageException("Сообщение не найдено"));
+    }
+
     public List<MessageDto> findMessagesByContent(SearchMessageInChatRequest request, int userId) {
         var lemmas = lexicalAnalyzer.lemmatizeText(request.content());
         var hashes = lemmas.stream()

@@ -122,7 +122,7 @@ const Message = ({
             return;
         }
 
-        apiFetch(`/api/messages/${msg.replyToId}`)
+        apiFetch(`/api/messages/by-id?messageId=${msg.replyToId}&chatId=${msg.chatId}`)
             .then(data => {
                 replyCache.set(msg.replyToId, data);
                 setReplyMsg(data);
