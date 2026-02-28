@@ -39,12 +39,26 @@ public class MessagesController {
                 .build();
     }
 
+    @PostMapping
+    public ResponseEntity<Void> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
+        var payload = getCreateMessagePayload(request.chatMessage(), authentication);
+        var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds());
+        log.info("Forwarded messages has been successfully saved in database: {}", savedMessages);
+
+        for (var msg : savedMessages) {
+            kafkaSenderService.sendMessage(msg);
+        }
+        return ResponseEntity
+                .ok()
+                .build();
+    }
+
     private CreateMessagePayload getCreateMessagePayload(ChatMessage message, Authentication authentication) {
         Integer senderId = getSenderId(authentication);
         List<CreateAttachmentPayload> attachments = message.getAttachments() != null ? message.getAttachments() : Collections.emptyList();
 
         return new CreateMessagePayload(
-                Integer.parseInt(message.getChatId()),
+                message.getChatId(),
                 senderId,
                 message.getContent(),
                 attachments,

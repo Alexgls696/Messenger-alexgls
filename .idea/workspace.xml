@@ -4,13 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены ответы на сообщения в одном чате. Синхронная отправка сообщений без участия WebSocket. WebSocket только для рассылки">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)">
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ForwardMessageRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,8 +35,8 @@
         <option value="Exception" />
         <option value="Interface" />
         <option value="Enum" />
-        <option value="Record" />
         <option value="Class" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -519,15 +525,7 @@
       <workItem from="1772048615349" duration="5291000" />
       <workItem from="1772091668834" duration="5319000" />
       <workItem from="1772177839880" duration="15558000" />
-      <workItem from="1772264805909" duration="9828000" />
-    </task>
-    <task id="LOCAL-00001" summary="Исправлен проект">
-      <option name="closed" value="true" />
-      <created>1760182791349</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1760182791349</updated>
+      <workItem from="1772264805909" duration="18489000" />
     </task>
     <task id="LOCAL-00002" summary="Доделан API для профиля пользователя, обновление, удаление фотографий. TODO: окно профиля пользователя">
       <option name="closed" value="true" />
@@ -913,7 +911,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772273266523</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)">
+      <option name="closed" value="true" />
+      <created>1772274885885</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1772274885886</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -931,7 +937,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Исправлены ошибки отправки файлов" />
     <MESSAGE value="Фиксы багов с отображением фотографий, обновлением профиля и отображением зашифрованного сообщения при первом его получении" />
     <MESSAGE value="Добавлен счетчик непрочитанных сообщений" />
     <MESSAGE value="TODO исправить прочтение сообщений ниже в диалоге. Доделать группы" />
@@ -956,7 +961,8 @@
     <MESSAGE value="Вырезан UserDetails сервис (совмещен с auth). Частичное исправление багов с токенами и соединением" />
     <MESSAGE value="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки" />
     <MESSAGE value="Добавлены ответы на сообщения в одном чате. Синхронная отправка сообщений без участия WebSocket. WebSocket только для рассылки" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлены ответы на сообщения в одном чате. Синхронная отправка сообщений без участия WebSocket. WebSocket только для рассылки" />
+    <MESSAGE value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

@@ -28,7 +28,7 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
 
     @Query("select userId from Participants " +
             "where chat.id = :currentChatId and leave = false and removed = false")
-    List<Integer>findUserIdsByChatIdWhenUsersNotDeleted(@Param("currentChatId") Integer chatId);
+    List<Integer>findUserIdsByChatIdWhenUsersNotDeleted(@Param("currentChatId") long chatId);
 
     Optional<Participants> findByChatIdAndUserId(long chatId, int userId);
 
@@ -37,15 +37,15 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     @Modifying
     @Query("update Participants set isDeletedByUser = false " +
             "where userId in :userIds and chat.id = :chatId")
-    void removeMarkIsDeletedForChatAndUserIdForAll(@Param("userIds") List<Integer> userIds,@Param("chatId") int chatId);
+    void removeMarkIsDeletedForChatAndUserIdForAll(@Param("userIds") List<Integer> userIds,@Param("chatId") long chatId);
 
     @Query("select userId from Participants where chat.id = :currentChatId")
-    List<Integer> findUserIdsWhoDeletedChat(@Param("currentChatId") int chatId);
+    List<Integer> findUserIdsWhoDeletedChat(@Param("currentChatId") long chatId);
 
     @Modifying
     @Query(value = "update participants set unread_count = unread_count + 1 " +
             "where chat_id = :chatId and user_id != :senderId and (is_leave is false and is_removed is false)", nativeQuery = true)
-    void incrementUpdateCountForUser(@Param("chatId") int chatId, @Param("senderId") int senderId);
+    void incrementUpdateCountForUser(@Param("chatId") long chatId, @Param("senderId") int senderId);
 
     @Modifying
     @Query(value = "update participants set unread_count = GREATEST(0, unread_count - 1) " +
@@ -54,7 +54,7 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
 
     @Modifying
     @Query(value = "update participants set unread_count = 0 where chat_id = :chatId and user_id = :readerId", nativeQuery = true)
-    void resetCountForCurrentUser(@Param("chatId") int chatId, @Param("readerId") int readerId);
+    void resetCountForCurrentUser(@Param("chatId") long chatId, @Param("readerId") int readerId);
 
     @Modifying
     @Query(value = """

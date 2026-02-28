@@ -17,7 +17,7 @@ import java.util.List;
 public class MessageDto {
     private long id;
 
-    private int chatId;
+    private long chatId;
 
     private int senderId;
 

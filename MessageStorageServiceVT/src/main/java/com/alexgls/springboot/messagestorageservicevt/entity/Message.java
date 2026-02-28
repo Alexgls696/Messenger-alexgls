@@ -22,10 +22,10 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
-    private long id;
+    private Long id;
 
     @Column(name = "chat_id")
-    private int chatId;
+    private long chatId;
 
     @Column(name = "sender_id")
     private int senderId;
@@ -68,4 +68,17 @@ public class Message {
 
     @Transient
     private List<Attachment> attachments;
+
+    //При пересылке
+    public Message(Message source) {
+        this.chatId = source.chatId;
+        this.senderId = source.senderId;
+        this.content = source.content;
+        this.type = source.type;
+        this.createdAt = source.createdAt;
+        this.updatedAt = source.updatedAt;
+        this.isRead = source.isRead;
+        this.readAt = source.readAt;
+        this.isService = source.isService;
+    }
 }

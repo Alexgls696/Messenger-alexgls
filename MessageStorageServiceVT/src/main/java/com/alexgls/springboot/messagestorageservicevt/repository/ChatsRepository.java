@@ -56,12 +56,12 @@ public interface ChatsRepository extends CrudRepository<Chat, Long> {
 
     @Query(value = "select p.user_id from participants p join public.chats c on p.chat_id = c.chat_id " +
             "where c.chat_id = :chatId and user_id != :senderId and is_group = false", nativeQuery = true)
-    Optional<Integer> findRecipientIdByChatId(@Param("chatId") int chatId, @Param("senderId") int senderId);
+    Optional<Integer> findRecipientIdByChatId(@Param("chatId") long chatId, @Param("senderId") int senderId);
 
     @Modifying
     @Query(value = "UPDATE chats SET last_message_id = :newLastMessageId, updated_at = now() " +
             "WHERE chat_id = :currentChatId",
             nativeQuery = true)
-    void updateLastMessageIdByChatId(@Param("currentChatId") int currentChatId,
+    void updateLastMessageIdByChatId(@Param("currentChatId") long currentChatId,
                                      @Param("newLastMessageId") long newLastMessageId);
 }

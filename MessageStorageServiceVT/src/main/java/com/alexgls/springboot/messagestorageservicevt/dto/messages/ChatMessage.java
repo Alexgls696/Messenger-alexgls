@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class ChatMessage {
-    private String chatId;
+    private long chatId;
     private String content;
     private List<CreateAttachmentPayload> attachments;
     private String tempId;

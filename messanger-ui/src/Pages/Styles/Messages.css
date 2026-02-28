@@ -201,6 +201,7 @@ body[data-theme="dark"] .message.service {
 
 .message-input {
     flex: 1;
+    min-height: 5vh;
     padding: 10px 10px;
     border: 1px solid var(--border-primary);
     border-radius: 20px;

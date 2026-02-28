@@ -12,6 +12,8 @@ import com.alexgls.springboot.messagestorageservicevt.repository.*;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.NoSuchMessageException;
@@ -30,6 +32,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -87,16 +91,16 @@ public class MessagesService {
                 .toList();
     }
 
-    public MessageDto findById(long messageId, long chatId, int sender){
-        Participants participants = participantsRepository.findByChatIdAndUserId(chatId,sender)
-                .orElseThrow(()->new NoSuchParticipantException("Вы не принадлежите этому чату"));
+    public MessageDto findById(long messageId, long chatId, int sender) {
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId, sender)
+                .orElseThrow(() -> new NoSuchParticipantException("Вы не принадлежите этому чату"));
         return messagesRepository.findById(messageId)
                 .map(MessageMapper::toMessageDto)
-                .map(msq-> {
+                .map(msq -> {
                     msq.setContent(encryptUtils.decrypt(msq.getContent()));
                     return msq;
                 })
-                .orElseThrow(()-> new NoSuchMessageException("Сообщение не найдено"));
+                .orElseThrow(() -> new NoSuchMessageException("Сообщение не найдено"));
     }
 
     public List<MessageDto> findMessagesByContent(SearchMessageInChatRequest request, int userId) {
@@ -117,7 +121,6 @@ public class MessagesService {
         }
         return List.of();
     }
-
 
     @Transactional
     public void readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
@@ -211,6 +214,80 @@ public class MessagesService {
         return messageDto;
     }
 
+
+
+    @Transactional
+    public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds) {
+        Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                .orElseThrow(() -> new NoSuchParticipantException("Участник не найден"));
+
+        if (participants.isRemoved() || participants.isLeave()) {
+            throw new AccessDeniedException("Доступ запрещен");
+        }
+
+        Chat chat = chatsRepository.findById(createMessagePayload.chatId())
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
+
+        List<Message> originalMessages = messagesRepository.findAllByIdIn(forwardedMessageIds);
+        List<MessageDto> resultDtos = new ArrayList<>();
+
+        for (Message original : originalMessages) {
+            Message forwardedMsg = new Message();
+            forwardedMsg.setChatId(chat.getId());
+            forwardedMsg.setSenderId(createMessagePayload.senderId());
+            forwardedMsg.setContent(original.getContent());
+            forwardedMsg.setType(original.getType());
+            forwardedMsg.setCreatedAt(Timestamp.from(Instant.now()));
+            forwardedMsg.setRead(false);
+
+            Message savedForwardedMsg = messagesRepository.save(forwardedMsg);
+
+            List<Attachment> clonedAttachments = copyAttachmentsForNewMessage(original.getId(), savedForwardedMsg.getId(), chat.getId());
+
+            MessageDto forwardedDto = MessageMapper.toMessageDto(savedForwardedMsg);
+            forwardedDto.setAttachments(clonedAttachments);
+            forwardedDto.setContent(encryptUtils.decrypt(savedForwardedMsg.getContent()));
+            resultDtos.add(forwardedDto);
+        }
+
+        if (createMessagePayload.content() != null && !createMessagePayload.content().isBlank()) {
+            MessageDto mainMessageDto = this.save(createMessagePayload);
+            resultDtos.add(mainMessageDto);
+        } else {
+            if (!resultDtos.isEmpty()) {
+                MessageDto lastForwarded = resultDtos.get(resultDtos.size() - 1);
+                removeMarkIsDeletedForChatAndUserId(createMessagePayload);
+                chatsRepository.updateLastMessageIdByChatId(chat.getId(), lastForwarded.getId());
+                participantsRepository.incrementUpdateCountForUser(chat.getId(), createMessagePayload.senderId());
+                participantsRepository.resetCountForCurrentUser(createMessagePayload.chatId(), createMessagePayload.senderId());
+            }
+        }
+
+        return resultDtos;
+    }
+
+    private List<Attachment> copyAttachmentsForNewMessage(long oldMessageId, long newMessageId, long newChatId) {
+        List<Attachment> oldAttachments = attachmentRepository.findAllByMessageId(oldMessageId);
+
+        if (oldAttachments.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Attachment> newAttachments = oldAttachments.stream()
+                .map(oldAttr -> {
+                    Attachment copy = new Attachment();
+                    copy.setMessageId(newMessageId);
+                    copy.setChatId(newChatId);
+                    copy.setFileId(oldAttr.getFileId());
+                    copy.setMimeType(oldAttr.getMimeType());
+                    copy.setFileName(oldAttr.getFileName());
+                    copy.setLogicType(oldAttr.getLogicType());
+                    copy.setHasAnalysis(oldAttr.getHasAnalysis());
+                    return copy;
+                }).toList();
+
+        return (List<Attachment>) attachmentRepository.saveAll(newAttachments);
+    }
 
     @Transactional
     public MessageDto saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
