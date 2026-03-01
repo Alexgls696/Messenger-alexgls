@@ -16,7 +16,6 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
     // Состояние для тултипа (AI анализ)
     const [tooltipData, setTooltipData] = useState({ visible: false, x: 0, y: 0, content: '' });
     const metadataCache = useRef(new Map());
-    const tooltipTimer = useRef(null);
 
     // 1. Загрузка данных профиля при открытии
     useEffect(() => {

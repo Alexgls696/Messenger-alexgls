@@ -15,7 +15,7 @@ public class AuthServiceRestClientImpl implements AuthServiceRestClient {
 
     private final RestClient restClient;
 
-    private final ParameterizedTypeReference<Iterable<GetUserDto>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {};
+    private final ParameterizedTypeReference<List<GetUserDto>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {};
 
     @Override
     public Iterable<GetUserDto> findAllByUsername(String username, String token) {
@@ -32,7 +32,7 @@ public class AuthServiceRestClientImpl implements AuthServiceRestClient {
     }
 
     @Override
-    public Iterable<GetUserDto> findAllByIds(List<Integer> ids, String token) {
+    public List<GetUserDto> findAllByIds(List<Integer> ids, String token) {
         try {
             return restClient
                     .post()

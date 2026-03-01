@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react'
 import LoginPage from './Pages/Login';
-import ChatPage from './Pages/Chat';
+import ChatPage from './Pages/ChatPage';
 import ProtectedRoute from './Pages/components/ProtectedRoute'
 import OneStepRegister from './Pages/OneStepRegister'
 import SetupProfile from './Pages/SetupProfile';

@@ -39,7 +39,7 @@ public class MessagesController {
                 .build();
     }
 
-    @PostMapping
+    @PostMapping("/forward")
     public ResponseEntity<Void> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
         var payload = getCreateMessagePayload(request.chatMessage(), authentication);
         var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds());

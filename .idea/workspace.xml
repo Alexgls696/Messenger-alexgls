@@ -4,19 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)">
-      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ForwardMessageRequest.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлена логика пересланных сообщений на бекенд">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ChatsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ForwardMessageRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ForwardMessageRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClientImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/client/AuthServiceRestClientImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/java/com/alexgls/springboot/searchdataservice/service/SearchServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Chat.jsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/imageLoader.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/imageLoader.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +91,7 @@
     "JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ParticipantsListMustIncludeBothUsers.executor": "Run",
     "JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto.executor": "Coverage",
     "JUnit.ChatsControllerIntegrationTest.executor": "Coverage",
-    "JUnit.ChatsServiceTest.executor": "Coverage",
+    "JUnit.ChatsServiceTest.executor": "Run",
     "JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsExistsTest.executor": "Run",
     "JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsNotExistsTest.executor": "Run",
     "JUnit.ChatsServiceTest.updateGroupTest_ReturnsGroupDto_WhenUserCanEditGroup.executor": "Run",
@@ -115,13 +122,13 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
     "Spring Boot.SearchDataServiceApplication.executor": "Run",
     "Spring Boot.UserDetailsServiceApplication.executor": "Run",
-    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
+    "Spring Boot.UsersMessagingServiceApplication.executor": "Debug",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
@@ -222,6 +229,7 @@
           <value>
             <set>
               <option value="ChatClientSpringBootApplication" />
+              <option value="RegistrationServiceApplication" />
               <option value="UserDetailsServiceApplication" />
             </set>
           </value>
@@ -229,7 +237,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.NotificationsServiceApplication">
+  <component name="RunManager" selected="Spring Boot.UsersMessagingServiceApplication">
     <configuration name="ChatsControllerIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MessageStorageServiceVT" />
       <extension name="coverage">
@@ -245,18 +253,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ChatsServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MessageStorageServiceVT" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.*" />
+          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.service.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt" />
-      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.ChatsControllerIntegrationTest" />
-      <option name="METHOD_NAME" value="createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt.service" />
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.service.ChatsServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -405,8 +412,8 @@
     </configuration>
     <list>
       <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
+      <item itemvalue="JUnit.ChatsServiceTest" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
-      <item itemvalue="JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" />
       <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.NotificationsServiceApplication" />
@@ -424,10 +431,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
+        <item itemvalue="JUnit.ChatsServiceTest" />
         <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
         <item itemvalue="Spring Boot.ChatClientSpringBootApplication" />
         <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
-        <item itemvalue="JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto" />
       </list>
     </recent_temporary>
   </component>
@@ -525,15 +532,8 @@
       <workItem from="1772048615349" duration="5291000" />
       <workItem from="1772091668834" duration="5319000" />
       <workItem from="1772177839880" duration="15558000" />
-      <workItem from="1772264805909" duration="18489000" />
-    </task>
-    <task id="LOCAL-00002" summary="Доделан API для профиля пользователя, обновление, удаление фотографий. TODO: окно профиля пользователя">
-      <option name="closed" value="true" />
-      <created>1760191631754</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1760191631754</updated>
+      <workItem from="1772264805909" duration="19072000" />
+      <workItem from="1772351887846" duration="9863000" />
     </task>
     <task id="LOCAL-00003" summary="Добавлен профиль пользователя на клиенте. TODO: загрузка фотографий профиля">
       <option name="closed" value="true" />
@@ -919,7 +919,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772274885886</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="Добавлена логика пересланных сообщений на бекенд">
+      <option name="closed" value="true" />
+      <created>1772284202459</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1772284202459</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -937,7 +945,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Фиксы багов с отображением фотографий, обновлением профиля и отображением зашифрованного сообщения при первом его получении" />
     <MESSAGE value="Добавлен счетчик непрочитанных сообщений" />
     <MESSAGE value="TODO исправить прочтение сообщений ниже в диалоге. Доделать группы" />
     <MESSAGE value="Добавлены группы пользователей, полностью исправлен счетчик непрочитанных сообщений для групп. Добавить функционал ролям пользователей в группах, назначение ролей" />
@@ -962,9 +969,19 @@
     <MESSAGE value="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки" />
     <MESSAGE value="Добавлены ответы на сообщения в одном чате. Синхронная отправка сообщений без участия WebSocket. WebSocket только для рассылки" />
     <MESSAGE value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
+    <MESSAGE value="Добавлена логика пересланных сообщений на бекенд" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлена логика пересланных сообщений на бекенд" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/UsersMessagingService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/MessageStorageServiceKafkaListener.java</url>
+          <line>25</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="SpringBootApplicationConfigurationType">
         <watch expression="import java.util.List;" />

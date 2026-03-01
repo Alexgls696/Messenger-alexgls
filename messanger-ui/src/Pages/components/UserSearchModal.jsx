@@ -7,7 +7,12 @@ import userProfileDefault from '../images/profile-default.png'
 
 let cachedUsersFromChats = null;
 
-const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
+const UserSearchModal = ({ currentUserId,
+    isOpen,
+    onClose,
+    onUserSelect,
+    forwardMode = false,
+    forwardMessagesCount = 0 }) => {
     const [username, setUsername] = useState('');
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -21,7 +26,7 @@ const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
             setUsername('');
             setIsSearching(false);
             setIsShowingHistory(true);
-            
+
             // Если данные уже есть в кеше — сразу их показываем
             if (cachedUsersFromChats) {
                 setResults(cachedUsersFromChats);
@@ -68,7 +73,7 @@ const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
     const handleInputChange = (e) => {
         const value = e.target.value;
         setUsername(value);
-        
+
         // Если пользователь стер текст — возвращаем список из чатов
         if (value.trim().length === 0) {
             setIsShowingHistory(true);
@@ -82,7 +87,11 @@ const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
         <div className="modal" onClick={(e) => e.target.className === 'modal' && onClose()}>
             <div className="modal-content search-modal-content">
                 <div className="modal-header">
-                    <h2 id="searchModalTitle">Поиск пользователей</h2>
+                    <h2 id="searchModalTitle">
+                        {forwardMode
+                            ? `Переслать ${forwardMessagesCount} сообщений...`
+                            : 'Поиск пользователей'}
+                    </h2>
                     <button className="header-icon-btn" onClick={onClose}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -112,7 +121,7 @@ const UserSearchModal = ({currentUserId, isOpen, onClose, onUserSelect }) => {
                                 Пользователи, с которыми вы общались
                             </p>
                         )}
-                        
+
                         {results.length > 0 ? (
                             results.map(user => (
                                 <UserSearchItem

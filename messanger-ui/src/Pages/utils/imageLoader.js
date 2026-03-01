@@ -1,6 +1,5 @@
-// src/utils/imageLoader.js
 const blobCache = new Map();
-const urlCache = new Map(); // НОВОЕ: Кэш для строк-ссылок
+const urlCache = new Map(); 
 const pendingRequests = new Map();
 let baseUrl = '';
 

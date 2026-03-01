@@ -5,10 +5,35 @@ import { generateTempId, isDocumentType } from '../utils/messageUtils';
 
 const PAGE_SIZE = 50;
 
-function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver,
-    messageReadObserver, photoViewer, onOpenProfile, onBack, onOpenGroupProfile,
-    onOpenSearch, onMessageContextMenu, socketUpdate, readEvent, deleteEvent, apiBaseUrl, onChatCreated, messageUpdateEvent, editingMessage, setEditingMessage,
-    replyingTo, setReplyingTo, replyCache }) {
+function ChatWindow({ activeChat,
+    currentUserId,
+    participantCache,
+    imageObserver,
+    messageReadObserver,
+    photoViewer,
+    onOpenProfile,
+    onBack,
+    onOpenGroupProfile,
+    onOpenSearch,
+    onMessageContextMenu,
+    socketUpdates,
+    readEvent,
+    deleteEvent,
+    apiBaseUrl,
+    onChatCreated,
+    messageUpdateEvent,
+    editingMessage,
+    setEditingMessage,
+    replyingTo,
+    setReplyingTo,
+    replyCache,
+    onForwardMessages,
+    firstSelectedMessage,
+    isSelectionMode,
+    setSelectionMode,
+    forwardingMessages,
+    setForwardingMessages
+}) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -27,6 +52,8 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     const inputTextRef = useRef(null);
 
     const [isForbidden, setIsForbidden] = useState(false);
+
+    const [selectedMessages, setSelectedMessages] = useState([]);
 
     const fetchMessages = useCallback(async (chatId, pageNum, signal) => {
         try {
@@ -178,26 +205,37 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
     //WebSocket---------------------------------------------------------
 
     useEffect(() => {
-        if (!activeChat || !socketUpdate) return;
+        if (!activeChat || !socketUpdates || socketUpdates.length === 0) return;
 
-        if (socketUpdate.chatId === activeChat.chatId) {
-            setMessages(prev => {
-                if (socketUpdate.tempId && prev.some(m => m.tempId === socketUpdate.tempId)) {
-                    return prev.map(m => m.tempId === socketUpdate.tempId ? socketUpdate : m);
+        setMessages(prev => {
+            let nextMessages = [...prev];
+            let hasChanges = false;
+
+            socketUpdates.forEach(update => {
+                if (update.chatId !== activeChat.chatId) return;
+
+                if (update.tempId && nextMessages.some(m => m.tempId === update.tempId)) {
+                    nextMessages = nextMessages.map(m => m.tempId === update.tempId ? update : m);
+                    hasChanges = true;
+                } 
+                else if (!nextMessages.some(m => m.id === update.id)) {
+                    nextMessages.push(update);
+                    hasChanges = true;
                 }
-                if (!prev.some(m => m.id === socketUpdate.id)) {
-                    return [...prev, socketUpdate];
-                }
-                return prev;
             });
 
-            // Скролл вниз
-            setTimeout(() => {
-                if (scrollContainerRef.current)
-                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-            }, 50);
-        }
-    }, [socketUpdate, activeChat]);
+            return hasChanges ? nextMessages : prev;
+        });
+
+        // Скролл вниз
+        setTimeout(() => {
+            if (scrollContainerRef.current)
+                scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }, 50);
+
+    }, [socketUpdates, activeChat]);
+
+    
 
     useEffect(() => {
         if (messageUpdateEvent && activeChat && messageUpdateEvent.chatId === activeChat.chatId) {
@@ -231,23 +269,6 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
             setMessages(prev => prev.filter(m => !deleteEvent.messagesId.includes(m.id)));
         }
     }, [deleteEvent, activeChat]);
-
-    useEffect(() => {
-        if (socketUpdate && activeChat && socketUpdate.chatId === activeChat.chatId) {
-            setMessages(prev => {
-                // Если это подтверждение отправки (замена tempId)
-                if (socketUpdate.tempId && prev.some(m => m.tempId === socketUpdate.tempId)) {
-                    return prev.map(m => m.tempId === socketUpdate.tempId ? socketUpdate : m);
-                }
-                // Если новое сообщение (и не дубликат)
-                if (!prev.some(m => m.id === socketUpdate.id)) {
-                    return [...prev, socketUpdate];
-                }
-                return prev;
-            });
-        }
-    }, [socketUpdate, activeChat?.chatId]);
-
 
 
     //Отправка сообщения ------------------------------------------------
@@ -289,8 +310,7 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
 
         const content = inputText.trim();
         const filesToSend = [...pendingFiles];
-
-        if (!content && filesToSend.length === 0) return;
+        if (!content && filesToSend.length === 0 && forwardingMessages.length === 0) return;
 
         const tempId = generateTempId();
 
@@ -336,24 +356,25 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                 }
 
                 // 2. Оптимистичное обновление UI
-                const optimisticMsg = {
-                    optimistic: true,
-                    tempId: tempId,
-                    chatId: currentChatId,
-                    senderId: currentUserId,
-                    content: content,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: null,
-                    isPending: true,
-                    attachments: filesToSend.map(f => ({
-                        fileId: f.tempId,
-                        fileName: f.file.name,
-                        mimeType: f.file.type,
-                        localUrl: f.previewUrl
-                    }))
-                };
-
-                setMessages(prev => [...prev, optimisticMsg]);
+                if (content) {
+                    const optimisticMsg = {
+                        optimistic: true,
+                        tempId: tempId,
+                        chatId: currentChatId,
+                        senderId: currentUserId,
+                        content: content,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: null,
+                        isPending: true,
+                        attachments: filesToSend.map(f => ({
+                            fileId: f.tempId,
+                            fileName: f.file.name,
+                            mimeType: f.file.type,
+                            localUrl: f.previewUrl
+                        }))
+                    };
+                    setMessages(prev => [...prev, optimisticMsg]);
+                }
                 setInputText('');
                 setPendingFiles([]);
 
@@ -398,15 +419,27 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                     replyMessageId: replyingTo?.id || null
                 };
 
-                await apiFetch('/api/messages', {
-                    method: 'POST',
-                    body: JSON.stringify(messagePayload)
-                });
-                setReplyingTo(null);
+                const forwardedMessagesIds = forwardingMessages.map((msg) => msg.id);
+                if (forwardedMessagesIds.length > 0) {
+                    const request = {
+                        chatMessage: messagePayload,
+                        forwardedMessagesIds: forwardedMessagesIds,
+                    }
+                    await apiFetch(`/api/messages/forward`, {
+                        method: 'POST',
+                        body: JSON.stringify(request)
+                    })
+                    setForwardingMessages([])
+                } else {
+                    await apiFetch('/api/messages', {
+                        method: 'POST',
+                        body: JSON.stringify(messagePayload)
+                    });
+                }
+                setReplyingTo(null)
 
             } catch (err) {
                 console.error("Ошибка при выполнении отправки:", err);
-                // Визуально помечаем сообщение как ошибочное
                 setMessages(prev => prev.map(m =>
                     m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
                 ));
@@ -414,53 +447,107 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
         }
     };
 
+    useEffect(() => {
+        if (replyingTo) {
+            inputTextRef.current?.focus();
+        }
+    }, [replyingTo])
+
+    // Выделение и пересылка
+    useEffect(() => {
+        if (firstSelectedMessage) {
+            setSelectedMessages([firstSelectedMessage.id]);
+        }
+    }, [firstSelectedMessage]);
+
+    const toggleMessageSelection = (messageId) => {
+        setSelectedMessages(prev => {
+            if (prev.includes(messageId)) {
+                return prev.filter(id => id !== messageId);
+            }
+            return [...prev, messageId];
+        });
+    };
+
+    const clearSelection = () => {
+        setSelectedMessages([]);
+    };
+
+    const handleForwardClick = () => {
+        if (onForwardMessages && selectedMessages.length > 0) {
+            const messagesToForward = messages.filter(m => selectedMessages.includes(m.id));
+            onForwardMessages(messagesToForward);
+            clearSelection();
+        }
+    };
+
+    useEffect(() => {
+        if (replyingTo || (forwardingMessages && forwardingMessages.length > 0)) {
+            inputTextRef.current?.focus();
+        }
+    }, [replyingTo, forwardingMessages]);
+
     if (!activeChat) return <section className="chat-window hidden" />;
 
     return (
         <section id="chatWindow" className="chat-window">
             <div className="chat-window__header">
-                <div className="chat-title-wrapper">
-                    <h2 id="chatTitle">{chatDetails.title}</h2>
-
-                    {/* Кнопка профиля для приватного чата */}
-                    {!chatDetails.isGroup ? (
-                        /* Профиль пользователя */
-                        <button
-                            className="header-icon-btn"
-                            onClick={() => onOpenProfile(recipientId, activeChat.chatId, chatDetails.title)}
-                        >
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
+                {/* ЕСЛИ РЕЖИМ ВЫДЕЛЕНИЯ СООБЩЕНИЙ */}
+                {isSelectionMode ? (
+                    <div className="selection-header-wrapper">
+                        <button className="header-icon-btn" onClick={() => { setSelectionMode(false); clearSelection() }} title="Отменить выделение">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
-                    ) : (
-                        /* НОВОЕ: Профиль группы */
-                        <button
-                            className="header-icon-btn"
-                            onClick={onOpenGroupProfile} // Вызываем функцию из пропсов
-                        >
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        <span className="selection-count">Выбрано: {selectedMessages.length}</span>
+                        <div className="selection-actions">
+                            <button className="header-icon-btn" onClick={handleForwardClick} title="Переслать">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="15 14 20 9 15 4"></polyline>
+                                    <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    /* ОБЫЧНАЯ ШАПКА */
+                    <>
+                        <div className="chat-title-wrapper">
+                            <h2 id="chatTitle">{chatDetails.title}</h2>
+                            {!chatDetails.isGroup ? (
+                                <button className="header-icon-btn" onClick={() => onOpenProfile(recipientId, activeChat.chatId, chatDetails.title)}>
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </button>
+                            ) : (
+                                <button className="header-icon-btn" onClick={onOpenGroupProfile}>
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </button>
+                            )}
+                            <button className="header-icon-btn" onClick={onOpenSearch}>
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <button className="header-icon-btn" onClick={onBack} title="Закрыть чат">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
-                    )}
-                    <button className="header-icon-btn" onClick={onOpenSearch}>
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </button>
-                </div>
-                <button className="header-icon-btn" onClick={onBack} title="Закрыть чат">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                    </>
+                )}
             </div>
 
             <div
@@ -483,6 +570,10 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                         onContextMenu={onMessageContextMenu}
                         allMessages={messages}
                         replyCache={replyCache}
+
+                        isSelected={selectedMessages.includes(msg.id)}
+                        selectionMode={isSelectionMode}
+                        onSelect={() => toggleMessageSelection(msg.id)}
                     />
                 ))}
             </div>
@@ -536,6 +627,24 @@ function ChatWindow({ activeChat, currentUserId, participantCache, imageObserver
                         <div className="edit-bar-text">{replyingTo.content}</div>
                     </div>
                     <button className="edit-bar-close" onClick={() => setReplyingTo(null)}>&times;</button>
+                </div>
+            )}
+
+            {forwardingMessages && forwardingMessages.length > 0 && (
+                <div className="edit-message-bar forward-bar">
+                    <div className="edit-bar-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="15 14 20 9 15 4"></polyline>
+                            <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+                        </svg>
+                    </div>
+                    <div className="edit-bar-content">
+                        <div className="edit-bar-title">Пересылка сообщений</div>
+                        <div className="edit-bar-text">
+                            Выбрано сообщений: {forwardingMessages.length}
+                        </div>
+                    </div>
+                    <button className="edit-bar-close" onClick={() => setForwardingMessages(null)}>&times;</button>
                 </div>
             )}
 

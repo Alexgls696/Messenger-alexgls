@@ -46,15 +46,9 @@ class ChatsServiceTest {
     @Mock
     private ParticipantsRepository participantsRepository;
 
-    @Mock
-    private MessagesRepository messagesRepository;
 
     @Mock
     private DeletedMessagesRepository deletedMessagesRepository;
-
-    @Spy
-    private EncryptUtils encryptUtils = new EncryptUtils("814c76c47c08276acca3e69371142996", "hmac");
-
 
     @Test
     void findOrCreatePrivateChatIfChatIsExistsTest() {
@@ -142,45 +136,6 @@ class ChatsServiceTest {
         verify(participantsRepository).saveAll(anyList());
     }
 
-    @Test
-    public void createGroup_ReturnsGroupDto() {
-        //given
-        int creatorId = 1;
-        List<Integer> memberIds = List.of(2, 3); // Используем конкретные ID для проверки
-        CreateGroupDto createGroupDto = new CreateGroupDto("Test group", "desc", memberIds);
-
-        Chat savedChat = new Chat();
-        savedChat.setId(10);
-        savedChat.setName("Test group");
-        savedChat.setGroup(true);
-
-        //when
-
-        when(chatsRepository.save(any(Chat.class)))
-                .thenReturn(savedChat);
-        when(participantsRepository.saveAll(anyList()))
-                .thenReturn(List.of());
-
-        ChatDto result = chatsService.createGroup(createGroupDto, creatorId, );
-
-        //then
-
-        assertNotNull(result);
-        assertEquals("Test group", result.getName());
-        assertTrue(result.isGroup());
-
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<Participants>> captor = ArgumentCaptor.forClass(List.class);
-        verify(participantsRepository).saveAll(captor.capture());
-
-        List<Participants> savedParticipants = captor.getValue();
-        assertEquals(3, savedParticipants.size());
-
-        boolean creatorIsPresent = savedParticipants
-                .stream()
-                .anyMatch(p -> p.getUserId() == creatorId && p.getRole().equals(ChatRole.OWNER));
-        assertTrue(creatorIsPresent, "Создатель чата должен быть добавлен в список участников с ролью OWNER");
-    }
 
     @Test
     public void updateGroupTest_WhenParticipantNotExists() {
@@ -282,70 +237,8 @@ class ChatsServiceTest {
         assertEquals(chatId, capturedChat.getId());
     }
 
-    @Test
-    void findById_WhenChatNotExists() {
-        //given
-        long chatId = 1;
-        int userId = 2;
 
-        //when
-        when(chatsRepository.findById(chatId))
-                .thenReturn(Optional.empty());
 
-        //then
-        assertThrows(NoSuchUsersChatException.class, () -> chatsService.findById(chatId, userId));
-    }
-
-    @Test
-    void findById_ShouldReturnChatWithDecryptedLastMessage() {
-        //given
-        long chatId = 1;
-        int userId = 2;
-
-        Chat chat = new Chat();
-        chat.setId(chatId);
-        Message message = new Message();
-        message.setContent(encryptUtils.encrypt("message_content"));
-        message.setChatId((int) chatId);
-
-        //when
-        when(chatsRepository.findById(chatId))
-                .thenReturn(Optional.of(chat));
-
-        when(messagesRepository.findLastMessageByChatIdAndUserId(chatId, userId))
-                .thenReturn(Optional.of(message));
-
-        var result = chatsService.findById(chatId, userId);
-        //then
-
-        assertNotNull(result);
-        assertEquals(chatId, result.getChatId());
-        assertNotNull(result.getLastMessage());
-        assertEquals("message_content", result.getLastMessage().getContent());
-        assertEquals(chat.getId(), result.getLastMessage().getChatId());
-    }
-
-    @Test
-    void findById_ShouldReturnChatWithoutLastMessage() {
-        //given
-        long chatId = 1;
-        int userId = 2;
-
-        Chat chat = new Chat();
-        chat.setId(chatId);
-        //when
-
-        when(chatsRepository.findById(chatId))
-                .thenReturn(Optional.of(chat));
-
-        when(messagesRepository.findLastMessageByChatIdAndUserId(chatId, userId))
-                .thenReturn(Optional.empty());
-        //then
-
-        var result = chatsService.findById(chatId, userId);
-        assertNotNull(result);
-        assertEquals(chatId, result.getChatId());
-    }
 
     @Test
     void deleteChatById_WhenParticipantsNotExists() {

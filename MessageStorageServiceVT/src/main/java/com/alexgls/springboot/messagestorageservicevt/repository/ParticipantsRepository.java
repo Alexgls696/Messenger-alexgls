@@ -80,11 +80,11 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     void removingUserFromGroupByChatIdAndUserId(@Param("chatId") int chatId, @Param("userId") int userId, @Param("removeAt") Timestamp removeAt);
 
     @Query(value = """
-            select distinct(p2.user_id) as second_user from participants p1
+            select p2.user_id as second_user from participants p1
             join participants p2 on p1.chat_id = p2.chat_id 
             join chats c on c.chat_id = p1.chat_id
             where p1.user_id = :userId and p2.user_id != :userId and c.is_group = false
-            order by p2.user_id;
+            order by c.updated_at desc;
             """, nativeQuery = true)
     Iterable<Integer> findAllUsersWhoHadChatWith(@Param("userId") Integer currentUserId);
 

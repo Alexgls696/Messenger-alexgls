@@ -17,7 +17,7 @@ import java.util.Optional;
 @Repository
 public interface MessagesRepository extends CrudRepository<Message, Long> {
 
-    List<Message> findAllByIdIn(Collection<Long> ids);
+    List<Message> findAllByIdInOrderById(Collection<Long> ids);
 
     @Query("select distinct m " +
             "from Message m " +

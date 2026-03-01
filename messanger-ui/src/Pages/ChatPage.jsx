@@ -43,7 +43,11 @@ function ChatPage() {
     const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
     const [replyingTo, setReplyingTo] = useState(null);
-    const replyCache = useRef(new Map()); //Кеш сообщений для ответов
+    const replyCache = useRef(new Map());
+
+    const [isSelectionMode, setSelectionMode] = useState(false);
+    const [firstSelectedMessage, setFirstSelectedMessage] = useState(null);
+    const [forwardingMessages, setForwardingMessages] = useState([])
 
     // Состояния модальных окон
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -57,6 +61,8 @@ function ChatPage() {
 
     // События WebSocket
     const [socketUpdate, setSocketUpdate] = useState(null);
+    const [socketUpdates, setSocketUpdates] = useState([]);
+
     const [readEvent, setReadEvent] = useState(null);
     const [deleteEvent, setDeleteEvent] = useState(null);
     const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
@@ -86,7 +92,8 @@ function ChatPage() {
         chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);
 
         if (isMsgForActive) {
-            setSocketUpdate({ ...newMsg, _ts: Date.now() });
+            // ИЗМЕНЕНИЕ: Добавляем сообщение в массив, а не перезаписываем!
+            setSocketUpdates(prev => [...prev, newMsg]);
         }
     }, [user, playMessageSound]);
 
@@ -215,7 +222,7 @@ function ChatPage() {
 
     const handleChatSelect = (chat) => {
         setActiveChat(chat);
-        setSocketUpdate(null);
+       setSocketUpdates([]);
         setIsGroupProfileOpen(false);
         document.body.classList.add('chat-active');
     };
@@ -225,16 +232,20 @@ function ChatPage() {
         document.body.classList.remove('chat-active');
     };
 
-    const handleStartChat = (targetUser) => {
-        const pseudoChat = {
-            chatId: null,
-            name: `${targetUser.name} ${targetUser.surname || ''}`,
-            isGroup: false,
-            isNew: true,
-            recipient: targetUser
-        };
-
-        handleChatSelect(pseudoChat);
+    const handleStartChat = async (targetUser) => {
+        try {
+            const chat = await apiFetch(`/api/chats/by-user/${targetUser.id}`);
+            handleChatSelect(chat);
+        } catch (error) {
+            const pseudoChat = {
+                chatId: null,
+                name: `${targetUser.name} ${targetUser.surname || ''}`,
+                isGroup: false,
+                isNew: true,
+                recipient: targetUser
+            };
+            handleChatSelect(pseudoChat);
+        }
     };
 
     const openConfirm = useCallback((message, action) => {
@@ -296,22 +307,6 @@ function ChatPage() {
         }
     };
 
-    const updateMessage = async (messageid, chatId, content) => {
-        const payload = {
-            content: content,
-            chatId: chatId
-        };
-        try {
-            const updatedMessage = await apiFetch(`/api/messages/${messageid}`, {
-                method: 'PATCH',
-                body: JSON.stringify(payload)
-            });
-            //setMessages(prev => prev.map(m => m.id === messageid ? updatedMessage : m));
-        } catch (error) {
-            console.error('Ошибка при обновлении сообщения:', error);
-        }
-    }
-
     const deleteChat = useCallback((chatId) => {
         openConfirm(
             "Вы действительно хотите удалить этот чат? Это действие необратимо.",
@@ -328,7 +323,13 @@ function ChatPage() {
         );
     }, [openConfirm]);
 
-    // --- Обработчики вызова меню ---
+    const handleForwardMessages = useCallback((messages) => {
+        setForwardingMessages(messages);
+        setSelectionMode(false); // Выключаем режим выделения
+        setIsUserSearchOpen(true); // Открываем окно поиска чатов для пересылки
+    });
+
+
     const handleMessageContextMenu = useCallback((e, msg) => {
         e.preventDefault();
         e.stopPropagation();
@@ -337,6 +338,7 @@ function ChatPage() {
 
         const options = [];
 
+        options.push({ label: 'Выделить', action: () => { setSelectionMode(true); setFirstSelectedMessage(msg) } });
         options.push({ label: 'Ответить', action: () => setReplyingTo(msg) });
 
         if (isSentByMe && msg.type === 'TEXT') {
@@ -409,7 +411,7 @@ function ChatPage() {
                     onOpenProfile={(id, chatId, name) => setSelectedUserProfile({ id, chatId, name })}
                     onOpenGroupProfile={() => setIsGroupProfileOpen(true)}
                     onOpenSearch={() => setIsSearchOpen(true)}
-                    socketUpdate={socketUpdate}
+                    socketUpdates={socketUpdates}
                     readEvent={readEvent}
                     deleteEvent={deleteEvent}
                     apiBaseUrl={API_BASE_URL}
@@ -418,10 +420,18 @@ function ChatPage() {
                     messageUpdateEvent={messageUpdateEvent}
                     editingMessage={editingMessage}
                     setEditingMessage={setEditingMessage}
-                    
+
                     replyingTo={replyingTo}
                     setReplyingTo={setReplyingTo}
                     replyCache={replyCache.current}
+
+                    firstSelectedMessage={firstSelectedMessage}
+                    isSelectionMode={isSelectionMode}
+                    setSelectionMode={setSelectionMode}
+
+                    forwardingMessages={forwardingMessages}
+                    setForwardingMessages={setForwardingMessages}
+                    onForwardMessages={handleForwardMessages}
                 />
 
                 {/* Модальные окна */}

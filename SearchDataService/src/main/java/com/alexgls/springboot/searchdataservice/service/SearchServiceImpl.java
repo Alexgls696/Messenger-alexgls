@@ -32,6 +32,16 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public Iterable<GetUserDto> findAllUsersFromChats(String token) {
         List<Integer> usersIds = messageStorageServiceClient.findAllUsersWhoHadChatWith(token);
-        return usersServiceRestClient.findAllByIds(usersIds, token);
+        List<GetUserDto> users = usersServiceRestClient.findAllByIds(usersIds, token);
+        List<GetUserDto> result = new ArrayList<>();
+
+        for (int i = 0; i < usersIds.size() ; i++) {
+            for (int j = 0; j < users.size(); j++) {
+                if(users.get(j).id()==usersIds.get(i)) {
+                    result.add(users.get(j));
+                }
+            }
+        }
+        return result;
     }
 }

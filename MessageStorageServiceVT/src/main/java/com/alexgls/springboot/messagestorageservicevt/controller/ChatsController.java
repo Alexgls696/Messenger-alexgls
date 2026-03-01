@@ -42,6 +42,12 @@ public class ChatsController {
         return chatsService.findChatById(chatId, userId);
     }
 
+    @GetMapping("/by-user/{id}")
+    public ChatDto getChatByUserId(@PathVariable("id") int userId, Authentication authentication) {
+        int senderId = getSenderId(authentication);
+        return chatsService.findPrivateChat(senderId, userId);
+    }
+
     @GetMapping("/find-all/{page}")
     public List<ChatDto> findUserChatsById(
             @PathVariable("page") int page,

@@ -110,7 +110,7 @@ public class MessagesService {
                 .toList();
         if (!hashes.isEmpty()) {
             List<Long> messageIds = messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), userId, hashes);
-            return messagesRepository.findAllByIdIn(messageIds)
+            return messagesRepository.findAllByIdInOrderById(messageIds)
                     .stream()
                     .map(message -> {
                         MessageDto messageDto = MessageMapper.toMessageDto(message);
@@ -215,7 +215,6 @@ public class MessagesService {
     }
 
 
-
     @Transactional
     public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds) {
         Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
@@ -225,11 +224,22 @@ public class MessagesService {
             throw new AccessDeniedException("Доступ запрещен");
         }
 
+
         Chat chat = chatsRepository.findById(createMessagePayload.chatId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
 
-        List<Message> originalMessages = messagesRepository.findAllByIdIn(forwardedMessageIds);
+        List<Message> originalMessages = messagesRepository.findAllByIdInOrderById(forwardedMessageIds);
         List<MessageDto> resultDtos = new ArrayList<>();
+
+
+        List<Integer> recipientsIds = null;
+        Integer recipientId = null;
+        if (chat.isGroup()) {
+            recipientsIds = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted(createMessagePayload.chatId());
+        } else {
+            recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                    .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
+        }
 
         for (Message original : originalMessages) {
             Message forwardedMsg = new Message();
@@ -239,6 +249,8 @@ public class MessagesService {
             forwardedMsg.setType(original.getType());
             forwardedMsg.setCreatedAt(Timestamp.from(Instant.now()));
             forwardedMsg.setRead(false);
+            forwardedMsg.setForwarded(true);
+            forwardedMsg.setForwardFromUserId(original.getSenderId());
 
             Message savedForwardedMsg = messagesRepository.save(forwardedMsg);
 
@@ -247,6 +259,8 @@ public class MessagesService {
             MessageDto forwardedDto = MessageMapper.toMessageDto(savedForwardedMsg);
             forwardedDto.setAttachments(clonedAttachments);
             forwardedDto.setContent(encryptUtils.decrypt(savedForwardedMsg.getContent()));
+            forwardedDto.setRecipientId(recipientId);
+            forwardedDto.setRecipientIds(recipientsIds);
             resultDtos.add(forwardedDto);
         }
 

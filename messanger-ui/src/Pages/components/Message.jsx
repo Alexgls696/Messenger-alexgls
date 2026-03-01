@@ -1,14 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { formatDate } from '../utils/dateUtils';
-
 import { apiFetch } from '../utils/apiClient';
 
-// Константу API_BASE_URL лучше импортировать из конфига
+
 const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
-
-//document.querySelector([data-message-id='...']).scrollIntoView(). -- прокрутка к оригиналу
- 
 const Message = ({
     msg,
     isSentByMe,
@@ -19,12 +15,16 @@ const Message = ({
     photoViewer,
     onOpenProfile,
     allMessages,
-    replyCache
+    replyCache,
+    isSelected,
+    selectionMode,
+    onSelect
 }) => {
     const msgRef = useRef(null);
     const isService = msg.service || msg.isService;
 
-    const [replyMsg, setReplyMsg] = useState(null);
+    const[replyMsg, setReplyMsg] = useState(null);
+    const [forwardFromName, setForwardFromName] = useState(null); 
 
     // --- Эффект для регистрации в Observer (прочтение сообщения) ---
     useEffect(() => {
@@ -33,15 +33,53 @@ const Message = ({
             messageReadObserver.observe(element);
             return () => messageReadObserver.unobserve(element);
         }
-    }, [msg.id, msg.read, isSentByMe, messageReadObserver]);
+    },[msg.id, msg.read, isSentByMe, messageReadObserver]);
 
-    const handleNameClick = () => {
+    useEffect(() => {
+        if (msg.forwarded && msg.forwardFromUserId) {
+            const cachedName = participantCache[msg.forwardFromUserId];
+            if (cachedName) {
+                setForwardFromName(cachedName);
+            } else {
+                apiFetch(`/api/users/${msg.forwardFromUserId}`)
+                    .then(data => {
+                        const fullName = `${data.name} ${data.surname || ''}`.trim();
+                        setForwardFromName(fullName);
+                        participantCache[msg.forwardFromUserId] = fullName; 
+                    })
+                    .catch(() => setForwardFromName(`Пользователь #${msg.forwardFromUserId}`));
+            }
+        }
+    },[msg.forwarded, msg.forwardFromUserId, participantCache]);
+
+
+    const handleNameClick = (e) => {
+        if (selectionMode) {
+            e.preventDefault();
+            return;
+        }
         if (!isSentByMe && onOpenProfile) {
             onOpenProfile(msg.senderId, msg.chatId, senderName);
         }
     };
 
-    // 1. Рендер сервисного сообщения
+    const handleForwardNameClick = (e) => {
+        e.stopPropagation(); 
+        if (selectionMode) {
+            e.preventDefault();
+            return;
+        }
+        if (onOpenProfile && msg.forwardFromUserId) {
+            onOpenProfile(msg.forwardFromUserId, msg.chatId, forwardFromName);
+        }
+    };
+
+    const handleMessageClick = () => {
+        if (selectionMode && onSelect) {
+            onSelect();
+        }
+    };
+
     if (isService) {
         return (
             <div
@@ -55,9 +93,6 @@ const Message = ({
         );
     }
 
-
-
-    // 2. Логика обработки вложений
     const renderAttachments = () => {
         if (!msg.attachments || msg.attachments.length === 0) return null;
 
@@ -66,7 +101,7 @@ const Message = ({
 
         return (
             <div className="attachments-container">
-                {/* Сетка изображений */}
+
                 {imageAttachments.length > 0 && (
                     <div className={imageAttachments.length > 1 ? "image-gallery-grid" : ""}>
                         {imageAttachments.map(att => (
@@ -82,7 +117,6 @@ const Message = ({
                     </div>
                 )}
 
-                {/* Список файлов */}
                 {fileAttachments.map(att => {
                     const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
                     return (
@@ -105,7 +139,7 @@ const Message = ({
     let statusText = isSentByMe ? (msg.read ? 'Прочитано' : 'Доставлено') : '';
     const statusClass = isSentByMe && msg.read ? 'read' : '';
 
-    const isEdited = msg.updatedAt !== null;
+    const isEdited = msg.updatedAt !== null && !msg.forwarded; 
 
     //Ответы на сообщения
     useEffect(() => {
@@ -134,46 +168,69 @@ const Message = ({
     return (
         <div
             ref={msgRef}
-            className={`message ${isSentByMe ? 'sent' : 'received'}`}
+            className={`message ${isSentByMe ? 'sent' : 'received'} ${selectionMode ? 'message--selection-mode' : ''} ${isSelected ? 'message--selected' : ''}`}
             data-message-id={msg.id}
             data-sender-id={msg.senderId}
-            onContextMenu={(e) => onContextMenu(e, msg)}
+            onClick={handleMessageClick}
+            onContextMenu={(e) => {
+                if (selectionMode) return; 
+                onContextMenu(e, msg);
+            }}
         >
-            {senderName && (
-                <div
-                    className="message-sender"
-                    style={{ cursor: 'pointer' }}
-                    onClick={handleNameClick}
-                >
-                    {senderName}
+            {selectionMode && (
+                <div className="message-checkbox">
+                    <input type="checkbox" checked={isSelected} readOnly />
                 </div>
             )}
 
-            {msg.replyToId && (
-                <div className="message-reply-preview" onClick={() => /* логика прокрутки к оригиналу */ { }}>
-                    <span className="reply-sender">
-                        {replyMsg ? participantCache[replyMsg.senderId] : "..."}
-                    </span>
-                    <p className="reply-content">
-                        {replyMsg ? replyMsg.content : "Загрузка..."}
-                    </p>
+            <div className="message-inner">
+                {senderName && (
+                    <div
+                        className="message-sender"
+                        style={{ cursor: selectionMode ? 'inherit' : 'pointer' }}
+                        onClick={handleNameClick}
+                    >
+                        {senderName}
+                    </div>
+                )}
+
+                {msg.forwarded && (
+                    <div className="message-forwarded" onClick={handleForwardNameClick}>
+                        <span className="forward-icon">↪</span> Переслано от: <span className="forward-name">{forwardFromName || 'Загрузка...'}</span>
+                    </div>
+                )}
+
+                {/* Блок ответа (Reply) */}
+                {msg.replyToId && !msg.forwarded && (
+                    <div className="message-reply-preview" onClick={(e) => {
+                        if (selectionMode) e.preventDefault();
+                        else /*  прокрутка к оригиналу */ { }
+                    }}>
+                        <span className="reply-sender">
+                            {replyMsg ? participantCache[replyMsg.senderId] : "..."}
+                        </span>
+                        <p className="reply-content">
+                            {replyMsg ? replyMsg.content : "Загрузка..."}
+                        </p>
+                    </div>
+                )}
+
+                {renderAttachments()}
+
+                {msg.content && (
+                    <div className="message-content">{msg.content}</div>
+                )}
+
+                <div className="message-meta">
+                    {isEdited && <span className="message-edited-label">изменено</span>}
+                    <span>{formatDate(msg.createdAt)}</span>
+                    <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
                 </div>
-            )}
-
-            {renderAttachments()}
-
-            {msg.content && (
-                <div className="message-content">{msg.content}</div>
-            )}
-
-            <div className="message-meta">
-                {isEdited && <span className="message-edited-label">изменено</span>}
-                <span>{formatDate(msg.createdAt)}</span>
-                <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
             </div>
         </div>
     );
 };
+
 
 const AttachmentImage = ({ att, imageObserver, photoViewer, isPending, localUrl }) => {
     const imgRef = useRef(null);
@@ -197,15 +254,15 @@ const AttachmentImage = ({ att, imageObserver, photoViewer, isPending, localUrl 
 
     const handleImageClick = (e) => {
         e.preventDefault();
-        e.stopPropagation(); // Чтобы не сработали другие события клика в чате
-        photoViewer.open(att.fileId); // Используем наш сервис
+        e.stopPropagation();
+        photoViewer.open(att.fileId); 
     };
 
     return (
         <div
             className="attachment-item image-attachment viewer-enabled"
             data-file-id={att.fileId}
-            onClick={handleImageClick} // Добавляем обработчик здесь
+            onClick={handleImageClick}
         >
             <div className="skeleton skeleton-tile"></div>
             <img

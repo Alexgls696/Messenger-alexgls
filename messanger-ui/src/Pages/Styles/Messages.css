@@ -216,7 +216,7 @@ body[data-theme="dark"] .message.service {
     border-color: var(--accent-primary);
 }
 
-.message-input[readonly]{
+.message-input[readonly] {
     background-color: var(--surface-secondary);
     text-align: center;
 }
@@ -257,7 +257,8 @@ body[data-theme="dark"] .message.service {
 .image-attachment {
     position: relative;
     overflow: hidden;
-    min-height: 100px; /* Чтобы обсерверу было за что зацепиться */
+    min-height: 100px;
+    /* Чтобы обсерверу было за что зацепиться */
 }
 
 .attachment-image {
@@ -420,6 +421,145 @@ body[data-theme="dark"] .message.received .attachment-item.file-attachment {
     border-radius: 10px;
 }
 
-@media (max-width: 768px) {
-    
+/* Анимированное появление новой шапки */
+@keyframes fadeHeaderIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Шапка в режиме выделения */
+.selection-header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background-color: var(--surface-accent);
+    padding: 6px 12px;
+    border-radius: 12px;
+    animation: fadeHeaderIn 0.2s ease-in-out;
+}
+
+body[data-theme="dark"] .selection-header-wrapper {
+    background-color: var(--surface-secondary);
+}
+
+/* Счетчик выделенных сообщений */
+.selection-count {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    text-align: center;
+}
+
+/* Блок с кнопками в шапке */
+.selection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Обертка контента сообщения (добавлена в JSX) */
+.message-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Поведение сообщения в режиме выделения (эффект наведения) */
+.message--selection-mode {
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message--selection-mode:hover {
+    filter: brightness(0.95);
+}
+
+body[data-theme="dark"] .message--selection-mode:hover {
+    filter: brightness(1.15);
+}
+
+/* Эффект для ВЫДЕЛЕННОГО сообщения */
+.message--selected {
+    /* Двойная обводка: цвет фона + акцентный цвет */
+    box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px var(--accent-primary);
+    transform: scale(0.98);
+}
+
+/* Адаптация цвета обводки под темную тему */
+body[data-theme="dark"] .message--selected {
+    box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px var(--accent-primary);
+}
+
+/* Контейнер чекбокса */
+.message-checkbox {
+    position: absolute;
+    bottom: 12px;
+    /* Прижимаем к низу, чтобы он всегда был на уровне текста/метаданных */
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* Для отправленных (справа) выносим чекбокс в пустую зону слева */
+.message.sent .message-checkbox {
+    left: -35px;
+}
+
+/* Для полученных (слева) выносим чекбокс в пустую зону справа */
+.message.received .message-checkbox {
+    right: -35px;
+}
+
+/* Сам инпут чекбокса */
+.message-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-primary);
+    /* Клик перехватывается родителем (.message), инпут просто для красоты */
+    pointer-events: none;
+}
+
+.message-forwarded {
+    font-size: 0.85em;
+    margin-bottom: 6px;
+    opacity: 0.85;
+    cursor: pointer;
+    /* Показываем, что кликабельно */
+}
+
+.message-forwarded .forward-icon {
+    margin-right: 4px;
+    font-weight: bold;
+}
+
+.message-forwarded .forward-name {
+    font-weight: 600;
+}
+
+/* Цвет имени зависит от темы/отправителя */
+.message.received .message-forwarded .forward-name {
+    color: var(--accent-primary);
+}
+
+.message.sent .message-forwarded .forward-name {
+    color: var(--text-on-accent);
+    text-decoration: underline;
+    /* Подсказка для клика у отправленных */
+}
+
+/* Эффект наведения на имя */
+.message-forwarded:hover .forward-name {
+    text-decoration: underline;
 }

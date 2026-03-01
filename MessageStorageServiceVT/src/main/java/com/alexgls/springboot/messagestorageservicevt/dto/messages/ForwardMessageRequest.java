@@ -4,7 +4,6 @@ import java.util.List;
 
 public record ForwardMessageRequest(
         ChatMessage chatMessage,
-        List<Long> forwardedMessagesIds,
-        long chatFrom
+        List<Long> forwardedMessagesIds
 ) {
 }
