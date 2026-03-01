@@ -1,13 +1,8 @@
 server:
   port: 8080
-  ssl:
-    enabled: true
-    key-store: classpath:keystore/gateway-keystore.p12
-    key-store-password: ${KEYSTORE_SECRET}
-    key-store-type: PKCS12
 
 frontend:
-  cors-address-list: "https://localhost:8090, https://192.168.0.103:8090, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
+  cors-address-list: " http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
 
 
 spring:

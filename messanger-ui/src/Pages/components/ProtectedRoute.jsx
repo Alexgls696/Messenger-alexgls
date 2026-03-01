@@ -13,14 +13,11 @@ const ProtectedRoute = ({ children }) => {
             const accessToken = localStorage.getItem('accessToken');
             const refreshToken = localStorage.getItem('refreshToken');
 
-            // 1. Если accessToken уже есть, считаем пользователя авторизованным
-            // (Если он протух, apiFetch обновит его позже при первом запросе)
             if (accessToken) {
                 setAuthStatus('authorized');
                 return;
             }
 
-            // 2. Если accessToken нет, но есть refreshToken — пробуем обновиться
             if (refreshToken) {
                 try {
                     await handleTokenRefresh();

@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+frontend:
+  cors-address-list: "https://alexgls-messenger.ru"
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://users-auth:8085/.well-known/jwks.json
+
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-public-route
+          uri: http://auth-service:8085
+          predicates:
+            - Path=/auth/**, /.well-known/jwks.json, /health
+
+        - id: messaging-service-route
+          uri: http://messaging-service:8087
+          predicates:
+            - Path=/api/attachments/**, /api/chats/**, /api/messages/**

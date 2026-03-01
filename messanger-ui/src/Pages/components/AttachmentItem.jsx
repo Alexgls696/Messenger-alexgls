@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import photoViewer from '../utils/photoViewer';
 import { imageLoader } from '../utils/imageLoader';
 
-const API_BASE_URL = `https://${window.location.hostname}:8080`;
+const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
 const AttachmentItem = ({ att, type, onMouseOverAI, onMouseOutAI }) => {
     const containerRef = useRef(null);

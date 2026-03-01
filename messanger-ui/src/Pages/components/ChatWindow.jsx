@@ -304,6 +304,7 @@ function ChatWindow({ activeChat,
 
     // --- ОТПРАВКА СООБЩЕНИЯ ---
     const handleFormSubmit = async (e) => {
+        console.log('click')
         e.preventDefault();
 
         if (isForbidden) return;
@@ -356,7 +357,7 @@ function ChatWindow({ activeChat,
                 }
 
                 // 2. Оптимистичное обновление UI
-                if (content) {
+                if (content || filesToSend.length > 0) {
                     const optimisticMsg = {
                         optimistic: true,
                         tempId: tempId,
@@ -679,7 +680,7 @@ function ChatWindow({ activeChat,
                     placeholder="Введите сообщение..."
                 />
                 {!isForbidden && (
-                    < button type="submit" className="send-btn" disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0)}>
+                    < button type="submit" className="send-btn" disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0 && forwardingMessages.length === 0)}>
                         Отправить
                     </button>
                 )}

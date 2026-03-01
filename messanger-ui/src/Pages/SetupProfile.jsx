@@ -6,8 +6,8 @@ function SetupProfile() {
 
     const navigate = useNavigate();
 
-    const SET_PASSWORD_URL = 'https://localhost:8080/api/users/update-password';
-    const API_CREATE_PROFILE_URL = 'https://localhost:8080/api/profiles/create';
+    const SET_PASSWORD_URL = 'http://localhost:8080/api/users/update-password';
+    const API_CREATE_PROFILE_URL = 'http://localhost:8080/api/profiles/create';
 
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');

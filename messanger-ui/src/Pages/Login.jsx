@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-// ИСПРАВЛЕНИЕ: Добавлен импорт навигации и ссылок
 import { useNavigate, Link } from 'react-router-dom'; 
 
 function Login() {
-    // ИСПРАВЛЕНИЕ: Инициализация хука навигации
     const navigate = useNavigate(); 
 
-    // Состояния для полей формы
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Константы для API (логика как в вашем коде)
     const gatewayAddress = `${window.location.hostname}:8080`;
-    const API_BASE_URL = `https://${gatewayAddress}`;
+    const API_BASE_URL = `http://${gatewayAddress}`;
 
     const accessToken = localStorage.getItem('accessToken');
     if(accessToken){
@@ -66,7 +62,7 @@ function Login() {
                         type="text" 
                         id="username" 
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)} // Синхронизируем ввод со стейтом
+                        onChange={(e) => setUsername(e.target.value)} 
                         required 
                     />
                 </div>

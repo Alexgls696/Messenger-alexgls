@@ -17,7 +17,7 @@ function Register() {
     const [operationId, setOperationId] = useState(null);
 
     // --- Константы API ---
-    const GATEWAY_URL = `https://${window.location.hostname}:8080`;
+    const GATEWAY_URL = `http://${window.location.hostname}:8080`;
     const INITIATE_URL = `${GATEWAY_URL}/api/verification/create`;
     const REGISTER_URL = `${GATEWAY_URL}/api/authentication/register`;
 

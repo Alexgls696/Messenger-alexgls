@@ -14,7 +14,7 @@ function SimpleLogin() {
     const [error, setError] = useState('');
 
     // --- Константы API ---
-    const GATEWAY_URL = `https://${window.location.hostname}:8080`;
+    const GATEWAY_URL = `http://${window.location.hostname}:8080`;
     const INITIATE_URL = `${GATEWAY_URL}/api/verification/create-for-exists`;
     const LOGIN_URL = `${GATEWAY_URL}/api/authentication/login-by-email`;
 
