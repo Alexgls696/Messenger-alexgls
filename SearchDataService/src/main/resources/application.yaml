@@ -6,8 +6,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 services:
-  auth-service: http://localhost:8085
-  messages-service: http://localhost:8087
+  auth-service: ${AUTH_SERVICE_URL}
+  messages-service: ${MESSAGES_SERVICE_URL}

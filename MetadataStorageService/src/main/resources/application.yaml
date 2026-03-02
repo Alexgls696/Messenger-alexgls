@@ -3,7 +3,7 @@ server:
 
 spring:
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     consumer:
       enable-auto-commit: false
       max-poll-records: 50
@@ -12,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 services:
-  auth-service: http://localhost:8085
+  auth-service: ${AUTH_SERVICE_URL}

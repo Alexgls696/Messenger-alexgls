@@ -9,23 +9,21 @@ jwt:
 
 server:
   port: 8085
-frontend:
-  url: http://localhost:8090
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5435/security_users_db
-    username: alexgls
-    password: AS04SERa1
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 services:
   register:

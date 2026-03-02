@@ -7,12 +7,12 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5436/messaging_db
-    username: alexgls
-    password: AS04SERa1
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     listener:
       auto-startup: false
 
@@ -20,13 +20,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
-
-frontend:
-  url: http://localhost:8090
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 services:
-  auth-service: http://localhost:8085
+  auth-service: ${AUTH_SERVICE_URL}
 
 values:
   page-size: 10
