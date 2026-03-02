@@ -5,15 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлена логика пересланных сообщений, отображение пересланных сообщений">
-      <change afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application-prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/keystore/gateway-keystore.p12" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AttachmentItem.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AttachmentItem.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ProtectedRoute.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ProtectedRoute.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/GigaChatTokenManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/GigaChatTokenManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_forward_messages.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_groups_update.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_has_analysis.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_last_read_message_id.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_remove_at_column.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_response_message_columns.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_unread_count_column.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/create_table_message_tokens.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/leave_group_and_service_message.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/update_participants_table.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/changeset/initialization.sql" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/changeset/initialization.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,88 +83,88 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.LexicalAnalyzer.executor": "Run",
-    "Docker.docker-compose.yaml.notifications-database: Compose Deployment.executor": "Run",
-    "HTTP Request.generated-requests | #1.executor": "Run",
-    "HTTP Request.scratch | #2.executor": "Run",
-    "HTTP Request.scratch | #3.executor": "Run",
-    "JUnit.ChatsControllerIntegrationTest.createPrivateChat.executor": "Run",
-    "JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ParticipantsListMustIncludeBothUsers.executor": "Run",
-    "JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto.executor": "Coverage",
-    "JUnit.ChatsControllerIntegrationTest.executor": "Coverage",
-    "JUnit.ChatsServiceTest.executor": "Run",
-    "JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsExistsTest.executor": "Run",
-    "JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsNotExistsTest.executor": "Run",
-    "JUnit.ChatsServiceTest.updateGroupTest_ReturnsGroupDto_WhenUserCanEditGroup.executor": "Run",
-    "JUnit.ChatsServiceTest.updateGroup_UpdatesChatAndReturnsDto_WhenUserIsAdmin.executor": "Run",
-    "JUnit.MessageStorageServiceVtApplicationTests.createPrivateChat.executor": "Run",
-    "JUnit.MessageStorageServiceVtApplicationTests.executor": "Run",
-    "JUnit.ParticipantsServiceTest.executor": "Coverage",
-    "JUnit.ParticipantsServiceTest.findAllByChatId_WhenParticipantsISEmpty.executor": "Coverage",
-    "Maven.ApiGatewayService [clean,install,-U].executor": "Run",
-    "Maven.ApiGatewayService [clean].executor": "Run",
-    "Maven.ApiGatewayService [dependency:tree,|...].executor": "Run",
-    "Maven.MessageStorageServiceVT [clean].executor": "Run",
-    "Maven.MessageStorageServiceVT [compile].executor": "Run",
-    "Maven.MessageStorageServiceVT [org.apache.maven.plugins:maven-clean-plugin:3.5.0:clean].executor": "Run",
-    "Maven.MessageStorageServiceVT [org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile].executor": "Run",
-    "Maven.MetadataStorageService [clean].executor": "Run",
-    "Maven.MetadataStorageService [compile].executor": "Run",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
-    "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
-    "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
-    "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
-    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
-    "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
-    "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
-    "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
-    "Spring Boot.NotificationsServiceApplication.executor": "Run",
-    "Spring Boot.RegistrationServiceApplication.executor": "Run",
-    "Spring Boot.SearchDataServiceApplication.executor": "Run",
-    "Spring Boot.UserDetailsServiceApplication.executor": "Run",
-    "Spring Boot.UsersMessagingServiceApplication.executor": "Run",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
-    "git-widget-placeholder": "prod",
-    "ignore.virus.scanning.warn.message": "true",
-    "jdk.selected.JAVA_MODULE": "openjdk-25",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/AuthService/src/main/java/ru/alexgls/springboot/controller",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.35517243",
-    "run.configurations.included.in.services": "true",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.LexicalAnalyzer.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yaml.notifications-database: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.scratch | #2.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.scratch | #3.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsControllerIntegrationTest.createPrivateChat.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ParticipantsListMustIncludeBothUsers.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsControllerIntegrationTest.createPrivateChat_WhenChatCreateRequest_ReturnsNewChatDto.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ChatsControllerIntegrationTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ChatsServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsExistsTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsServiceTest.findOrCreatePrivateChatIfChatIsNotExistsTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsServiceTest.updateGroupTest_ReturnsGroupDto_WhenUserCanEditGroup.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ChatsServiceTest.updateGroup_UpdatesChatAndReturnsDto_WhenUserIsAdmin.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MessageStorageServiceVtApplicationTests.createPrivateChat.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MessageStorageServiceVtApplicationTests.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ParticipantsServiceTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ParticipantsServiceTest.findAllByChatId_WhenParticipantsISEmpty.executor&quot;: &quot;Coverage&quot;,
+    &quot;Maven.ApiGatewayService [clean,install,-U].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ApiGatewayService [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ApiGatewayService [dependency:tree,|...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MessageStorageServiceVT [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MessageStorageServiceVT [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MessageStorageServiceVT [org.apache.maven.plugins:maven-clean-plugin:3.5.0:clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MessageStorageServiceVT [org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MetadataStorageService [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.MetadataStorageService [compile].executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ApiGatewayServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.AuthServiceSpringBootApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.ChatClientSpringBootApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.ContentAnalysisServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.InDatabaseContentStorageServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.MediaContentStorageServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.MessageStorageServiceApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;Spring Boot.MessageStorageServiceVtApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.MetadataStorageServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.NotificationsServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.RegistrationServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.SearchDataServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UserDetailsServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UsersMessagingServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;database.data.extractors.current.export.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;prod&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;openjdk-25&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/AuthService/src/main/java/ru/alexgls/springboot/controller&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.35517243&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ],
-    "com.intellij.ide.scratch.LRUPopupBuilder$1/SQL Dialect": [
-      "PostgreSQL"
+    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/SQL Dialect&quot;: [
+      &quot;PostgreSQL&quot;
     ],
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "HTTP Request"
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;HTTP Request&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -217,19 +225,6 @@
       <set>
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
-    </option>
-    <option name="hiddenConfigurations">
-      <map>
-        <entry key="SpringBootApplicationConfigurationType">
-          <value>
-            <set>
-              <option value="ChatClientSpringBootApplication" />
-              <option value="RegistrationServiceApplication" />
-              <option value="UserDetailsServiceApplication" />
-            </set>
-          </value>
-        </entry>
-      </map>
     </option>
   </component>
   <component name="RunManager" selected="Spring Boot.UsersMessagingServiceApplication">

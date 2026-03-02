@@ -53,7 +53,6 @@ public class YandexDriveStorageService implements StorageService {
                 inDatabaseStorageServiceRestClient.saveChatImage(
                         new CreateFileMetadataRequest(filepathToDatabase, file.filename())
                 );
-
         return uploadPathMono
                 .flatMap(uploadPath ->
                         saveFileToYandexDrive(file, uploadPath)
