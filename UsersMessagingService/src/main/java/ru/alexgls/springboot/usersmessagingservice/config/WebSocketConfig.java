@@ -33,8 +33,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         timer.initialize();
 
         registry.enableSimpleBroker("/queue", "/topic")
-                .setHeartbeatValue(new long[]{10000, 10000}) // Пинги раз в 10 секунд
-                .setTaskScheduler(timer); // Передаем наш проинициализированный таймер
+                .setHeartbeatValue(new long[]{10000, 10000})
+                .setTaskScheduler(timer);
 
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");

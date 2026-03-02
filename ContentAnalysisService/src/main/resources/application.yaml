@@ -11,9 +11,6 @@ spring:
         jwt:
           jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
-services:
-  auth-service: http://localhost:8085
-
 ai-services:
   gigachat:
     auth-url: https://ngw.devices.sberbank.ru:9443/api/v2/oauth

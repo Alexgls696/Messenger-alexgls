@@ -11,7 +11,7 @@ spring:
           jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 frontend:
-  cors-address-list: https://alexgls-messenger.ru
+  cors-address-list: http://localhost:5173
 
 
 services:

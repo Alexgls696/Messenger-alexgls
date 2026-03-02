@@ -19,7 +19,6 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
             return null;
         }
 
-        // Возвращаем Principal с именем userId
         return new Principal() {
             @Override
             public String getName() {

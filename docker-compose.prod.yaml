@@ -7,6 +7,9 @@ volumes:
   notifications-data:
   redis_data:
   es_data:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
     driver: local
 
 networks:
@@ -15,7 +18,6 @@ networks:
 
 services:
   # --- DATABASES ---
-
   users-auth-db:
     image: postgres:16
     restart: always
@@ -81,7 +83,7 @@ services:
       - cluster.name=es-docker-cluster
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - xpack.security.enabled=false # Отключено для упрощения, на проде лучше настроить
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
     volumes:
@@ -90,12 +92,16 @@ services:
       - app-network
 
   # --- INFRASTRUCTURE ---
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
     restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_DATA_DIR: /var/lib/zookeeper/data
+      ZOOKEEPER_LOG_DIR: /var/lib/zookeeper/log
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
     networks:
       - app-network
 
@@ -112,11 +118,13 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     networks:
       - app-network
 
   # --- MICROSERVICES ---
-
   api-gateway-service:
     build: ./ApiGatewayService
     container_name: api-gateway-service
@@ -125,7 +133,15 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
-      # Здесь нужно будет добавить URL-адреса других сервисов для роутинга через переменные
+      - MESSAGING_SERVICE_URL=http://messages-service:8087
+      - STORAGE_SERVICE_URL=http://contents-storage-service:8088
+      - FILES_SERVICE_URL=http://db-content-storage-service:8089
+      - REGISTRATION_SERVICE_URL=http://registration-service:8082 # Исправлено: не localhost
+      - CONNECTIONS_SERVICE_URL=http://connections-service:8086
+      - SEARCH_SERVICE_URL=http://search-data-service:8093
+      - ANALYSIS_SERVICE_URL=http://content-analysis-service:8094
+      - METADATA_SERVICE_URL=http://metadata-service:8095
+      - NOTIFICATIONS_SERVICE_URL=http://notifications-service:8091
     depends_on:
       - auth-service
       - messages-service
@@ -133,12 +149,9 @@ services:
       - app-network
 
   auth-service:
-    build: ./AuthService
+    build: ./Auth_Service
     container_name: auth-service
-    ports:
-      - "8085:8085"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://users-auth-db:5432/security_users_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
@@ -146,58 +159,55 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       - users-auth-db
+      - kafka
     networks:
       - app-network
 
   connections-service:
     build: ./UsersMessagingService
     container_name: connections-service
-    ports:
-      - "8086:8086"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - kafka
     networks:
       - app-network
 
   messages-service:
     build: ./MessageStorageServiceVT
     container_name: messages-service
-    ports:
-      - "8087:8087"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://messaging-db:5432/messaging_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - AES_KEY=${AES_KEY}
+      - HMAC_KEY=${HMAC_KEY}
     depends_on:
       - messaging-db
+      - kafka
     networks:
       - app-network
 
   contents-storage-service:
     build: ./MediaContentStorageService
     container_name: contents-storage-service
-    ports:
-      - "8088:8088"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
       - DB_CONTENT_STORAGE_SERVICE_URL=http://db-content-storage-service:8089
       - ANALYSIS_SERVICE_URL=http://content-analysis-service:8094
+      - YANDEX_OAUTH=${YANDEX_OAUTH_TOKEN}
+    depends_on:
+      - db-content-storage-service
     networks:
       - app-network
 
   db-content-storage-service:
     build: ./InDatabaseContentStorageService
     container_name: db-content-storage-service
-    ports:
-      - "8089:8089"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://files-db:5432/files_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
@@ -210,10 +220,7 @@ services:
   notifications-service:
     build: ./NotificationsService
     container_name: notifications-service
-    ports:
-      - "8091:8091"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://notifications-db:5432/notifications_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
@@ -221,16 +228,14 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       - notifications-db
+      - kafka
     networks:
       - app-network
 
   search-data-service:
     build: ./SearchDataService
     container_name: search-data-service
-    ports:
-      - "8093:8093"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
       - MESSAGES_SERVICE_URL=http://messages-service:8087
     networks:
@@ -239,26 +244,26 @@ services:
   content-analysis-service:
     build: ./ContentAnalysisService
     container_name: content-analysis-service
-    ports:
-      - "8094:8094"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SBER_AUTH_TOKEN=${SBER_AUTH}
+    depends_on:
+      - kafka
     networks:
       - app-network
 
   metadata-service:
     build: ./MetadataStorageService
     container_name: metadata-service
-    ports:
-      - "8095:8095"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_ELASTICSEARCH_URIS=http://metadata-elasticsearch-db:9200
+      - SPRING_ELASTICSEARCH_URIS=metadata-elasticsearch-db:9200
+      - SPRING_ELASTICSEARCH_USERNAME=elastic
+      - SPRING_ELASTICSEARCH_PASSWORD=elastic
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       - metadata-elasticsearch-db
+      - kafka
     networks:
       - app-network

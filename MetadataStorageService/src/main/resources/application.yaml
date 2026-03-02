@@ -14,5 +14,7 @@ spring:
         jwt:
           jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
-services:
-  auth-service: ${AUTH_SERVICE_URL}
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS}
+    username: ${SPRING_ELASTICSEARCH_USERNAME}
+    password: ${SPRING_ELASTICSEARCH_PASSWORD}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.messenger</groupId>
+    <artifactId>parent-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>ApiGatewayService</module>
+        <module>Auth_Service</module>
+        <module>MessageStorageServiceVT</module>
+        <module>NotificationsService</module>
+        <module>SearchDataService</module>
+        <module>InDatabaseContentStorageService</module>
+        <module>ContentAnalysisService</module>
+        <module>MediaContentStorageService</module>
+        <module>UsersMessagingService</module>
+        <module>MetadataStorageService</module>
+    </modules>
+</project>

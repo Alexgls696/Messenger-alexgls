@@ -1,14 +1,11 @@
 package ru.alexgls.springboot.config;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.alexgls.springboot.dto.JwtValidationResponse;
 
-import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 
