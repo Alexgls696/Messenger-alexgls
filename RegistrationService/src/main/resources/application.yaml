@@ -15,7 +15,7 @@ spring:
 
 
 services:
-  auth-service: http://localhost:8085
+  auth-service: ${AUTH_SERVICE_URL}
 
 
 service:

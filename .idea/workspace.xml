@@ -4,24 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлена логика пересланных сообщений, отображение пересланных сообщений">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Удалены ssl сертификаты.">
+      <change afterPath="$PROJECT_DIR$/ApiGatewayService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/InDatabaseContentStorageService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MediaContentStorageService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MetadataStorageService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NotificationsService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/RegistrationService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SearchDataService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UsersMessagingService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/GigaChatTokenManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/java/com/alexgls/springboot/contentanalysisservice/service/GigaChatTokenManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/java/com/alexgls/springboot/service/YandexDriveStorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_forward_messages.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_groups_update.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_has_analysis.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_last_read_message_id.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_remove_at_column.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_response_message_columns.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_unread_count_column.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/create_table_message_tokens.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/initialize.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/leave_group_and_service_message.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/update_participants_table.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/changeset/initialization.sql" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/db/changelog/changeset/initialization.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application-prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application-prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/RegistrationService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,6 +116,7 @@
     &quot;Maven.ApiGatewayService [clean,install,-U].executor&quot;: &quot;Run&quot;,
     &quot;Maven.ApiGatewayService [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.ApiGatewayService [dependency:tree,|...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ApiGatewayService [package].executor&quot;: &quot;Run&quot;,
     &quot;Maven.MessageStorageServiceVT [clean].executor&quot;: &quot;Run&quot;,
     &quot;Maven.MessageStorageServiceVT [compile].executor&quot;: &quot;Run&quot;,
     &quot;Maven.MessageStorageServiceVT [org.apache.maven.plugins:maven-clean-plugin:3.5.0:clean].executor&quot;: &quot;Run&quot;,
@@ -139,7 +150,7 @@
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;jdk.selected.JAVA_MODULE&quot;: &quot;openjdk-25&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/AuthService/src/main/java/ru/alexgls/springboot/controller&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/UsersMessagingService&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -177,11 +188,11 @@
       <recent name="com.alexgls.springboot.contentanalysisservice.client" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\AuthService\src\main\java\ru\alexgls\springboot\controller" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\AuthService\src\main\java\ru\alexgls\springboot\dto\user_details" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\AuthService\src\main\java\ru\alexgls\springboot\entity\user_details" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\AuthService\src\main\java\ru\alexgls\springboot\exceptions" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\AuthService\src\main\java\ru\alexgls\springboot\repository" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\UsersMessagingService" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\SearchDataService" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\RegistrationService" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\NotificationsService" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\MetadataStorageService" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\MessageStorageServiceVT\src\main\resources\db\changelog" />
@@ -225,6 +236,19 @@
       <set>
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
+    </option>
+    <option name="hiddenConfigurations">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <set>
+              <option value="ChatClientSpringBootApplication" />
+              <option value="RegistrationServiceApplication" />
+              <option value="UserDetailsServiceApplication" />
+            </set>
+          </value>
+        </entry>
+      </map>
     </option>
   </component>
   <component name="RunManager" selected="Spring Boot.UsersMessagingServiceApplication">
@@ -525,15 +549,9 @@
       <workItem from="1772264805909" duration="19072000" />
       <workItem from="1772351887846" duration="10667000" />
       <workItem from="1772366467694" duration="2393000" />
-      <workItem from="1772380382075" duration="2487000" />
-    </task>
-    <task id="LOCAL-00004" summary="Добавлена возможность загружать фотографии в профиль, отображение фотографий профиля. Изменено отображение профиля других пользователей. Добавлены аватарки пользователей в список чатов.">
-      <option name="closed" value="true" />
-      <created>1761146598817</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1761146598817</updated>
+      <workItem from="1772380382075" duration="3361000" />
+      <workItem from="1772393004372" duration="6373000" />
+      <workItem from="1772455023625" duration="202000" />
     </task>
     <task id="LOCAL-00005" summary="Исправлены некоторые ошибки, TODO: удаление изображения из профиля должно удалить изображение из хранилища">
       <option name="closed" value="true" />
@@ -919,7 +937,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772366406483</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="Удалены ssl сертификаты.">
+      <option name="closed" value="true" />
+      <created>1772383997062</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1772383997062</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -937,7 +963,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="TODO исправить прочтение сообщений ниже в диалоге. Доделать группы" />
     <MESSAGE value="Добавлены группы пользователей, полностью исправлен счетчик непрочитанных сообщений для групп. Добавить функционал ролям пользователей в группах, назначение ролей" />
     <MESSAGE value="Добавлена возможность создавать группы" />
     <MESSAGE value="Добавлена возможность создавать группы, добавлено изменение информации о группе, без изменения списка участников и с учетом прав участника." />
@@ -962,7 +987,8 @@
     <MESSAGE value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
     <MESSAGE value="Добавлена логика пересланных сообщений на бекенд" />
     <MESSAGE value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
+    <MESSAGE value="Удалены ssl сертификаты." />
+    <option name="LAST_COMMIT_MESSAGE" value="Удалены ssl сертификаты." />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

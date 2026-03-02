@@ -2,7 +2,8 @@ server:
   port: 8080
 
 frontend:
-  cors-address-list: "https://alexgls-messenger.ru"
+  cors-address-list: https://alexgls-messenger.ru
+
 
 spring:
   application:
@@ -12,18 +13,77 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://users-auth:8085/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
-
+  # --- НАСТРОЙКА МАРШРУТОВ ---
   cloud:
     gateway:
-      routes:
-        - id: auth-public-route
-          uri: http://auth-service:8085
-          predicates:
-            - Path=/auth/**, /.well-known/jwks.json, /health
+      server:
+        webflux:
+          routes:
+            # --- 1. Маршруты для AuthService (:8085) ---
+            # Правило для публичных эндпоинтов (логин, ключи)
+            - id: auth-public-route
+              uri: ${AUTH_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/auth/**, /.well-known/jwks.json, /health
 
-        - id: messaging-service-route
-          uri: http://messaging-service:8087
-          predicates:
-            - Path=/api/attachments/**, /api/chats/**, /api/messages/**
+            - id: users-service-route
+              uri: ${AUTH_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/api/users/**, /api/profiles/**
+
+            # --- 2. Маршрут для сервиса сообщений (:8087) ---
+            - id: messaging-service-route
+              uri: ${MESSAGING_SERVICE_URL:http://localhost:8087}
+              predicates:
+                # Все эти пути будут перенаправлены на сервис сообщений
+                - Path=/api/attachments/**, /api/chats/**, /api/messages/**
+
+            # --- 3. Маршрут для сервиса хранения файлов (:8088) ---
+            - id: storage-service-route
+              uri: ${STORAGE_SERVICE_URL:http://localhost:8088}
+              predicates:
+                - Path=/api/storage/**
+
+            # --- 4. Маршрут для сервиса файлов в БД (:8089) ---
+            - id: files-db-service-route
+              uri: ${FILES_SERVICE_URL:http://localhost:8089}
+              predicates:
+                - Path=/api/images/**
+
+            # --- 5. Маршрут для сервиса входа и регистрации в БД (:8082) ---
+            - id: registration-service-route
+              uri: ${REGISTRATION_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/verification/**, /api/authentication/**
+
+            # --- 6. Маршрут для WebSocket сервиса (:8086) ---
+            - id: connections-route
+              uri: ${CONNECTIONS_SERVICE_URL:http://localhost:8086}
+              predicates:
+                - Path=/ws-chat/**
+
+            # --- 7. Маршрут для поискового сервиса (:8093) ---
+            - id: search-service-route
+              uri: ${SEARCH_SERVICE_URL:http://localhost:8093}
+              predicates:
+                - Path=/api/search/**
+
+            # --- 8. Маршрут для сервиса анализа (:8094) ---
+            - id: analysis-service-route
+              uri: ${ANALYSIS_SERVICE_URL:http://localhost:8094}
+              predicates:
+                - Path=/api/analysis/**
+
+            # --- 9. Маршрут для сервиса хранения метаданных (:8095) ---
+            - id: metadata-storage-route
+              uri: ${METADATA_SERVICE_URL:http://localhost:8095}
+              predicates:
+                - Path=/api/metadata/**
+
+            # --- 10. Маршрут для сервиса уведомлений (:8091) ---
+            - id: notifications-service
+              uri: ${NOTIFICATIONS_SERVICE_URL:http://localhost:8091}
+              predicates:
+                - Path=/api/notifications/**
