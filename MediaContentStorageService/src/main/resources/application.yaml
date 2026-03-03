@@ -11,11 +11,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
 services:
-  in-database-image-service: ${DB_CONTENT_STORAGE_SERVICE_URL}
-  analysis-service: ${ANALYSIS_SERVICE_URL}
+  in-database-image-service: ${DB_CONTENT_STORAGE_SERVICE_URL:http://localhost:8089}
+  analysis-service: ${ANALYSIS_SERVICE_URL:http://localhost:8094}
 
 webclient:
   timeout: 10

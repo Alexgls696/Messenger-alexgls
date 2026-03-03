@@ -4,13 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Обновлен docker-compose, созданы dockerfiles, изменены конфиги приложений">
-      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/test.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены сертификаты в сервис анализа файлов">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Login.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +43,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="prod" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -48,12 +54,12 @@
     &quot;assignee&quot;: &quot;Alexgls696&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Alexgls696/PrivateChatSpringBoot",
-    "accountId": "d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Alexgls696/PrivateChatSpringBoot&quot;,
+    &quot;accountId&quot;: &quot;d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/retry/spring-retry/2.0.12/spring-retry-2.0.12.jar!/org/springframework/retry/annotation/Retryable.class" root0="SKIP_INSPECTION" />
   </component>
@@ -135,11 +141,11 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
-    "git-widget-placeholder": "prod",
+    "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "jbr-17",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/ContentAnalysisService/gigachat_cert",
+    "last_opened_file_path": "C:/Users/Alexandr/Desktop/claude-code-jetbrains-plugin-0.1.14-beta.zip",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -150,7 +156,7 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.35517243",
     "run.configurations.included.in.services": "true",
-    "settings.editor.selected.configurable": "preferences.keymap",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -227,8 +233,49 @@
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
     </option>
+    <option name="hiddenConfigurations">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <set>
+              <option value="RegistrationServiceApplication" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.prod.yaml.content-analysis-service: Compose Deployment">
+  <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
+    <configuration name="ChatsControllerIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MessageStorageServiceVT" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt" />
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.ChatsControllerIntegrationTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ChatsServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MessageStorageServiceVT" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt.service" />
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.service.ChatsServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
@@ -262,15 +309,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="InDatabaseContentStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+    <configuration name="InDatabaseContentStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="InDatabaseContentStorageService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.indatabasecontentstorageservice.InDatabaseContentStorageServiceApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.alexgls.springboot.indatabasecontentstorageservice.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -334,14 +375,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ContentAnalysisService/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
-      <deployment type="dockerfile">
-        <settings>
-          <option name="sourceFilePath" value="ContentAnalysisService/Dockerfile" />
-        </settings>
-      </deployment>
-      <method v="2" />
-    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
@@ -349,39 +382,28 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
-      <method v="2" />
-    </configuration>
-    <configuration name="docker-compose.prod.yaml.auth-service: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="services">
-            <list>
-              <option value="auth-service" />
-            </list>
-          </option>
-          <option name="sourceFilePath" value="docker-compose.prod.yaml" />
-        </settings>
+      <deployment type="dockerfile">
+        <settings />
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="docker-compose.prod.yaml.content-analysis-service: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+    <configuration name="docker-compose.yaml.notifications-database: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
           <option name="services">
             <list>
-              <option value="content-analysis-service" />
+              <option value="notifications-database" />
             </list>
           </option>
-          <option name="sourceFilePath" value="docker-compose.prod.yaml" />
+          <option name="sourceFilePath" value="docker-compose.yaml" />
         </settings>
       </deployment>
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Docker.ContentAnalysisService/Dockerfile" />
-      <item itemvalue="Docker.docker-compose.prod.yaml.content-analysis-service: Compose Deployment" />
-      <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
+      <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
+      <item itemvalue="JUnit.ChatsServiceTest" />
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
@@ -396,11 +418,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.prod.yaml.content-analysis-service: Compose Deployment" />
-        <item itemvalue="Docker.ContentAnalysisService/Dockerfile" />
-        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
-        <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
+        <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
+        <item itemvalue="JUnit.ChatsServiceTest" />
+        <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -508,15 +529,8 @@
       <workItem from="1772489931327" duration="2393000" />
       <workItem from="1772492366384" duration="289000" />
       <workItem from="1772492676494" duration="2576000" />
-      <workItem from="1772528180382" duration="4463000" />
-    </task>
-    <task id="LOCAL-00005" summary="Исправлены некоторые ошибки, TODO: удаление изображения из профиля должно удалить изображение из хранилища">
-      <option name="closed" value="true" />
-      <created>1761150170905</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1761150170905</updated>
+      <workItem from="1772528180382" duration="5887000" />
+      <workItem from="1772544516536" duration="3060000" />
     </task>
     <task id="LOCAL-00006" summary="Добавлено создание профиля при регистрации">
       <option name="closed" value="true" />
@@ -902,7 +916,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772383997062</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="Добавлены сертификаты в сервис анализа файлов">
+      <option name="closed" value="true" />
+      <created>1772533607241</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1772533607241</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -920,7 +942,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлены группы пользователей, полностью исправлен счетчик непрочитанных сообщений для групп. Добавить функционал ролям пользователей в группах, назначение ролей" />
     <MESSAGE value="Добавлена возможность создавать группы" />
     <MESSAGE value="Добавлена возможность создавать группы, добавлено изменение информации о группе, без изменения списка участников и с учетом прав участника." />
     <MESSAGE value="Добавлена возможность удалять участников из группы, исправлен поиск по сообщениям, если чат был удален для пользователя. Рассылка сообщения об удалении пользователя всем участникам. Рефакторинг некоторых классов." />
@@ -945,18 +966,10 @@
     <MESSAGE value="Добавлена логика пересланных сообщений на бекенд" />
     <MESSAGE value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
     <MESSAGE value="Удалены ssl сертификаты." />
-    <option name="LAST_COMMIT_MESSAGE" value="Удалены ssl сертификаты." />
+    <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлены сертификаты в сервис анализа файлов" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/config/ElasticConfig.java</url>
-          <line>8</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="SpringBootApplicationConfigurationType">
         <watch expression="import java.util.List;" />

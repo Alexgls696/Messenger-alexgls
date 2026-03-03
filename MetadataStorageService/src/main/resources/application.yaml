@@ -3,7 +3,7 @@ server:
 
 spring:
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     consumer:
       enable-auto-commit: false
       max-poll-records: 50
@@ -12,9 +12,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
   elasticsearch:
-    uris: ${SPRING_ELASTICSEARCH_URIS}
-    username: ${SPRING_ELASTICSEARCH_USERNAME}
-    password: ${SPRING_ELASTICSEARCH_PASSWORD}
+    uris: ${SPRING_ELASTICSEARCH_URIS:localhost:9200}
+    username: ${SPRING_ELASTICSEARCH_USERNAME:elastic}
+    password: ${SPRING_ELASTICSEARCH_PASSWORD:elastic}

@@ -12,18 +12,18 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/security_users_db}
+    username: ${SPRING_DATASOURCE_USERNAME:alexgls}
+    password: ${SPRING_DATASOURCE_PASSWORD:AS04SERa1}
 
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
 services:
   register:
