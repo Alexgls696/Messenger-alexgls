@@ -4,10 +4,9 @@
 
 ## Запуск 
 1. Backend
-   У вас должен быть установлен docker compose.
-   На вашем компьютере должен быть установлен maven для сборки сервисов.
-   Выполните команду ```mvn clean package -DskipTests``` в корне проекта, дождитесь завершения процесса.
-   Для запуска баз данных, Kafka и сервисов в docker необходимо ввести команду ```docker compose -f docker-compose.prod.yaml up -d```.
+   У вас должен быть установлен docker compose и maven для сборки и запуска сервисов.
+   1.1. Выполните команду ```mvn clean package -DskipTests``` в корне проекта, дождитесь завершения процесса.
+   1.2. Для запуска баз данных, Kafka и сервисов в docker необходимо ввести команду ```docker compose -f docker-compose.prod.yaml up -d```.
 2. Frontend
    Для запуска необходим node.js, т.к. приложение использует react.
    В каталоге ```messanger-ui``` введите команду ```npm run dev```.
