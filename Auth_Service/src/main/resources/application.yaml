@@ -1,0 +1,31 @@
+jwt:
+  secret: 4eaee43cfe4d9d08e6391dab67baf143
+  expiration:
+    users: 900000 #15 min
+    service: 300000 #5 min
+
+  refresh:
+    expirationMs: 604800000 #7 суток
+
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+
+services:
+  register:
+    id: register-service
+    secret: ${REGISTER_SECRET:register_secret}

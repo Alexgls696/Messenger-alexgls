@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 
-const API_CREATE_PROFILE_URL = 'https://localhost:8080/api/profiles/create';
+const API_CREATE_PROFILE_URL = 'http://localhost:8080/api/profiles/create';
 
 function Register() {
     const navigate = useNavigate();
@@ -20,7 +20,7 @@ function Register() {
     const [isLoading, setIsLoading] = useState(false);
 
     const gatewayAddress = `${window.location.hostname}:8080`;
-    const API_BASE_URL = `https://${gatewayAddress}`;
+    const API_BASE_URL = `http://${gatewayAddress}`;
 
     useEffect(() => {
         const accessToken = localStorage.getItem('accessToken');

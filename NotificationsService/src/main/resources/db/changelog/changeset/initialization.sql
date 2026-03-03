@@ -5,9 +5,9 @@
 create table notifications
 (
     id          bigint primary key generated always as identity,
-    title       varchar(256), -- Заголовок уведомления
-    content     text,         -- Основной текст (varchar(1024) может быть мало)
-    type        varchar(32),  -- SYSTEM, MESSAGE, INVITE, etc.
+    title       varchar(256),
+    content     text,
+    type        varchar(32),
     image_id    integer,
     metadata    jsonb,         --{"chatId": 1, "link": "/chats/1"}
     created_at  timestamp default now()
@@ -23,5 +23,4 @@ create table users_notifications
 );
 
 create index idx_user_notifications_user_id on users_notifications(user_id);
--- Индекс для фильтрации только непрочитанных
 create index idx_user_notifications_unread on users_notifications(user_id) where is_read = false;

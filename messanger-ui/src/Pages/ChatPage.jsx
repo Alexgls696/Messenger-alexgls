@@ -30,7 +30,7 @@ import './Styles/Group.css'
 import './Styles/SearchModal.css'
 import './Styles/auth.css';
 
-const API_BASE_URL = `https://${window.location.hostname}:8080`;
+const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
 function ChatPage() {
 

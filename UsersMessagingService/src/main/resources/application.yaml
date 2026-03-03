@@ -1,20 +1,19 @@
 server:
   port: 8086
 
-
 spring:
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 frontend:
-  cors-address-list: "https://localhost:8090, https://192.168.0.103:8090, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
+  cors-address-list: http://localhost:5173
 
 
 services:
-  auth-service: http://localhost:8085
+  auth-service: ${AUTH_SERVICE_URL}
 

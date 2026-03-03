@@ -11,16 +11,17 @@
         <module name="NotificationsService" />
         <module name="SearchDataService" />
         <module name="ApiGatewayService" />
-        <module name="AuthService" />
         <module name="MetadataStorageService" />
         <module name="InDatabaseContentStorageService" />
         <module name="ContentAnalysisService" />
         <module name="RegistrationService" />
         <module name="MediaContentStorageService" />
         <module name="MessageStorageServiceVT" />
+        <module name="Auth_Service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="AuthService" target="17" />
       <module name="MessageStorageService" target="17" />
       <module name="RatingLogClientApplication" target="17" />
       <module name="UserDetailsService" target="17" />
@@ -30,6 +31,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ApiGatewayService" options="-parameters" />
       <module name="AuthService" options="-parameters" />
+      <module name="Auth_Service" options="-parameters" />
       <module name="ContentAnalysisService" options="-parameters" />
       <module name="InDatabaseContentStorageService" options="-parameters" />
       <module name="MediaContentStorageService" options="-parameters" />

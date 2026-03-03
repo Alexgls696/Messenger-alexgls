@@ -3,15 +3,13 @@ server:
 
 spring:
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8085/.well-known/jwks.json
-
-services:
-  auth-service: http://localhost:8085
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
 
 ai-services:
   gigachat:

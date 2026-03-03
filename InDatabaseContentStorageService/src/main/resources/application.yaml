@@ -2,10 +2,13 @@ server:
   port: 8089
 
 spring:
-  kafka:
-    consumer:
-      bootstrap-servers: localhost:29092
   datasource:
-    url: jdbc:postgresql://localhost:5437/images_db
-    username: alexgls
-    password: AS04SERa1
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json

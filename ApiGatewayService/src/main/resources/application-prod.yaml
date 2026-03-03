@@ -1,0 +1,89 @@
+server:
+  port: 8080
+
+frontend:
+  cors-address-list: "http://localhost:5173"
+
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVICE_URL}/.well-known/jwks.json
+
+  # --- НАСТРОЙКА МАРШРУТОВ ---
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # --- 1. Маршруты для AuthService (:8085) ---
+            # Правило для публичных эндпоинтов (логин, ключи)
+            - id: auth-public-route
+              uri: ${AUTH_SERVICE_URL}
+              predicates:
+                - Path=/auth/**, /.well-known/jwks.json, /health
+
+            - id: users-service-route
+              uri: ${AUTH_SERVICE_URL}
+              predicates:
+                - Path=/api/users/**, /api/profiles/**
+
+            # --- 2. Маршрут для сервиса сообщений (:8087) ---
+            - id: messaging-service-route
+              uri: ${MESSAGING_SERVICE_URL}
+              predicates:
+                # Все эти пути будут перенаправлены на сервис сообщений
+                - Path=/api/attachments/**, /api/chats/**, /api/messages/**
+
+            # --- 3. Маршрут для сервиса хранения файлов (:8088) ---
+            - id: storage-service-route
+              uri: ${STORAGE_SERVICE_URL}
+              predicates:
+                - Path=/api/storage/**
+
+            # --- 4. Маршрут для сервиса файлов в БД (:8089) ---
+            - id: files-db-service-route
+              uri: ${FILES_SERVICE_URL}
+              predicates:
+                - Path=/api/images/**
+
+            # --- 5. Маршрут для сервиса входа и регистрации в БД (:8082) ---
+            - id: registration-service-route
+              uri: ${REGISTRATION_SERVICE_URL}
+              predicates:
+                - Path=/api/verification/**, /api/authentication/**
+
+            # --- 6. Маршрут для WebSocket сервиса (:8086) ---
+            - id: connections-route
+              uri: ${CONNECTIONS_SERVICE_URL}
+              predicates:
+                - Path=/ws-chat/**
+
+            # --- 7. Маршрут для поискового сервиса (:8093) ---
+            - id: search-service-route
+              uri: ${SEARCH_SERVICE_URL}
+              predicates:
+                - Path=/api/search/**
+
+            # --- 8. Маршрут для сервиса анализа (:8094) ---
+            - id: analysis-service-route
+              uri: ${ANALYSIS_SERVICE_URL}
+              predicates:
+                - Path=/api/analysis/**
+
+            # --- 9. Маршрут для сервиса хранения метаданных (:8095) ---
+            - id: metadata-storage-route
+              uri: ${METADATA_SERVICE_URL}
+              predicates:
+                - Path=/api/metadata/**
+
+            # --- 10. Маршрут для сервиса уведомлений (:8091) ---
+            - id: notifications-service
+              uri: ${NOTIFICATIONS_SERVICE_URL}
+              predicates:
+                - Path=/api/notifications/**

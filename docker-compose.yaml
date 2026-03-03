@@ -1,7 +1,7 @@
 volumes:
   security_users_data:
   messaging_db_data:
-  images_db_data:
+  files_db_data:
   user-details-data:
   notifications-data:
   redis_data:
@@ -16,12 +16,11 @@ networks:
     driver: bridge
 
 services:
-
-  security-users-database:
+  users-auth-db:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_SECURITY_USERS_DB}
+      POSTGRES_DB: security_users_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
@@ -29,11 +28,11 @@ services:
     ports:
       - "5435:5432"
 
-  messaging-database:
+  messaging-db:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_MESSAGING_DB}
+      POSTGRES_DB: messaging_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
@@ -41,11 +40,11 @@ services:
     ports:
       - "5436:5432"
 
-  notifications-database:
+  notifications-db:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_NOTIFICATIONS_DB}
+      POSTGRES_DB: notifications_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
@@ -53,68 +52,22 @@ services:
     ports:
       - "5441:5432"
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.4
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "22181:2181"
-
-  images-database:
+  files-db:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_IMAGES_DB}
+      POSTGRES_DB: files_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - images_db_data:/var/lib/postgresql/data
+      - files_db_data:/var/lib/postgresql/data
     ports:
       - "5437:5432"
 
-  user-details-database:
-    image: postgres:16
-    restart: always
-    environment:
-      POSTGRES_DB: ${USER_DETAILS_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - user-details-data:/var/lib/postgresql/data
-    ports:
-      - "5440:5432"
-
-  kafka:
-    image: confluentinc/cp-kafka:7.4.4
-    depends_on:
-      - zookeeper
-    ports:
-      - "29092:29092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  redis:
-    image: redis:7.2-alpine
-    container_name: redis-cache
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_PASSWORD=AS04SERa1 #
-    restart: unless-stopped
-
-  elasticsearch:
+  metadata-elasticsearch-db:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
     container_name: elasticsearch
+    restart: always
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -126,15 +79,23 @@ services:
       # Отключаем SSL (HTTPS) для HTTP API, чтобы в Java не возиться с сертификатами
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
-      # Задаем пароль для пользователя 'elastic'
       - ELASTIC_PASSWORD=elastic
     ports:
       - "9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
     ulimits:
-       memlock:
-         soft: -1
-         hard: -1
+      memlock:
+        soft: -1
+        hard: -1
     networks:
       - elastic
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"

@@ -2,6 +2,7 @@ package ru.alexgls.springboot.usersmessagingservice.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import ru.alexgls.springboot.usersmessagingservice.dto.*;
@@ -18,10 +19,13 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     @Bean
     public ConsumerFactory<String, MessageDto> messageConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         JsonDeserializer<MessageDto> jsonDeserializer = new JsonDeserializer<>(MessageDto.class);
@@ -40,7 +44,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, ReadMessagePayload> readMessagesConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "message-read-group");
@@ -63,7 +67,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, DeleteMessageResponse> deleteMessagesKafkaConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "delete-message-group");
@@ -84,7 +88,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, NotificationDto> notificationsConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         JsonDeserializer<NotificationDto> deserializer = new JsonDeserializer<>(NotificationDto.class);
