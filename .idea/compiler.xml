@@ -11,7 +11,6 @@
         <module name="NotificationsService" />
         <module name="SearchDataService" />
         <module name="ApiGatewayService" />
-        <module name="AuthService" />
         <module name="MetadataStorageService" />
         <module name="InDatabaseContentStorageService" />
         <module name="ContentAnalysisService" />
@@ -22,6 +21,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="AuthService" target="17" />
       <module name="MessageStorageService" target="17" />
       <module name="RatingLogClientApplication" target="17" />
       <module name="UserDetailsService" target="17" />

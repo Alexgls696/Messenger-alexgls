@@ -20,5 +20,6 @@
         <module>MediaContentStorageService</module>
         <module>UsersMessagingService</module>
         <module>MetadataStorageService</module>
+        <module>RegistrationService</module>
     </modules>
 </project>
