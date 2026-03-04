@@ -64,18 +64,46 @@
     background-color: var(--bg-secondary);
 }
 
+/* Основной контейнер информации */
 .chat-info {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    gap: 2px;
     overflow: hidden;
+    min-width: 0; /* Важно для text-overflow внутри flex */
+}
+
+/* Верхняя строка: Название + Время */
+.chat-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
 }
 
 .chat-info .chat-title {
     font-weight: 600;
-    font-size: 1.1em;
+    font-size: 1.05em;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-info .message-time {
+    color: var(--text-placeholder);
+    font-size: 0.82em;
+    flex-shrink: 0;
+}
+
+/* Нижняя строка: Сообщение + Бейдж/Булавка */
+.chat-info-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
 .chat-info .last-message {
@@ -84,11 +112,40 @@
     text-overflow: ellipsis;
     color: var(--text-secondary);
     font-size: 0.9em;
+    flex-grow: 1;
 }
 
-.chat-info .message-time {
+.chat-status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.pin-icon {
     color: var(--text-placeholder);
-    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    transform: rotate(45deg); 
+}
+
+.chat-list li.pinned {
+    background-color: var(--bg-secondary);
+}
+
+.chat-list li.pinned.active {
+    background-color: var(--surface-accent);
+}
+
+.unread-badge {
+    background-color: var(--accent-primary);
+    color: white;
+    border-radius: 12px;
+    padding: 2px 7px;
+    font-size: 0.75em;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
 }
 
 /* --- 3. ОКНО ЧАТА (Справа) --- */

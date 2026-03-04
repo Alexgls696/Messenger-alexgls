@@ -47,36 +47,51 @@ const ChatItem = memo(({ chat, isActive, onSelect, onContextMenu }) => {
 
     return (
         <li
-            className={isActive ? 'active' : ''}
+            className={`${isActive ? 'active' : ''} ${chat.pinned ? 'pinned' : ''}`}
             onClick={() => onSelect(chat)}
             onContextMenu={(e) => {
                 e.preventDefault();
-                onContextMenu(e, chat.chatId);
+                onContextMenu(e, chat);
             }}
         >
             <img className="chat-item-avatar" src={avatar} alt="" />
+
             <div className="chat-info">
-                <div className="chat-title">{chatTitle}</div>
-                <div className="last-message">
-                    {chat.lastMessage ? (chat.lastMessage.content || 'Вложение') : 'Нет сообщений'}
+                <div className="chat-info-header">
+                    <div className="chat-title">{chatTitle}</div>
+                    <div className="message-time">
+                        {chat.lastMessage ? formatDate(chat.lastMessage.createdAt) : ''}
+                    </div>
                 </div>
-                <div className="message-time">
-                    {chat.lastMessage ? formatDate(chat.lastMessage.createdAt) : ''}
+
+                <div className="chat-info-footer">
+                    <div className="last-message">
+                        {chat.lastMessage ? (chat.lastMessage.content || 'Вложение') : 'Нет сообщений'}
+                    </div>
+
+                    <div className="chat-status-icons">
+                        {chat.pinned && (
+                            <div className="pin-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
+                                </svg>
+                            </div>
+                        )}
+                        {chat.numberOfUnreadMessages > 0 && (
+                            <div className="unread-badge">{chat.numberOfUnreadMessages}</div>
+                        )}
+                    </div>
                 </div>
             </div>
-            {chat.numberOfUnreadMessages > 0 && (
-                <div className="unread-badge">{chat.numberOfUnreadMessages}</div>
-            )}
         </li>
     );
 }, (prevProps, nextProps) => {
-    // Кастомная проверка для React.memo:
-    // Перерисовывать только если изменился статус активности, 
-    // текст последнего сообщения или счетчик непрочитанных.
     return (
         prevProps.isActive === nextProps.isActive &&
+        prevProps.chat.pinned === nextProps.chat.pinned && 
         prevProps.chat.lastMessage?.id === nextProps.chat.lastMessage?.id &&
-        prevProps.chat.numberOfUnreadMessages === nextProps.chat.numberOfUnreadMessages
+        prevProps.chat.numberOfUnreadMessages === nextProps.chat.numberOfUnreadMessages &&
+        prevProps.chat.updatedAt === nextProps.chat.updatedAt
     );
 });
 

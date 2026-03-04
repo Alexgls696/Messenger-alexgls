@@ -11,16 +11,25 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
     const [isLoading, setIsLoading] = useState(false);
 
     const fetchAndAddSingleChat = async (chatId) => {
-        try {
-            const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
-            setChats(prev => {
-                if (prev.some(c => c.chatId === chatId)) return prev;
-                return [fullChatDto, ...prev];
-            });
-        } catch (error) {
-            console.error("Не удалось подгрузить данные нового чата:", error);
-        }
-    };
+    try {
+        const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
+        
+        setChats(prev => {
+            if (prev.some(c => c.chatId === chatId)) return prev;
+
+            const pinnedChats = prev.filter(c => c.pinned);
+            const regularChats = prev.filter(c => !c.pinned);
+
+            if (fullChatDto.pinned) {
+                return [fullChatDto, ...pinnedChats, ...regularChats];
+            } else {
+                return [...pinnedChats, fullChatDto, ...regularChats];
+            }
+        });
+    } catch (error) {
+        console.error("Не удалось подгрузить данные нового чата:", error);
+    }
+};
 
     useImperativeHandle(ref, () => ({
         removeChatFromList(chatId) {
@@ -34,17 +43,25 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
 
                 if (chatIdx > -1) {
                     chatExists = true;
-                    const updatedChats = [...prev];
-                    const targetChat = { ...updatedChats[chatIdx] };
 
+                    const targetChat = { ...prev[chatIdx] };
                     targetChat.lastMessage = newMsg;
+                    targetChat.updatedAt = newMsg.createdAt;
 
                     if (!isCurrentActive) {
                         targetChat.numberOfUnreadMessages = (targetChat.numberOfUnreadMessages || 0) + 1;
                     }
 
-                    updatedChats.splice(chatIdx, 1);
-                    return [targetChat, ...updatedChats];
+                    const filteredChats = prev.filter(c => c.chatId !== newMsg.chatId);
+
+                    const pinnedChats = filteredChats.filter(c => c.pinned);
+                    const regularChats = filteredChats.filter(c => !c.pinned);
+
+                    if (targetChat.pinned) {
+                        return [targetChat, ...pinnedChats, ...regularChats];
+                    } else {
+                        return [...pinnedChats, targetChat, ...regularChats];
+                    }
                 }
 
                 chatExists = false;
@@ -54,6 +71,23 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
             if (!chatExists) {
                 fetchAndAddSingleChat(newMsg.chatId);
             }
+        },
+
+        updateChatPinStatus: (updatedChat) => {
+            setChats(prevChats => {
+                const newChats = prevChats.map(c =>
+                    c.chatId === updatedChat.chatId ? { ...c, pinned: updatedChat.pinned } : c
+                );
+
+                return newChats.sort((a, b) => {
+                    if (a.pinned !== b.pinned) {
+                        return a.pinned ? -1 : 1;
+                    }
+                    const dateA = new Date(a.updatedAt || 0);
+                    const dateB = new Date(b.updatedAt || 0);
+                    return dateB - dateA;
+                });
+            });
         },
 
         decrementBadge(chatId, amount) {

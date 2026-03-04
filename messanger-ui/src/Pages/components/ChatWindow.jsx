@@ -217,7 +217,7 @@ function ChatWindow({ activeChat,
                 if (update.tempId && nextMessages.some(m => m.tempId === update.tempId)) {
                     nextMessages = nextMessages.map(m => m.tempId === update.tempId ? update : m);
                     hasChanges = true;
-                } 
+                }
                 else if (!nextMessages.some(m => m.id === update.id)) {
                     nextMessages.push(update);
                     hasChanges = true;
@@ -235,7 +235,7 @@ function ChatWindow({ activeChat,
 
     }, [socketUpdates, activeChat]);
 
-    
+
 
     useEffect(() => {
         if (messageUpdateEvent && activeChat && messageUpdateEvent.chatId === activeChat.chatId) {
@@ -250,7 +250,6 @@ function ChatWindow({ activeChat,
 
     //  Обработка прочтения (readEvent)
     useEffect(() => {
-        // ЗАЩИТА
         if (!activeChat || !readEvent) return;
 
         if (readEvent.chatId === activeChat.chatId) {
@@ -262,7 +261,6 @@ function ChatWindow({ activeChat,
 
     // Обработка удаления (deleteEvent)
     useEffect(() => {
-        // ЗАЩИТА
         if (!activeChat || !deleteEvent) return;
 
         if (deleteEvent.chatId === activeChat.chatId) {
@@ -304,7 +302,7 @@ function ChatWindow({ activeChat,
 
     // --- ОТПРАВКА СООБЩЕНИЯ ---
     const handleFormSubmit = async (e) => {
-        console.log('click')
+
         e.preventDefault();
 
         if (isForbidden) return;

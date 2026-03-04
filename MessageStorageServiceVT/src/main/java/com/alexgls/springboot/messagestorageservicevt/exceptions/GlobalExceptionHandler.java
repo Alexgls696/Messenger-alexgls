@@ -54,9 +54,20 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(NoSuchPinnedChatException.class)
+    public ResponseEntity<ProblemDetail> handleNoSuchPinnedChatException(NoSuchPinnedChatException exception, Locale locale) {
+        log.warn("Handle NoSuchPinnedChatException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.pinned_chat_not_found", new Object[0], "error.pinned_chat_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(NoSuchMessageException.class)
     public ResponseEntity<ProblemDetail> handleNoSuchMessageException(NoSuchMessageException exception, Locale locale) {
-        log.warn("Handle NoSuchUserException: {}", exception.getMessage());
+        log.warn("Handle NoSuchMessageException: {}", exception.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
                 messageSource.getMessage("error.message_not_found", new Object[0], "error.message_not_found", locale));
         problemDetail.setProperty("error", exception.getMessage());

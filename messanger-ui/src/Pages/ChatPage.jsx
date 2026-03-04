@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, lazy } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
@@ -86,13 +86,12 @@ function ChatPage() {
         const isMsgForActive = curActive?.chatId === newMsg.chatId;
 
         if (newMsg.senderId !== user.id) {
-            playMessageSound();
+            //playMessageSound();
         }
 
         chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);
 
         if (isMsgForActive) {
-            // ИЗМЕНЕНИЕ: Добавляем сообщение в массив, а не перезаписываем!
             setSocketUpdates(prev => [...prev, newMsg]);
         }
     }, [user, playMessageSound]);
@@ -222,7 +221,7 @@ function ChatPage() {
 
     const handleChatSelect = (chat) => {
         setActiveChat(chat);
-       setSocketUpdates([]);
+        setSocketUpdates([]);
         setIsGroupProfileOpen(false);
         document.body.classList.add('chat-active');
     };
@@ -325,10 +324,46 @@ function ChatPage() {
 
     const handleForwardMessages = useCallback((messages) => {
         setForwardingMessages(messages);
-        setSelectionMode(false); // Выключаем режим выделения
-        setIsUserSearchOpen(true); // Открываем окно поиска чатов для пересылки
+        setSelectionMode(false);
+        setIsUserSearchOpen(true);
     });
 
+    const handlePinnedChatAction = async (chat) => {
+        const isPinning = !chat.pinned;
+        const method = isPinning ? 'POST' : 'POST';
+
+        const url = isPinning
+            ? `/api/pinned-chats?chatId=${chat.chatId}`
+            : `/api/pinned-chats/delete/${chat.chatId}`;
+
+        try {
+            await apiFetch(url, { method });
+
+            if (chatListRef.current) {
+                chatListRef.current.updateChatPinStatus({ ...chat, pinned: isPinning });
+            }
+
+        } catch (error) {
+            console.error("Ошибка при изменении статуса закрепления:", error);
+            alert("Не удалось изменить статус закрепления чата");
+        }
+    };
+
+    const handleChatContextMenu = useCallback((e, chat) => {
+        e.preventDefault();
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            options: [
+                {
+                    // ИСПРАВЛЕНО: если чат закреплен, показываем "Открепить"
+                    label: chat.pinned ? 'Открепить' : 'Закрепить',
+                    action: () => handlePinnedChatAction(chat)
+                },
+                { label: 'Удалить чат', danger: true, action: () => deleteChat(chat.chatId) }
+            ]
+        });
+    }, [deleteChat]);
 
     const handleMessageContextMenu = useCallback((e, msg) => {
         e.preventDefault();
@@ -354,7 +389,6 @@ function ChatPage() {
         });
 
 
-
         if (isSentByMe) {
             options.push({
                 label: 'Удалить у всех',
@@ -366,16 +400,7 @@ function ChatPage() {
         setContextMenu({ x: e.clientX, y: e.clientY, options });
     }, [user, deleteMessages]);
 
-    const handleChatContextMenu = useCallback((e, chatId) => {
-        e.preventDefault();
-        setContextMenu({
-            x: e.clientX,
-            y: e.clientY,
-            options: [
-                { label: 'Удалить чат', danger: true, action: () => deleteChat(chatId) }
-            ]
-        });
-    }, [deleteChat]);
+
 
     return (
         <div className="container">

@@ -32,4 +32,6 @@ public class ChatDto {
 
     private Integer numberOfUnreadMessages;
 
+    private boolean pinned;
+
 }

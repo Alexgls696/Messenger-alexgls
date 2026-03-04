@@ -5,19 +5,13 @@ import com.alexgls.springboot.messagestorageservicevt.dto.chats.*;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
 import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNotificationRequest;
 import com.alexgls.springboot.messagestorageservicevt.dto.notifications.NotificationType;
-import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
-import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
-import com.alexgls.springboot.messagestorageservicevt.entity.Message;
-import com.alexgls.springboot.messagestorageservicevt.entity.Participants;
+import com.alexgls.springboot.messagestorageservicevt.entity.*;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUserException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservicevt.mapper.ChatMapper;
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
-import com.alexgls.springboot.messagestorageservicevt.repository.ChatsRepository;
-import com.alexgls.springboot.messagestorageservicevt.repository.DeletedMessagesRepository;
-import com.alexgls.springboot.messagestorageservicevt.repository.MessagesRepository;
-import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
+import com.alexgls.springboot.messagestorageservicevt.repository.*;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.CreateGroupServiceMessage;
@@ -33,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -46,6 +41,7 @@ public class ChatsService {
     private final MessagesRepository messagesRepository;
     private final DeletedMessagesRepository deletedMessagesRepository;
     private final AuthRestClient authRestClient;
+    private final PinnedChatsRepository pinnedChatsRepository;
 
     private final KafkaSenderService kafkaSenderService;
     private final EncryptUtils encryptUtils;
@@ -54,7 +50,7 @@ public class ChatsService {
     @Transactional(readOnly = true)
     public List<ChatDto> findAllChatsByUserId(int userId, Pageable pageable) {
         Page<ChatWithUnread> chats = chatsRepository.findChatsByUserId(userId, pageable);
-        List<ChatDto> result = new ArrayList<>();
+        List<ChatDto> unsortedResult = new ArrayList<>();
         for (ChatWithUnread chatWithUnread : chats.getContent()) {
             ChatDto chatDto = ChatMapper.toDto(chatWithUnread.chat());
             Optional<Message> messageOptional = messagesRepository.findLastMessageByChatIdAndUserId(chatWithUnread.chat().getId(), userId);
@@ -64,8 +60,33 @@ public class ChatsService {
             }
 
             chatDto.setNumberOfUnreadMessages(chatWithUnread.unreadCount());
-            result.add(chatDto);
+            unsortedResult.add(chatDto);
         }
+
+        Set<Long> pinnedChats = pinnedChatsRepository.findAllById_UserId(userId)
+                .stream()
+                .map(pinnedChat -> pinnedChat.getId().getChatId())
+                .collect(Collectors.toSet());
+
+        for (var chat : unsortedResult) {
+            if (pinnedChats.contains(chat.getChatId())) {
+                chat.setPinned(true);
+            }
+        }
+
+        List<ChatDto> result = new ArrayList<>();
+        for (var chat : unsortedResult) {
+            if(chat.isPinned()){
+                result.add(chat);
+            }
+        }
+
+        for (var chat : unsortedResult) {
+            if(!chat.isPinned()){
+                result.add(chat);
+            }
+        }
+
         return result;
     }
 
@@ -150,7 +171,6 @@ public class ChatsService {
                 .build());
         return chatDto;
     }
-
 
 
     private Participants createParticipantForGroup(ChatRole chatRole, int userId, Chat chat) {

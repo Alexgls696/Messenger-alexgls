@@ -4,19 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены сертификаты в сервис анализа файлов">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах">
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/PinnedChatController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/PinnedChat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/PinnedChatId.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/NoSuchPinnedChatException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/PinnedChatsRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/PinnedChatService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/changeset/add_pinned_chats_table.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/InDatabaseContentStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MediaContentStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UsersMessagingService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/ChatDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/ChatDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageServiceVT/src/main/resources/messages.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatItem.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatItem.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,11 +42,11 @@
         <option value="CSS File" />
         <option value="JavaScript File" />
         <option value="JUnit5 Test Class" />
-        <option value="Exception" />
-        <option value="Interface" />
         <option value="Enum" />
-        <option value="Class" />
         <option value="Record" />
+        <option value="Interface" />
+        <option value="Exception" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -122,8 +132,10 @@
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
+    "Spring Boot.ApiGatewayServiceApplication.executor": "Debug",
     "Spring Boot.AuthServiceSpringBootApplication (1).executor": "Run",
     "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
@@ -145,19 +157,20 @@
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "jbr-17",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Alexandr/Desktop/claude-code-jetbrains-plugin-0.1.14-beta.zip",
+    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Проект",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.35517243",
     "run.configurations.included.in.services": "true",
     "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+    "vue.rearranger.settings.migration": "true",
+    "Приложение.ApiGatewayServiceApplication.executor": "Run"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
@@ -245,7 +258,20 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
+  <component name="RunManager" selected="Spring Boot.ApiGatewayServiceApplication">
+    <configuration name="ApiGatewayServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.apigatewayservice.ApiGatewayServiceApplication" />
+      <module name="ApiGatewayService" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.alexgls.springboot.apigatewayservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ChatsControllerIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MessageStorageServiceVT" />
       <extension name="coverage">
@@ -401,19 +427,20 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Application.ApiGatewayServiceApplication" />
       <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
       <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
       <item itemvalue="JUnit.ChatsServiceTest" />
+      <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
+      <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
+      <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
+      <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
+      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
+      <item itemvalue="Spring Boot.MetadataStorageServiceApplication" />
+      <item itemvalue="Spring Boot.NotificationsServiceApplication" />
+      <item itemvalue="Spring Boot.RegistrationServiceApplication" />
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.UsersMessagingServiceApplication" />
-      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
-      <item itemvalue="Spring Boot.NotificationsServiceApplication" />
-      <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
-      <item itemvalue="Spring Boot.MetadataStorageServiceApplication" />
-      <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
-      <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
-      <item itemvalue="Spring Boot.RegistrationServiceApplication" />
-      <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
     </list>
     <recent_temporary>
@@ -421,7 +448,6 @@
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="JUnit.ChatsControllerIntegrationTest" />
         <item itemvalue="JUnit.ChatsServiceTest" />
-        <item itemvalue="Docker.docker-compose.yaml.notifications-database: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -530,15 +556,9 @@
       <workItem from="1772492366384" duration="289000" />
       <workItem from="1772492676494" duration="2576000" />
       <workItem from="1772528180382" duration="5887000" />
-      <workItem from="1772544516536" duration="3060000" />
-    </task>
-    <task id="LOCAL-00006" summary="Добавлено создание профиля при регистрации">
-      <option name="closed" value="true" />
-      <created>1761166499584</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1761166499584</updated>
+      <workItem from="1772544516536" duration="3682000" />
+      <workItem from="1772640672706" duration="2009000" />
+      <workItem from="1772644343460" duration="10761000" />
     </task>
     <task id="LOCAL-00007" summary="Добавлена возможность удалять чат для себя (сообщения отмечаются, как удаленные). Исправление некоторых визуальных багов">
       <option name="closed" value="true" />
@@ -924,7 +944,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772533607241</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах">
+      <option name="closed" value="true" />
+      <created>1772547810555</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1772547810556</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -942,7 +970,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлена возможность создавать группы" />
     <MESSAGE value="Добавлена возможность создавать группы, добавлено изменение информации о группе, без изменения списка участников и с учетом прав участника." />
     <MESSAGE value="Добавлена возможность удалять участников из группы, исправлен поиск по сообщениям, если чат был удален для пользователя. Рассылка сообщения об удалении пользователя всем участникам. Рефакторинг некоторых классов." />
     <MESSAGE value="Пересоздан сервис сообщений,реализация в императивном стиле. Написаны тесты для некоторых сервисов в нем." />
@@ -967,7 +994,8 @@
     <MESSAGE value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
     <MESSAGE value="Удалены ssl сертификаты." />
     <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлены сертификаты в сервис анализа файлов" />
+    <MESSAGE value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
+    <option name="LAST_COMMIT_MESSAGE" value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

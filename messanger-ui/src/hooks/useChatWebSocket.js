@@ -40,8 +40,9 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 refs.current.onMessageUpdate(JSON.parse(m.body));
             });
 
-            client.subscribe('/user/queue/read-status', (m) =>
+            client.subscribe('/user/queue/read-status', (m) =>{
                 refs.current.onReadStatus(JSON.parse(m.body))
+            }
             );
             client.subscribe('/user/queue/delete-event', (m) =>
                 refs.current.onDeleteEvent(JSON.parse(m.body))

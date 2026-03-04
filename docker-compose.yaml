@@ -8,6 +8,8 @@ volumes:
   es_data:
     driver: local
 
+name: dev-alexgls-messenger
+
 networks:
   users-network:
     driver: bridge
