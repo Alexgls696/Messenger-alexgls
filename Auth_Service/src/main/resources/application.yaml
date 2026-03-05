@@ -1,8 +1,8 @@
 jwt:
   secret: 4eaee43cfe4d9d08e6391dab67baf143
   expiration:
-    users: 900000 #15 min
-    service: 300000 #5 min
+    users: 900000 #15 мин
+    service: 300000 #5 мин
 
   refresh:
     expirationMs: 604800000 #7 суток

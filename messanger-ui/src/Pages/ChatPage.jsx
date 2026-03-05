@@ -60,7 +60,6 @@ function ChatPage() {
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null });
 
     // События WebSocket
-    const [socketUpdate, setSocketUpdate] = useState(null);
     const [socketUpdates, setSocketUpdates] = useState([]);
 
     const [readEvent, setReadEvent] = useState(null);
@@ -86,7 +85,7 @@ function ChatPage() {
         const isMsgForActive = curActive?.chatId === newMsg.chatId;
 
         if (newMsg.senderId !== user.id) {
-            //playMessageSound();
+            playMessageSound();
         }
 
         chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);

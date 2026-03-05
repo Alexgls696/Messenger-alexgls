@@ -2,6 +2,7 @@ package ru.alexgls.springboot.config;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.alexgls.springboot.dto.JwtValidationResponse;
@@ -11,6 +12,7 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtUtil {
 
     @Value("${jwt.expiration.users}")
@@ -96,11 +98,26 @@ public class JwtUtil {
     }
 
     public JwtValidationResponse validateTokenAndGetJwtValidationResponse(String token) {
-        Claims claims = getAllClaimsFromToken(token);
-        String userId = claims.get("userId", String.class);
-        List<String> roles = (List<String>) claims.get("roles");
-        return new JwtValidationResponse(true,
-                "The token is successfully parsed", userId, roles);
+        try {
+            Claims claims = getAllClaimsFromToken(token);
+            return JwtValidationResponse.builder() // или через конструктор
+                    .valid(true)
+                    .userId(claims.get("userId", String.class))
+                    .roles((List<String>) claims.get("roles"))
+                    .build();
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT истек: {}", e.getMessage());
+            return JwtValidationResponse.builder()
+                    .valid(false)
+                    .message("EXPIRED") // Помечаем специально для сервиса соединений
+                    .build();
+        } catch (Exception e) {
+            log.error("Ошибка валидации JWT: {}", e.getMessage());
+            return JwtValidationResponse.builder()
+                    .valid(false)
+                    .message("INVALID")
+                    .build();
+        }
     }
 
 }

@@ -1,102 +1,165 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import { handleTokenRefresh } from '../Pages/utils/apiClient'
+import { handleTokenRefresh } from '../Pages/utils/apiClient';
 
 export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate) => {
     const stompClient = useRef(null);
+    const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
+    
+    const connectionLock = useRef(false); 
+    const reconnectTimeoutRef = useRef(null);
 
     const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate });
     useEffect(() => {
         refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate };
     });
 
-    const connect = () => {
+    const disconnect = useCallback(() => {
+        if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+        }
+        
+        // Порядок важен: сначала закрываем Stomp, потом сокет
+        if (stompClient.current) {
+            try {
+                // Старая версия stompjs требует callback или пустой объект
+                stompClient.current.disconnect(() => {}, {});
+            } catch (e) {}
+            stompClient.current = null;
+        }
+
+        if (socketRef.current) {
+            try {
+                socketRef.current.close();
+            } catch (e) {}
+            socketRef.current = null;
+        }
+
+        setIsConnected(false);
+    }, []);
+
+    const connect = useCallback(async (reason = "initial") => {
+        if (connectionLock.current) {
+            console.log(`[WS] Connection ignored (lock active), reason: ${reason}`);
+            return;
+        }
+
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) return;
 
-        // 1. Токен в URL нужен для HandshakeInterceptor
-        const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`);
+        connectionLock.current = true;
+        console.log(`[WS] Attempting to connect. Reason: ${reason}`);
+
+        disconnect(); // Полная очистка перед новым стартом
+
+         const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`, null, {
+            transports: ['websocket'],
+            timeout: 10000
+        });
+        socketRef.current = socket;
+        
         const client = Stomp.over(socket);
         client.heartbeat.outgoing = 10000;
         client.heartbeat.incoming = 10000;
         client.debug = null;
 
-        // 2. Добавляем заголовок авторизации для самого протокола STOMP
-        const headers = {
-            'Authorization': `Bearer ${accessToken}`
-        };
+        const headers = { 'Authorization': `Bearer ${accessToken}` };
 
-        client.connect(headers, () => {
-            console.log('Connected')
-            setIsConnected(true);
+        client.connect(headers,
+            () => {
+                console.log('[WS] Connected successfully');
+                setIsConnected(true);
+                connectionLock.current = false; // Снимаем замок только при успехе
 
-            client.subscribe('/user/queue/messages', (m) =>
-                refs.current.onMessageReceived(JSON.parse(m.body))
-            );
+                // Подписки
+                const subs = [
+                    ['/user/queue/messages', refs.current.onMessageReceived],
+                    ['/user/queue/updated-message', refs.current.onMessageUpdate],
+                    ['/user/queue/read-status', refs.current.onReadStatus],
+                    ['/user/queue/delete-event', refs.current.onDeleteEvent],
+                    ['/user/queue/notifications', refs.current.onNotificationReceived]
+                ];
 
-            client.subscribe('/user/queue/updated-message', (m) => {
-                refs.current.onMessageUpdate(JSON.parse(m.body));
-            });
+                subs.forEach(([queue, action]) => {
+                    client.subscribe(queue, (m) => action(JSON.parse(m.body)));
+                });
+            },
+            async (error) => {
+                setIsConnected(false);
+                console.warn("[WS] Connection lost or Handshake failed.");
 
-            client.subscribe('/user/queue/read-status', (m) =>{
-                refs.current.onReadStatus(JSON.parse(m.body))
+                try {
+                    // Используем ваш handleTokenRefresh
+                    await handleTokenRefresh();
+                    console.log("[WS] Token refreshed. Reconnecting in 1s...");
+                    
+                    reconnectTimeoutRef.current = setTimeout(() => {
+                        connectionLock.current = false; // Освобождаем перед вызовом
+                        connect("reconnect-after-refresh");
+                    }, 1000);
+
+                } catch (err) {
+                    console.error("[WS] Refresh failed:", err.message);
+                    connectionLock.current = false;
+                    
+                    if (err.message !== "Session expired" && err.message !== "No refresh token") {
+                        reconnectTimeoutRef.current = setTimeout(() => connect("retry-after-network-error"), 5000);
+                    }
+                }
             }
-            );
-            client.subscribe('/user/queue/delete-event', (m) =>
-                refs.current.onDeleteEvent(JSON.parse(m.body))
-            );
-
-            client.subscribe('/user/queue/notifications', (m) =>
-                refs.current.onNotificationReceived(JSON.parse(m.body))
-            );
-        }, async (error) => {
-            setIsConnected(false);
-            console.warn("WebSocket error, attempting to refresh token and reconnect... ");
-            await handleTokenRefresh();
-            setTimeout(connect, 3000);
-        });
+        );
 
         stompClient.current = client;
-    };
+    }, [url, disconnect]);
 
+    // 1. Эффект инициализации
     useEffect(() => {
-        connect();
-        return () => {
-            if (stompClient.current) stompClient.current.disconnect();
-        };
-    }, [url]);
+        connect("mount");
+        return () => disconnect();
+    }, [connect, disconnect]);
 
+    // 2. Эффект Visibility (сон/переключение вкладок)
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                if (!stompClient.current || !stompClient.current.connected) {
-                    console.log("Соединение потеряно после сна, переподключаюсь...");
-                    connect();
-                }
+                // Добавляем небольшую задержку, чтобы ОС успела поднять сеть
+                setTimeout(() => {
+                    // Важно: проверяем замок и реальный статус соединения
+                    const isReallyConnected = stompClient.current && stompClient.current.connected;
+                    
+                    if (!isReallyConnected && !connectionLock.current) {
+                        console.log("[WS] Tab visible and not connected. Reconnecting...");
+                        connect("visibility-change");
+                    }
+                }, 500);
             }
         };
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('focus', handleVisibilityChange);
 
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('focus', handleVisibilityChange);
         };
-    }, []);
+    }, [connect]);
 
+    // 3. Эффект Online статус
     useEffect(() => {
-        window.addEventListener('online', connect);
-        return () => window.removeEventListener('online', connect);
-    }, []);
+        const handleOnline = () => {
+            if (!connectionLock.current) connect("online-event");
+        };
+        window.addEventListener('online', handleOnline);
+        return () => window.removeEventListener('online', handleOnline);
+    }, [connect]);
 
     const sendMessage = (payload) => {
-        if (stompClient.current && isConnected) {
+        if (stompClient.current && stompClient.current.connected) {
             stompClient.current.send("/app/chat.send", {}, JSON.stringify(payload));
         } else {
-            console.error("WebSocket is not connected");
+            console.error("[WS] Send failed: not connected.");
         }
     };
 
