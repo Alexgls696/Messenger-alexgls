@@ -72,7 +72,8 @@
     justify-content: center;
     gap: 2px;
     overflow: hidden;
-    min-width: 0; /* Важно для text-overflow внутри flex */
+    min-width: 0;
+    /* Важно для text-overflow внутри flex */
 }
 
 /* Верхняя строка: Название + Время */
@@ -126,7 +127,7 @@
     color: var(--text-placeholder);
     display: flex;
     align-items: center;
-    transform: rotate(45deg); 
+    transform: rotate(45deg);
 }
 
 .chat-list li.pinned {
@@ -282,6 +283,56 @@
     padding: 0 6px;
     margin-left: 10px;
     flex-shrink: 0;
+}
+
+.attach-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: var(--text-placeholder);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    margin-right: 4px;
+    outline: none;
+}
+
+/* Эффект при наведении */
+.attach-btn:hover:not(:disabled) {
+    background-color: var(--surface-secondary);
+    color: var(--accent-primary);
+    transform: rotate(15deg);
+    /* Легкий наклон для живости */
+}
+
+/* Эффект при нажатии */
+.attach-btn:active:not(:disabled) {
+    transform: scale(0.9) rotate(0deg);
+    background-color: var(--surface-accent);
+}
+
+/* Стиль иконки внутри */
+.attach-btn svg {
+    display: block;
+    /* Иконка будет чуть наклонена изначально, как настоящая скрепка */
+    transform: rotate(-45deg);
+}
+
+/* Состояние, когда нельзя нажимать */
+.attach-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+
+/* Акцентный цвет при фокусе (для навигации с клавиатуры) */
+.attach-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent-primary);
 }
 
 /* --- 5. ВЛОЖЕНИЯ И ГАЛЕРЕИ --- */

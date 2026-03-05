@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены закрепленные чаты.">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application-prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application-prod.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Auth_Service/src/main/java/ru/alexgls/springboot/config/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/Auth_Service/src/main/java/ru/alexgls/springboot/config/JwtUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Auth_Service/src/main/java/ru/alexgls/springboot/dto/JwtValidationResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/Auth_Service/src/main/java/ru/alexgls/springboot/dto/JwtValidationResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Auth_Service/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -545,15 +542,7 @@
       <workItem from="1772544516536" duration="3682000" />
       <workItem from="1772640672706" duration="2009000" />
       <workItem from="1772644343460" duration="11676000" />
-      <workItem from="1772699313547" duration="4377000" />
-    </task>
-    <task id="LOCAL-00008" summary="Общие правки, изменение интерфейса, попытка решить баг с отображением чата (не решена)">
-      <option name="closed" value="true" />
-      <created>1761823733525</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1761823733525</updated>
+      <workItem from="1772699313547" duration="6168000" />
     </task>
     <task id="LOCAL-00009" summary="Исправлены баги отображения">
       <option name="closed" value="true" />
@@ -939,7 +928,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772656320124</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно">
+      <option name="closed" value="true" />
+      <created>1772703964802</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1772703964802</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -957,7 +954,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлена возможность удалять участников из группы, исправлен поиск по сообщениям, если чат был удален для пользователя. Рассылка сообщения об удалении пользователя всем участникам. Рефакторинг некоторых классов." />
     <MESSAGE value="Пересоздан сервис сообщений,реализация в императивном стиле. Написаны тесты для некоторых сервисов в нем." />
     <MESSAGE value="Исправлены баги при чтении сообщений" />
     <MESSAGE value="Удален сервис сообщений, использующий реактивные потоки. Добавлены тесты" />
@@ -982,7 +978,8 @@
     <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
     <MESSAGE value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
     <MESSAGE value="Добавлены закрепленные чаты." />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлены закрепленные чаты." />
+    <MESSAGE value="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

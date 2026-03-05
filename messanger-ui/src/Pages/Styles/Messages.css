@@ -201,8 +201,9 @@ body[data-theme="dark"] .message.service {
 
 .message-input {
     flex: 1;
-    min-height: 5vh;
-    padding: 10px 10px;
+    min-height: 44px; 
+    max-height: 40vh;
+    padding: 10px 15px;
     border: 1px solid var(--border-primary);
     border-radius: 20px;
     outline: none;
@@ -210,6 +211,20 @@ body[data-theme="dark"] .message.service {
     background-color: var(--surface-primary);
     color: var(--text-primary);
     transition: border-color 0.2s ease;
+    
+    resize: none;       
+    overflow-y: auto;   
+    line-height: 1.4;  
+    box-sizing: border-box; 
+    display: block;
+}
+
+.message-input::-webkit-scrollbar {
+    width: 4px;
+}
+.message-input::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 10px;
 }
 
 .message-input:focus {

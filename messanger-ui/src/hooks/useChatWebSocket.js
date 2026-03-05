@@ -124,9 +124,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                // Добавляем небольшую задержку, чтобы ОС успела поднять сеть
                 setTimeout(() => {
-                    // Важно: проверяем замок и реальный статус соединения
                     const isReallyConnected = stompClient.current && stompClient.current.connected;
                     
                     if (!isReallyConnected && !connectionLock.current) {
@@ -146,7 +144,6 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
         };
     }, [connect]);
 
-    // 3. Эффект Online статус
     useEffect(() => {
         const handleOnline = () => {
             if (!connectionLock.current) connect("online-event");
