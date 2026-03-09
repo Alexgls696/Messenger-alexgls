@@ -181,7 +181,7 @@ const MyProfileManager = ({
 
                                 <div className="profile-form-group">
                                     <label>Статус:</label>
-                                    <textarea 
+                                    <input type='text' 
                                         value={status} 
                                         onChange={(e) => setStatus(e.target.value)} 
                                         rows="3" 

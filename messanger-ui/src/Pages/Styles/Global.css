@@ -19,12 +19,13 @@ body[data-theme="light"] {
     --border-secondary: #eeeeee;
     --accent-primary: #3498db;
     --accent-primary-hover: #2980b9;
-    --accent-positive: #28a745;
-    --accent-positive-hover: #218838;
-    --accent-negative: #dc3545;
-    --accent-negative-hover: #c82333;
+     --accent-positive: #10b981;
+    --accent-positive-hover: #059669;
+    --accent-negative: #f43f5e;
+    --accent-negative-hover: #e11d48;
+
     --shadow-primary: rgba(0, 0, 0, 0.1);
-    --context-menu-danger-hover: #fcebeb;
+    --context-menu-danger-hover: #fff1f0;
     --skeleton-base: #e0e0e0;
     --skeleton-shine: #f0f0f0;
 }
@@ -42,12 +43,12 @@ body[data-theme="dark"] {
     --border-secondary: #333333;
     --accent-primary: #008cff;
     --accent-primary-hover: #3aa6ff;
-    --accent-positive: #20c997;
-    --accent-positive-hover: #4dd4ab;
-    --accent-negative: #ff5252;
-    --accent-negative-hover: #ff7979;
+     --accent-positive: #10b981;
+    --accent-positive-hover: #34d399;
+     --accent-negative: #fb7185;
+    --accent-negative-hover: #f43f5e;
     --shadow-primary: rgba(0, 0, 0, 0.4);
-    --context-menu-danger-hover: #5e2a2a;
+    --context-menu-danger-hover: #4a2b2b;
     --skeleton-base: #3a3a3a;
     --skeleton-shine: #4a4a4a;
 }
@@ -70,7 +71,6 @@ body,
     margin: 0;
     padding: 0;
     overflow: hidden;
-    /* Запрещаем скролл всей страницы, скроллиться будут только списки */
 }
 
 body {
@@ -248,33 +248,33 @@ body {
 .attachment-tooltip {
     position: fixed;
     z-index: 4000;
-    
+
     max-width: 320px;
-    width: max-content; 
-    
+    width: max-content;
+
     /* Оформление */
     background-color: var(--surface-primary);
     color: var(--text-primary);
     padding: 12px 16px;
     border-radius: 24px;
     border: 1px solid var(--border-primary);
-    
+
     /* Тень для эффекта "парения" над контентом */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    
+
     /* Типографика */
     font-size: 0.9em;
     line-height: 1.5;
     text-align: left;
     word-wrap: break-word;
-    
+
     /* Анимация появления */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    
+
     /* Чтобы тултип не мешал кликам, если мышь случайно попадет на него */
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 /* Состояние, когда тултип активен */

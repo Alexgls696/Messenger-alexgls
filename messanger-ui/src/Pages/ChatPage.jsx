@@ -291,18 +291,20 @@ function ChatPage() {
             forAll: forAll
         };
 
-        try {
-            await apiFetch('/api/messages', {
-                method: 'DELETE',
-                body: JSON.stringify(payload)
-            });
+        openConfirm('Вы действительно хотите удалить это сообщение? Это действие необратимо.', async () => {
+            try {
+                await apiFetch('/api/messages', {
+                    method: 'DELETE',
+                    body: JSON.stringify(payload)
+                });
 
-            if (!forAll) {
-                setDeleteEvent({ messagesId: messageIds, chatId: activeChat.chatId, _ts: Date.now() });
+                if (!forAll) {
+                    setDeleteEvent({ messagesId: messageIds, chatId: activeChat.chatId, _ts: Date.now() });
+                }
+            } catch (error) {
+                console.error('Ошибка при удалении сообщения:', error);
             }
-        } catch (error) {
-            console.error('Ошибка при удалении сообщения:', error);
-        }
+        });
     };
 
     const deleteChat = useCallback((chatId) => {
@@ -372,8 +374,9 @@ function ChatPage() {
 
         const options = [];
 
-        options.push({ label: 'Выделить', action: () => { setSelectionMode(true); setFirstSelectedMessage(msg) } });
         options.push({ label: 'Ответить', action: () => setReplyingTo(msg) });
+        options.push({ label: 'Выделить', action: () => { setSelectionMode(true); setFirstSelectedMessage(msg) } });
+
 
         if (isSentByMe && msg.type === 'TEXT') {
             options.push({
@@ -384,6 +387,7 @@ function ChatPage() {
 
         options.push({
             label: 'Удалить у себя',
+            danger: true,
             action: () => deleteMessages([msg.id], false)
         });
 

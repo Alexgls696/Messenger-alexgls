@@ -95,12 +95,11 @@
     color: var(--text-secondary); /* Сделаем чуть менее контрастным */
 }
 
-.profile-form-group input,
-.profile-form-group textarea {
+.profile-form-group input{
     width: 100%;
     padding: 10px;
     border: 1px solid var(--border-primary);
-    border-radius: 6px;
+    border-radius: 18px;
     font-size: 1em;
     font-family: inherit;
     background-color: var(--surface-primary); /* Фон поля ввода */
@@ -130,7 +129,7 @@
 .profile-save-btn, .profile-cancel-btn {
     padding: 10px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 18px;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
@@ -194,7 +193,7 @@
     color: var(--accent-primary);
     background-color: transparent;
     border: 1px solid var(--accent-primary);
-    border-radius: 6px;
+    border-radius: 18px;
     cursor: pointer;
     transition: all 0.2s ease;
 }

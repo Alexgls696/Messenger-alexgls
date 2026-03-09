@@ -148,7 +148,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                                         </div>
                                     ) : (
                                         <div className={activeTab === 'IMAGE' || activeTab === 'VIDEO' ? "attachments-grid" : "attachments-list"}>
-                                            {attachments.map(att => (
+                                            {attachments.length > 0 ?attachments.map(att => (
                                                 <AttachmentItem 
                                                     key={att.fileId} 
                                                     att={att} 
@@ -157,7 +157,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                                                     onMouseOverAI={handleMouseOverAI}
                                                     onMouseOutAI={handleMouseOutAI}
                                                 />
-                                            ))}
+                                            )) : <p className='placeholder'>Нет вложений в этой категории.</p>}
                                         </div>
                                     )}
                                 </div>

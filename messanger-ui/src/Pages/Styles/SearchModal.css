@@ -37,7 +37,7 @@
     flex-grow: 1;
     padding: 12px;
     border: 1px solid var(--border-primary);
-    border-radius: 8px;
+    border-radius: 18px;
     font-size: 1em;
     background-color: var(--surface-secondary);
     color: var(--text-primary);
@@ -56,7 +56,7 @@
 .search-button {
     padding: 10px 22px;
     border: none;
-    border-radius: 8px;
+    border-radius: 18px;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;

@@ -32,19 +32,6 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public String getUsernameFromToken(String token) {
-        return getAllClaimsFromToken(token).getSubject();
-    }
-
-    public Date getExpirationDateFromToken(String token) {
-        return getAllClaimsFromToken(token).getExpiration();
-    }
-
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
 
     public String generateToken(String username, Integer userId, List<String> roles) {
         Map<String, Object> claims = new HashMap<>();
@@ -77,24 +64,12 @@ public class JwtUtil {
         return Jwts.builder()
                 .setHeaderParam(JwsHeader.KEY_ID, keyProvider.getKeyId())
                 .setClaims(claims)
-                .setSubject(serviceClientId) // В качестве "субъекта" используем clientId сервиса
+                .setSubject(serviceClientId)
                 .setIssuedAt(now)
-                .setIssuer("http://localhost:8085") // Тот же issuer
+                .setIssuer("http://localhost:8085")
                 .setExpiration(exp)
                 .signWith(keyProvider.getPrivateKey(), SignatureAlgorithm.RS256)
                 .compact();
-    }
-
-    public Boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(keyProvider.getPublicKey())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public JwtValidationResponse validateTokenAndGetJwtValidationResponse(String token) {

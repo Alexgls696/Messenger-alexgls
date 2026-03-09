@@ -94,7 +94,7 @@
     width: 100%;
     padding-top: 100%;
     background-color: var(--surface-secondary);
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     z-index: 1;
@@ -133,7 +133,7 @@
     cursor: pointer;
     font-size: 1em;
     color: var(--text-secondary);
-    border-radius: 6px;
+    border-radius: 18px;
     transition: all 0.2s ease;
 }
 
@@ -159,7 +159,6 @@
 .attachments-grid {
     width: 100%;
     display: grid;
-    /* Точно такая же сетка, как для фотографий профиля, для консистентности */
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
 }
@@ -174,27 +173,22 @@
 .attachment-list-item {
     display: flex;
     align-items: center;
-    /* Выравниваем все по вертикальному центру */
     justify-content: space-between;
-    /* Раскидываем элементы по краям */
     padding: 12px 15px;
     border-radius: 8px;
     background-color: var(--surface-secondary);
     border: 1px solid var(--border-secondary);
     position: relative;
-    /* Нужно для позиционирования иконки AI */
 }
 
 /* Контейнер для имени файла (слева) */
 .attachment-list-item>span {
     font-weight: 500;
     color: var(--text-primary);
-    /* Ограничиваем длинные имена файлов */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
-    /* Отступ от правых элементов */
 }
 
 /* Контейнер для кнопок (справа) */
@@ -202,9 +196,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    /* Расстояние между иконкой AI и кнопкой "Скачать" */
     flex-shrink: 0;
-    /* Запрещаем этому блоку сжиматься */
 }
 
 /* Ссылка "Скачать" */
