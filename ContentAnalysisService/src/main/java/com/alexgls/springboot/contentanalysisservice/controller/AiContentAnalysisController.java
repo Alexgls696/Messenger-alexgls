@@ -1,6 +1,10 @@
 package com.alexgls.springboot.contentanalysisservice.controller;
 
+import com.alexgls.springboot.contentanalysisservice.dto.AnalyseFileRequest;
 import com.alexgls.springboot.contentanalysisservice.service.AiContentAnalysisService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -21,35 +25,15 @@ public class AiContentAnalysisController {
     private final AiContentAnalysisService aiContentAnalysisService;
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<Void>> loadAndAnalyseFileRequest(@RequestParam("file") MultipartFile file, @RequestParam("chatId") int chatId, @RequestParam("fileId") int fileId) {
-        log.info("LoadAndAnalyseFileRequest, file: {}", file.getOriginalFilename());
-        Resource resource;
-        try {
-            byte[] bytes = file.getBytes();
-            String filename = file.getOriginalFilename();
+    public ResponseEntity<Void> loadAndAnalyseFileRequest(@RequestBody AnalyseFileRequest analyseFileRequest) throws IOException {
 
-            resource = new ByteArrayResource(bytes) {
-                @Override
-                public String getFilename() {
-                    return filename != null ? filename : "unknown";
-                }
-            };
-        } catch (IOException e) {
-            log.error("Ошибка чтения файла", e);
-            return CompletableFuture.completedFuture(ResponseEntity
-                    .badRequest()
-                    .build());
-        }
-
-        aiContentAnalysisService.analyseFile(resource, chatId, fileId)
+        aiContentAnalysisService.analyseFile(analyseFileRequest)
                 .exceptionally(ex -> {
-                    log.error("Ошибка при асинхронном анализе файла", ex);
+                    log.error("Ошибка при анализе файла id: {}", analyseFileRequest.getFileId(), ex);
                     return null;
                 });
 
-        return CompletableFuture.completedFuture(ResponseEntity
-                .accepted()
-                .build());
+        return ResponseEntity.accepted().build();
     }
 }
 

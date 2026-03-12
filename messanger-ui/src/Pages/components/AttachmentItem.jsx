@@ -1,46 +1,62 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import photoViewer from '../utils/photoViewer';
 import { imageLoader } from '../utils/imageLoader';
-
-const API_BASE_URL = `http://${window.location.hostname}:8080`;
+import { apiFetch } from '../utils/apiClient';
 
 const AttachmentItem = ({ att, type, onMouseOverAI, onMouseOutAI }) => {
     const containerRef = useRef(null);
-    const [src, setSrc] = useState(null); // Ссылка на загруженный Blob
-    const [isLoaded, setIsLoaded] = useState(false); // Загрузилась ли картинка в тег img
-    const [isInView, setIsInView] = useState(false); // Появился ли элемент на экране
+    const [src, setSrc] = useState(null); 
+    const [isLoaded, setIsLoaded] = useState(false); 
+    const [isInView, setIsInView] = useState(false);
 
-    const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
-
-    // 1. Следим за появлением элемента на экране
     useEffect(() => {
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
                 setIsInView(true);
-                observer.disconnect(); // Нам нужно загрузить только один раз
+                observer.disconnect();
             }
         }, { threshold: 0.1 });
 
-        if (containerRef.current) {
-            observer.observe(containerRef.current);
-        }
-
+        if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, []);
 
-    // 2. Загружаем данные через imageLoader, когда элемент в зоне видимости
     useEffect(() => {
-        if (isInView && att.fileId) {
+        if (isInView && att.fileId && (type === 'IMAGE' || type === 'VIDEO')) {
             imageLoader.getImageSrc(att.fileId)
-                .then(url => {
-                    setSrc(url);
-                })
+                .then(url => setSrc(url))
                 .catch(err => {
-                    console.error("Ошибка загрузки вложения:", err);
-                    setSrc("error"); // Пометим ошибку
+                    console.error("Ошибка загрузки медиа:", err);
+                    setSrc("error");
                 });
         }
-    }, [isInView, att.fileId]);
+    }, [isInView, att.fileId, type]);
+
+    const handleDownload = useCallback(async (e) => {
+        e.preventDefault();
+        try {
+
+            const metadata = await apiFetch(`/api/files/${att.fileId}`);
+            
+            const responseData = await apiFetch(`/api/media-storage/generate-download-url`, {
+                method: 'POST',
+                body: JSON.stringify({ url: metadata.path })
+            });
+            
+            const presignedUrl = responseData.url || responseData;
+
+            const link = document.createElement('a');
+            link.href = presignedUrl;
+
+            link.setAttribute('download', att.fileName || 'file');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error("Не удалось скачать файл:", err);
+            alert("Ошибка при скачивании файла");
+        }
+    }, [att.fileId, att.fileName]);
 
     const renderMedia = () => {
         if (type === 'IMAGE') {
@@ -50,7 +66,6 @@ const AttachmentItem = ({ att, type, onMouseOverAI, onMouseOutAI }) => {
                     className="attachment-item image-attachment viewer-enabled" 
                     onClick={() => photoViewer.open(att.fileId)}
                 >
-                    {/* Скелетон виден, пока картинка не загружена полностью */}
                     {!isLoaded && <div className="skeleton skeleton-tile" />}
                     
                     {src && src !== "error" && (
@@ -66,7 +81,7 @@ const AttachmentItem = ({ att, type, onMouseOverAI, onMouseOutAI }) => {
                         />
                     )}
                     
-                    {src === "error" && <div className="error-placeholder">⚠️</div>}
+                    {src === "error" && <div className="error-placeholder">⚠️ Ошибка загрузки</div>}
                     
                     {att.hasAnalysis && (
                         <div className="ai-icon" onMouseOver={(e) => onMouseOverAI(e, att.fileId)} onMouseOut={onMouseOutAI}>
@@ -79,28 +94,45 @@ const AttachmentItem = ({ att, type, onMouseOverAI, onMouseOutAI }) => {
 
         if (type === 'VIDEO') {
             return (
-                <div ref={containerRef} className="attachment-item">
+                <div ref={containerRef} className="attachment-item video-attachment">
                     {!isLoaded && <div className="skeleton skeleton-tile" />}
-                    {src && (
+                    {src && src !== "error" && (
                         <video 
                             src={src} 
                             className="lazy-load-attachment" 
                             onLoadedData={() => setIsLoaded(true)}
                             controls 
-                            style={{ opacity: isLoaded ? 1 : 0 }} 
+                            style={{ 
+                                opacity: isLoaded ? 1 : 0,
+                                width: '100%',
+                                borderRadius: '8px'
+                            }} 
                         />
                     )}
-                    {att.hasAnalysis && <div className="ai-icon" onMouseOver={(e) => onMouseOverAI(e, att.fileId)} onMouseOut={onMouseOutAI}>AI</div>}
+                    {att.hasAnalysis && (
+                        <div className="ai-icon" onMouseOver={(e) => onMouseOverAI(e, att.fileId)} onMouseOut={onMouseOutAI}>
+                            AI
+                        </div>
+                    )}
                 </div>
             );
         }
 
         return (
             <div className="attachment-list-item">
-                <span>{att.fileName || 'Файл'}</span>
-                <div className="file-actions">
-                    {att.hasAnalysis && <div className="ai-icon" onMouseOver={(e) => onMouseOverAI(e, att.fileId)} onMouseOut={onMouseOutAI}>AI</div>}
-                    <a href={proxyUrl} download={att.fileName}>Скачать</a>
+                <div className="file-icon">📄</div>
+                <div className="file-info">
+                    <span className="file-name">{att.fileName || 'Файл'}</span>
+                    <div className="file-actions">
+                        {att.hasAnalysis && (
+                            <div className="ai-icon" onMouseOver={(e) => onMouseOverAI(e, att.fileId)} onMouseOut={onMouseOutAI}>
+                                AI
+                            </div>
+                        )}
+                        <button className="download-link-btn" onClick={handleDownload}>
+                            Скачать
+                        </button>
+                    </div>
                 </div>
             </div>
         );

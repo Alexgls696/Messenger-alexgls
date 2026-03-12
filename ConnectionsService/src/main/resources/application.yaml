@@ -1,0 +1,26 @@
+server:
+  port: 8086
+
+spring:
+  data:
+    redis:
+      host: ${CONNECTIONS_REDIS_DB_URL:localhost}
+      port: 6379
+      password: ${CONNECTIONS_REDIS_DB_PASSWORD:AS04SERa1}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
+
+frontend:
+  cors-address-list: "http://localhost:5173, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
+
+
+services:
+  auth-service: ${AUTH_SERVICE_URL:http://localhost:8085}
+  messages-service: ${MESSAGES_STORAGE_SERVICE:http://localhost:8087}
+

@@ -1,6 +1,7 @@
 package com.alexgls.springboot.contentanalysisservice.service;
 
 import com.alexgls.springboot.contentanalysisservice.client.AiContentAnalysisClient;
+import com.alexgls.springboot.contentanalysisservice.client.S3VkCloudClient;
 import com.alexgls.springboot.contentanalysisservice.dto.*;
 
 import com.alexgls.springboot.contentanalysisservice.exception.InvalidAnalysisRequestException;
@@ -9,6 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -18,6 +21,8 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -28,6 +33,8 @@ public class AiContentAnalysisService {
 
     private final ObjectMapper objectMapper;
 
+    private final S3VkCloudClient s3VkCloudClient;
+
     private final AiContentAnalysisClient aiContentAnalysisClient;
 
     private final KafkaTemplate<String, ElasticSearchStorageServiceRequest> kafkaTemplate;
@@ -36,19 +43,35 @@ public class AiContentAnalysisService {
 
 
     @Async
-    public CompletableFuture<Void> analyseFile(Resource safeResource, int chatId, int fileId) {
+    public CompletableFuture<Void> analyseFile(AnalyseFileRequest analyseFileRequest) {
+        byte[] fileBytes;
+        try (InputStream inputStream = s3VkCloudClient.downloadFile(analyseFileRequest.getKey())) {
+            fileBytes = inputStream.readAllBytes();
+        } catch (IOException e) {
+            log.error("Не удалось скачать файл из S3 для анализа", e);
+            return CompletableFuture.failedFuture(e);
+        }
+
         return CompletableFuture.runAsync(() -> {
             retryTemplate.execute(context -> {
-                log.info("Попытка анализа файла {}, попытка №{}", fileId, context.getRetryCount() + 1);
+                log.info("Попытка анализа файла {}, попытка №{}",
+                        analyseFileRequest.getFileId(), context.getRetryCount() + 1);
 
-                LoadFileResponse loadFileResponse = aiContentAnalysisClient.loadTheFile(safeResource);
+                Resource resource = new ByteArrayResource(fileBytes) {
+                    @Override
+                    public String getFilename() {
+                        return analyseFileRequest.getFileName();
+                    }
+                };
+
+                LoadFileResponse loadFileResponse = aiContentAnalysisClient.loadTheFile(resource);
 
                 var analysisResponse = aiContentAnalysisClient.analyzeTheFileById(
                         new AiContentAnalysisRequest(loadFileResponse.id())
                 );
 
                 var metadata = convertAnalysisResponseToFileMetadata(analysisResponse);
-                sendMetadataToKafka(metadata, chatId, fileId);
+                sendMetadataToKafka(metadata, analyseFileRequest.getChatId(), analyseFileRequest.getFileId());
 
                 return null;
             });

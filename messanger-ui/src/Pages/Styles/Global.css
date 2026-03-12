@@ -19,7 +19,7 @@ body[data-theme="light"] {
     --border-secondary: #eeeeee;
     --accent-primary: #3498db;
     --accent-primary-hover: #2980b9;
-     --accent-positive: #10b981;
+    --accent-positive: #10b981;
     --accent-positive-hover: #059669;
     --accent-negative: #f43f5e;
     --accent-negative-hover: #e11d48;
@@ -43,9 +43,9 @@ body[data-theme="dark"] {
     --border-secondary: #333333;
     --accent-primary: #008cff;
     --accent-primary-hover: #3aa6ff;
-     --accent-positive: #10b981;
+    --accent-positive: #10b981;
     --accent-positive-hover: #34d399;
-     --accent-negative: #fb7185;
+    --accent-negative: #fb7185;
     --accent-negative-hover: #f43f5e;
     --shadow-primary: rgba(0, 0, 0, 0.4);
     --context-menu-danger-hover: #4a2b2b;
@@ -322,14 +322,19 @@ body {
 }
 
 .search-input {
-    width: 100%;
-    padding: 12px 15px;
+    flex-grow: 1;
+    padding: 12px;
     border: 1px solid var(--border-primary);
-    border-radius: 8px;
+    border-radius: 18px;
+    font-size: 1em;
     background-color: var(--surface-secondary);
     color: var(--text-primary);
+    transition: border-color 0.2s;
     outline: none;
-    font-size: 14px;
+}
+
+.search-input::placeholder {
+    color: var(--text-placeholder);
 }
 
 .search-input:focus {

@@ -79,7 +79,7 @@
     gap: 8px;
     padding: 10px;
     border: 1px solid var(--border-primary);
-    border-radius: 6px;
+    border-radius: 18px;
     min-height: 50px;
     background-color: var(--surface-secondary);
 }
@@ -288,4 +288,10 @@
     display: flex;
     align-items: flex-start; /* Контент начинается сверху */
     justify-content: center;
+}
+
+.selected-members-section, .search-section {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
 }

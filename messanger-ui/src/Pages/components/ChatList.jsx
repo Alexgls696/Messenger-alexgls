@@ -11,25 +11,25 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
     const [isLoading, setIsLoading] = useState(false);
 
     const fetchAndAddSingleChat = async (chatId) => {
-    try {
-        const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
-        
-        setChats(prev => {
-            if (prev.some(c => c.chatId === chatId)) return prev;
+        try {
+            const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
 
-            const pinnedChats = prev.filter(c => c.pinned);
-            const regularChats = prev.filter(c => !c.pinned);
+            setChats(prev => {
+                if (prev.some(c => c.chatId === chatId)) return prev;
 
-            if (fullChatDto.pinned) {
-                return [fullChatDto, ...pinnedChats, ...regularChats];
-            } else {
-                return [...pinnedChats, fullChatDto, ...regularChats];
-            }
-        });
-    } catch (error) {
-        console.error("Не удалось подгрузить данные нового чата:", error);
-    }
-};
+                const pinnedChats = prev.filter(c => c.pinned);
+                const regularChats = prev.filter(c => !c.pinned);
+
+                if (fullChatDto.pinned) {
+                    return [fullChatDto, ...pinnedChats, ...regularChats];
+                } else {
+                    return [...pinnedChats, fullChatDto, ...regularChats];
+                }
+            });
+        } catch (error) {
+            console.error("Не удалось подгрузить данные нового чата:", error);
+        }
+    };
 
     useImperativeHandle(ref, () => ({
         removeChatFromList(chatId) {
@@ -114,10 +114,16 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
                 }
                 return [newChat, ...prev];
             });
+        },
+        updateUserOnlineStatus: (userId, online) => {
+            setChats(prev => prev.map(chat => {
+                if (!chat.group && chat.recipientId === userId) {
+                    return { ...chat, isOnline: online };
+                }
+                return chat;
+            }));
         }
     }));
-
-
 
     const loadChats = useCallback(async () => {
         if (isLoading || !hasMore) return;

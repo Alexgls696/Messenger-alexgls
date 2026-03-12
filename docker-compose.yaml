@@ -4,7 +4,7 @@ volumes:
   images_db_data:
   user-details-data:
   notifications-data:
-  redis_data:
+  redis-data:
   es_data:
     driver: local
 
@@ -114,3 +114,13 @@ services:
         hard: -1
     networks:
       - elastic
+
+  connections-redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: AS04SERa1
+    volumes:
+      - redis-data:/data

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { formatDate } from '../utils/dateUtils';
 import { apiFetch } from '../utils/apiClient';
+import { imageLoader } from '../utils/imageLoader';
 
 
 const API_BASE_URL = `http://${window.location.hostname}:8080`;
@@ -23,8 +24,8 @@ const Message = ({
     const msgRef = useRef(null);
     const isService = msg.service || msg.isService;
 
-    const[replyMsg, setReplyMsg] = useState(null);
-    const [forwardFromName, setForwardFromName] = useState(null); 
+    const [replyMsg, setReplyMsg] = useState(null);
+    const [forwardFromName, setForwardFromName] = useState(null);
 
     // --- Эффект для регистрации в Observer (прочтение сообщения) ---
     useEffect(() => {
@@ -33,7 +34,7 @@ const Message = ({
             messageReadObserver.observe(element);
             return () => messageReadObserver.unobserve(element);
         }
-    },[msg.id, msg.read, isSentByMe, messageReadObserver]);
+    }, [msg.id, msg.read, isSentByMe, messageReadObserver]);
 
     useEffect(() => {
         if (msg.forwarded && msg.forwardFromUserId) {
@@ -45,12 +46,12 @@ const Message = ({
                     .then(data => {
                         const fullName = `${data.name} ${data.surname || ''}`.trim();
                         setForwardFromName(fullName);
-                        participantCache[msg.forwardFromUserId] = fullName; 
+                        participantCache[msg.forwardFromUserId] = fullName;
                     })
                     .catch(() => setForwardFromName(`Пользователь #${msg.forwardFromUserId}`));
             }
         }
-    },[msg.forwarded, msg.forwardFromUserId, participantCache]);
+    }, [msg.forwarded, msg.forwardFromUserId, participantCache]);
 
 
     const handleNameClick = (e) => {
@@ -64,7 +65,7 @@ const Message = ({
     };
 
     const handleForwardNameClick = (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         if (selectionMode) {
             e.preventDefault();
             return;
@@ -101,7 +102,7 @@ const Message = ({
 
         return (
             <div className="attachments-container">
-
+                {/* Изображения */}
                 {imageAttachments.length > 0 && (
                     <div className={imageAttachments.length > 1 ? "image-gallery-grid" : ""}>
                         {imageAttachments.map(att => (
@@ -110,27 +111,21 @@ const Message = ({
                                 att={att}
                                 imageObserver={imageObserver}
                                 photoViewer={photoViewer}
-                                isPending={msg.isPending} // передаем флаг
+                                isPending={msg.isPending}
                                 localUrl={att.localUrl}
                             />
                         ))}
                     </div>
                 )}
 
-                {fileAttachments.map(att => {
-                    const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
-                    return (
-                        <div key={att.fileId} className="attachment-item file-attachment">
-                            <div className="file-icon">📁</div>
-                            <div className="file-info">
-                                <span className="file-name">{att.fileName || 'Файл'}</span>
-                                <a href={proxyUrl} className="file-download-link" download={att.fileName}>
-                                    Скачать
-                                </a>
-                            </div>
-                        </div>
-                    );
-                })}
+                {/* Файлы */}
+                {fileAttachments.length > 0 && (
+                    <div className="file-attachments-grid">
+                        {fileAttachments.map(att => (
+                            <FileAttachment key={att.fileId} att={att} />
+                        ))}
+                    </div>
+                )}
             </div>
         );
     };
@@ -139,7 +134,7 @@ const Message = ({
     let statusText = isSentByMe ? (msg.read ? 'Прочитано' : 'Доставлено') : '';
     const statusClass = isSentByMe && msg.read ? 'read' : '';
 
-    const isEdited = msg.updatedAt !== null && !msg.forwarded; 
+    const isEdited = msg.updatedAt !== null && !msg.forwarded;
 
     //Ответы на сообщения
     useEffect(() => {
@@ -173,7 +168,7 @@ const Message = ({
             data-sender-id={msg.senderId}
             onClick={handleMessageClick}
             onContextMenu={(e) => {
-                if (selectionMode) return; 
+                if (selectionMode) return;
                 onContextMenu(e, msg);
             }}
         >
@@ -234,45 +229,97 @@ const Message = ({
 
 const AttachmentImage = ({ att, imageObserver, photoViewer, isPending, localUrl }) => {
     const imgRef = useRef(null);
-    const proxyUrl = `${API_BASE_URL}/api/storage/proxy/download/by-id?id=${att.fileId}`;
+    const [src, setSrc] = useState(isPending ? localUrl : null);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    if (isPending && localUrl) {
-        return (
-            <div className="attachment-item image-attachment">
-                <img src={localUrl} className="attachment-image" style={{ opacity: 1 }} alt="" />
-            </div>
-        );
-    }
-
+    // Логика загрузки через imageLoader
     useEffect(() => {
-        const imgElement = imgRef.current;
-        if (imgElement && imageObserver) {
-            imageObserver.observe(imgElement);
-            return () => imageObserver.unobserve(imgElement);
-        }
-    }, [imageObserver, att.fileId]);
+        if (isPending) return;
+
+        let isMounted = true;
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && isMounted) {
+                // Когда картинка появилась на экране, запрашиваем Blob URL
+                imageLoader.getImageSrc(att.fileId).then(url => {
+                    if (isMounted) setSrc(url);
+                });
+                observer.disconnect();
+            }
+        }, { threshold: 0.1 });
+
+        if (imgRef.current) observer.observe(imgRef.current);
+
+        return () => {
+            isMounted = false;
+            observer.disconnect();
+        };
+    }, [att.fileId, isPending]);
 
     const handleImageClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        photoViewer.open(att.fileId); 
+        photoViewer.open(att.fileId);
     };
 
     return (
         <div
             className="attachment-item image-attachment viewer-enabled"
-            data-file-id={att.fileId}
             onClick={handleImageClick}
+            ref={imgRef}
         >
-            <div className="skeleton skeleton-tile"></div>
-            <img
-                ref={imgRef}
-                className="attachment-image lazy-load"
-                data-src={proxyUrl}
-                data-file-id={att.fileId}
-                alt="Вложение"
-                style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
-            />
+            {/* Скелетон, пока нет src или пока картинка не прогрузилась в тег */}
+            {(!src || !isLoaded) && <div className="skeleton skeleton-tile"></div>}
+
+            {src && (
+                <img
+                    src={src}
+                    className="attachment-image"
+                    alt="Вложение"
+                    onLoad={() => setIsLoaded(true)}
+                    style={{
+                        opacity: isLoaded ? 1 : 0,
+                        transition: 'opacity 0.3s ease'
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+const FileAttachment = ({ att }) => {
+    const handleDownload = async (e) => {
+        e.preventDefault();
+        try {
+            const metadata = await apiFetch(`/api/files/${att.fileId}`);
+
+            const responseData = await apiFetch(`/api/media-storage/generate-download-url`, {
+                method: 'POST',
+                body: JSON.stringify({ url: metadata.path })
+            });
+
+            const presignedUrl = responseData.url || responseData;
+
+            const link = document.createElement('a');
+            link.href = presignedUrl;
+            link.setAttribute('download', att.fileName || 'file');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error("Ошибка при скачивании файла:", err);
+            alert("Не удалось скачать файл");
+        }
+    };
+
+    return (
+        <div key={att.fileId} className="attachment-item file-attachment" title={att.fileName}>
+            <div className="file-icon">📁</div>
+            <div className="file-info">
+                <span className="file-name">{att.fileName || 'Файл'}</span>
+                <button className="download-link-btn" onClick={handleDownload}>
+                    Скачать
+                </button>
+            </div>
         </div>
     );
 };

@@ -3,7 +3,7 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient';
 
-export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate) => {
+export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged) => {
     const stompClient = useRef(null);
     const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -11,9 +11,9 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
     const connectionLock = useRef(false); 
     const reconnectTimeoutRef = useRef(null);
 
-    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate });
+    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged});
     useEffect(() => {
-        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate };
+        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged};
     });
 
     const disconnect = useCallback(() => {
@@ -79,7 +79,8 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                     ['/user/queue/updated-message', refs.current.onMessageUpdate],
                     ['/user/queue/read-status', refs.current.onReadStatus],
                     ['/user/queue/delete-event', refs.current.onDeleteEvent],
-                    ['/user/queue/notifications', refs.current.onNotificationReceived]
+                    ['/user/queue/notifications', refs.current.onNotificationReceived],
+                    ['/user/queue/online-changed', refs.current.onUserOnlineChanged]
                 ];
 
                 subs.forEach(([queue, action]) => {

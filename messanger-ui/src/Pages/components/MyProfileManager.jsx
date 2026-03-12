@@ -4,11 +4,11 @@ import { imageLoader } from '../utils/imageLoader';
 import photoViewer from '../utils/photoViewer';
 import defaultProfileImage from '../images/profile-default.png'
 
-const MyProfileManager = ({ 
-    isOpen, 
-    onClose, 
-    userData, 
-    onUserDataUpdate 
+const MyProfileManager = ({
+    isOpen,
+    onClose,
+    userData,
+    onUserDataUpdate
 }) => {
     // --- Состояние профиля ---
     const [profileData, setProfileData] = useState(null);
@@ -62,10 +62,10 @@ const MyProfileManager = ({
                 method: 'POST',
                 body: JSON.stringify({ status, birthday })
             });
-            
+
             setSaveSuccess(true);
             if (onUserDataUpdate) await onUserDataUpdate();
-            
+
             setTimeout(() => setSaveSuccess(false), 2000);
         } catch (error) {
             alert("Не удалось сохранить изменения");
@@ -104,23 +104,46 @@ const MyProfileManager = ({
         if (!file) return;
 
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const newFile = await apiFetch(`/api/storage/upload`, {
+            const uploadConfig = await apiFetch('/api/media-storage/upload-url', {
                 method: 'POST',
-                body: formData
+                body: JSON.stringify({
+                    fileName: file.name,
+                    contentType: file.type
+                })
+            });
+
+            const s3Response = await fetch(uploadConfig.uploadUrl, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": file.type
+                },
+                body: file
+            });
+
+            if (!s3Response.ok) {
+                throw new Error("S3 direct upload failed");
+            }
+
+            const savedFile = await apiFetch('/api/files', {
+                method: 'POST',
+                body: JSON.stringify({
+                    path: uploadConfig.key,
+                    filename: file.name
+                })
             });
 
             await apiFetch(`/api/profiles/images`, {
                 method: 'POST',
-                body: JSON.stringify({ imageId: newFile.id })
+                body: JSON.stringify({ imageId: savedFile.id })
             });
 
-            await fetchProfile(); // Перезагружаем список фото
+            // 5. Обновляем состояние компонента и данные пользователя в хедере
+            await fetchProfile();
             if (onUserDataUpdate) await onUserDataUpdate();
+
         } catch (error) {
-            alert("Ошибка при загрузке фото");
+            console.error("Ошибка при смене фото профиля:", error);
+            alert("Ошибка при загрузке фото. Пожалуйста, попробуйте позже.");
         }
     };
 
@@ -181,19 +204,19 @@ const MyProfileManager = ({
 
                                 <div className="profile-form-group">
                                     <label>Статус:</label>
-                                    <input type='text' 
-                                        value={status} 
-                                        onChange={(e) => setStatus(e.target.value)} 
-                                        rows="3" 
+                                    <input type='text'
+                                        value={status}
+                                        onChange={(e) => setStatus(e.target.value)}
+                                        rows="3"
                                     />
                                 </div>
 
                                 <div className="profile-form-group">
                                     <label>Дата рождения:</label>
-                                    <input 
-                                        type="date" 
-                                        value={birthday} 
-                                        onChange={(e) => setBirthday(e.target.value)} 
+                                    <input
+                                        type="date"
+                                        value={birthday}
+                                        onChange={(e) => setBirthday(e.target.value)}
                                     />
                                 </div>
 
@@ -202,19 +225,19 @@ const MyProfileManager = ({
                                     <div className="photos-grid">
                                         <div className="photo-tile add-photo-tile" onClick={() => fileInputRef.current.click()}>
                                             <span className="add-photo-tile-icon">+</span>
-                                            <input 
-                                                type="file" 
-                                                ref={fileInputRef} 
-                                                hidden 
-                                                accept="image/*" 
-                                                onChange={handlePhotoUpload} 
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                hidden
+                                                accept="image/*"
+                                                onChange={handlePhotoUpload}
                                             />
                                         </div>
                                         {profileData?.userImages?.map(img => (
                                             <div key={img.id} className="photo-tile" onClick={() => photoViewer.open(img.imageId)}>
                                                 <ProfileImage imageId={img.imageId} />
-                                                <button 
-                                                    className="delete-photo-btn" 
+                                                <button
+                                                    className="delete-photo-btn"
                                                     onClick={(e) => handleDeletePhoto(e, img.imageId)}
                                                 >
                                                     &times;
@@ -228,8 +251,8 @@ const MyProfileManager = ({
                     </div>
 
                     <div className="modal-footer">
-                        <button 
-                            className={`profile-save-btn ${saveSuccess ? 'success' : ''}`} 
+                        <button
+                            className={`profile-save-btn ${saveSuccess ? 'success' : ''}`}
                             disabled={isSavingDetails}
                             onClick={handleSaveDetails}
                         >
@@ -257,28 +280,28 @@ const MyProfileManager = ({
                             <div className="modal-body">
                                 <div className="profile-form-group">
                                     <label>Имя:</label>
-                                    <input 
-                                        type="text" 
-                                        value={editForm.name} 
-                                        onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
-                                        required 
+                                    <input
+                                        type="text"
+                                        value={editForm.name}
+                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 <div className="profile-form-group">
                                     <label>Фамилия:</label>
-                                    <input 
-                                        type="text" 
-                                        value={editForm.surname} 
-                                        onChange={(e) => setEditForm({...editForm, surname: e.target.value})} 
+                                    <input
+                                        type="text"
+                                        value={editForm.surname}
+                                        onChange={(e) => setEditForm({ ...editForm, surname: e.target.value })}
                                     />
                                 </div>
                                 <div className="profile-form-group">
                                     <label>Имя пользователя:</label>
-                                    <input 
-                                        type="text" 
-                                        value={editForm.username} 
-                                        onChange={(e) => setEditForm({...editForm, username: e.target.value})} 
-                                        required 
+                                    <input
+                                        type="text"
+                                        value={editForm.username}
+                                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 {editError && <div className="error-message">{editError}</div>}

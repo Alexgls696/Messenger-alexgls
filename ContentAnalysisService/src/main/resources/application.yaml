@@ -1,6 +1,13 @@
 server:
   port: 8094
 
+storage:
+  bucket: alexgls-messenger-media
+  access_key: xdarYrmyYcFA6AqfRLT86r #${AWS_ACCESS_KEY_ID}
+  secret_access_key: 2t1u2HLgj75PfKg2FiEBKjLXX26E3vxuAWketKkXiytP #${AWS_SECRET_ACCESS_KEY}
+  default_region: ru-msk
+  endpoint: "https://hb.ru-msk.vkcloud-storage.ru"
+
 spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo, lazy } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, use } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
@@ -146,13 +146,20 @@ function ChatPage() {
             setNotifications([]);
         }
     }
+
+    const onUserOnlineChanged = useCallback((userOnlineDto) => {
+        chatListRef.current?.updateUserOnlineStatus(userOnlineDto.userId, userOnlineDto.online);
+    }, []);
+
+
     const { sendMessage } = useChatWebSocket(
         API_BASE_URL,
         onMessageReceived,
         setReadEvent,
         onDeleteEvent,
         onNotificationReceived,
-        onMessageUpdate
+        onMessageUpdate,
+        onUserOnlineChanged
     );
 
     const markMessagesAsRead = useCallback(async (messagesToRead) => {
@@ -357,7 +364,6 @@ function ChatPage() {
             y: e.clientY,
             options: [
                 {
-                    // ИСПРАВЛЕНО: если чат закреплен, показываем "Открепить"
                     label: chat.pinned ? 'Открепить' : 'Закрепить',
                     action: () => handlePinnedChatAction(chat)
                 },

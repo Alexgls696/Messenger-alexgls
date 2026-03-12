@@ -393,31 +393,54 @@ function ChatWindow({ activeChat,
 
                 const uploadedAttachments = [];
                 for (const item of filesToSend) {
-                    const formData = new FormData();
-                    formData.append('file', item.file);
+                    try {
+                        const data = await apiFetch('/api/media-storage/upload-url', {
+                            method: 'POST',
+                            body: JSON.stringify({ fileName: item.file.name, contentType: item.file.type })
+                        });
 
-                    if (item.isAnalysed) {
-                        formData.append('isAnalyse', 'true');
-                        formData.append('chatId', currentChatId);
+                        const s3Response = await fetch(data.uploadUrl, {
+                            method: "PUT",
+                            headers: { "Content-Type": item.file.type },
+                            body: item.file
+                        });
+
+                        if (!s3Response.ok) throw new Error(`S3 upload failed for ${item.file.name}`);
+
+                        const fileMetadata = {
+                            path: data.key,
+                            filename: item.file.name
+                        };
+
+                        const savedFile = await apiFetch('/api/files', {
+                            method: 'POST',
+                            body: JSON.stringify(fileMetadata)
+                        });
+
+
+                        if (item.isAnalysed) {
+                            apiFetch('/api/analysis', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    key: data.key,
+                                    fileId: savedFile.id,
+                                    chatId: currentChatId,
+                                    fileName: item.file.name
+                                })
+                            }).catch(e => console.error("Analysis trigger failed", e));
+                        }
+
+                        uploadedAttachments.push({
+                            fileId: savedFile.id,
+                            mimeType: item.file.type,
+                            fileName: item.file.name,
+                            hasAnalysis: item.isAnalysed
+                        });
+                    } catch (fileErr) {
+                        console.error(`Error processing file ${item.file.name}:`, fileErr);
+                        throw fileErr;
                     }
-
-                    const response = await fetch(`${apiBaseUrl}/api/storage/upload`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
-                        body: formData
-                    });
-
-                    if (!response.ok) throw new Error(`Ошибка загрузки файла: ${item.file.name}`);
-                    const result = await response.json();
-
-                    uploadedAttachments.push({
-                        fileId: result.id,
-                        mimeType: item.file.type,
-                        fileName: item.file.name,
-                        hasAnalysis: item.isAnalysed
-                    });
                 }
-
 
                 const messagePayload = {
                     chatId: currentChatId,
@@ -511,7 +534,7 @@ function ChatWindow({ activeChat,
                         </button>
                         <span className="selection-count">Выбрано: {selectedMessages.length}</span>
                         <div className="selection-actions">
-                            <button className="header-icon-btn" onClick={() => {console.log('handle delete click action')}} title="Удалить">
+                            <button className="header-icon-btn" onClick={() => { console.log('handle delete click action') }} title="Удалить">
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -713,9 +736,27 @@ function ChatWindow({ activeChat,
                     }}
                     placeholder="Введите сообщение..."
                 />
+                
                 {!isForbidden && (
-                    < button type="submit" className="send-btn" disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0 && forwardingMessages.length === 0)}>
-                        Отправить
+                    <button
+                        type="submit"
+                        className="send-btn"
+                        disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0 && forwardingMessages.length === 0)}
+                        title="Отправить"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
                     </button>
                 )}
 

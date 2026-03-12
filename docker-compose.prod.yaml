@@ -5,7 +5,7 @@ volumes:
   messaging_db_data:
   files_db_data:
   notifications-data:
-  redis_data:
+  redis-data:
   es_data:
   zookeeper_data:
   zookeeper_log:
@@ -124,6 +124,16 @@ services:
     networks:
       - app-network
 
+  connections-redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: AS04SERa1
+    volumes:
+      - redis-data:/data
+
   # --- MICROSERVICES ---
   api-gateway-service:
     build: ./ApiGatewayService
@@ -134,9 +144,8 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - AUTH_SERVICE_URL=http://auth-service:8085
       - MESSAGING_SERVICE_URL=http://messages-service:8087
-      - STORAGE_SERVICE_URL=http://contents-storage-service:8088
       - FILES_SERVICE_URL=http://db-content-storage-service:8089
-      - REGISTRATION_SERVICE_URL=http://registration-service:8082 # Исправлено: не localhost
+      - REGISTRATION_SERVICE_URL=http://registration-service:8082
       - CONNECTIONS_SERVICE_URL=http://connections-service:8086
       - SEARCH_SERVICE_URL=http://search-data-service:8093
       - ANALYSIS_SERVICE_URL=http://content-analysis-service:8094
@@ -149,7 +158,7 @@ services:
       - app-network
 
   auth-service:
-    build: ./Auth_Service
+    build: ./AuthService
     container_name: auth-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://users-auth-db:5432/security_users_db
@@ -164,24 +173,28 @@ services:
       - app-network
 
   connections-service:
-    build: ./UsersMessagingService
+    build: ./ConnectionsService
     container_name: connections-service
     environment:
       - AUTH_SERVICE_URL=http://auth-service:8085
+      - MESSAGES_STORAGE_SERVICE=http://messages-service:8087
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - CONNECTIONS_REDIS_DB_URL=http://connections-redis:6379
+      - CONNECTIONS_REDIS_DB_PASSWORD=${CONNECTIONS_REDIS_PASSWORD}
     depends_on:
       - kafka
     networks:
       - app-network
 
   messages-service:
-    build: ./MessageStorageServiceVT
+    build: ./MessageStorageService
     container_name: messages-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://messaging-db:5432/messaging_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_SERVICE_URL=http://auth-service:8085
+      - CONNECTIONS_SERVICE=http://connections-service:8086
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - AES_KEY=${AES_KEY}
       - HMAC_KEY=${HMAC_KEY}
@@ -191,21 +204,8 @@ services:
     networks:
       - app-network
 
-  contents-storage-service:
-    build: ./MediaContentStorageService
-    container_name: contents-storage-service
-    environment:
-      - AUTH_SERVICE_URL=http://auth-service:8085
-      - DB_CONTENT_STORAGE_SERVICE_URL=http://db-content-storage-service:8089
-      - ANALYSIS_SERVICE_URL=http://content-analysis-service:8094
-      - YANDEX_OAUTH=${YANDEX_OAUTH_TOKEN}
-    depends_on:
-      - db-content-storage-service
-    networks:
-      - app-network
-
   db-content-storage-service:
-    build: ./InDatabaseContentStorageService
+    build: ./ContentStorageService
     container_name: db-content-storage-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://files-db:5432/files_db

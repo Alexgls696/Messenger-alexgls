@@ -5,7 +5,6 @@ import { imageLoader } from '../utils/imageLoader';
 import defaultAvatar from '../images/profile-default.png'
 
 
-// Используем memo, чтобы компонент не перерисовывался просто так
 const ChatItem = memo(({ chat, isActive, onSelect, onContextMenu }) => {
     const [avatar, setAvatar] = useState(defaultAvatar);
     const [chatTitle, setChatTitle] = useState(chat.group ? chat.name : "...");
@@ -15,15 +14,15 @@ const ChatItem = memo(({ chat, isActive, onSelect, onContextMenu }) => {
 
         const fetchDetails = async () => {
             try {
-                let recipientId = null;
-
-                // Загружаем имя, только если его еще нет (для приватных чатов)
+                const recipient = chat.recipient;
+                let recipientId = recipient.id;
                 if (!chat.group) {
-                    const recipient = await apiFetch(`/api/chats/find-recipient-by-private-chat-id/${chat.chatId}`);
                     if (isMounted) {
                         setChatTitle(`${recipient.name} ${recipient.surname || ''}`);
-                        recipientId = recipient.id;
+                        chat.recipientId = recipient.id;
+                        chat.isOnline = recipient.online;
                     }
+                    chat.recipientId = recipient.id;
                 }
 
                 // Загружаем аватар
@@ -54,7 +53,13 @@ const ChatItem = memo(({ chat, isActive, onSelect, onContextMenu }) => {
                 onContextMenu(e, chat);
             }}
         >
-            <img className="chat-item-avatar" src={avatar} alt="" />
+
+            <div className="avatar-container">
+                <img className="chat-item-avatar" src={avatar} alt="" />
+                {!chat.group && chat.isOnline && (
+                    <span className="online-status-dot"></span>
+                )}
+            </div>
 
             <div className="chat-info">
                 <div className="chat-info-header">
@@ -88,10 +93,7 @@ const ChatItem = memo(({ chat, isActive, onSelect, onContextMenu }) => {
 }, (prevProps, nextProps) => {
     return (
         prevProps.isActive === nextProps.isActive &&
-        prevProps.chat.pinned === nextProps.chat.pinned && 
-        prevProps.chat.lastMessage?.id === nextProps.chat.lastMessage?.id &&
-        prevProps.chat.numberOfUnreadMessages === nextProps.chat.numberOfUnreadMessages &&
-        prevProps.chat.updatedAt === nextProps.chat.updatedAt
+        prevProps.chat === nextProps.chat
     );
 });
 

@@ -41,16 +41,12 @@ spring:
                 - Path=/api/attachments/**, /api/chats/**, /api/messages/**, /api/pinned-chats/**
 
             # --- 3. Маршрут для сервиса хранения файлов (:8088) ---
-            - id: storage-service-route
-              uri: ${STORAGE_SERVICE_URL}
-              predicates:
-                - Path=/api/storage/**
 
             # --- 4. Маршрут для сервиса файлов в БД (:8089) ---
             - id: files-db-service-route
               uri: ${FILES_SERVICE_URL}
               predicates:
-                - Path=/api/images/**
+                - Path=/api/files/**, /api/media-storage/**
 
             # --- 5. Маршрут для сервиса входа и регистрации в БД (:8082) ---
             - id: registration-service-route

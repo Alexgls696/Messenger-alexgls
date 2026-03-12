@@ -169,86 +169,124 @@
     gap: 12px;
     /* Расстояние между файлами в списке */
 }
-
+/* Общий контейнер для списка файлов (документов) */
 .attachment-list-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 12px 15px;
-    border-radius: 8px;
-    background-color: var(--surface-secondary);
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface-secondary);
+    border-radius: 12px;
+    margin-top: 4px;
     border: 1px solid var(--border-secondary);
-    position: relative;
+    transition: all 0.2s ease;
+    max-width: 100%;
 }
 
-/* Контейнер для имени файла (слева) */
-.attachment-list-item>span {
+/* Эффект при наведении на плашку файла */
+.attachment-list-item:hover {
+    filter: brightness(0.97);
+    border-color: var(--accent-primary);
+}
+
+/* Иконка файла (📄) */
+.attachment-list-item .file-icon {
+    font-size: 1.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Контейнер с именем и кнопками */
+.attachment-list-item .file-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column; /* Имя сверху, действия снизу */
+    gap: 4px;
+    overflow: hidden;
+}
+
+/* Имя файла с обрезкой длинного текста */
+.attachment-list-item .file-name {
     font-weight: 500;
+    font-size: 0.95em;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 10px;
 }
 
-/* Контейнер для кнопок (справа) */
+/* Контейнер действий (AI + Скачать) */
 .attachment-list-item .file-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
-    flex-shrink: 0;
+    gap: 10px;
 }
 
-/* Ссылка "Скачать" */
-.attachment-list-item .file-actions a {
-    font-size: 0.9em;
-    font-weight: 600;
-    color: var(--accent-primary);
-    text-decoration: none;
-}
-
-.attachment-list-item .file-actions a:hover {
-    text-decoration: underline;
-}
-
-
+/* Иконка AI анализа */
 .attachment-list-item .ai-icon {
-    position: static;
-    cursor: pointer;
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
-}
-
-.ai-icon {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    width: 24px;
-    /* Немного увеличим для лучшей видимости */
-    height: 24px;
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 11px;
-    font-weight: bold;
+    background: #6366f1; /* Красивый индиго */
     color: white;
-    /* Текст "AI" всегда белый */
-
-    cursor: pointer;
-    z-index: 1;
-
-    background: linear-gradient(120deg, #8A2BE2, #4169E1, #00BFFF, #20B2AA, #32CD32);
-    background-size: 400% 400%;
-
-    animation: gradient-flow 5s ease infinite;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.7em;
+    font-weight: 800;
+    cursor: help;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.attachment-list-item .ai-icon {
-    position: static;
+/* Кнопка скачивания (вместо обычной ссылки) */
+.download-link-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--accent-primary);
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.download-link-btn:hover {
+    color: var(--accent-primary-hover);
+}
+
+/* Стили для видео-вложений */
+.video-attachment {
+    max-width: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    line-height: 0;
+}
+
+/* Адаптация под ТЕМНУЮ тему */
+body[data-theme="dark"] .attachment-list-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Адаптация внутри ОТПРАВЛЕННЫХ сообщений (на синем фоне) */
+.message.sent .attachment-list-item {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.message.sent .file-name {
+    color: #fff;
+}
+
+.message.sent .download-link-btn {
+    color: #fff;
+    opacity: 0.9;
+}
+
+.message.sent .ai-icon {
+    background: #fff;
+    color: var(--accent-primary);
 }
 
 #attachment-tooltip {
