@@ -34,7 +34,7 @@ public class S3VkCloudClient {
 
         String folder = categoryDetector.getFolderName(contentType);
 
-        String key = String.format("%s/%s-%s", folder, fileId, fileName);
+        String key = String.format("%s/%s_%s", folder, fileId, fileName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -57,9 +57,11 @@ public class S3VkCloudClient {
     }
 
     public String generateDownloadUrl(String key) {
+        String originalFileName = key.split("_", 2)[1];
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
+                .responseContentDisposition("attachment; filename=\"" + originalFileName + "\"")
                 .build();
 
         GetObjectPresignRequest presignRequest =

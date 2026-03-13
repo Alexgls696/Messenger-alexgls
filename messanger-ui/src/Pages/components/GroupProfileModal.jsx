@@ -40,8 +40,6 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
                         apiFetch(`/api/chats/groups/${chatId}/access`)
                             .catch(() => ({ role: 'MEMBER' }))
                     ]);
-
-                    console.log(parts.participants)
                     setParticipants(parts.participants);
                     setGroupDetails(details);
 

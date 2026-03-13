@@ -734,7 +734,12 @@ function ChatWindow({ activeChat,
                             Выбрано сообщений: {forwardingMessages.length}
                         </div>
                     </div>
-                    <button className="edit-bar-close" onClick={() => setForwardingMessages(null)}>&times;</button>
+                    <button className="header-icon-btn" onClick={() => setForwardingMessages([])}>
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             )}
 

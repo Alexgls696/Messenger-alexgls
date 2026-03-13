@@ -51,7 +51,6 @@ public class MessagesService {
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
 
-    private final ExecutorService executorService = Executors.newWorkStealingPool();
 
     public record ReadMessageDatabaseRequest
             (
@@ -84,8 +83,6 @@ public class MessagesService {
                     boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
                     message.setRead(isReadByCurrentUser);
                 }
-            } else {
-                message.setRead(false);
             }
         }
         return messages.stream()
@@ -443,21 +440,8 @@ public class MessagesService {
                 .toList();
 
         deletedMessagesRepository.saveAll(deletedMessages);
-
         DeleteMessageResponse response = generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                CompletableFuture.runAsync(() ->
-                                checkAndDeleteFullyDeletedMessages(response.messagesId(), response.chatId()),
-                        executorService
-                ).exceptionally(ex -> {
-                    log.error("Ошибка фоновой очистки", ex);
-                    return null;
-                });
-            }
-        });
-
+        checkAndDeleteFullyDeletedMessages(response.messagesId(), response.chatId());
         return response;
     }
 

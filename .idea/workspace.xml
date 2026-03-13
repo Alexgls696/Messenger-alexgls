@@ -4,14 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Фиксы онлайна и визуала">
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/projection/AttachmentsByMessagesListProjection.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Решена N+1 при загрузке сообщений.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/exceptions/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/client/S3VkCloudClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/client/S3VkCloudClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/messages.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,11 +129,11 @@
     "Spring Boot.ConnectionServiceApplication.executor": "Run",
     "Spring Boot.ConnectionsServiceApplication.executor": "Run",
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
-    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Debug",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
     "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
-    "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
+    "Spring Boot.MetadataStorageServiceApplication.executor": "Debug",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
     "Spring Boot.SearchDataServiceApplication.executor": "Run",
@@ -553,15 +551,7 @@
       <workItem from="1773323350875" duration="20238000" />
       <workItem from="1773399145777" duration="3575000" />
       <workItem from="1773419839994" duration="3809000" />
-      <workItem from="1773432466136" duration="2830000" />
-    </task>
-    <task id="LOCAL-00014" summary="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.">
-      <option name="closed" value="true" />
-      <created>1762689885571</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1762689885571</updated>
+      <workItem from="1773432466136" duration="5212000" />
     </task>
     <task id="LOCAL-00015" summary="Добавлено шифрование сообщений AES-128-GMC, хеширование лексем слов HMAC для поиска по шифрованным данным.&#10;&#10;Улучшена логика распознавания">
       <option name="closed" value="true" />
@@ -947,7 +937,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773432984131</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="Решена N+1 при загрузке сообщений.">
+      <option name="closed" value="true" />
+      <created>1773435335837</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1773435335837</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -965,7 +963,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами." />
     <MESSAGE value="//TODO Исправить счетчик сообщений на группе. Исправлены баги, добавлены обработчики исключений при запросе между сервисами.&#10;&#10;Залит звук сообщения" />
     <MESSAGE value="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
@@ -990,7 +987,8 @@
     <MESSAGE value="Визуальные правки 2" />
     <MESSAGE value="Переезд с yandex drive на vk cloud s3 хранилище. Теперь клиент сам загружает файлы и работает с S3 по временным ссылкам. Убран прокси сервис.&#10;Добавлен статус онлайн (пока только в чатах).&#10;&#10;//TODO оптимизация всех N+1 по возможности по аналогии с загрузкой чатов, исправление Retry при множественном анализе файлов, отображение онлайна в профилях пользователей и списке участников групп." />
     <MESSAGE value="Фиксы онлайна и визуала" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фиксы онлайна и визуала" />
+    <MESSAGE value="Решена N+1 при загрузке сообщений." />
+    <option name="LAST_COMMIT_MESSAGE" value="Решена N+1 при загрузке сообщений." />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
