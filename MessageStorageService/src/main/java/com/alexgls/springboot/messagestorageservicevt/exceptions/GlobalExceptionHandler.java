@@ -76,6 +76,28 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(NoSuchParticipantException.class)
+    public ResponseEntity<ProblemDetail> handleNoSuchParticipantException(NoSuchParticipantException exception, Locale locale) {
+        log.warn("Handle NoSuchParticipantException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.participant_not_found", new Object[0], "error.participant_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(NoSuchUsersChatException.class)
+    public ResponseEntity<ProblemDetail> handleNoSuchUsersChatException(NoSuchUsersChatException exception, Locale locale) {
+        log.warn("Handle NoSuchUsersChatException: {}", exception.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                messageSource.getMessage("error.chat_not_found", new Object[0], "error.chat_not_found", locale));
+        problemDetail.setProperty("error", exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(DeleteMessageAccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleDeleteMessageAccessDeniedException(DeleteMessageAccessDeniedException exception, Locale locale) {
         log.warn("Handle DeleteMessageAccessDeniedException: {}", exception.getMessage());

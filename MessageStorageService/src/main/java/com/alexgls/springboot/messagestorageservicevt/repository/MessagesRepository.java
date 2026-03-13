@@ -25,7 +25,7 @@ public interface MessagesRepository extends CrudRepository<Message, Long> {
             "left join DeletedMessage dm on m.id = dm.messageId and dm.userId = :currentUserId " +
             "where m.chatId = :chatId and dm.userId is null " +
             "and ((p.leave is false and p.removed is false) or (m.createdAt <= p.removeAt)) " +
-            "order by m.createdAt desc")
+            "order by m.createdAt")
     Page<Message> findAllMessagesByChatId(@Param("chatId") int chatId,
                                           @Param("currentUserId") int currentUserId,
                                           Pageable pageable);

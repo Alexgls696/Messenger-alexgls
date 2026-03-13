@@ -9,6 +9,7 @@ import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchRecipient
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.repository.*;
+import com.alexgls.springboot.messagestorageservicevt.repository.projection.AttachmentsByMessagesListProjection;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
@@ -65,11 +66,16 @@ public class MessagesService {
     public List<MessageDto> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Message> messages = messagesRepository.findAllMessagesByChatId(chatId, currentUserId, pageable);
+        List<Long> messagesIds = messages.stream().map(Message::getId).toList();
         Participants participants = participantsRepository.findByChatIdAndUserId(chatId, currentUserId)
-                .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
-        for (Message message : messages) {
-            List<Attachment> attachments = attachmentRepository.findAllByMessageId(message.getId());
+                .orElseThrow(() -> new NoSuchParticipantException("Вы не состоите в этом чате или чат не существует"));
+        Map<Long, List<Attachment>> attachmentsMap = attachmentRepository.findAllByMessageIds(messagesIds)
+                .stream()
+                .collect(Collectors.groupingBy(AttachmentsByMessagesListProjection::getMessageId, Collectors.mapping(AttachmentsByMessagesListProjection::getAttachment, Collectors.toList())));
+
+        for(var message: messages) {
             message.setContent(encryptUtils.decrypt(message.getContent()));
+            var attachments = attachmentsMap.getOrDefault(message.getId(), Collections.emptyList());
             message.setAttachments(attachments);
             if (!Objects.isNull(participants.getLastReadMessageId())) {
                 if (message.getSenderId() == currentUserId) {
@@ -81,14 +87,11 @@ public class MessagesService {
             } else {
                 message.setRead(false);
             }
-            if (!message.isRead()) {
-                log.info("Message: {}", message);
-            }
         }
         return messages.stream()
-                .sorted(Comparator.comparing(Message::getCreatedAt))
                 .map(MessageMapper::toMessageDto)
                 .toList();
+
     }
 
     public MessageDto findById(long messageId, long chatId, int sender) {
@@ -215,6 +218,7 @@ public class MessagesService {
     }
 
 
+    //TODO N+1 SAVE
     @Transactional
     public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds) {
         Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
@@ -223,7 +227,6 @@ public class MessagesService {
         if (participants.isRemoved() || participants.isLeave()) {
             throw new AccessDeniedException("Доступ запрещен");
         }
-
 
         Chat chat = chatsRepository.findById(createMessagePayload.chatId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));

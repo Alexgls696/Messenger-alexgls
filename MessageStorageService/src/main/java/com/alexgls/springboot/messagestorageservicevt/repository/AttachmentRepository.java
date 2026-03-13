@@ -2,6 +2,7 @@ package com.alexgls.springboot.messagestorageservicevt.repository;
 
 import com.alexgls.springboot.messagestorageservicevt.entity.Attachment;
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageType;
+import com.alexgls.springboot.messagestorageservicevt.repository.projection.AttachmentsByMessagesListProjection;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,7 +14,11 @@ import java.util.List;
 @Repository
 public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
 
-    List<Attachment> findAllByMessageId(Long messageId);
+    List<Attachment> findAllByMessageId(long messageId);
+
+    @Query("select a.messageId as messageId, a as attachment from Attachment a "+
+            "where a.messageId in :messagesIds")
+    List<AttachmentsByMessagesListProjection> findAllByMessageIds(@Param("messagesIds") List<Long>messagesIds);
 
     @Query("""
      select a from Attachment a
