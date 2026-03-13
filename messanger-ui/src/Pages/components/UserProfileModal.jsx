@@ -24,7 +24,6 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                 setIsProfileLoading(true);
                 try {
                     const data = await apiFetch(`/api/profiles/${id}`);
-                    console.log(data);
                     setProfileData(data);
                 } catch (error) {
                     console.error("Ошибка загрузки профиля:", error);

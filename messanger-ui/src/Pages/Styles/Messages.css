@@ -326,34 +326,61 @@ body[data-theme="dark"] {
     height: 22px;
     z-index: 5;
     flex-shrink: 0;
+    /* Убедимся, что клик по контейнеру не мешает */
+    pointer-events: none;
 }
 
 .message-checkbox input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
+
     width: 22px;
     height: 22px;
     border: 2px solid var(--accent-primary);
     border-radius: 50%;
     background-color: var(--surface-primary);
+
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    pointer-events: auto;
 }
+
 
 .message-checkbox input[type="checkbox"]:checked {
     background-color: var(--accent-primary);
 }
 
-.message-checkbox input[type="checkbox"]:checked::after {
+.message-checkbox input[type="checkbox"]::after {
     content: '';
     position: absolute;
-    left: 6px;
-    top: 2px;
+    left: 7px;
+    top: 3px;
     width: 5px;
     height: 10px;
+
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
+
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.message-checkbox input[type="checkbox"]:checked::after {
+    opacity: 1;
+}
+
+body[data-theme="dark"] .message-checkbox input[type="checkbox"] {
+    background-color: var(--bg-primary);
+}
+
+body[data-theme="dark"] .message-checkbox input[type="checkbox"]:checked {
+    background-color: var(--accent-primary);
 }
 
 .message-form {

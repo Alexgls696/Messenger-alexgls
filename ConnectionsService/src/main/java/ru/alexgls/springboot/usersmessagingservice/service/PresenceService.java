@@ -30,12 +30,23 @@ public class PresenceService {
 
 
     public void setOnline(int userId, String token) {
+        boolean wasOnline = userOnlineRepository.existsById(userId);
         var userOnline = userOnlineRepository.save(new UserOnline(userId, true));
-        UserOnlineDto userOnlineDto = new UserOnlineDto(userOnline.getUserId(), userOnline.isOnline());
-        Iterable<Integer> participantsIds = messagesStorageServiceRestClient.findAllUsersWhoHadChatWithUser(token);
+        if (!wasOnline) {
+            notifyOnline(userId, token);
+        }
+    }
+
+    private void notifyOnline(int userId, String token) {
+        UserOnlineDto dto = new UserOnlineDto(userId, true);
+        Iterable<Integer> participantsIds =
+                messagesStorageServiceRestClient.findAllUsersWhoHadChatWithUser(token);
         for (Integer participantId : participantsIds) {
-            messagingTemplate.convertAndSendToUser(String.valueOf(participantId), "/queue/online-changed",
-                    new ToUserOnlineDto(userOnlineDto.userId(), userOnlineDto.online(), null));
+            messagingTemplate.convertAndSendToUser(
+                    String.valueOf(participantId),
+                    "/queue/online-changed",
+                    new ToUserOnlineDto(dto.userId(), dto.online(), null)
+            );
         }
     }
 
@@ -48,10 +59,6 @@ public class PresenceService {
             messagingTemplate.convertAndSendToUser(String.valueOf(participantId), "/queue/online-changed",
                     new ToUserOnlineDto(userOnlineDto.userId(), userOnlineDto.online(), new Date()));
         }
-    }
-
-    public boolean isOnline(int userId) {
-        return userOnlineRepository.existsById(userId);
     }
 
     public Map<Integer, Boolean> checkOnlineByList(List<Integer> userIds) {

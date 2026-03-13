@@ -1,39 +1,43 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import Stomp, { client } from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient';
 
 export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged) => {
     const stompClient = useRef(null);
     const socketRef = useRef(null);
+    const pingIntervalRef = useRef(null);
+
     const [isConnected, setIsConnected] = useState(false);
-    
-    const connectionLock = useRef(false); 
+
+    const connectionLock = useRef(false);
     const reconnectTimeoutRef = useRef(null);
 
-    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged});
+    const refs = useRef({ onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged });
     useEffect(() => {
-        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged};
+        refs.current = { onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged };
     });
 
     const disconnect = useCallback(() => {
         if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
         }
-        
-        // Порядок важен: сначала закрываем Stomp, потом сокет
+
+        if (pingIntervalRef.current) {
+            clearInterval(pingIntervalRef.current);
+        }
+
         if (stompClient.current) {
             try {
-                // Старая версия stompjs требует callback или пустой объект
-                stompClient.current.disconnect(() => {}, {});
-            } catch (e) {}
+                stompClient.current.disconnect(() => { }, {});
+            } catch (e) { }
             stompClient.current = null;
         }
 
         if (socketRef.current) {
             try {
                 socketRef.current.close();
-            } catch (e) {}
+            } catch (e) { }
             socketRef.current = null;
         }
 
@@ -52,14 +56,14 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
         connectionLock.current = true;
         console.log(`[WS] Attempting to connect. Reason: ${reason}`);
 
-        disconnect(); // Полная очистка перед новым стартом
+        disconnect();
 
-         const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`, null, {
+        const socket = new SockJS(`${url}/ws-chat?token=${accessToken}`, null, {
             transports: ['websocket'],
             timeout: 10000
         });
         socketRef.current = socket;
-        
+
         const client = Stomp.over(socket);
         client.heartbeat.outgoing = 10000;
         client.heartbeat.incoming = 10000;
@@ -71,7 +75,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
             () => {
                 console.log('[WS] Connected successfully');
                 setIsConnected(true);
-                connectionLock.current = false; // Снимаем замок только при успехе
+                connectionLock.current = false;
 
                 // Подписки
                 const subs = [
@@ -86,6 +90,13 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 subs.forEach(([queue, action]) => {
                     client.subscribe(queue, (m) => action(JSON.parse(m.body)));
                 });
+
+
+                pingIntervalRef.current = setInterval(() => {
+                    if (client.connected) {
+                        client.send("/app/ping", {}, "Ping");
+                    }
+                }, 30000);
             },
             async (error) => {
                 setIsConnected(false);
@@ -95,7 +106,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                     // Используем ваш handleTokenRefresh
                     await handleTokenRefresh();
                     console.log("[WS] Token refreshed. Reconnecting in 1s...");
-                    
+
                     reconnectTimeoutRef.current = setTimeout(() => {
                         connectionLock.current = false; // Освобождаем перед вызовом
                         connect("reconnect-after-refresh");
@@ -104,7 +115,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 } catch (err) {
                     console.error("[WS] Refresh failed:", err.message);
                     connectionLock.current = false;
-                    
+
                     if (err.message !== "Session expired" && err.message !== "No refresh token") {
                         reconnectTimeoutRef.current = setTimeout(() => connect("retry-after-network-error"), 5000);
                     }
@@ -115,19 +126,18 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
         stompClient.current = client;
     }, [url, disconnect]);
 
-    // 1. Эффект инициализации
+
     useEffect(() => {
         connect("mount");
         return () => disconnect();
     }, [connect, disconnect]);
 
-    // 2. Эффект Visibility (сон/переключение вкладок)
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 setTimeout(() => {
                     const isReallyConnected = stompClient.current && stompClient.current.connected;
-                    
+
                     if (!isReallyConnected && !connectionLock.current) {
                         console.log("[WS] Tab visible and not connected. Reconnecting...");
                         connect("visibility-change");
@@ -135,6 +145,7 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
                 }, 500);
             }
         };
+
 
         window.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('focus', handleVisibilityChange);
@@ -144,6 +155,8 @@ export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteE
             window.removeEventListener('focus', handleVisibilityChange);
         };
     }, [connect]);
+
+
 
     useEffect(() => {
         const handleOnline = () => {

@@ -81,6 +81,49 @@
     object-fit: cover;
 }
 
+.header-user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+
+.header-user-item:hover {
+    background-color: var(--surface-secondary);
+}
+
+.header-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.header-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95em;
+}
+
+.header-user-username {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.selection-actions {
+    display: flex;
+    flex-direction: row;
+}
+
 
 .online-status-dot {
     position: absolute;
@@ -191,7 +234,7 @@ li.active .online-status-dot {
 }
 
 .chat-window__header {
-    padding: 10px 15px;
+    padding: 6px 12px;
     border-bottom: 1px solid var(--border-secondary);
     display: flex;
     align-items: center;

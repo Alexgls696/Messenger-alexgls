@@ -141,7 +141,8 @@ public class UsersService {
 
     public List<GetUserDto> findAllByUserIds(List<Integer> userIds) {
         return usersRepository.findAllById(userIds)
-                .stream().map(UserMapper::toDto)
+                .stream()
+                .map(UserMapper::toDto)
                 .toList();
     }
 }

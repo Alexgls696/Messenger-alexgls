@@ -80,9 +80,7 @@ public class ChatsController {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Integer userId = getSenderId(authentication);
         String token = jwt.getTokenValue();
-        Integer recipientId = chatsService.findRecipientIdByChatId(chatId, userId);
-        var user = authRestClient.findUserById(recipientId, token);
-        return user;
+        return chatsService.findRecipientIdByChatId(chatId, userId, token);
     }
 
     //Необходимо для загрузки участников групп и права доступа текущего пользователя

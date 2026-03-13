@@ -41,6 +41,7 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
                             .catch(() => ({ role: 'MEMBER' }))
                     ]);
 
+                    console.log(parts.participants)
                     setParticipants(parts.participants);
                     setGroupDetails(details);
 
@@ -345,7 +346,12 @@ const ParticipantItem = ({ user, isMe, canRemove, onRemove, onOpenProfile }) => 
 
     return (
         <div className="participant-item" onClick={!isMe ? onOpenProfile : null}>
-            <img className="participant-avatar" src={avatar} alt="" />
+            <div className="avatar-container">
+                <img className="participant-avatar" src={avatar} alt="" />
+                {user.online && (
+                    <span className="online-status-dot"></span>
+                )}
+            </div>
             <div className="participant-info">
                 <div className="participant-header">
                     <span className="participant-name">{user.name} {user.surname}</span>

@@ -61,9 +61,8 @@
     font-size: 0.95em;
     color: var(--text-primary);
     line-height: 1.4;
-    word-wrap: break-word; /* Чтобы длинные слова не ломали верстку */
+    word-wrap: break-word; 
 
-    /* Опционально: фон, чтобы выделить описание */
     background-color: var(--surface-secondary);
     padding: 8px 12px;
     border-radius: 6px;

@@ -67,9 +67,10 @@ function ChatPage() {
     const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
 
-
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
+
+    const [activeChatOnline, setActiveChatOnline] = useState(null);
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5,
@@ -149,6 +150,7 @@ function ChatPage() {
 
     const onUserOnlineChanged = useCallback((userOnlineDto) => {
         chatListRef.current?.updateUserOnlineStatus(userOnlineDto.userId, userOnlineDto.online);
+        setActiveChatOnline(userOnlineDto);
     }, []);
 
 
@@ -466,6 +468,7 @@ function ChatPage() {
                     forwardingMessages={forwardingMessages}
                     setForwardingMessages={setForwardingMessages}
                     onForwardMessages={handleForwardMessages}
+                    userOnlineChanged={activeChatOnline}
                 />
 
                 {/* Модальные окна */}

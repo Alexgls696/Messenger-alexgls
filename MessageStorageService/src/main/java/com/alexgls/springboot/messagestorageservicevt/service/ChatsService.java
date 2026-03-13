@@ -22,6 +22,7 @@ import com.alexgls.springboot.messagestorageservicevt.util.groups.CreateGroupSer
 import com.alexgls.springboot.messagestorageservicevt.util.groups.InviteGroupServiceMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.Get;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.codec.multipart.Part;
@@ -54,7 +55,7 @@ public class ChatsService {
     private final ConnectionsServiceRestClient connectionsServiceRestClient;
 
     @Transactional(readOnly = true)
-    public List<ChatDto>findAllChatOptimisation(int userId, String token, Pageable pageable){
+    public List<ChatDto> findAllChatOptimisation(int userId, String token, Pageable pageable) {
         Page<ChatWithUnread> chatPage = chatsRepository.findChatsByUserId(userId, pageable);
         List<ChatWithUnread> content = chatPage.getContent();
         List<Long> chatIds = content.stream()
@@ -78,7 +79,7 @@ public class ChatsService {
 
         Map<Integer, GetUserDto> userProfilesMap = authRestClient.findAllUsers(allRecipientIds, token)
                 .stream()
-                .collect(Collectors.toMap(GetUserDto::id, u -> u));
+                .collect(Collectors.toMap(GetUserDto::getId, u -> u));
 
         Map<Integer, Boolean> onlineStatuses = connectionsServiceRestClient.findUserOnlineStatus(new CheckOnlineRequest(allRecipientIds));
         return content.stream().map(c -> {
@@ -96,17 +97,8 @@ public class ChatsService {
                     if (recipientId != null && userProfilesMap.containsKey(recipientId)) {
                         GetUserDto profile = userProfilesMap.get(recipientId);
                         boolean isOnline = onlineStatuses.getOrDefault(recipientId, false);
-
-                        dto.setRecipient(GetUserDto
-                                .builder()
-                                .id(profile.id())
-                                .name(profile.name())
-                                .surname(profile.surname())
-                                .role(profile.role())
-                                .username(profile.username())
-                                .lastSeenAt(profile.lastSeenAt())
-                                .online(isOnline)
-                                .build());
+                        profile.setOnline(isOnline);
+                        dto.setRecipient(profile);
                     }
 
                     return dto;
@@ -182,7 +174,7 @@ public class ChatsService {
         participantsRepository.saveAll(participants);
 
         var actor = authRestClient.findUserById(creatorId, token);
-        MessageDto messageDto = messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.username(), chat.getName()), (int) chat.getId(), creatorId);
+        MessageDto messageDto = messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.getUsername(), chat.getName()), (int) chat.getId(), creatorId);
         ChatDto chatDto = ChatMapper.toDto(savedChat);
         chatDto.setLastMessage(messageDto);
 
@@ -231,9 +223,16 @@ public class ChatsService {
         deletedMessagesRepository.markAllMessagesAsRemovedWhenChatRemoving(chatId, userId);
     }
 
-    public Integer findRecipientIdByChatId(int chatId, int senderId) {
-        return chatsRepository.findRecipientIdByChatId(chatId, senderId)
+    public GetUserDto findRecipientIdByChatId(int chatId, int senderId, String token) {
+        var userId = chatsRepository.findRecipientIdByChatId(chatId, senderId)
                 .orElseThrow(() -> new NoSuchUserException("Участник чата не найден"));
+
+        GetUserDto user = authRestClient.findUserById(userId, token);
+
+        var onlineMap = connectionsServiceRestClient.findUserOnlineStatus(new CheckOnlineRequest(List.of(userId)));
+        boolean online = onlineMap.getOrDefault(userId, false);
+        user.setOnline(online);
+        return user;
     }
 
     public Integer findChatIdByRecipientId(int recipientId, int myId) {

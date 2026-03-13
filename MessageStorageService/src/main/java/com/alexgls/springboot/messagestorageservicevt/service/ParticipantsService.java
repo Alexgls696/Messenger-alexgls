@@ -1,6 +1,8 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
 import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
+import com.alexgls.springboot.messagestorageservicevt.client.ConnectionsServiceRestClient;
+import com.alexgls.springboot.messagestorageservicevt.dto.CheckOnlineRequest;
 import com.alexgls.springboot.messagestorageservicevt.dto.chats.AddParticipantsToGroupDto;
 import com.alexgls.springboot.messagestorageservicevt.dto.GetUserDto;
 import com.alexgls.springboot.messagestorageservicevt.dto.chats.GroupParticipantsDto;
@@ -45,6 +47,8 @@ public class ParticipantsService {
 
     private final AuthRestClient authRestClient;
 
+    private final ConnectionsServiceRestClient connectionsServiceRestClient;
+
     public GroupParticipantsDto findAllByChatId(int chatId, String token, int currentUserId) {
         var participants = participantsRepository.findAllByChatId(chatId);
         Map<Integer, Participants> participantsMap = participants.stream()
@@ -53,19 +57,30 @@ public class ParticipantsService {
         boolean removed = Objects.isNull(currentUser);
         List<GetUserDto> unsortedUsers = authRestClient.findAllUsers(participantsMap.keySet(), token)
                 .stream()
-                .map(user -> new GetUserDto(user.id(), user.name(), user.surname(), user.username(), ChatRole.getTranslate(participantsMap.get(user.id()).getRole()), user.lastSeenAt(), user.online()))
+                .peek(user -> user.setRole(ChatRole.getTranslate(participantsMap.get(user.getId()).getRole())))
                 .toList();
         var sortedUsers = sortUsersList(unsortedUsers, currentUserId);
+        List<Integer> userIds = sortedUsers.stream().map(GetUserDto::getId).toList();
+        Map<Integer, Boolean> onlineStatuses = connectionsServiceRestClient.findUserOnlineStatus(new CheckOnlineRequest(userIds));
+
+        for (GetUserDto user : sortedUsers) {
+            if (onlineStatuses.containsKey(user.getId())) {
+                boolean online = onlineStatuses.get(user.getId());
+                if (online) {
+                    user.setOnline(true);
+                }
+            }
+        }
         return new GroupParticipantsDto(sortedUsers, removed);
     }
 
     private List<GetUserDto> sortUsersList(List<GetUserDto> unsorted, int currentUserId) {
         var sorted = unsorted.stream()
-                .sorted(Comparator.comparing(GetUserDto::name))
+                .sorted(Comparator.comparing(GetUserDto::getName))
                 .collect(Collectors.toList());
         int meIndex = -1;
         for (int i = 0; i < sorted.size(); i++) {
-            if (sorted.get(i).id() == currentUserId) {
+            if (sorted.get(i).getId() == currentUserId) {
                 meIndex = i;
                 break;
             }
@@ -125,7 +140,7 @@ public class ParticipantsService {
         if (removingUser == null || actor == null) {
             throw new NoSuchUserException("Пользователь не найден");
         }
-        return new RemoveUserServiceMessage(removingUser.username(), actor.username());
+        return new RemoveUserServiceMessage(removingUser.getUsername(), actor.getUsername());
     }
 
     public void leaveGroup(long chatId, int userId) {
@@ -138,6 +153,7 @@ public class ParticipantsService {
 
     /**
      * Возвращает id пользователей, с которыми у данного пользователя есть чат.
+     *
      * @param userId Id текущего пользователя
      * @return Iterable с id пользователей.
      */
@@ -195,7 +211,7 @@ public class ParticipantsService {
         var actor = authRestClient.findUserById(userId, token);
         var invitedUsers = authRestClient.findAllUsers(sendToUsersIds, token);
         for (var user : invitedUsers) {
-            MessageDto serviceInviteMessage = messagesService.saveServiceMessage(new InviteGroupServiceMessage(actor.username(), user.username()), (int) chat.getId(), userId);
+            MessageDto serviceInviteMessage = messagesService.saveServiceMessage(new InviteGroupServiceMessage(actor.getUsername(), user.getUsername()), (int) chat.getId(), userId);
             kafkaSenderService.sendMessage(serviceInviteMessage);
         }
     }

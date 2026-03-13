@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 
-@RedisHash(value = "user:presence", timeToLive = 30L)
+@RedisHash(value = "user:presence", timeToLive = 60L)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
