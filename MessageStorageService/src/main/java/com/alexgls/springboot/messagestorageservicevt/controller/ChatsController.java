@@ -30,7 +30,6 @@ import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.
 public class ChatsController {
 
     private final ChatsService chatsService;
-    private final AuthRestClient authRestClient;
     private final ParticipantsService participantsService;
 
     @Value("${values.page-size}")
@@ -107,6 +106,12 @@ public class ChatsController {
         Integer userId = getSenderId(authentication);
         return participantsService.findAllUsersWhoHadChatWith(userId);
     }
+
+    @GetMapping("/search-users/{id}")
+    public Iterable<Integer> findAllUsersWhoHadChatWithById(@PathVariable("id") int userId) {
+        return participantsService.findAllUsersWhoHadChatWith(userId);
+    }
+
 
     //Удаление участника группы
     @DeleteMapping("/{chatId}/participants/{userId}")

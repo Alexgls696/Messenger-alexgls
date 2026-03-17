@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
 import ru.alexgls.springboot.usersmessagingservice.client.MessagesStorageServiceRestClient;
 import ru.alexgls.springboot.usersmessagingservice.dto.ToUserOnlineDto;
 import ru.alexgls.springboot.usersmessagingservice.dto.UserOnlineDto;
@@ -22,25 +21,24 @@ public class PresenceService {
 
     private final UserOnlineRepository userOnlineRepository;
 
-    private final KafkaTemplate<String, UserOnlineDto> userOnlineKafkaTemplate;
 
     private final SimpMessagingTemplate messagingTemplate;
 
     private final MessagesStorageServiceRestClient messagesStorageServiceRestClient;
 
 
-    public void setOnline(int userId, String token) {
+    public void setOnline(int userId) {
         boolean wasOnline = userOnlineRepository.existsById(userId);
-        var userOnline = userOnlineRepository.save(new UserOnline(userId, true));
+        var userOnline = userOnlineRepository.save(new UserOnline(userId, true, 60));
         if (!wasOnline) {
-            notifyOnline(userId, token);
+            notifyOnline(userId);
         }
     }
 
-    private void notifyOnline(int userId, String token) {
+    private void notifyOnline(int userId) {
         UserOnlineDto dto = new UserOnlineDto(userId, true);
         Iterable<Integer> participantsIds =
-                messagesStorageServiceRestClient.findAllUsersWhoHadChatWithUser(token);
+                messagesStorageServiceRestClient.findAllUsersWhoHadChatWithUser(userId);
         for (Integer participantId : participantsIds) {
             messagingTemplate.convertAndSendToUser(
                     String.valueOf(participantId),
@@ -50,26 +48,24 @@ public class PresenceService {
         }
     }
 
-    public void setOffline(int userId, String token) {
-        userOnlineRepository.delete(new UserOnline(userId, false));
-        UserOnlineDto userOnlineDto = new UserOnlineDto(userId, false);
-        userOnlineKafkaTemplate.send("user-online-status-topic", userOnlineDto);
-        Iterable<Integer> participantsIds = messagesStorageServiceRestClient.findAllUsersWhoHadChatWithUser(token);
-        for (Integer participantId : participantsIds) {
-            messagingTemplate.convertAndSendToUser(String.valueOf(participantId), "/queue/online-changed",
-                    new ToUserOnlineDto(userOnlineDto.userId(), userOnlineDto.online(), new Date()));
+    public void setOffline(int userId) {
+        UserOnline userOnline = userOnlineRepository.findById(userId).orElse(null);
+        if(userOnline == null) {
+            return;
         }
+        userOnline.setExpiration(15);
+        userOnlineRepository.save(userOnline);
     }
+
 
     public Map<Integer, Boolean> checkOnlineByList(List<Integer> userIds) {
-        Iterable<UserOnline> usersOnlineIterable = userOnlineRepository.findAllById(userIds);
-        List<UserOnline> userOnlineList = new ArrayList<>();
-        for (var user : usersOnlineIterable) {
-            userOnlineList.add(user);
-        }
-        return userOnlineList.stream()
-                .collect(Collectors.toMap(UserOnline::getUserId, UserOnline::isOnline));
-    }
+        Iterable<UserOnline> onlineUsers = userOnlineRepository.findAllById(userIds);
 
+        Map<Integer, Boolean> resultMap = new HashMap<>();
+        userIds.forEach(id -> resultMap.put(id, false));
+        onlineUsers.forEach(user -> resultMap.put(user.getUserId(), true));
+
+        return resultMap;
+    }
 
 }

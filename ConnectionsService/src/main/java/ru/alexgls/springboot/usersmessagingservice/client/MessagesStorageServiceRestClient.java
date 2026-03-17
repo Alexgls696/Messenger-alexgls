@@ -2,7 +2,6 @@ package ru.alexgls.springboot.usersmessagingservice.client;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestClient;
 import ru.alexgls.springboot.usersmessagingservice.exception.MessageStorageServiceException;
 
@@ -13,12 +12,11 @@ public class MessagesStorageServiceRestClient {
 
     private final ParameterizedTypeReference<Iterable<Integer>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {};
 
-    public Iterable<Integer> findAllUsersWhoHadChatWithUser(String token) {
+    public Iterable<Integer> findAllUsersWhoHadChatWithUser(int userId) {
         try {
             return restClient
                     .get()
-                    .uri("/api/chats/search-users")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .uri("/api/chats/search-users/{id}", userId)
                     .retrieve()
                     .body(PARAMETERIZED_TYPE_REFERENCE);
         } catch (Exception exception) {

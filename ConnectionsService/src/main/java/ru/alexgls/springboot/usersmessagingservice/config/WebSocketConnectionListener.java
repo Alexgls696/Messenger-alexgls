@@ -26,7 +26,7 @@ public class WebSocketConnectionListener {
         if (attributes != null && attributes.containsKey("token")) {
             String token = (String) attributes.get("token");
             int userId = Integer.parseInt((String)attributes.get("userId"));
-            presenceService.setOnline(userId, token);
+            presenceService.setOnline(userId);
         }
     }
 
@@ -38,7 +38,7 @@ public class WebSocketConnectionListener {
         if (attributes != null && attributes.containsKey("token")) {
             String token = (String) attributes.get("token");
             int userId = Integer.parseInt((String)attributes.get("userId"));
-            presenceService.setOffline(userId, token);
+            presenceService.setOffline(userId);
         }
     }
 }

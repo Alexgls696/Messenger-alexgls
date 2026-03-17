@@ -37,10 +37,7 @@ public class UserOnlineController {
             int userId = Integer.parseInt((String)headerAccessor
                     .getSessionAttributes()
                     .get("userId"));
-            String token = (String) headerAccessor
-                    .getSessionAttributes()
-                    .get("token");
-            presenceService.setOnline(userId, token);
+            presenceService.setOnline(userId);
         } catch (RuntimeException exception) {
             log.warn("Failed to find userId and token", exception);
         }

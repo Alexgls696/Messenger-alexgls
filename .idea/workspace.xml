@@ -4,60 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправление багов с прочтением сообщений и отменой пересылки">
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/projection/UserIdWhenDeletedMessageProjection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения">
+      <change afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/redis/RedisConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/redis/RedisKeyExpirationListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/DeletedMessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/DeletedMessagesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessagesRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/RegistrationServiceApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/client/AuthServiceClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/client/AuthServiceClientImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/config/AsyncConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/config/MailConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/config/RestClientConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/controller/AuthenticationController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/controller/VerificationCodeController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/AuthServiceExistsUserRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/AuthServiceJwtResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/AuthServiceUserExistsResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/CheckCodeRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/CheckCodeResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/CreateCodeResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/InitializeLoginRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/dto/UserRegisterDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/entity/UserData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/AccessToAuthServiceException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/AuthServiceException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/GlobalExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/InvalidAccessCodeException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/OperationNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/SendMailException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/UserExistsException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/exception/UserNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/repository/VerificationRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/service/AuthenticationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/service/AuthenticationServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/service/MailSenderService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/service/VerificationService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/java/com/alexgls/springboot/registrationservice/service/VerificationServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/resources/application.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/main/resources/messages.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/test/java/com/alexgls/springboot/registrationservice/RegistrationServiceApplicationTests.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RegistrationService/src/test/java/com/alexgls/springboot/registrationservice/service/VerificationServiceImplTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/ConnectionServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/ConnectionServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/client/MessagesStorageServiceRestClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/client/MessagesStorageServiceRestClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConnectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConnectionListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/UserOnlineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/UserOnlineController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/entity/UserOnline.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/entity/UserOnline.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/PresenceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/PresenceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,8 +34,8 @@
         <option value="JUnit5 Test Class" />
         <option value="Record" />
         <option value="Exception" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -174,7 +132,7 @@
     "Spring Boot.AuthServiceSpringBootApplication (1).executor": "Run",
     "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
-    "Spring Boot.ConnectionServiceApplication.executor": "Run",
+    "Spring Boot.ConnectionServiceApplication.executor": "Debug",
     "Spring Boot.ConnectionsServiceApplication.executor": "Run",
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
@@ -211,8 +169,8 @@
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
-      "redis",
-      "postgresql"
+      "postgresql",
+      "redis"
     ],
     "com.intellij.ide.scratch.LRUPopupBuilder$1/SQL Dialect": [
       "PostgreSQL"
@@ -469,9 +427,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
-        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.ConnectionServiceApplication" />
+        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
+        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Docker.docker-compose.yaml.connections-redis: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yaml.redis: Compose Deployment" />
       </list>
@@ -603,15 +561,8 @@
       <workItem from="1773475485425" duration="1137000" />
       <workItem from="1773510040567" duration="2357000" />
       <workItem from="1773584870571" duration="3592000" />
-      <workItem from="1773731427013" duration="5982000" />
-    </task>
-    <task id="LOCAL-00016" summary="Реализован поиск сообщений на клиенте, общие стили окон поиска. В сервис SearchData добавлено взаимодействие с MessagesController messageStorageService">
-      <option name="closed" value="true" />
-      <created>1762967748681</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1762967748681</updated>
+      <workItem from="1773731427013" duration="6924000" />
+      <workItem from="1773753701387" duration="3002000" />
     </task>
     <task id="LOCAL-00017" summary="Исправлена ошибка при отсутствии лемм">
       <option name="closed" value="true" />
@@ -997,7 +948,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773438162317</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения">
+      <option name="closed" value="true" />
+      <created>1773739672444</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1773739672444</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1015,7 +974,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Удален target AuthService из кеша git" />
     <MESSAGE value="Скрыта регистрация по коду. TODO: Создание чата только при отправке сообщения" />
@@ -1040,7 +998,8 @@
     <MESSAGE value="Фиксы онлайна и визуала" />
     <MESSAGE value="Решена N+1 при загрузке сообщений." />
     <MESSAGE value="Исправление багов с прочтением сообщений и отменой пересылки" />
-    <option name="LAST_COMMIT_MESSAGE" value="Исправление багов с прочтением сообщений и отменой пересылки" />
+    <MESSAGE value="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
