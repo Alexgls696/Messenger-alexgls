@@ -292,7 +292,7 @@ function ChatPage() {
         });
     }, { threshold: 0.1 }), []);
 
-    const deleteMessages = async (messageIds, forAll) => {
+    const deleteMessages = async (messageIds, forAll, message) => {
         const payload = {
             messagesId: messageIds,
             senderId: user.id,
@@ -300,7 +300,7 @@ function ChatPage() {
             forAll: forAll
         };
 
-        openConfirm('Вы действительно хотите удалить это сообщение? Это действие необратимо.', async () => {
+        openConfirm(message, async () => {
             try {
                 await apiFetch('/api/messages', {
                     method: 'DELETE',
@@ -396,7 +396,7 @@ function ChatPage() {
         options.push({
             label: 'Удалить у себя',
             danger: true,
-            action: () => deleteMessages([msg.id], false)
+            action: () => deleteMessages([msg.id], false, 'Вы действительно хотите удалить это сообщение? Это действие необратимо.')
         });
 
 
@@ -404,11 +404,11 @@ function ChatPage() {
             options.push({
                 label: 'Удалить у всех',
                 danger: true,
-                action: () => deleteMessages([msg.id], true)
+                action: () => deleteMessages([msg.id], true, 'Вы действительно хотите удалить это сообщение? Это действие необратимо.')
             });
         }
 
-        setContextMenu({ x: e.clientX, y: e.clientY, options });
+        setContextMenu({ x: e.clientX, y: e.clientY - 210, options });
     }, [user, deleteMessages]);
 
 
@@ -456,12 +456,14 @@ function ChatPage() {
                     messageUpdateEvent={messageUpdateEvent}
                     editingMessage={editingMessage}
                     setEditingMessage={setEditingMessage}
+                    deleteMessages={deleteMessages}
 
                     replyingTo={replyingTo}
                     setReplyingTo={setReplyingTo}
                     replyCache={replyCache.current}
 
                     firstSelectedMessage={firstSelectedMessage}
+                    setFirstSelectedMessage={setFirstSelectedMessage}
                     isSelectionMode={isSelectionMode}
                     setSelectionMode={setSelectionMode}
 
@@ -469,6 +471,7 @@ function ChatPage() {
                     setForwardingMessages={setForwardingMessages}
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
+
                 />
 
                 {/* Модальные окна */}
@@ -477,6 +480,7 @@ function ChatPage() {
                     onClose={() => setIsProfileOpen(false)}
                     userData={user}
                     onUserDataUpdate={refreshUserData}
+                    onOpenConfirm={openConfirm}
                 />
 
                 <UserProfileModal

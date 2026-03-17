@@ -25,11 +25,13 @@ function ChatWindow({ activeChat,
     messageUpdateEvent,
     editingMessage,
     setEditingMessage,
+    deleteMessages,
     replyingTo,
     setReplyingTo,
     replyCache,
     onForwardMessages,
     firstSelectedMessage,
+    setFirstSelectedMessage,
     isSelectionMode,
     setSelectionMode,
     forwardingMessages,
@@ -507,22 +509,37 @@ function ChatWindow({ activeChat,
     // Выделение и пересылка
     useEffect(() => {
         if (firstSelectedMessage) {
-            setSelectedMessages([firstSelectedMessage.id]);
+            setSelectedMessages([firstSelectedMessage]);
         }
     }, [firstSelectedMessage]);
 
-    const toggleMessageSelection = (messageId) => {
+    const toggleMessageSelection = (message) => {
         setSelectedMessages(prev => {
-            if (prev.includes(messageId)) {
-                return prev.filter(id => id !== messageId);
+            const isAlreadySelected = prev.some(m => m.id === message.id);
+            if (isAlreadySelected) {
+                return prev.filter(m => m.id !== message.id);
             }
-            return [...prev, messageId];
+            return [...prev, message];
         });
     };
 
     const clearSelection = () => {
         setSelectedMessages([]);
+        setSelectionMode(false);
+        setFirstSelectedMessage(null)
     };
+
+    const deleteMessageGroup = async (messages) => {
+        let forAll = true;
+        messages.forEach(message => {
+            if (message.senderId !== currentUserId) {
+                forAll = false;
+            }
+        })
+        const messagesIds = messages.map(message => message.id)
+        deleteMessages(messagesIds, forAll, 'Вы действительно хотите удалить выбранные сообщения? Это действие необратимо.');
+        clearSelection();
+    }
 
     const handleForwardClick = () => {
         if (onForwardMessages && selectedMessages.length > 0) {
@@ -557,7 +574,7 @@ function ChatWindow({ activeChat,
             <div className="chat-window__header">
                 {isSelectionMode ? (
                     <div className="selection-header-wrapper">
-                        <button className="header-icon-btn" onClick={() => { setSelectionMode(false); clearSelection() }} title="Отменить выделение">
+                        <button className="header-icon-btn" onClick={() => { clearSelection() }} title="Отменить выделение">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -565,7 +582,7 @@ function ChatWindow({ activeChat,
                         </button>
                         <span className="selection-count">Выбрано: {selectedMessages.length}</span>
                         <div className="selection-actions">
-                            <button className="header-icon-btn" onClick={() => { console.log('handle delete click action') }} title="Удалить">
+                            <button className="header-icon-btn" onClick={() => deleteMessageGroup(selectedMessages)} title="Удалить">
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -651,9 +668,9 @@ function ChatWindow({ activeChat,
                         allMessages={messages}
                         replyCache={replyCache}
 
-                        isSelected={selectedMessages.includes(msg.id)}
+                        isSelected={selectedMessages.some(m => m.id === msg.id)}
                         selectionMode={isSelectionMode}
-                        onSelect={() => toggleMessageSelection(msg.id)}
+                        onSelect={() => toggleMessageSelection(msg)}
                     />
                 ))}
             </div>

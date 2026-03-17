@@ -16,13 +16,12 @@
         <module name="AuthService" />
         <module name="MetadataStorageService" />
         <module name="ContentAnalysisService" />
-        <module name="RegistrationService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ConnectionsService" target="17" />
       <module name="MediaContentStorageService" target="17" />
       <module name="RatingLogClientApplication" target="17" />
+      <module name="RegistrationService" target="17" />
       <module name="UserDetailsService" target="17" />
       <module name="UsersMessagingService" target="17" />
     </bytecodeTargetLevel>

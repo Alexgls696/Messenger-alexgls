@@ -8,7 +8,8 @@ const MyProfileManager = ({
     isOpen,
     onClose,
     userData,
-    onUserDataUpdate
+    onUserDataUpdate,
+    onOpenConfirm
 }) => {
     // --- Состояние профиля ---
     const [profileData, setProfileData] = useState(null);
@@ -150,15 +151,15 @@ const MyProfileManager = ({
     // Удаление фото
     const handleDeletePhoto = async (e, imageId) => {
         e.stopPropagation();
-        if (!window.confirm("Удалить это фото?")) return;
-
-        try {
-            await apiFetch(`/api/profiles/images/${imageId}`, { method: 'DELETE' });
-            await fetchProfile();
-            if (onUserDataUpdate) await onUserDataUpdate();
-        } catch (error) {
-            alert("Ошибка при удалении");
-        }
+        onOpenConfirm('Удалить это фото?', async () => {
+            try {
+                await apiFetch(`/api/profiles/images/${imageId}`, { method: 'DELETE' });
+                await fetchProfile();
+                if (onUserDataUpdate) await onUserDataUpdate();
+            } catch (error) {
+                alert("Ошибка при удалении");
+            }
+        })
     };
 
     if (!isOpen) return null;

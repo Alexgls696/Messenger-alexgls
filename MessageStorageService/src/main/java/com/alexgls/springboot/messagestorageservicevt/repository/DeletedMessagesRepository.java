@@ -1,6 +1,7 @@
 package com.alexgls.springboot.messagestorageservicevt.repository;
 
 import com.alexgls.springboot.messagestorageservicevt.entity.DeletedMessage;
+import com.alexgls.springboot.messagestorageservicevt.repository.projection.UserIdWhenDeletedMessageProjection;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -20,6 +21,10 @@ public interface DeletedMessagesRepository extends CrudRepository<DeletedMessage
 
     @Query("select userId from DeletedMessage where messageId = :deleteMessageId")
     List<Integer> findAllUserIdByMessageId(@Param("deleteMessageId") Long messageId);
+
+    @Query("select distinct dm.userId as userId, dm.messageId as messageId from DeletedMessage dm " +
+            "where dm.messageId in :messageIds")
+    List<UserIdWhenDeletedMessageProjection>findAllUserIdByMessageId(@Param("messageIds") List<Long> messageIds);
 
     @Modifying
     @Query(value = "insert into deleted_messages (message_id, user_id) " +

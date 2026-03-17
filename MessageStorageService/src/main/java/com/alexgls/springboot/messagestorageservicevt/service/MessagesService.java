@@ -10,6 +10,7 @@ import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChat
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.repository.*;
 import com.alexgls.springboot.messagestorageservicevt.repository.projection.AttachmentsByMessagesListProjection;
+import com.alexgls.springboot.messagestorageservicevt.repository.projection.UserIdWhenDeletedMessageProjection;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
@@ -72,7 +73,7 @@ public class MessagesService {
                 .stream()
                 .collect(Collectors.groupingBy(AttachmentsByMessagesListProjection::getMessageId, Collectors.mapping(AttachmentsByMessagesListProjection::getAttachment, Collectors.toList())));
 
-        for(var message: messages) {
+        for (var message : messages) {
             message.setContent(encryptUtils.decrypt(message.getContent()));
             var attachments = attachmentsMap.getOrDefault(message.getId(), Collections.emptyList());
             message.setAttachments(attachments);
@@ -87,6 +88,7 @@ public class MessagesService {
         }
         return messages.stream()
                 .map(MessageMapper::toMessageDto)
+                .sorted(Comparator.comparing(MessageDto::getCreatedAt))
                 .toList();
 
     }
@@ -215,7 +217,7 @@ public class MessagesService {
     }
 
 
-    //TODO N+1 SAVE
+    //TODO CRITICAL! N+1 SAVING
     @Transactional
     public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds) {
         Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
@@ -230,7 +232,6 @@ public class MessagesService {
 
         List<Message> originalMessages = messagesRepository.findAllByIdInOrderById(forwardedMessageIds);
         List<MessageDto> resultDtos = new ArrayList<>();
-
 
         List<Integer> recipientsIds = null;
         Integer recipientId = null;
@@ -402,7 +403,7 @@ public class MessagesService {
     }
 
     @Transactional
-    public DeleteMessageResponse deleteById(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
+    public DeleteMessageResponse deleteMessages(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
         Iterable<Message> messagesIterable = messagesRepository.findAllById(deleteMessageRequest.messagesId());
         List<Message> messages = new ArrayList<>();
         for (Message message : messagesIterable) {
@@ -441,7 +442,7 @@ public class MessagesService {
 
         deletedMessagesRepository.saveAll(deletedMessages);
         DeleteMessageResponse response = generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
-        checkAndDeleteFullyDeletedMessages(response.messagesId(), response.chatId());
+        checkAndDeleteFullyDeletedMessagesOptimization(response.messagesId(), response.chatId());
         return response;
     }
 
@@ -466,9 +467,32 @@ public class MessagesService {
     }
 
 
-    //TODO N+1
+    /**
+     * Оптимизированный метод удаления сообщений для всех
+     * @param messageIds - id сообщений, которые были удалены пользователем
+     * @param chatId - чат, в котором происходит удаление сообщений
+     */
     @Transactional
-    public void checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
+    public void checkAndDeleteFullyDeletedMessagesOptimization(List<Long> messageIds, int chatId) {
+        List<Integer> participantsIds = participantsRepository.findUserIdsByChatId(chatId);
+        Map<Long, Set<Integer>> messageIdUserMap = deletedMessagesRepository.findAllUserIdByMessageId(messageIds)
+                .stream()
+                .collect(Collectors.groupingBy(UserIdWhenDeletedMessageProjection::getMessageId,
+                        Collectors.mapping(UserIdWhenDeletedMessageProjection::getUserId, Collectors.toSet())));
+        List<Long>messagesToRemove = new ArrayList<>();
+        for(var messageId : messageIds) {
+            Set<Integer> userWhenDeleteMessage = messageIdUserMap.getOrDefault(messageId, Collections.emptySet());
+            if(participantsIds.size() == userWhenDeleteMessage.size()
+                    && userWhenDeleteMessage.containsAll(participantsIds)) {
+                messagesToRemove.add(messageId);
+            }
+        }
+        deletedMessagesRepository.deleteAllByMessageIdIn(messagesToRemove);
+        messagesRepository.deleteAllById(messagesToRemove);
+    }
+
+    @Transactional
+    protected void checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
         for (var messageId : messageIds) {
             deleteMessageIfItDeletedForEveryone(messageId, chatId);
         }

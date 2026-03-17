@@ -122,7 +122,7 @@ public class MessagesController {
     public void deleteMessage(@RequestBody DeleteMessageRequest deleteMessageRequest, Authentication authentication) {
         int currentUserId = getSenderId(authentication);
         log.info("Try to delete messages: {} ", deleteMessageRequest);
-        DeleteMessageResponse response = messagesService.deleteById(deleteMessageRequest, currentUserId);
+        DeleteMessageResponse response = messagesService.deleteMessages(deleteMessageRequest, currentUserId);
         kafkaSenderService.sendDeleteEventMessagesToKafka(response);
     }
 
