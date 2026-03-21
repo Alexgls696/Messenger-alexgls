@@ -3,21 +3,6 @@ import React from 'react';
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
     if (!isOpen) return null;
 
-    useEffect(() => {
-        const handleKeydown = (event) => {
-            console.log(event.key)
-            if (event.key === 'Escape') {
-                onClose()
-            }
-        }
-
-        document.addEventListener('keydown', handleKeydown)
-
-        return () => {
-            document.removeEventListener('keydown', handleKeydown);
-        }
-    }, [onClose])
-
     return (
         <div className="modal" onClick={(e) => e.target.className === 'modal' && onCancel()}>
             <div className="modal-content confirmation-modal-content">

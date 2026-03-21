@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { imageLoader } from '../utils/imageLoader';
 import NotificationItem from './NotificationItem'
 import '../Styles/Header.css';
 
 import defaultProfile from '../images/profile-default.png'
-import { apiFetch } from '../utils/apiClient';
 
-function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick, onProfileClick, notifications, unreadCount, onNotificationOpen, onDeleteAllNotificationsClick }) {
+
+function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick, onProfileClick, notifications, unreadCount, onNotificationOpen, onDeleteAllNotificationsClick, isConnected }) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
@@ -18,6 +17,8 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
     const mobileMenuRef = useRef(null);
     const notificationMenuRef = useRef(null);
     const notificationMenuMobileRef = useRef(null);
+
+    const [connectionTitle, setConnectionTitle] = useState('Соединение')
 
     // Загрузка аватара
     useEffect(() => {
@@ -73,6 +74,23 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
         }
     };
 
+    useEffect(() => {
+        let interval = null;
+        let localPointCount = 0; 
+
+        if (!isConnected) {
+            interval = setInterval(() => {
+                localPointCount = (localPointCount % 3) + 1;
+                const value = 'Соединение' + '.'.repeat(localPointCount);
+                setConnectionTitle(value);
+            }, 500);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isConnected]);
+
     return (
         <>
             {/* 1. ДЕСКТОПНАЯ ШАПКА */}
@@ -93,7 +111,14 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                     </button>
                 </div>
 
+
                 <div className="header-buttons right">
+                    {!isConnected && (
+                        <div className='connection-container'>
+                            <div className="connection-spinner"></div>
+                            <p className='connection-title'>{connectionTitle}</p>
+                        </div>
+                    )}
                     <div ref={notificationMenuRef} className="notification-wrapper">
                         <button
                             className="header-icon-btn find-user-btn"

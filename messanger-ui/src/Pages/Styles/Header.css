@@ -121,7 +121,7 @@
     text-align: center;
 }
 
-.notification-dropdown-header p{
+.notification-dropdown-header p {
     margin: 0 0 0 0;
 }
 
@@ -388,6 +388,56 @@
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+/* Контейнер для центровки */
+.connection-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+/* Само колечко */
+.connection-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border-primary);
+    /* Светлый ободок */
+    border-top: 3px solid var(--accent-primary);
+    /* Цветной сектор */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+/* Текст рядом с колечком */
+.connection-title {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 110px;
+    /* Чтобы текст не "прыгал" при изменении точек */
+}
+
+/* Анимация вращения */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Адаптация под темную тему */
+body[data-theme="dark"] .connection-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent-primary);
 }
 
 /* --- 5. АДАПТИВНОСТЬ ШАПКИ --- */

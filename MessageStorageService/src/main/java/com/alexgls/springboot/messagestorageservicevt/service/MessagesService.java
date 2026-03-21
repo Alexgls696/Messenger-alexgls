@@ -13,6 +13,7 @@ import com.alexgls.springboot.messagestorageservicevt.repository.projection.Atta
 import com.alexgls.springboot.messagestorageservicevt.repository.projection.UserIdWhenDeletedMessageProjection;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
+import com.alexgls.springboot.messagestorageservicevt.service.transactional.MessagesServiceTransactional;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,18 +26,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
+
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -44,13 +40,16 @@ import java.util.stream.StreamSupport;
 public class MessagesService {
 
     private final MessagesRepository messagesRepository;
-    private final DeletedMessagesRepository deletedMessagesRepository;
+
     private final ChatsRepository chatsRepository;
     private final AttachmentRepository attachmentRepository;
     private final ParticipantsRepository participantsRepository;
     private final MessageTokenRepository messageTokenRepository;
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
+
+    private final MessagesServiceTransactional messagesServiceTransactional;
+    private final LexicalAnalyserService lexicalAnalyserService;
 
 
     public record ReadMessageDatabaseRequest
@@ -154,7 +153,7 @@ public class MessagesService {
         processAndEncryptMessage(message);
         var savedMessage = messagesRepository.save(message);
         messageTokenRepository.deleteAllByMessageId(messageId);
-        saveMessageTokens(savedMessage);
+        lexicalAnalyserService.saveMessageTokens(savedMessage);
 
         var messageDto = MessageMapper.toMessageDto(message);
         messageDto.setContent(encryptUtils.decrypt(message.getContent()));
@@ -202,67 +201,19 @@ public class MessagesService {
         Message encryptedMessage = processAndEncryptMessage(message);
         Message savedMessage = messagesRepository.save(encryptedMessage);
         chat.setLastMessage(savedMessage);
-        saveMessageTokens(savedMessage);
+        lexicalAnalyserService.saveMessageTokens(savedMessage);
         MessageDto messageDto;
         if (chat.isGroup()) {
             messageDto = savePublicGroupMessage(createMessagePayload, savedMessage);
         } else {
             messageDto = savePrivateChatMessage(createMessagePayload, savedMessage);
         }
-        removeMarkIsDeletedForChatAndUserId(createMessagePayload);
+        messagesServiceTransactional.removeMarkIsDeletedForChatAndUserId(createMessagePayload);
         chatsRepository.updateLastMessageIdByChatId(messageDto.getChatId(), messageDto.getId());
         participantsRepository.incrementUpdateCountForUser(message.getChatId(), messageDto.getSenderId());
         participantsRepository.resetCountForCurrentUser(message.getChatId(), messageDto.getSenderId());
         return messageDto;
     }
-
-    /*@Transactional
-    public List<MessageDto>saveMessageWithForwardedMessagesOptimization(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds){
-        Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
-                .orElseThrow(() -> new NoSuchParticipantException("Участник не найден"));
-
-        if (participants.isRemoved() || participants.isLeave()) {
-            throw new AccessDeniedException("Доступ запрещен");
-        }
-        Chat chat = chatsRepository.findById(createMessagePayload.chatId())
-                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
-
-        List<Message> originalMessages = messagesRepository.findAllByIdInOrderById(forwardedMessageIds);
-        List<Integer> recipientsIds = null;
-        Integer recipientId = null;
-        if (chat.isGroup()) {
-            recipientsIds = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted(createMessagePayload.chatId());
-        } else {
-            recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
-                    .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
-        }
-
-        List<Message>pinnedMessagesList = new ArrayList<>();
-        for (Message original : originalMessages) {
-            Message forwardedMsg = new Message();
-            forwardedMsg.setChatId(chat.getId());
-            forwardedMsg.setSenderId(createMessagePayload.senderId());
-            forwardedMsg.setContent(original.getContent());
-            forwardedMsg.setType(original.getType());
-            forwardedMsg.setCreatedAt(Timestamp.from(Instant.now()));
-            forwardedMsg.setRead(false);
-            forwardedMsg.setForwarded(true);
-            forwardedMsg.setForwardFromUserId(original.getSenderId());
-            pinnedMessagesList.add(forwardedMsg);
-        }
-
-        Iterable<Message>savedPinnedMessages = messagesRepository.saveAll(pinnedMessagesList);
-        List<MessageDto> resultDtos = new ArrayList<>();
-        for(var message : savedPinnedMessages) {
-            MessageDto forwardedDto = MessageMapper.toMessageDto(message);
-            forwardedDto.setAttachments(clonedAttachments);
-            forwardedDto.setContent(encryptUtils.decrypt(message.getContent()));
-            forwardedDto.setRecipientId(recipientId);
-            forwardedDto.setRecipientIds(recipientsIds);
-            resultDtos.add(forwardedDto);
-        }
-
-    }*/
 
     //TODO CRITICAL! N+1 SAVING
     @Transactional
@@ -318,7 +269,7 @@ public class MessagesService {
         } else {
             if (!resultDtos.isEmpty()) {
                 MessageDto lastForwarded = resultDtos.get(resultDtos.size() - 1);
-                removeMarkIsDeletedForChatAndUserId(createMessagePayload);
+                messagesServiceTransactional.removeMarkIsDeletedForChatAndUserId(createMessagePayload);
                 chatsRepository.updateLastMessageIdByChatId(chat.getId(), lastForwarded.getId());
                 participantsRepository.incrementUpdateCountForUser(chat.getId(), createMessagePayload.senderId());
                 participantsRepository.resetCountForCurrentUser(createMessagePayload.chatId(), createMessagePayload.senderId());
@@ -420,36 +371,6 @@ public class MessagesService {
     }
 
     @Transactional
-    protected void saveMessageTokens(Message message) {
-        if (message.getContent() == null || message.getContent().isEmpty() || message.isService()) {
-            return;
-        }
-        String originalText = encryptUtils.decrypt(message.getContent());
-        List<String> lemmas = lexicalAnalyzer.lemmatizeText(originalText);
-
-        Set<String> uniqueHashes = new HashSet<>();
-        for (String lemma : lemmas) {
-            String hash = encryptUtils.calculateHmac(lemma);
-            uniqueHashes.add(hash);
-        }
-
-        List<MessageToken> tokens = new ArrayList<>();
-        for (String hash : uniqueHashes) {
-            MessageToken token = new MessageToken(message.getId(), hash);
-            tokens.add(token);
-        }
-
-        messageTokenRepository.saveAll(tokens);
-    }
-
-
-    //Удаляет метку удаленного чата для пользователя, который удалил его для себя
-    public void removeMarkIsDeletedForChatAndUserId(CreateMessagePayload createMessagePayload) {
-        List<Integer> userIdsWhoDeletedChat = participantsRepository.findUserIdsWhoDeletedChat(createMessagePayload.chatId());
-        participantsRepository.removeMarkIsDeletedForChatAndUserIdForAll(userIdsWhoDeletedChat, createMessagePayload.chatId());
-    }
-
-    @Transactional
     public DeleteMessageResponse deleteMessages(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
         Iterable<Message> messagesIterable = messagesRepository.findAllById(deleteMessageRequest.messagesId());
         List<Message> messages = new ArrayList<>();
@@ -457,105 +378,9 @@ public class MessagesService {
             messages.add(message);
         }
         if (deleteMessageRequest.forAll()) {
-            return deleteMessageForAll(deleteMessageRequest, messages, currentUserId);
+            return messagesServiceTransactional.deleteMessageForAll(deleteMessageRequest, messages, currentUserId);
         } else {
-            return deleteMessageForCurrentUser(deleteMessageRequest, messages, currentUserId);
+            return messagesServiceTransactional.deleteMessageForCurrentUser(deleteMessageRequest, messages, currentUserId);
         }
     }
-
-    @Transactional
-    public DeleteMessageResponse deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
-        List<Long> messagesIdsToDeleteList = new ArrayList<>();
-        for (var message : messagesList) {
-            if (message.getSenderId() == currentUserId) {
-                messagesIdsToDeleteList.add(message.getId());
-            } else {
-                throw new DeleteMessageAccessDeniedException("Данный пользователь не может выполнить это действие.");
-            }
-        }
-
-        deleteAllDeletedMessagesForUsers(deleteMessageRequest);
-        deleteAllAttachmentsByMessageIdMono(messagesIdsToDeleteList);
-        messagesRepository.deleteAllById(messagesIdsToDeleteList);
-        participantsRepository.decrementUpdateCountForUser(deleteMessageRequest.chatId(), currentUserId);
-        return generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
-    }
-
-    @Transactional
-    public DeleteMessageResponse deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
-        List<DeletedMessage> deletedMessages = messagesList.stream()
-                .map(message -> new DeletedMessage(null, message.getId(), currentUserId))
-                .toList();
-
-        deletedMessagesRepository.saveAll(deletedMessages);
-        DeleteMessageResponse response = generateDeleteMessageResponseWithChatMembers(deleteMessageRequest);
-        checkAndDeleteFullyDeletedMessagesOptimization(response.messagesId(), response.chatId());
-        return response;
-    }
-
-    private DeleteMessageResponse generateDeleteMessageResponseWithChatMembers(DeleteMessageRequest deleteMessageRequest) {
-        List<Integer> userIds = participantsRepository.findUserIdsByChatId(deleteMessageRequest.chatId());
-        return new DeleteMessageResponse(deleteMessageRequest.messagesId(),
-                userIds,
-                deleteMessageRequest.senderId(),
-                deleteMessageRequest.chatId(),
-                deleteMessageRequest.forAll());
-    }
-
-
-    @Transactional
-    protected void deleteAllAttachmentsByMessageIdMono(List<Long> messagesIds) {
-        attachmentRepository.deleteAllByMessageIdIn(messagesIds);
-    }
-
-    @Transactional
-    protected void deleteAllDeletedMessagesForUsers(DeleteMessageRequest deleteMessageRequest) {
-        deletedMessagesRepository.deleteAllByMessageIdIn(deleteMessageRequest.messagesId());
-    }
-
-
-    /**
-     * Оптимизированный метод удаления сообщений для всех
-     * @param messageIds - id сообщений, которые были удалены пользователем
-     * @param chatId - чат, в котором происходит удаление сообщений
-     */
-    @Transactional
-    public void checkAndDeleteFullyDeletedMessagesOptimization(List<Long> messageIds, int chatId) {
-        List<Integer> participantsIds = participantsRepository.findUserIdsByChatId(chatId);
-        Map<Long, Set<Integer>> messageIdUserMap = deletedMessagesRepository.findAllUserIdByMessageId(messageIds)
-                .stream()
-                .collect(Collectors.groupingBy(UserIdWhenDeletedMessageProjection::getMessageId,
-                        Collectors.mapping(UserIdWhenDeletedMessageProjection::getUserId, Collectors.toSet())));
-        List<Long>messagesToRemove = new ArrayList<>();
-        for(var messageId : messageIds) {
-            Set<Integer> userWhenDeleteMessage = messageIdUserMap.getOrDefault(messageId, Collections.emptySet());
-            if(participantsIds.size() == userWhenDeleteMessage.size()
-                    && userWhenDeleteMessage.containsAll(participantsIds)) {
-                messagesToRemove.add(messageId);
-            }
-        }
-        deletedMessagesRepository.deleteAllByMessageIdIn(messagesToRemove);
-        messagesRepository.deleteAllById(messagesToRemove);
-    }
-
-    @Transactional
-    protected void checkAndDeleteFullyDeletedMessages(List<Long> messageIds, int chatId) {
-        for (var messageId : messageIds) {
-            deleteMessageIfItDeletedForEveryone(messageId, chatId);
-        }
-    }
-
-    @Transactional
-    public void deleteMessageIfItDeletedForEveryone(long messageId, int chatId) {
-        List<Integer> participantsIds = participantsRepository.findUserIdsByChatId(chatId);
-        Set<Integer> userIdsWhenDeletedMessages = new HashSet<>(deletedMessagesRepository.findAllUserIdByMessageId(messageId));
-        if (participantsIds.size() == userIdsWhenDeletedMessages.size() &&
-                userIdsWhenDeletedMessages.containsAll(participantsIds)) {
-            log.info("All participants deleted message {}, removing completely", messageId);
-            deletedMessagesRepository.deleteAllByMessageId(messageId);
-            messagesRepository.deleteById(messageId);
-        }
-    }
-
-
 }

@@ -32,6 +32,7 @@ import './Styles/auth.css';
 
 
 import styled from 'styled-components'; //Для создания компонентов со стилями
+import DeleteMessagesConfirmationModal from './components/DeleteMessagesConfirmationModal';
 
 const modal = styled.div`
 
@@ -65,6 +66,10 @@ function ChatPage() {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState(null);
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null });
+    const [deleteMessagesConfirmConfig, setDeleteMessagesConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null, canForAll: false });
+
+    const [isConnected, setIsConnected] = useState(false);
+
 
     // События WebSocket
     const [socketUpdates, setSocketUpdates] = useState([]);
@@ -78,8 +83,6 @@ function ChatPage() {
     const activeChatRef = useRef(null);
 
     const [activeChatOnline, setActiveChatOnline] = useState(null);
-
-    const [wsConnected, setConnected] = useState('Соединение...')
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5,
@@ -170,7 +173,9 @@ function ChatPage() {
         onDeleteEvent,
         onNotificationReceived,
         onMessageUpdate,
-        onUserOnlineChanged
+        onUserOnlineChanged,
+        isConnected,
+        setIsConnected
     );
 
     const markMessagesAsRead = useCallback(async (messagesToRead) => {
@@ -271,6 +276,18 @@ function ChatPage() {
         });
     }, []);
 
+    const openDeleteAllMessagesConfirm = useCallback((message, canForAll, action) => {
+        setDeleteMessagesConfirmConfig({
+            isOpen: true,
+            message: message,
+            canForAll: canForAll,
+            onConfirm: (chosenForAll) => {
+                action(chosenForAll);
+                setDeleteMessagesConfirmConfig(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    }, []);
+
     const handleGroupCreated = (newChat) => {
         if (chatListRef.current) {
             chatListRef.current.prependChat(newChat);
@@ -297,22 +314,23 @@ function ChatPage() {
         });
     }, { threshold: 0.1 }), []);
 
-    const deleteMessages = async (messageIds, forAll, message) => {
-        const payload = {
-            messagesId: messageIds,
-            senderId: user.id,
-            chatId: activeChat.chatId,
-            forAll: forAll
-        };
 
-        openConfirm(message, async () => {
+    const deleteMessages = async (messageIds, canForAll, messageText) => {
+        openDeleteAllMessagesConfirm(messageText, canForAll, async (selectedForAllValue) => {
+            const payload = {
+                messagesId: messageIds,
+                senderId: user.id,
+                chatId: activeChat.chatId,
+                forAll: selectedForAllValue // Используем значение из модалки
+            };
+
             try {
                 await apiFetch('/api/messages', {
                     method: 'DELETE',
                     body: JSON.stringify(payload)
                 });
 
-                if (!forAll) {
+                if (!selectedForAllValue) {
                     setDeleteEvent({ messagesId: messageIds, chatId: activeChat.chatId, _ts: Date.now() });
                 }
             } catch (error) {
@@ -446,6 +464,10 @@ function ChatPage() {
         document.body.classList.remove('chat-active');
     }, []);
 
+    const clearSocketUpdates = useCallback(() => {
+        setSocketUpdates([]);
+    }, []);
+
     return (
         <div className="container">
             <Header
@@ -459,6 +481,7 @@ function ChatPage() {
                 unreadCount={unreadNotificationsCount}
                 onNotificationOpen={markAllNotificationsAsRead}
                 onDeleteAllNotificationsClick={handleRemoveAllNotifications}
+                isConnected={isConnected}
             />
 
             <main className="chat-wrapper">
@@ -504,6 +527,8 @@ function ChatPage() {
                     setForwardingMessages={setForwardingMessages}
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
+
+                    clearSocketUpdates={clearSocketUpdates}
 
                 />
 
@@ -569,6 +594,14 @@ function ChatPage() {
                     message={confirmConfig.message}
                     onConfirm={confirmConfig.onConfirm}
                     onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                />
+
+                <DeleteMessagesConfirmationModal
+                    isOpen={deleteMessagesConfirmConfig.isOpen}
+                    message={deleteMessagesConfirmConfig.message}
+                    onConfirm={deleteMessagesConfirmConfig.onConfirm}
+                    forAll={deleteMessagesConfirmConfig.canForAll}
+                    onCancel={() => setDeleteMessagesConfirmConfig(prev => ({ ...prev, isOpen: false }))}
                 />
             </main>
         </div>

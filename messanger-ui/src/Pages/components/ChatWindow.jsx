@@ -36,7 +36,8 @@ function ChatWindow({ activeChat,
     setSelectionMode,
     forwardingMessages,
     setForwardingMessages,
-    userOnlineChanged
+    userOnlineChanged,
+    clearSocketUpdates
 }) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
@@ -243,13 +244,14 @@ function ChatWindow({ activeChat,
             return hasChanges ? nextMessages : prev;
         });
 
-        // Скролл вниз
         setTimeout(() => {
             if (scrollContainerRef.current)
                 scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }, 50);
 
-    }, [socketUpdates, activeChat]);
+        clearSocketUpdates();
+
+    }, [socketUpdates, activeChat, clearSocketUpdates]);
 
 
 
@@ -264,7 +266,6 @@ function ChatWindow({ activeChat,
         }
     }, [messageUpdateEvent, activeChat?.chatId]);
 
-    //  Обработка прочтения (readEvent)
     useEffect(() => {
         if (!activeChat || !readEvent) return;
 
@@ -275,7 +276,7 @@ function ChatWindow({ activeChat,
         }
     }, [readEvent, activeChat]);
 
-    // Обработка удаления (deleteEvent)
+
     useEffect(() => {
         if (!activeChat || !deleteEvent) return;
 
@@ -284,7 +285,7 @@ function ChatWindow({ activeChat,
         }
     }, [deleteEvent, activeChat]);
 
-    // Обработка изменения онлайна
+
     useEffect(() => {
         if (!userOnlineChanged) return;
 
@@ -834,6 +835,8 @@ function ChatWindow({ activeChat,
 
             </form>
         </section>
+
+
     );
 }
 

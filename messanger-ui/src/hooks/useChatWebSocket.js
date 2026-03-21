@@ -3,12 +3,10 @@ import SockJS from 'sockjs-client';
 import Stomp, { client } from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient';
 
-export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged) => {
+export const useChatWebSocket = (url, onMessageReceived, onReadStatus, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged, isConnected, setIsConnected) => {
     const stompClient = useRef(null);
     const socketRef = useRef(null);
     const pingIntervalRef = useRef(null);
-
-    const [isConnected, setIsConnected] = useState(false);
 
     const connectionLock = useRef(false);
     const reconnectTimeoutRef = useRef(null);
