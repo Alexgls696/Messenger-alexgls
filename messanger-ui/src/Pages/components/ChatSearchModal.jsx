@@ -23,6 +23,22 @@ const ChatSearchModal = ({ isOpen, onClose, chatId, participantCache }) => {
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeydown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        };
+    }, [isOpen, onClose]);
+
     const handleMessageSearch = async (e) => {
         e.preventDefault();
         if (!messageQuery.trim()) return;
@@ -75,13 +91,13 @@ const ChatSearchModal = ({ isOpen, onClose, chatId, participantCache }) => {
                 </div>
 
                 <div className="search-tabs">
-                    <button 
+                    <button
                         className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
                         onClick={() => setActiveTab('messages')}
                     >
                         Поиск сообщений
                     </button>
-                    <button 
+                    <button
                         className={`tab-btn ${activeTab === 'attachments' ? 'active' : ''}`}
                         onClick={() => setActiveTab('attachments')}
                     >
@@ -94,10 +110,10 @@ const ChatSearchModal = ({ isOpen, onClose, chatId, participantCache }) => {
                     {activeTab === 'messages' && (
                         <div className="search-tab-content active">
                             <form className="search-form" onSubmit={handleMessageSearch}>
-                                <input 
-                                    type="text" 
-                                    className="search-input" 
-                                    placeholder="Введите текст сообщения..." 
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Введите текст сообщения..."
                                     value={messageQuery}
                                     onChange={(e) => setMessageQuery(e.target.value)}
                                     autoFocus
@@ -109,10 +125,10 @@ const ChatSearchModal = ({ isOpen, onClose, chatId, participantCache }) => {
                             <div className="user-list-container">
                                 {messageResults.length > 0 ? (
                                     messageResults.map(msg => (
-                                        <FoundMessageItem 
-                                            key={msg.id} 
-                                            msg={msg} 
-                                            senderName={participantCache[msg.senderId]} 
+                                        <FoundMessageItem
+                                            key={msg.id}
+                                            msg={msg}
+                                            senderName={participantCache[msg.senderId]}
                                         />
                                     ))
                                 ) : (
@@ -126,10 +142,10 @@ const ChatSearchModal = ({ isOpen, onClose, chatId, participantCache }) => {
                     {activeTab === 'attachments' && (
                         <div className="search-tab-content active">
                             <form className="search-form" onSubmit={handleAttachmentSearch}>
-                                <input 
-                                    type="text" 
-                                    className="search-input" 
-                                    placeholder="Поиск по содержимому файлов..." 
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Поиск по содержимому файлов..."
                                     value={attachmentQuery}
                                     onChange={(e) => setAttachmentQuery(e.target.value)}
                                     autoFocus
@@ -163,7 +179,7 @@ const FoundMessageItem = ({ msg, senderName }) => {
         apiFetch(`/api/profiles/images/user-avatar/${msg.senderId}`)
             .then(avatarId => {
                 if (avatarId) imageLoader.getImageSrc(avatarId).then(setAvatar);
-            }).catch(() => {});
+            }).catch(() => { });
     }, [msg.senderId]);
 
     return (
@@ -171,8 +187,8 @@ const FoundMessageItem = ({ msg, senderName }) => {
             <img className="user-item-avatar" src={avatar} alt="" />
             <div className="user-item-info">
                 <div className="user-item-name">
-                    {senderName || `Пользователь #${msg.senderId}`} 
-                    <span style={{fontSize: '0.7em', color: 'var(--text-placeholder)', marginLeft: '8px'}}>
+                    {senderName || `Пользователь #${msg.senderId}`}
+                    <span style={{ fontSize: '0.7em', color: 'var(--text-placeholder)', marginLeft: '8px' }}>
                         {formatDate(msg.createdAt)}
                     </span>
                 </div>
@@ -185,7 +201,7 @@ const FoundMessageItem = ({ msg, senderName }) => {
 // --- Вспомогательный компонент для файла ---
 const FoundFileItem = ({ file }) => {
     const downloadUrl = `/api/storage/proxy/download/by-id?id=${file.fileId}`;
-    
+
     return (
         <div className="found-file-item">
             <div className="found-file-preview">

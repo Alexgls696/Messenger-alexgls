@@ -22,6 +22,22 @@ const AddParticipantsModal = ({ isOpen, onClose, chatId, onParticipantsAdded, pa
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeydown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        };
+    }, [isOpen, onClose]);
+
     const handleSearch = async (e) => {
         e.preventDefault();
         const query = searchQuery.trim();

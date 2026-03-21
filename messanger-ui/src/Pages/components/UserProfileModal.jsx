@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { apiFetch } from '../utils/apiClient';
 import { imageLoader } from '../utils/imageLoader';
 import photoViewer from '../utils/photoViewer';
-import AttachmentItem  from './AttachmentItem';
+import AttachmentItem from './AttachmentItem';
 
 import defaultProfileImage from '../images/profile-default.png'
 
@@ -13,11 +13,9 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
     const [isProfileLoading, setIsProfileLoading] = useState(false);
     const [isAttachmentsLoading, setIsAttachmentsLoading] = useState(false);
 
-    // Состояние для тултипа (AI анализ)
     const [tooltipData, setTooltipData] = useState({ visible: false, x: 0, y: 0, content: '' });
     const metadataCache = useRef(new Map());
 
-    // 1. Загрузка данных профиля при открытии
     useEffect(() => {
         if (isOpen && id) {
             const fetchProfile = async () => {
@@ -35,7 +33,21 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
         }
     }, [isOpen, id]);
 
-    // 2. Загрузка вложений при смене вкладки или чата
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose()
+            }
+        }
+
+        document.addEventListener('keydown', handleKeydown)
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        }
+    }, [isOpen, onClose])
+
     useEffect(() => {
         if (isOpen && chatId && activeTab) {
             const fetchAttachments = async () => {
@@ -53,16 +65,15 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
         }
     }, [isOpen, chatId, activeTab]);
 
-    // --- Логика тултипа (AI) ---
     const handleMouseOverAI = async (e, fileId) => {
         const iconRect = e.target.getBoundingClientRect();
-        
-        setTooltipData(prev => ({ 
-            ...prev, 
-            visible: true, 
+
+        setTooltipData(prev => ({
+            ...prev,
+            visible: true,
             x: iconRect.left + iconRect.width / 2,
             y: iconRect.top,
-            content: 'Загрузка анализа...' 
+            content: 'Загрузка анализа...'
         }));
 
         if (metadataCache.current.has(fileId)) {
@@ -131,7 +142,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                             <div className="attachments-section">
                                 <div className="attachments-tabs">
                                     {['IMAGE', 'VIDEO', 'AUDIO', 'DOCUMENT'].map(type => (
-                                        <button 
+                                        <button
                                             key={type}
                                             className={`tab-btn ${activeTab === type ? 'active' : ''}`}
                                             onClick={() => setActiveTab(type)}
@@ -148,10 +159,10 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                                         </div>
                                     ) : (
                                         <div className={activeTab === 'IMAGE' || activeTab === 'VIDEO' ? "attachments-grid" : "attachments-list"}>
-                                            {attachments.length > 0 ?attachments.map(att => (
-                                                <AttachmentItem 
-                                                    key={att.fileId} 
-                                                    att={att} 
+                                            {attachments.length > 0 ? attachments.map(att => (
+                                                <AttachmentItem
+                                                    key={att.fileId}
+                                                    att={att}
                                                     type={activeTab}
                                                     imageObserver={imageObserver}
                                                     onMouseOverAI={handleMouseOverAI}
@@ -169,7 +180,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
 
             {/* Локальный тултип компонента */}
             {tooltipData.visible && (
-                <div 
+                <div
                     className="attachment-tooltip visible"
                     style={{
                         position: 'fixed',

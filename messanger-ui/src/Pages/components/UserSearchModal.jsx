@@ -38,6 +38,21 @@ const UserSearchModal = ({ currentUserId,
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose()
+            }
+        }
+
+        document.addEventListener('keydown', handleKeydown)
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        }
+    }, [isOpen, onClose])
+
     const fetchDefaultUsers = async () => {
         try {
             const data = await apiFetch(`/api/search/users/from-chats`);

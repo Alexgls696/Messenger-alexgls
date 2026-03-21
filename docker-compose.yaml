@@ -120,7 +120,6 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    environment:
-      REDIS_PASSWORD: AS04SERa1
+    command: [ "redis-server", "--requirepass", "AS04SERa1", "--notify-keyspace-events", "Ex" ]
     volumes:
       - redis-data:/data

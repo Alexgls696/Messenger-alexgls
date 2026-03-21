@@ -4,18 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения">
-      <change afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/redis/RedisConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/redis/RedisKeyExpirationListener.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен мягкий оффлайн, для этого использован TTL, теперь онлайн пользователя не будет мерцать">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/transactional/MessagesServiceTransactional.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/ConnectionServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/ConnectionServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/client/MessagesStorageServiceRestClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/client/MessagesStorageServiceRestClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConnectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConnectionListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/UserOnlineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/controller/UserOnlineController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/entity/UserOnline.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/entity/UserOnline.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/PresenceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/service/PresenceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatSearchModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatSearchModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ConfirmationModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ConfirmationModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ContextMenu.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ContextMenu.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/CreateGroupModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/CreateGroupModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserSearchModal.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +146,7 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -562,15 +570,10 @@
       <workItem from="1773510040567" duration="2357000" />
       <workItem from="1773584870571" duration="3592000" />
       <workItem from="1773731427013" duration="6924000" />
-      <workItem from="1773753701387" duration="3002000" />
-    </task>
-    <task id="LOCAL-00017" summary="Исправлена ошибка при отсутствии лемм">
-      <option name="closed" value="true" />
-      <created>1762968055234</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1762968055234</updated>
+      <workItem from="1773753701387" duration="3282000" />
+      <workItem from="1773924725607" duration="253000" />
+      <workItem from="1774024789548" duration="72000" />
+      <workItem from="1774075183277" duration="4659000" />
     </task>
     <task id="LOCAL-00018" summary="Добавлен сервис анализа файлов, рабочий анализ существующего файла. TODO - загрузка файлов и обработка их. Ограничение по количеству файлов для пользователей (Продумать). Сервис хранения метаданных с ElasticSearch">
       <option name="closed" value="true" />
@@ -956,7 +959,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773739672444</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="Добавлен мягкий оффлайн, для этого использован TTL, теперь онлайн пользователя не будет мерцать">
+      <option name="closed" value="true" />
+      <created>1773756763263</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1773756763264</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -974,7 +985,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Исправлено отображение уведомлений в шапке на мобильном устройстве&#10;&#10;Добавлен сервис уведомлений, уведомления о входе пользователя, также добавлено отображение уведомлений на клиенте" />
     <MESSAGE value="Удален target AuthService из кеша git" />
     <MESSAGE value="Скрыта регистрация по коду. TODO: Создание чата только при отправке сообщения" />
     <MESSAGE value="Исправлена отправка вложений для анализа (использован retry)." />
@@ -999,7 +1009,8 @@
     <MESSAGE value="Решена N+1 при загрузке сообщений." />
     <MESSAGE value="Исправление багов с прочтением сообщений и отменой пересылки" />
     <MESSAGE value="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлена возможность удаления группы сообщений, вырезан сервис регистрации, добавлены элементы отображения" />
+    <MESSAGE value="Добавлен мягкий оффлайн, для этого использован TTL, теперь онлайн пользователя не будет мерцать" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен мягкий оффлайн, для этого использован TTL, теперь онлайн пользователя не будет мерцать" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

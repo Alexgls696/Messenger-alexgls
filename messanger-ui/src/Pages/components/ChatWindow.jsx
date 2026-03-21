@@ -168,7 +168,6 @@ function ChatWindow({ activeChat,
             isInitialLoad.current = false;
         }
         else if (prevScrollHeightRef.current > 0) {
-            // ЛОГИКА: Сохранение позиции при подгрузке старых сообщений (скролл вверх)
             const heightDifference = container.scrollHeight - prevScrollHeightRef.current;
             container.scrollTop = heightDifference;
             prevScrollHeightRef.current = 0;

@@ -216,6 +216,53 @@ public class MessagesService {
         return messageDto;
     }
 
+    /*@Transactional
+    public List<MessageDto>saveMessageWithForwardedMessagesOptimization(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds){
+        Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                .orElseThrow(() -> new NoSuchParticipantException("Участник не найден"));
+
+        if (participants.isRemoved() || participants.isLeave()) {
+            throw new AccessDeniedException("Доступ запрещен");
+        }
+        Chat chat = chatsRepository.findById(createMessagePayload.chatId())
+                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
+
+        List<Message> originalMessages = messagesRepository.findAllByIdInOrderById(forwardedMessageIds);
+        List<Integer> recipientsIds = null;
+        Integer recipientId = null;
+        if (chat.isGroup()) {
+            recipientsIds = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted(createMessagePayload.chatId());
+        } else {
+            recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
+                    .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
+        }
+
+        List<Message>pinnedMessagesList = new ArrayList<>();
+        for (Message original : originalMessages) {
+            Message forwardedMsg = new Message();
+            forwardedMsg.setChatId(chat.getId());
+            forwardedMsg.setSenderId(createMessagePayload.senderId());
+            forwardedMsg.setContent(original.getContent());
+            forwardedMsg.setType(original.getType());
+            forwardedMsg.setCreatedAt(Timestamp.from(Instant.now()));
+            forwardedMsg.setRead(false);
+            forwardedMsg.setForwarded(true);
+            forwardedMsg.setForwardFromUserId(original.getSenderId());
+            pinnedMessagesList.add(forwardedMsg);
+        }
+
+        Iterable<Message>savedPinnedMessages = messagesRepository.saveAll(pinnedMessagesList);
+        List<MessageDto> resultDtos = new ArrayList<>();
+        for(var message : savedPinnedMessages) {
+            MessageDto forwardedDto = MessageMapper.toMessageDto(message);
+            forwardedDto.setAttachments(clonedAttachments);
+            forwardedDto.setContent(encryptUtils.decrypt(message.getContent()));
+            forwardedDto.setRecipientId(recipientId);
+            forwardedDto.setRecipientIds(recipientsIds);
+            resultDtos.add(forwardedDto);
+        }
+
+    }*/
 
     //TODO CRITICAL! N+1 SAVING
     @Transactional

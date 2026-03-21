@@ -11,25 +11,22 @@ const MyProfileManager = ({
     onUserDataUpdate,
     onOpenConfirm
 }) => {
-    // --- Состояние профиля ---
+
     const [profileData, setProfileData] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    // --- Состояние полей ввода (основное окно) ---
     const [status, setStatus] = useState('');
     const [birthday, setBirthday] = useState('');
     const [isSavingDetails, setIsSavingDetails] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
 
-    // --- Состояние полей ввода (окно редактирования имени) ---
     const [editForm, setEditForm] = useState({ name: '', surname: '', username: '' });
     const [isSavingUser, setIsSavingUser] = useState(false);
     const [editError, setEditError] = useState('');
 
     const fileInputRef = useRef(null);
 
-    // Загрузка данных профиля при открытии
     useEffect(() => {
         if (isOpen && userData?.id) {
             fetchProfile();
@@ -40,6 +37,21 @@ const MyProfileManager = ({
             });
         }
     }, [isOpen, userData]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose()
+            }
+        }
+
+        document.addEventListener('keydown', handleKeydown)
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        }
+    }, [isOpen, onClose])
 
     const fetchProfile = async () => {
         setIsLoading(true);
@@ -55,7 +67,6 @@ const MyProfileManager = ({
         }
     };
 
-    // Сохранение статуса и даты рождения
     const handleSaveDetails = async () => {
         setIsSavingDetails(true);
         try {
@@ -75,7 +86,6 @@ const MyProfileManager = ({
         }
     };
 
-    // Сохранение имени/фамилии/юзернейма
     const handleSaveUserInfo = async (e) => {
         e.preventDefault();
         if (!editForm.name || !editForm.username) {
@@ -99,7 +109,6 @@ const MyProfileManager = ({
         }
     };
 
-    // Работа с фото (Загрузка)
     const handlePhotoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -138,7 +147,6 @@ const MyProfileManager = ({
                 body: JSON.stringify({ imageId: savedFile.id })
             });
 
-            // 5. Обновляем состояние компонента и данные пользователя в хедере
             await fetchProfile();
             if (onUserDataUpdate) await onUserDataUpdate();
 
@@ -148,7 +156,6 @@ const MyProfileManager = ({
         }
     };
 
-    // Удаление фото
     const handleDeletePhoto = async (e, imageId) => {
         e.stopPropagation();
         onOpenConfirm('Удалить это фото?', async () => {
@@ -164,10 +171,10 @@ const MyProfileManager = ({
 
     if (!isOpen) return null;
 
+
     return (
         <>
-            {/* Основное модальное окно профиля */}
-            <div className="modal" onClick={(e) => e.target.className === 'modal' && onClose()}>
+            {isOpen && <div className="modal" onClick={(e) => e.target.className === 'modal' && onClose()}>
                 <div className="modal-content my-profile-modal-content">
                     <div className="modal-header">
                         <h2>Мой профиль</h2>
@@ -263,6 +270,7 @@ const MyProfileManager = ({
                     </div>
                 </div>
             </div>
+            }
 
             {/* Вложенное окно редактирования имени/юзера */}
             {isEditModalOpen && (

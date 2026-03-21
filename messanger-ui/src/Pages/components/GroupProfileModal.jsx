@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../utils/apiClient';
 import { imageLoader } from '../utils/imageLoader';
 import AttachmentItem from './AttachmentItem';
@@ -7,7 +7,7 @@ import AddParticipantsModal from './AddParticipantsModal ';
 import defaultGroupImage from '../images/group-default.png'
 import defaultProfileImage from '../images/profile-default.png'
 
-const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, imageObserver, onOpenUserProfile, onOpenConfirm, participantCache}) => {
+const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, imageObserver, onOpenUserProfile, onOpenConfirm, participantCache }) => {
     const [participants, setParticipants] = useState([]);
     const [groupDetails, setGroupDetails] = useState(null);
     const [canRemove, setCanRemove] = useState(false);
@@ -26,9 +26,6 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, content: '' });
     const metadataCache = useRef(new Map());
 
-
-
-    // 1. Загрузка данных группы
     useEffect(() => {
         if (isOpen && chatId) {
             const fetchGroupData = async () => {
@@ -60,7 +57,22 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
         }
     }, [isOpen, chatId]);
 
-    // 2. Загрузка вложений
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeydown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeydown);
+        };
+    }, [isOpen, onClose]);
+
     useEffect(() => {
         if (isOpen && chatId && activeTab) {
             const fetchAttachments = async () => {
@@ -153,6 +165,10 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
             }
         }
     };
+
+    const handleCloseAddModal = useCallback(() => {
+        setIsAddModalOpen(false);
+    }, []);
 
     if (!isOpen) return null;
 
@@ -321,7 +337,7 @@ const GroupProfileModal = ({ isOpen, onClose, chatId, chatName, currentUserId, i
 
             <AddParticipantsModal
                 isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
+                onClose={handleCloseAddModal}
                 chatId={chatId}
                 onParticipantsAdded={refreshParticipants}
                 participantCache={participantCache}

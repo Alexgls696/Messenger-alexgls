@@ -30,6 +30,13 @@ import './Styles/Group.css'
 import './Styles/SearchModal.css'
 import './Styles/auth.css';
 
+
+import styled from 'styled-components'; //Для создания компонентов со стилями
+
+const modal = styled.div`
+
+`
+
 const API_BASE_URL = `http://${window.location.hostname}:8080`;
 
 function ChatPage() {
@@ -71,6 +78,8 @@ function ChatPage() {
     const activeChatRef = useRef(null);
 
     const [activeChatOnline, setActiveChatOnline] = useState(null);
+
+    const [wsConnected, setConnected] = useState('Соединение...')
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5,
@@ -154,7 +163,7 @@ function ChatPage() {
     }, []);
 
 
-    const { sendMessage } = useChatWebSocket(
+    useChatWebSocket(
         API_BASE_URL,
         onMessageReceived,
         setReadEvent,
@@ -234,10 +243,6 @@ function ChatPage() {
         document.body.classList.add('chat-active');
     };
 
-    const handleBackToList = () => {
-        setActiveChat(null);
-        document.body.classList.remove('chat-active');
-    };
 
     const handleStartChat = async (targetUser) => {
         try {
@@ -412,6 +417,34 @@ function ChatPage() {
     }, [user, deleteMessages]);
 
 
+    const handleCurrentUserProfileClose = useCallback(() => {
+        setIsProfileOpen(false);
+    }, []);
+
+    const handleUserProfileClose = useCallback(() => {
+        setSelectedUserProfile(false)
+    }, []);
+
+    const handleCreateGroupModalClose = useCallback(() => {
+        setIsCreateGroupOpen(false);
+    }, [])
+
+    const handleUserSearchClose = useCallback(() => {
+        setIsUserSearchOpen(false)
+    }, [])
+
+    const handleChatSearchClose = useCallback(() => {
+        setIsSearchOpen(false)
+    }, [])
+
+    const handleGroupProfileClose = useCallback(() => {
+        setIsGroupProfileOpen(false)
+    }, [])
+
+    const handleChatWindowClose = useCallback(() => {
+        setActiveChat(null);
+        document.body.classList.remove('chat-active');
+    }, []);
 
     return (
         <div className="container">
@@ -443,7 +476,7 @@ function ChatPage() {
                     imageObserver={imageObserver}
                     photoViewer={photoViewer}
                     messageReadObserver={messageReadObserver}
-                    onBack={handleBackToList}
+                    onBack={handleChatWindowClose}
                     onOpenProfile={(id, chatId, name) => setSelectedUserProfile({ id, chatId, name })}
                     onOpenGroupProfile={() => setIsGroupProfileOpen(true)}
                     onOpenSearch={() => setIsSearchOpen(true)}
@@ -477,7 +510,7 @@ function ChatPage() {
                 {/* Модальные окна */}
                 <MyProfileManager
                     isOpen={isProfileOpen}
-                    onClose={() => setIsProfileOpen(false)}
+                    onClose={handleCurrentUserProfileClose}
                     userData={user}
                     onUserDataUpdate={refreshUserData}
                     onOpenConfirm={openConfirm}
@@ -485,14 +518,14 @@ function ChatPage() {
 
                 <UserProfileModal
                     isOpen={!!selectedUserProfile}
-                    onClose={() => setSelectedUserProfile(null)}
+                    onClose={handleUserProfileClose}
                     {...selectedUserProfile}
                     imageObserver={imageObserver}
                 />
 
                 <GroupProfileModal
                     isOpen={isGroupProfileOpen}
-                    onClose={() => setIsGroupProfileOpen(false)}
+                    onClose={handleGroupProfileClose}
                     chatId={activeChat?.chatId}
                     chatName={activeChat?.name}
                     currentUserId={user?.id}
@@ -504,7 +537,7 @@ function ChatPage() {
 
                 <ChatSearchModal
                     isOpen={isSearchOpen}
-                    onClose={() => setIsSearchOpen(false)}
+                    onClose={handleChatSearchClose}
                     chatId={activeChat?.chatId}
                     participantCache={participantCache}
                 />
@@ -512,13 +545,13 @@ function ChatPage() {
                 <UserSearchModal
                     currentUserId={user?.id}
                     isOpen={isUserSearchOpen}
-                    onClose={() => setIsUserSearchOpen(false)}
+                    onClose={handleUserSearchClose}
                     onUserSelect={handleStartChat}
                 />
 
                 <CreateGroupModal
                     isOpen={isCreateGroupOpen}
-                    onClose={() => setIsCreateGroupOpen(false)}
+                    onClose={handleCreateGroupModalClose}
                     onGroupCreated={handleGroupCreated}
                 />
 
