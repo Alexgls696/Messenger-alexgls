@@ -25,10 +25,35 @@
 * **Стабильность:** 0% ошибок при нагрузке 500 одновременных пользователей.
 * **Производительность:** Обработка более 275 запросов в секунду (RPS) на одном узле.
 * **Latency:** Среднее время ответа при штатной нагрузке — 75 мс.
-🛠 Запуск проекта
+##Запуск проекта
 1. ### Подготовка
+   Перед запуском создайте файл .env в корне проекта и укажите необходимые ключи:\
+   ``POSTGRES_USER=name ``\
+``POSTGRES_PASSWORD=password  ``\
+``ELASTIC_USERNAME=name ``\
+``ELASTIC_PASSWORD=password ``\
+``SBER_AUTH="Токен для GigaChat" ``\
+``AES_KEY=ключ_шифрования``\
+``HMAC_KEY=ключ для_хеширования_паролей``\
+``CONNECTIONS_REDIS_PASSWORD=пароль_redis``\
+``AWS_BUCKET_NAME=s3_bucket_name``\
+``AWS_ACCESS_KEY=s3_bicket_key``\
+``AWS_SECRET_ACCESS_KEY=secret_key``\
+``CORS_ALLOWED_ORIGINS=Разрешенные_адреса ``
 2. ### Backend & Инфраструктура
+  Соберите исполняемые файлы и запустите контейнеры:\
+  `` # Сборка всех микросервисов ``\
+``mvn clean package -DskipTests``
+
+``## Запуск инфраструктуры (БД, Kafka, Elastic) и сервисов``\
+``docker compose -f docker-compose.prod.yaml up -d ``\
+
 3. ### Frontend
+``cd messenger-ui``\
+``npm install``\
+``npm run dev ``\
 Приложение будет доступно по адресу: http://localhost:5173
 ## Архитектура системы
 ![Архитектурная схема](link)
+
+## Скриншоты: 
