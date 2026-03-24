@@ -54,6 +54,7 @@
 ``npm run dev ``\
 Приложение будет доступно по адресу: http://localhost:5173
 ## Архитектура системы
-![Архитектурная схема](link)
+![Архитектурная схема]([link](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/Architecture.png))
 
 ## Скриншоты: 
+Будут позже...
