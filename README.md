@@ -15,7 +15,7 @@
 * **Поисковый движок:** Elasticsearch (индексация метаданных)
 * **Безопасность:** Spring Security, OAuth2 Resource Server (JWT)
 ### Frontend
-* **Библиотека:** React 18
+* **Библиотека:** React
 * **Стилизация: CSS3** (переменные, адаптивная верстка, Dark Mode)
 ### Инфраструктура
 * **Оркестрация:** Docker, Docker Compose
