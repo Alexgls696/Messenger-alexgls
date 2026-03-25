@@ -57,4 +57,17 @@
 ![Архитектурная схема](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/Architecture.png)
 
 ## Скриншоты: 
-Будут позже...
+###Окно чатов
+![Окно чатов](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/chats_list.png)
+###Открытый чат и отправка файла с анализом содержимого
+![Открытый чат и отправка файла с анализом содержимого](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/send_to_analyse.png)
+###Результат анализа во вложениях
+![Результат анализа во вложениях](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/analyse_result.png)
+###Поиск по содержимом
+![Поиск по содержимому](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/search.png)
+###Профиль пользователя
+![Профиль пользователя](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/profile.png)
+###Профиль группы
+![Профиль группы](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/group_profile.png)
+###Окно логина
+![Окно логина](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/login.png)
