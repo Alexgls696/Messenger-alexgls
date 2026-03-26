@@ -8,7 +8,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    host: '127.0.0.1', // Принудительно используем IPv4 для самого Vite
+    host: '127.0.0.1', 
+    allowedHosts: true,
     proxy: {
       '^/(auth|api|ws-chat)': {
         target: 'http://127.0.0.1:8080',

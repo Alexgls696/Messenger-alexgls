@@ -655,3 +655,11 @@ body[data-theme="dark"] .message-checkbox input[type="checkbox"]:checked {
 .remove-attachment-btn:hover {
     background-color: var(--accent-negative);
 }
+
+@media (max-width: 768px) {
+    .message {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        user-select: none; /* Стандарт */
+    }
+}

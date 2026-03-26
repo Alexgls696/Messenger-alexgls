@@ -231,6 +231,19 @@ body {
     transition: background-color 0.1s;
 }
 
+.context-menu {
+    position: fixed;
+    z-index: 9999;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 5px;
+    min-width: 180px;
+    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+    transform-origin: top left;
+}
+
 .context-menu-item:hover,
 .dropdown-item:hover {
     background-color: var(--surface-secondary);

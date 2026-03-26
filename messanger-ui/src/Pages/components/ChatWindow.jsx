@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { apiFetch } from '../utils/apiClient';
 import Message from './Message';
 import { generateTempId, isDocumentType } from '../utils/messageUtils';
@@ -7,7 +7,7 @@ import { imageLoader } from '../utils/imageLoader';
 
 const PAGE_SIZE = 50;
 
-function ChatWindow({
+const ChatWindow = forwardRef(({
     activeChat,
     currentUserId,
     participantCache,
@@ -39,7 +39,7 @@ function ChatWindow({
     setForwardingMessages,
     userOnlineChanged,
     clearSocketUpdates
-}) {
+}, ref) => {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -74,6 +74,29 @@ function ChatWindow({
             return { fetchedMessages: [], hasMoreData: false };
         }
     }, []);
+
+    useImperativeHandle(ref, () => ({
+        addMessageFromSocket(newMsg) {
+            setMessages(prev => {
+                if (newMsg.id && prev.some(m => m.id === newMsg.id)) {
+                    return prev;
+                }
+
+                if (newMsg.tempId && prev.some(m => m.tempId === newMsg.tempId)) {
+                    return prev.map(m => m.tempId === newMsg.tempId ? newMsg : m);
+                }
+
+                return [...prev, newMsg];
+            });
+
+            // Скролл вниз
+            setTimeout(() => {
+                if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+                }
+            }, 50);
+        }
+    }));
 
     useEffect(() => {
         if (!activeChat) return;
@@ -537,8 +560,7 @@ function ChatWindow({
 
     const handleForwardClick = () => {
         if (onForwardMessages && selectedMessages.length > 0) {
-            const messagesToForward = messages.filter(m => selectedMessages.includes(m.id));
-            onForwardMessages(messagesToForward);
+            onForwardMessages(selectedMessages);
             clearSelection();
         }
     };
@@ -548,7 +570,6 @@ function ChatWindow({
             inputTextRef.current?.focus();
         }
     }, [replyingTo, forwardingMessages]);
-
 
     useEffect(() => {
         if (user) {
@@ -852,6 +873,6 @@ function ChatWindow({
 
 
     );
-}
+});
 
 export default ChatWindow;

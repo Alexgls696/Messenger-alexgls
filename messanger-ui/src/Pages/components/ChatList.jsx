@@ -35,14 +35,10 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
             setChats(prev => prev.filter(c => c.chatId !== chatId));
         },
         updateChatFromSocket(newMsg, isCurrentActive) {
-            let chatExists = false;
-
             setChats(prev => {
-                const chatIdx = prev.findIndex(c => c.chatId === newMsg.chatId);
+                const chatIdx = prev.findIndex(c => String(c.chatId) === String(newMsg.chatId));
 
                 if (chatIdx > -1) {
-                    chatExists = true;
-
                     const targetChat = { ...prev[chatIdx] };
                     targetChat.lastMessage = newMsg;
                     targetChat.updatedAt = newMsg.createdAt;
@@ -51,27 +47,19 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
                         targetChat.numberOfUnreadMessages = (targetChat.numberOfUnreadMessages || 0) + 1;
                     }
 
-                    const filteredChats = prev.filter(c => c.chatId !== newMsg.chatId);
+                    const filtered = prev.filter(c => String(c.chatId) !== String(newMsg.chatId));
+                    const pinned = filtered.filter(c => c.pinned);
+                    const regular = filtered.filter(c => !c.pinned);
 
-                    const pinnedChats = filteredChats.filter(c => c.pinned);
-                    const regularChats = filteredChats.filter(c => !c.pinned);
-
-                    if (targetChat.pinned) {
-                        return [targetChat, ...pinnedChats, ...regularChats];
-                    } else {
-                        return [...pinnedChats, targetChat, ...regularChats];
-                    }
+                    return targetChat.pinned ? [targetChat, ...pinned, ...regular] : [...pinned, targetChat, ...regular];
+                } else {
+                    setTimeout(() => {
+                        fetchAndAddSingleChat(newMsg.chatId);
+                    }, 0);
+                    return prev;
                 }
-
-                chatExists = false;
-                return prev;
             });
-
-            if (!chatExists) {
-                fetchAndAddSingleChat(newMsg.chatId);
-            }
         },
-
         updateChatPinStatus: (updatedChat) => {
             setChats(prevChats => {
                 const newChats = prevChats.map(c =>

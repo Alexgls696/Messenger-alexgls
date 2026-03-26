@@ -76,7 +76,7 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
 
     useEffect(() => {
         let interval = null;
-        let localPointCount = 0; 
+        let localPointCount = 0;
 
         if (!isConnected) {
             interval = setInterval(() => {
@@ -187,7 +187,12 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                     </button>
                     <h3>{userData?.name}</h3>
                 </div>
-
+                {!isConnected && (
+                    <div className='connection-container'>
+                        <div className="connection-spinner"></div>
+                        <p className='connection-title'>{connectionTitle}</p>
+                    </div>
+                )}
                 <div className='mobile-header-right'>
                     {/* КНОПКА УВЕДОМЛЕНИЙ (Мобильная) */}
                     <div ref={notificationMenuMobileRef} className="notification-wrapper">

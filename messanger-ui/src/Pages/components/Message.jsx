@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { formatDate } from '../utils/dateUtils';
 import { apiFetch } from '../utils/apiClient';
 import { imageLoader } from '../utils/imageLoader';
+import { useLongPress } from '../../hooks/useLongPress';
 
 const Message = ({
     msg,
@@ -50,6 +51,20 @@ const Message = ({
         }
     }, [msg.forwarded, msg.forwardFromUserId, participantCache]);
 
+
+    const longPressHandlers = useLongPress(
+        (coords, event) => {
+            const fakeEvent = {
+                preventDefault: () => { },
+                stopPropagation: () => { },
+                clientX: coords.clientX,
+                clientY: coords.clientY
+            };
+            onContextMenu(fakeEvent, msg);
+        },
+        () => { },
+        { delay: 600 }
+    );
 
     const handleNameClick = (e) => {
         if (selectionMode) {
@@ -164,6 +179,7 @@ const Message = ({
             data-message-id={msg.id}
             data-sender-id={msg.senderId}
             onClick={handleMessageClick}
+            {...longPressHandlers}
             onContextMenu={(e) => {
                 if (selectionMode) return;
                 onContextMenu(e, msg);

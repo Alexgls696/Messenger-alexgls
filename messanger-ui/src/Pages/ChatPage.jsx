@@ -87,6 +87,8 @@ function ChatPage() {
         volume: 0.5,
     });
 
+    const chatWindowRef = useRef();
+
     useEffect(() => {
         activeChatRef.current = activeChat;
     }, [activeChat])
@@ -94,16 +96,16 @@ function ChatPage() {
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
         const curActive = activeChatRef.current;
-        const isMsgForActive = curActive?.chatId === newMsg.chatId;
+        const isMsgForActive = curActive && String(curActive.chatId) === String(newMsg.chatId);
 
-        if (newMsg.senderId !== user.id) {
+        if (newMsg.senderId !== user?.id) {
             playMessageSound();
         }
 
-        chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive || newMsg.senderId === user?.id);
+        chatListRef.current?.updateChatFromSocket(newMsg, isMsgForActive);
 
         if (isMsgForActive) {
-            setSocketUpdates(prev => [...prev, newMsg]);
+            chatWindowRef.current?.addMessageFromSocket(newMsg);
         }
     }, [user, playMessageSound]);
 
@@ -428,7 +430,7 @@ function ChatPage() {
             });
         }
 
-        setContextMenu({ x: e.clientX, y: e.clientY - 210, options });
+        setContextMenu({ x: e.clientX, y: e.clientY, options });
     }, [user, deleteMessages]);
 
 
@@ -490,6 +492,7 @@ function ChatPage() {
                 />
 
                 <ChatWindow
+                    ref={chatWindowRef}
                     activeChat={activeChat}
                     currentUserId={user?.id}
                     participantCache={participantCache}
@@ -524,7 +527,6 @@ function ChatPage() {
                     setForwardingMessages={setForwardingMessages}
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
-
                     clearSocketUpdates={clearSocketUpdates}
 
                 />
@@ -548,7 +550,7 @@ function ChatPage() {
                 <GroupProfileModal
                     isOpen={isGroupProfileOpen}
                     onClose={handleGroupProfileClose}
-                    onCloseChat={()=>setActiveChat(null)}
+                    onCloseChat={() => setActiveChat(null)}
                     chatId={activeChat?.chatId}
                     chatName={activeChat?.name}
                     currentUserId={user?.id}
