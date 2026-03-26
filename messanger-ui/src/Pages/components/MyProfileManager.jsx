@@ -138,7 +138,8 @@ const MyProfileManager = ({
                 method: 'POST',
                 body: JSON.stringify({
                     path: uploadConfig.key,
-                    filename: file.name
+                    filename: file.name,
+                    securityType: 'public'
                 })
             });
 

@@ -1,7 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt.client;
 
 import com.alexgls.springboot.messagestorageservicevt.dto.CheckOnlineRequest;
-import com.alexgls.springboot.messagestorageservicevt.exceptions.ConnectionServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -9,7 +8,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
-import java.nio.channels.ClosedChannelException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -17,11 +15,11 @@ import java.util.Map;
 @Slf4j
 public class ConnectionsServiceRestClient {
 
-    private final ParameterizedTypeReference<Map<Integer, Boolean>>PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<Map<Integer, Boolean>>() {};
+    private final ParameterizedTypeReference<Map<Integer, Boolean>>PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {};
 
     private final RestClient restClient;
 
-
+    //TODO Желательно добавить retry
     public Map<Integer, Boolean>findUserOnlineStatus(CheckOnlineRequest checkOnlineRequest){
         try{
             return restClient.post()

@@ -16,9 +16,20 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5437/files_db}
     username: ${SPRING_DATASOURCE_USERNAME:alexgls}
     password: ${SPRING_DATASOURCE_PASSWORD:AS04SERa1}
+  application:
+    name: content-storage-service
 
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  metrics:
+    tags:
+      application: ${spring.application.name}

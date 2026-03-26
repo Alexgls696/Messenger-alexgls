@@ -48,6 +48,7 @@ public class SecurityConfig {
 
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers(
                                 "/auth/**",
                                 "/.well-known/jwks.json",
@@ -76,7 +77,7 @@ public class SecurityConfig {
             }
 
             CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(corsAddressList);
+            corsConfig.setAllowedOriginPatterns(List.of("*"));
             corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
             corsConfig.setAllowedHeaders(List.of("*"));
             corsConfig.setAllowCredentials(true);

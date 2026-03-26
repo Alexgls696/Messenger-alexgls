@@ -6,6 +6,7 @@ import com.alexgls.springboot.messagestorageservicevt.service.ParticipantsServic
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,10 +60,12 @@ public class GroupsController {
     }
 
     @PostMapping("/{id}/leave")
-    public void leaveGroup(@PathVariable("id") int chatId, Authentication authentication) {
+    public ResponseEntity<Void> leaveGroup(@PathVariable("id") int chatId, Authentication authentication) {
         Integer userId = SecurityUtils.getSenderId(authentication);
+        String token = SecurityUtils.getToken(authentication);
         log.info("Leave group chat, actor id: {}", userId);
-        participantsService.leaveGroup(chatId, userId);
+        participantsService.leaveGroup(chatId, userId, token);
+        return ResponseEntity.noContent().build();
     }
 
 

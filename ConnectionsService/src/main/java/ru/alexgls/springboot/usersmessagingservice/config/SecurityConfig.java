@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/login").anonymous()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/api/online/check-by-list").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(server -> server.jwt(jwt -> jwt
                         .jwkSetUri(jwkSetUri)

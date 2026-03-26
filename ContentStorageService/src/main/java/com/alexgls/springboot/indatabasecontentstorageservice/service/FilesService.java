@@ -4,7 +4,7 @@ import com.alexgls.springboot.indatabasecontentstorageservice.dto.CreateFileMeta
 import com.alexgls.springboot.indatabasecontentstorageservice.entity.FileMetadata;
 
 public interface FilesService {
-    FileMetadata findById(int id);
+    FileMetadata findById(int id, int userId, String token);
 
     void deleteById(int id);
 

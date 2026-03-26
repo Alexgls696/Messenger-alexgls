@@ -20,4 +20,8 @@ public class FileMetadata {
     private String path;
 
     private String filename;
+
+    private String securityType;
+
+    private Integer chatId;
 }

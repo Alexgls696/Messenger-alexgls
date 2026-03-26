@@ -19,6 +19,7 @@ public class S3MediaStorageService {
 
     private final S3VkCloudClient s3VkCloudClient;
 
+
     public UrlResponse generateDownloadUrl(String key) {
         return new UrlResponse(s3VkCloudClient.generateDownloadUrl(key));
     }

@@ -21,6 +21,7 @@ import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.
 public class AttachmentsController {
     private final AttachmentService attachmentService;
 
+
     @GetMapping("/find-by-type-and-chat-id")
     public List<Attachment> getAttachmentsByChatIdAndMimeType(
             @RequestParam(required = false) String mediaType,

@@ -13,6 +13,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
@@ -52,7 +54,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns(corsAddressList)
+                .setAllowedOriginPatterns("*")
                 .addInterceptors(new JwtHandshakeInterceptor(authServiceClient))
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();

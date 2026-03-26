@@ -55,7 +55,7 @@ public class ChatsService {
     private final ConnectionsServiceRestClient connectionsServiceRestClient;
 
     @Transactional(readOnly = true)
-    public List<ChatDto> findAllChatOptimisation(int userId, String token, Pageable pageable) {
+    public List<ChatDto> findAllChats(int userId, String token, Pageable pageable) {
         Page<ChatWithUnread> chatPage = chatsRepository.findChatsByUserId(userId, pageable);
         List<ChatWithUnread> content = chatPage.getContent();
         List<Long> chatIds = content.stream()
@@ -233,11 +233,6 @@ public class ChatsService {
         boolean online = onlineMap.getOrDefault(userId, false);
         user.setOnline(online);
         return user;
-    }
-
-    public Integer findChatIdByRecipientId(int recipientId, int myId) {
-        return chatsRepository.findChatIdByUserId(recipientId, myId)
-                .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
     }
 
     public GroupAccessDto getUserRightsByGroupId(long groupId, int userId) {

@@ -19,6 +19,7 @@ import com.alexgls.springboot.messagestorageservicevt.repository.ChatsRepository
 import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.InviteGroupServiceMessage;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.LeaveUserServiceMessage;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.RemoveUserServiceMessage;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
 import lombok.RequiredArgsConstructor;
@@ -143,17 +144,24 @@ public class ParticipantsService {
         return new RemoveUserServiceMessage(removingUser.getUsername(), actor.getUsername());
     }
 
-    public void leaveGroup(long chatId, int userId) {
+    protected ServiceMessage generateLeaveUserMessageContent(int actorId, String token) {
+        GetUserDto actor = authRestClient.findUserById(actorId, token);
+        return new LeaveUserServiceMessage(actor.getUsername());
+    }
+
+    @Transactional
+    public void leaveGroup(long chatId, int userId, String token) {
         boolean exists = participantsRepository.existsByChatIdAndUserId(chatId, userId);
         if (!exists) {
             throw new NoSuchParticipantException("Не найдена связь между чатом и пользователем");
         }
+        ServiceMessage message = generateLeaveUserMessageContent(userId, token);
+        messagesService.saveServiceMessage(message,chatId,userId);
         participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId);
     }
 
     /**
      * Возвращает id пользователей, с которыми у данного пользователя есть чат.
-     *
      * @param userId Id текущего пользователя
      * @return Iterable с id пользователей.
      */
@@ -223,5 +231,9 @@ public class ParticipantsService {
         }
         result.addAll(ids);
         return result;
+    }
+
+    public boolean existsByChatIdAndUserId(int chatId, int userId) {
+        return participantsRepository.existsByChatIdAndUserId(chatId, userId);
     }
 }

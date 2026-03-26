@@ -2,6 +2,8 @@ server:
   port: 8086
 
 spring:
+  application:
+    name: connections-service
   data:
     redis:
       host: ${CONNECTIONS_REDIS_DB_URL:localhost}
@@ -17,10 +19,18 @@ spring:
           jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
 frontend:
-  cors-address-list: "http://localhost:5173, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"
+  cors-address-list: ${CORS_ALLOWED_ORIGINS:"http://localhost:5173, http://localhost:5173, http://192.168.0.103:5173, http://192.168.0.101:"}
 
 
 services:
   auth-service: ${AUTH_SERVICE_URL:http://localhost:8085}
   messages-service: ${MESSAGES_STORAGE_SERVICE:http://localhost:8087}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  metrics:
+    tags:
+      application: ${spring.application.name}

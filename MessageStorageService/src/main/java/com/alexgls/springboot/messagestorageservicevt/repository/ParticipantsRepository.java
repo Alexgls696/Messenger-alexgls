@@ -73,7 +73,7 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     );
 
     @Modifying
-    @Query(value = "update participants set is_leave = true where chat_id = :chatId and user_id = :userId", nativeQuery = true)
+    @Query(value = "update participants set is_leave = true, remove_at = now() where chat_id = :chatId and user_id = :userId", nativeQuery = true)
     void leavingFromGroupByChatIdAndUserId(@Param("chatId") long chatId, @Param("userId") int userId);
 
     @Modifying

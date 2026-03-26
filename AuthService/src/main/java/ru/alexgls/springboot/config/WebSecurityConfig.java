@@ -54,6 +54,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/refresh").permitAll()
                         .requestMatchers("/api/users/exists").permitAll()
                         .requestMatchers("/auth/services/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(server -> server.jwt(jwt -> jwt

@@ -303,7 +303,7 @@ public class MessagesService {
     }
 
     @Transactional
-    public MessageDto saveServiceMessage(ServiceMessage serviceMessage, int chatId, int senderId) {
+    public MessageDto saveServiceMessage(ServiceMessage serviceMessage, long chatId, int senderId) {
         CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
                 null, "service", null);
         return save(createMessagePayload);

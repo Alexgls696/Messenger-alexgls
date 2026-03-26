@@ -6,8 +6,12 @@ import com.alexgls.springboot.indatabasecontentstorageservice.service.FilesServi
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import static com.alexgls.springboot.indatabasecontentstorageservice.util.SecurityUtils.getSenderId;
+import static com.alexgls.springboot.indatabasecontentstorageservice.util.SecurityUtils.getToken;
 
 import java.util.Map;
 
@@ -20,8 +24,10 @@ public class FilesController {
     private final FilesService filesService;
 
     @GetMapping("/{id}")
-    public FileMetadata findChatImageById(@PathVariable("id") int id) {
-        return filesService.findById(id);
+    public FileMetadata findChatImageById(@PathVariable("id") int id, Authentication authentication) {
+        int userId = getSenderId(authentication);
+        String token = getToken(authentication);
+        return filesService.findById(id, userId, token);
     }
 
     @PostMapping

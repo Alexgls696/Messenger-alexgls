@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, use } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import Header from './components/Header';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
@@ -155,9 +154,7 @@ function ChatPage() {
         const response = await apiFetch('/api/notifications/delete-all', {
             method: 'DELETE'
         })
-        if (response.ok) {
-            setNotifications([]);
-        }
+        setNotifications([]);
     }
 
     const onUserOnlineChanged = useCallback((userOnlineDto) => {
@@ -551,6 +548,7 @@ function ChatPage() {
                 <GroupProfileModal
                     isOpen={isGroupProfileOpen}
                     onClose={handleGroupProfileClose}
+                    onCloseChat={()=>setActiveChat(null)}
                     chatId={activeChat?.chatId}
                     chatName={activeChat?.name}
                     currentUserId={user?.id}

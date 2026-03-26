@@ -63,7 +63,7 @@ public class ChatsController {
                 pageSize,
                 Sort.by(Sort.Direction.DESC, "updatedAt")
         );
-        return chatsService.findAllChatOptimisation(userId, token, pageable);
+        return chatsService.findAllChats(userId, token, pageable);
     }
 
     //Создание личного чата
@@ -91,6 +91,13 @@ public class ChatsController {
         return participantsService.findAllByChatId(chatId, token, userId);
     }
 
+    @GetMapping("/{chatId}/participants/exists/{userId}")
+    public ResponseEntity<Map<String, Boolean>> exists(@PathVariable("chatId") int chatId, @PathVariable("userId") int userId) {
+        log.info("Check user {} in chat {} participants", userId, chatId);
+        boolean exists = participantsService.existsByChatIdAndUserId(chatId,userId);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
     @GetMapping("/{id}/participants-ids")
     public List<Integer> findAllParticipantsIdsByChatId(@PathVariable("id") long chatId) {
         return participantsService.findUserIdsByChatId(chatId);
@@ -98,6 +105,7 @@ public class ChatsController {
 
     /**
      * Запрос пользователей, с которыми был чат.
+     *
      * @param authentication Содержит информацию о текущем пользователе.
      * @return Список id пользователей
      */

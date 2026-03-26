@@ -1,5 +1,5 @@
 version: '3.8'
-name: alexgls-messenger
+name: alexgls-messenger-prod
 volumes:
   security_users_data:
   messaging_db_data:
@@ -132,11 +132,33 @@ services:
     command: [ "redis-server", "--requirepass", "AS04SERa1", "--notify-keyspace-events", "Ex" ]
     volumes:
       - redis-data:/data
+    networks:
+      - app-network
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+       - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+       - app-network
 
   # --- MICROSERVICES ---
   api-gateway-service:
     build: ./ApiGatewayService
-    container_name: api-gateway-service
     ports:
       - "8080:8080"
     environment:
@@ -150,6 +172,7 @@ services:
       - ANALYSIS_SERVICE_URL=http://content-analysis-service:8094
       - METADATA_SERVICE_URL=http://metadata-service:8095
       - NOTIFICATIONS_SERVICE_URL=http://notifications-service:8091
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
     depends_on:
       - auth-service
       - messages-service
@@ -158,7 +181,6 @@ services:
 
   auth-service:
     build: ./AuthService
-    container_name: auth-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://users-auth-db:5432/security_users_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
@@ -178,10 +200,12 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:8085
       - MESSAGES_STORAGE_SERVICE=http://messages-service:8087
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - CONNECTIONS_REDIS_DB_URL=http://connections-redis:6379
+      - CONNECTIONS_REDIS_DB_URL=connections-redis
       - CONNECTIONS_REDIS_DB_PASSWORD=${CONNECTIONS_REDIS_PASSWORD}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
     depends_on:
       - kafka
+      - connections-redis
     networks:
       - app-network
 
@@ -211,6 +235,10 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_SERVICE_URL=http://auth-service:8085
+      - MESSAGE_STORAGE_SERVICE=http://messages-service:8087
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - files-db
     networks:
