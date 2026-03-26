@@ -1,50 +1,50 @@
-import React, {useState, useEffect, useRef, useCallback, useLayoutEffect} from 'react';
-import {apiFetch} from '../utils/apiClient';
+import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import { apiFetch } from '../utils/apiClient';
 import Message from './Message';
-import {generateTempId, isDocumentType} from '../utils/messageUtils';
+import { generateTempId, isDocumentType } from '../utils/messageUtils';
 import defaultProfileImage from '../images/profile-default.png'
-import {imageLoader} from '../utils/imageLoader';
+import { imageLoader } from '../utils/imageLoader';
 
 const PAGE_SIZE = 50;
 
 function ChatWindow({
-                        activeChat,
-                        currentUserId,
-                        participantCache,
-                        imageObserver,
-                        messageReadObserver,
-                        photoViewer,
-                        onOpenProfile,
-                        onBack,
-                        onOpenGroupProfile,
-                        onOpenSearch,
-                        onMessageContextMenu,
-                        socketUpdates,
-                        readEvent,
-                        deleteEvent,
-                        onChatCreated,
-                        messageUpdateEvent,
-                        editingMessage,
-                        setEditingMessage,
-                        deleteMessages,
-                        replyingTo,
-                        setReplyingTo,
-                        replyCache,
-                        onForwardMessages,
-                        firstSelectedMessage,
-                        setFirstSelectedMessage,
-                        isSelectionMode,
-                        setSelectionMode,
-                        forwardingMessages,
-                        setForwardingMessages,
-                        userOnlineChanged,
-                        clearSocketUpdates
-                    }) {
+    activeChat,
+    currentUserId,
+    participantCache,
+    imageObserver,
+    messageReadObserver,
+    photoViewer,
+    onOpenProfile,
+    onBack,
+    onOpenGroupProfile,
+    onOpenSearch,
+    onMessageContextMenu,
+    socketUpdates,
+    readEvent,
+    deleteEvent,
+    onChatCreated,
+    messageUpdateEvent,
+    editingMessage,
+    setEditingMessage,
+    deleteMessages,
+    replyingTo,
+    setReplyingTo,
+    replyCache,
+    onForwardMessages,
+    firstSelectedMessage,
+    setFirstSelectedMessage,
+    isSelectionMode,
+    setSelectionMode,
+    forwardingMessages,
+    setForwardingMessages,
+    userOnlineChanged,
+    clearSocketUpdates
+}) {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [chatDetails, setChatDetails] = useState({title: 'Загрузка...', isGroup: false});
+    const [chatDetails, setChatDetails] = useState({ title: 'Загрузка...', isGroup: false });
     const [recipientId, setRecipientId] = useState(null);
 
     const [avatar, setAvatar] = useState(defaultProfileImage);
@@ -66,81 +66,85 @@ function ChatWindow({
 
     const fetchMessages = useCallback(async (chatId, pageNum, signal) => {
         try {
-            const data = await apiFetch(`/api/messages?chatId=${chatId}&page=${pageNum}&pageSize=${PAGE_SIZE}`, {signal});
+            const data = await apiFetch(`/api/messages?chatId=${chatId}&page=${pageNum}&pageSize=${PAGE_SIZE}`, { signal });
             const hasMoreData = Array.isArray(data) && data.length === PAGE_SIZE;
-            return {fetchedMessages: data || [], hasMoreData};
+            return { fetchedMessages: data || [], hasMoreData };
         } catch (error) {
             if (error.name !== 'AbortError') console.error('Ошибка загрузки сообщений:', error);
-            return {fetchedMessages: [], hasMoreData: false};
+            return { fetchedMessages: [], hasMoreData: false };
         }
     }, []);
 
     useEffect(() => {
         if (!activeChat) return;
         const controller = new AbortController();
+        const { signal } = controller;
 
         const initChat = async () => {
+            // 1. Мгновенный сброс состояний (React 18 объединит эти апдейты в один рендер)
             setMessages([]);
             setPage(0);
             setHasMore(true);
             isInitialLoad.current = true;
             setIsForbidden(false);
             setInputText('');
+            setIsLoading(true);
 
+            // Логика для нового чата (быстрый выход)
             if (activeChat.isNew) {
-                setChatDetails({
-                    title: `${activeChat.recipient.name} ${activeChat.recipient.surname}`,
-                    isGroup: false
-                });
+                const fullName = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
+                setChatDetails({ title: fullName, isGroup: false });
                 setRecipientId(activeChat.recipient.id);
-                participantCache[activeChat.recipient.id] = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
+                participantCache[activeChat.recipient.id] = fullName;
 
                 setHasMore(false);
                 setIsLoading(false);
                 return;
             }
 
-            // --- ЛОГИКА ДЛЯ СУЩЕСТВУЮЩЕГО ЧАТА ---
-            setIsLoading(true);
             try {
+                const promises = [
+                    activeChat.group
+                        ? Promise.resolve(null)
+                        : apiFetch(`/api/chats/find-recipient-by-private-chat-id/${activeChat.chatId}`, { signal }),
+
+                    apiFetch(`/api/chats/${activeChat.chatId}/participants`, { signal }),
+                    fetchMessages(activeChat.chatId, 0, signal)
+                ];
+
+                const [recipient, participantsDto, msgData] = await Promise.all(promises);
+
+                if (signal.aborted) return;
+
+                participantsDto.participants.forEach(p => {
+                    participantCache[p.id] = `${p.name} ${p.surname}`;
+                });
+
                 if (activeChat.group) {
-                    setChatDetails({title: activeChat.name, isGroup: true});
-                } else {
-                    const recipient = await apiFetch(`/api/chats/find-recipient-by-private-chat-id/${activeChat.chatId}`, {signal: controller.signal});
+                    setChatDetails({ title: activeChat.name, isGroup: true });
+                } else if (recipient) {
                     setUser(recipient);
-                    setChatDetails({title: ` ${recipient.name} ${recipient.surname}`, isGroup: false});
+                    setChatDetails({ title: `${recipient.name} ${recipient.surname}`, isGroup: false });
                     setRecipientId(recipient.id);
                 }
 
-                try {
-                    const participantsDto = await apiFetch(`/api/chats/${activeChat.chatId}/participants`, {signal: controller.signal});
-                    participantsDto.participants.forEach(p => {
-                        participantCache[p.id] = `${p.name} ${p.surname}`;
-                    });
-                    if (participantsDto.removed) {
-                        setIsForbidden(true);
-                        setInputText('Вы не состоите в этой группе❗ ');
-                        setIsLoading(false);
-                    }
-                } catch (error) {
+                if (participantsDto.removed) {
                     setIsForbidden(true);
-                    setInputText('Произошла ошибка при загрузке чата❗ ' + error);
-                    setIsLoading(false);
-                    return;
+                    setInputText('Вы не состоите в этой группе❗ ');
                 }
 
-                const {fetchedMessages, hasMoreData} = await fetchMessages(activeChat.chatId, 0, controller.signal);
-                if (!controller.signal.aborted) {
-                    setMessages(fetchedMessages);
-                    setHasMore(hasMoreData);
-                    setPage(1);
-                }
-            } catch (e) {
-                if (!controller.signal.aborted) {
-                    setChatDetails({title: 'Ошибка', isGroup: false});
-                }
+                setMessages(msgData.fetchedMessages);
+                setHasMore(msgData.hasMoreData);
+                setPage(1);
+
+            } catch (error) {
+                if (signal.aborted) return;
+                console.error('Ошибка инициализации чата:', error);
+                setIsForbidden(true);
+                setChatDetails({ title: 'Ошибка', isGroup: false });
+                setInputText('Произошла ошибка при загрузке чата❗');
             } finally {
-                if (!controller.signal.aborted) setIsLoading(false);
+                if (!signal.aborted) setIsLoading(false);
             }
         };
 
@@ -149,31 +153,23 @@ function ChatWindow({
     }, [activeChat, fetchMessages]);
 
     // 2. ЕДИНЫЙ эффект для управления скроллом (useLayoutEffect)
-    useLayoutEffect(() => {
+    useEffect(() => {
         const container = scrollContainerRef.current;
-        if (!container || messages.length === 0) return;
+        if (!container || messages.length === 0 || !isInitialLoad.current) return;
 
-        if (isInitialLoad.current) {
-            // ЛОГИКА: Первый вход в чат
+        requestAnimationFrame(() => {
             const firstUnread = messages.find(m => !m.read && m.senderId !== currentUserId);
-
             if (firstUnread) {
                 const element = container.querySelector(`[data-message-id="${firstUnread.id}"]`);
                 if (element) {
-                    // Прокрутка к непрочитанному без анимации
                     container.scrollTop = element.offsetTop - (container.clientHeight / 4);
                 }
             } else {
-                // Все прочитано - в самый конец
                 container.scrollTop = container.scrollHeight;
             }
             isInitialLoad.current = false;
-        } else if (prevScrollHeightRef.current > 0) {
-            const heightDifference = container.scrollHeight - prevScrollHeightRef.current;
-            container.scrollTop = heightDifference;
-            prevScrollHeightRef.current = 0;
-        }
-    }, [messages, currentUserId]);
+        });
+    }, [messages]);
 
 
     // Редактирование
@@ -205,7 +201,7 @@ function ChatWindow({
             prevScrollHeightRef.current = container.scrollHeight; // Запоминаем текущую высоту
             setIsLoading(true);
 
-            const {fetchedMessages, hasMoreData} = await fetchMessages(activeChat.chatId, page);
+            const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, page);
 
             if (fetchedMessages.length > 0) {
                 // Используем функциональное обновление, чтобы не зависеть от замыкания
@@ -269,7 +265,7 @@ function ChatWindow({
 
         if (readEvent.chatId === activeChat.chatId) {
             setMessages(prev => prev.map(m =>
-                readEvent.messageIds.includes(m.id) ? {...m, read: true} : m
+                readEvent.messageIds.includes(m.id) ? { ...m, read: true } : m
             ));
         }
     }, [readEvent, activeChat]);
@@ -325,7 +321,7 @@ function ChatWindow({
 
     const toggleAnalyse = (tempId) => {
         setPendingFiles(prev => prev.map(f =>
-            f.tempId === tempId ? {...f, isAnalysed: !f.isAnalysed} : f
+            f.tempId === tempId ? { ...f, isAnalysed: !f.isAnalysed } : f
         ));
     };
 
@@ -416,12 +412,12 @@ function ChatWindow({
                     try {
                         const data = await apiFetch('/api/media-storage/upload-url', {
                             method: 'POST',
-                            body: JSON.stringify({fileName: item.file.name, contentType: item.file.type})
+                            body: JSON.stringify({ fileName: item.file.name, contentType: item.file.type })
                         });
 
                         const s3Response = await fetch(data.uploadUrl, {
                             method: "PUT",
-                            headers: {"Content-Type": item.file.type},
+                            headers: { "Content-Type": item.file.type },
                             body: item.file
                         });
 
@@ -494,7 +490,7 @@ function ChatWindow({
             } catch (err) {
                 console.error("Ошибка при выполнении отправки:", err);
                 setMessages(prev => prev.map(m =>
-                    m.tempId === tempId ? {...m, isError: true, isPending: false} : m
+                    m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
                 ));
             }
         }
@@ -568,7 +564,7 @@ function ChatWindow({
         }
     }, [user])
 
-    if (!activeChat) return <section className="chat-window hidden"/>;
+    if (!activeChat) return <section className="chat-window hidden" />;
 
     return (
         <section id="chatWindow" className="chat-window">
@@ -579,7 +575,7 @@ function ChatWindow({
                             clearSelection()
                         }} title="Отменить выделение">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                                 strokeWidth="2">
+                                strokeWidth="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
@@ -587,9 +583,9 @@ function ChatWindow({
                         <span className="selection-count">Выбрано: {selectedMessages.length}</span>
                         <div className="selection-actions">
                             <button className="header-icon-btn" onClick={() => deleteMessageGroup(selectedMessages)}
-                                    title="Удалить">
+                                title="Удалить">
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path
                                         d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -599,7 +595,7 @@ function ChatWindow({
                             </button>
                             <button className="header-icon-btn" onClick={handleForwardClick} title="Переслать">
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="15 14 20 9 15 4"></polyline>
                                     <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
                                 </svg>
@@ -611,9 +607,9 @@ function ChatWindow({
                         <div className="chat-title-wrapper">
                             {!chatDetails.isGroup ? (
                                 <div className="header-user-item"
-                                     onClick={() => onOpenProfile(recipientId, activeChat.chatId, chatDetails.title)}>
+                                    onClick={() => onOpenProfile(recipientId, activeChat.chatId, chatDetails.title)}>
                                     <div className="avatar-container">
-                                        <img className="header-user-avatar" src={avatar} alt=""/>
+                                        <img className="header-user-avatar" src={avatar} alt="" />
                                         {user?.online && (
                                             <span className="online-status-dot"></span>
                                         )}
@@ -631,8 +627,8 @@ function ChatWindow({
                                     <h3>{chatDetails.title}</h3>
                                     <button className="header-icon-btn" onClick={onOpenGroupProfile}>
                                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
-                                             stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                             strokeLinejoin="round">
+                                            stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                            strokeLinejoin="round">
                                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                             <circle cx="9" cy="7" r="4"></circle>
                                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -643,7 +639,7 @@ function ChatWindow({
                             )}
                             <button className="header-icon-btn" onClick={onOpenSearch}>
                                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                                     strokeWidth="2">
+                                    strokeWidth="2">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
@@ -651,7 +647,7 @@ function ChatWindow({
                         </div>
                         <button className="header-icon-btn" onClick={onBack} title="Закрыть чат">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                                 strokeWidth="2">
+                                strokeWidth="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
@@ -665,7 +661,7 @@ function ChatWindow({
                 className="messages"
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                style={{overflowAnchor: 'none'}}
+                style={{ overflowAnchor: 'none' }}
             >
                 {messages.map((msg) => (
                     <Message
@@ -693,9 +689,9 @@ function ChatWindow({
                 <div className="attachment-preview-container">
                     {pendingFiles.map(f => (
                         <div key={f.tempId}
-                             className={`attachment-preview-item ${f.previewUrl ? 'is-image' : 'is-file'}`}>
+                            className={`attachment-preview-item ${f.previewUrl ? 'is-image' : 'is-file'}`}>
                             {f.previewUrl ? (
-                                <img src={f.previewUrl} alt=""/>
+                                <img src={f.previewUrl} alt="" />
                             ) : (
                                 <div className="file-preview-info">
                                     <span className="file-icon">📁</span>
@@ -714,7 +710,7 @@ function ChatWindow({
                                 </label>
                             )}
                             <button className="remove-attachment-btn"
-                                    onClick={() => removeFile(f.tempId)}>&times;</button>
+                                onClick={() => removeFile(f.tempId)}>&times;</button>
                         </div>
                     ))}
                 </div>
@@ -729,7 +725,7 @@ function ChatWindow({
                     </div>
                     <button className="header-icon-btn" onClick={cancelEdit}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                             strokeWidth="2">
+                            strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -746,7 +742,7 @@ function ChatWindow({
                     </div>
                     <button className="header-icon-btn" onClick={() => setReplyingTo(null)}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                             strokeWidth="2">
+                            strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -758,7 +754,7 @@ function ChatWindow({
                 <div className="edit-message-bar forward-bar">
                     <div className="edit-bar-icon">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="15 14 20 9 15 4"></polyline>
                             <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
                         </svg>
@@ -771,7 +767,7 @@ function ChatWindow({
                     </div>
                     <button className="header-icon-btn" onClick={() => setForwardingMessages([])}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                             strokeWidth="2">
+                            strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -813,21 +809,21 @@ function ChatWindow({
                 )}
 
                 <textarea ref={inputTextRef}
-                          className="message-input"
-                          value={inputText}
-                          readOnly={isForbidden}
-                          disabled={isForbidden}
-                          onChange={(e) => setInputText(e.target.value)}
-                          onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  handleFormSubmit(e);
-                              }
-                              if (e.key === 'Escape' && editingMessage) {
-                                  cancelEdit();
-                              }
-                          }}
-                          placeholder="Введите сообщение..."
+                    className="message-input"
+                    value={inputText}
+                    readOnly={isForbidden}
+                    disabled={isForbidden}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleFormSubmit(e);
+                        }
+                        if (e.key === 'Escape' && editingMessage) {
+                            cancelEdit();
+                        }
+                    }}
+                    placeholder="Введите сообщение..."
                 />
 
                 {!isForbidden && (

@@ -3,9 +3,6 @@ import { formatDate } from '../utils/dateUtils';
 import { apiFetch } from '../utils/apiClient';
 import { imageLoader } from '../utils/imageLoader';
 
-
-const API_BASE_URL = `http://${window.location.hostname}:8080`;
-
 const Message = ({
     msg,
     isSentByMe,
@@ -324,4 +321,4 @@ const FileAttachment = ({ att }) => {
     );
 };
 
-export default Message;
+export default React.memo(Message);
