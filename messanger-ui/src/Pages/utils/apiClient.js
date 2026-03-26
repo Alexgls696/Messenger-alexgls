@@ -1,5 +1,6 @@
-export const GATEWAY_URL = `http://${window.location.hostname}:8080`;
-const REFRESH_API_URL = `${GATEWAY_URL}/auth/refresh`;
+export const GATEWAY_URL = ""; 
+
+const REFRESH_API_URL = "/auth/refresh"; 
 
 let isRefreshing = false;
 let refreshPromise = null;

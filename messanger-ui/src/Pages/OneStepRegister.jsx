@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import {GATEWAY_URL} from './utils/apiClient'
 import { useNavigate, Link } from 'react-router-dom';
 
 
-const API_CREATE_PROFILE_URL = 'http://localhost:8080/api/profiles/create';
+const API_CREATE_PROFILE_URL = `${GATEWAY_URL}/api/profiles/create`;
 
 function Register() {
     const navigate = useNavigate();
 
-    // Состояния для полей формы (соответствуют UserRegisterDto)
     const [formData, setFormData] = useState({
         name: '',
         surname: '',
@@ -18,9 +18,7 @@ function Register() {
 
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-
-    const gatewayAddress = `${window.location.hostname}:8080`;
-    const API_BASE_URL = `http://${gatewayAddress}`;
+    const API_BASE_URL = GATEWAY_URL
 
     useEffect(() => {
         const accessToken = localStorage.getItem('accessToken');

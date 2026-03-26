@@ -4,56 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Небольшой рефакторинг и добавление плашки &quot;Соединение&quot; при разрыве соединения. Улучшена отказоустойчивость сервиса сообщений при отказе соединений.">
-      <change afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/dto/UserParticipantDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/mapper/FileMetadataMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/util/SecurityUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ContentStorageService/src/main/resources/db/changelog/changeset/add_file_permissions.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/prometheus.yml" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлен мониторинг prometheus и grafana, исправлен запуск prod конфигурации">
+      <change afterPath="$PROJECT_DIR$/messanger-ui/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/messanger-ui/nginx.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/config/WebSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/client/MessageStorageRestClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/client/MessageStorageRestClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/config/MediaContentSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/config/MediaContentSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/controller/FilesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/controller/FilesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/dto/CreateFileMetadataRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/dto/CreateFileMetadataRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/entity/FileMetadata.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/entity/FileMetadata.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/FilesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/FilesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/FilesServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/FilesServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/S3MediaStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/service/S3MediaStorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/client/ConnectionsServiceRestClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/client/ConnectionsServiceRestClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/AttachmentsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/AttachmentsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/ChatsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/KafkaSenderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/KafkaSenderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/LeaveUserServiceMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/LeaveUserServiceMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NotificationsService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/config/NotificationsSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/java/com/alexgls/springboot/notificationsservice/config/NotificationsSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Login.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/OneStepRegister.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Register.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Register.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/MyProfileManager.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/photoViewer.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/photoViewer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,6 +91,7 @@
     "Docker.docker-compose.prod.yaml.connections-redis: Compose Deployment.executor": "Run",
     "Docker.docker-compose.prod.yaml.connections-service: Compose Deployment.executor": "Run",
     "Docker.docker-compose.prod.yaml.content-analysis-service: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.prod.yaml.frontend: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.connections-redis: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.notifications-database: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.redis: Compose Deployment.executor": "Run",
@@ -295,7 +261,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
+  <component name="RunManager" selected="Spring Boot.MessageStorageServiceVtApplication">
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
@@ -437,12 +403,12 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="docker-compose.prod.yaml.connections-service: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+    <configuration name="docker-compose.prod.yaml.frontend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
           <option name="services">
             <list>
-              <option value="connections-service" />
+              <option value="frontend" />
             </list>
           </option>
           <option name="sourceFilePath" value="docker-compose.prod.yaml" />
@@ -451,8 +417,8 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Docker.docker-compose.prod.yaml.frontend: Compose Deployment" />
       <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
-      <item itemvalue="Docker.docker-compose.prod.yaml.connections-service: Compose Deployment" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
       <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
@@ -470,8 +436,8 @@
         <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.ConnectionServiceApplication" />
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
+        <item itemvalue="Docker.docker-compose.prod.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose.prod.yaml.connections-service: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -616,15 +582,7 @@
       <workItem from="1774375148626" duration="560000" />
       <workItem from="1774377171146" duration="794000" />
       <workItem from="1774417961453" duration="2158000" />
-      <workItem from="1774508959870" duration="6359000" />
-    </task>
-    <task id="LOCAL-00021" summary="Добавлен сервис хранения данных, хранение данных в ElasticSearch, сохранение и поиск по ключевым словам.">
-      <option name="closed" value="true" />
-      <created>1764424176472</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1764424176472</updated>
+      <workItem from="1774508959870" duration="12424000" />
     </task>
     <task id="LOCAL-00022" summary="Добавлен поиск по вложения со стороны клиента.">
       <option name="closed" value="true" />
@@ -1010,7 +968,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774101406701</updated>
     </task>
-    <option name="localTasksCounter" value="70" />
+    <task id="LOCAL-00070" summary="Добавлен мониторинг prometheus и grafana, исправлен запуск prod конфигурации">
+      <option name="closed" value="true" />
+      <created>1774516766316</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1774516766317</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1028,7 +994,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлена иконка приложения, исправлены некоторые баги в группах. Добавлено изменение описания и названия группы, добавление пользователей, рассылка уведомлений при добавлении. &#10;//TODO - фиксы найденных багов." />
     <MESSAGE value="Добавлено редактирование сообщений" />
     <MESSAGE value="Сервис пользовательской информации объединен с auth service" />
     <MESSAGE value="Вырезан UserDetails сервис (совмещен с auth). Частичное исправление багов с токенами и соединением" />
@@ -1053,7 +1018,8 @@
     <MESSAGE value="Добавлены выходы из окон через escape, исправлен мягкий онлайн (docker-compose)" />
     <MESSAGE value="Небольшой рефакторинг и добавление плашки &quot;Соединение&quot; при разрыве соединения" />
     <MESSAGE value="Небольшой рефакторинг и добавление плашки &quot;Соединение&quot; при разрыве соединения. Улучшена отказоустойчивость сервиса сообщений при отказе соединений." />
-    <option name="LAST_COMMIT_MESSAGE" value="Небольшой рефакторинг и добавление плашки &quot;Соединение&quot; при разрыве соединения. Улучшена отказоустойчивость сервиса сообщений при отказе соединений." />
+    <MESSAGE value="Добавлен мониторинг prometheus и grafana, исправлен запуск prod конфигурации" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен мониторинг prometheus и grafana, исправлен запуск prod конфигурации" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

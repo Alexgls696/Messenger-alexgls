@@ -24,7 +24,7 @@
     flex-direction: column;
 }
 
-.chat-list p{
+.chat-list p {
     text-align: center;
 }
 
@@ -131,10 +131,10 @@
     right: 2px;
     width: 13px;
     height: 13px;
-    background-color: var(--accent-positive); 
+    background-color: var(--accent-positive);
     border: 2px solid var(--surface-primary);
     border-radius: 50%;
-    z-index: 5; 
+    z-index: 5;
 }
 
 
@@ -367,12 +367,12 @@ li.active .online-status-dot {
     justify-content: center;
     width: 42px;
     height: 42px;
-    border-radius: 50%; 
-    
+    border-radius: 50%;
+
     color: var(--text-placeholder);
     cursor: pointer;
     flex-shrink: 0;
-    
+
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -388,7 +388,7 @@ li.active .online-status-dot {
 
 .attach-btn svg {
     display: block;
-    transform: rotate(-45deg); 
+    transform: rotate(-45deg);
 }
 
 .attach-btn:disabled {
@@ -398,8 +398,15 @@ li.active .online-status-dot {
 }
 
 @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 
@@ -409,7 +416,8 @@ li.active .online-status-dot {
         gap: 0;
     }
 
-    .chat-list, .chat-window {
+    .chat-list,
+    .chat-window {
         position: absolute;
         top: 0;
         left: 0;
@@ -436,10 +444,16 @@ li.active .online-status-dot {
         visibility: visible;
         pointer-events: auto;
     }
+
+    .chat-window__header {
+        padding: 0 10px 0 10px;
+    }
 }
 
 @media (min-width: 769px) {
-    .chat-list, .chat-window {
+
+    .chat-list,
+    .chat-window {
         position: static;
         opacity: 1 !important;
         visibility: visible !important;

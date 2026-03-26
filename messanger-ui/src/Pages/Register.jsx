@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {GATEWAY_URL} from './utils/apiClient'
 import { useNavigate, Link } from 'react-router-dom';
 
 function Register() {
@@ -17,7 +18,7 @@ function Register() {
     const [operationId, setOperationId] = useState(null);
 
     // --- Константы API ---
-    const GATEWAY_URL = `http://${window.location.hostname}:8080`;
+    const GATEWAY_URL = GATEWAY_URL
     const INITIATE_URL = `${GATEWAY_URL}/api/verification/create`;
     const REGISTER_URL = `${GATEWAY_URL}/api/authentication/register`;
 

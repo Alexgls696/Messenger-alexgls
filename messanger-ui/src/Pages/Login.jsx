@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {GATEWAY_URL} from './utils/apiClient'
 import { useNavigate, Link } from 'react-router-dom'; 
 
 function Login() {
@@ -9,8 +10,7 @@ function Login() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const gatewayAddress = `${window.location.hostname}:8080`;
-    const API_BASE_URL = `http://${gatewayAddress}`;
+    const API_BASE_URL = GATEWAY_URL;
 
     const accessToken = localStorage.getItem('accessToken');
     if(accessToken){

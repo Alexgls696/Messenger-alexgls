@@ -89,7 +89,7 @@ function ChatWindow({
 
             if (activeChat.isNew) {
                 setChatDetails({
-                    title: `Чат с ${activeChat.recipient.name} ${activeChat.recipient.surname}`,
+                    title: `${activeChat.recipient.name} ${activeChat.recipient.surname}`,
                     isGroup: false
                 });
                 setRecipientId(activeChat.recipient.id);
@@ -108,7 +108,7 @@ function ChatWindow({
                 } else {
                     const recipient = await apiFetch(`/api/chats/find-recipient-by-private-chat-id/${activeChat.chatId}`, {signal: controller.signal});
                     setUser(recipient);
-                    setChatDetails({title: `Чат с ${recipient.name} ${recipient.surname}`, isGroup: false});
+                    setChatDetails({title: ` ${recipient.name} ${recipient.surname}`, isGroup: false});
                     setRecipientId(recipient.id);
                 }
 

@@ -1,22 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   define: {
     global: 'window',
   },
+
   server: {
-    host: true, // или '0.0.0.0'
     port: 5173,
-    allowedHosts: ['ctfgnk-84-42-72-25.ru.tuna.am'],
+    allowedHosts: true,
     proxy: {
-      '/auth': {
-        target: 'http://localhost:8080',
+      '^/(auth|api)': {
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
-        secure: false,
+      },
+
+      '/ws-chat': {
+        target: 'http://127.0.0.1:8080',
+        ws: true, // Включает поддержку веб-сокетов
+        changeOrigin: true,
       },
     }
-  },
+  }
 })

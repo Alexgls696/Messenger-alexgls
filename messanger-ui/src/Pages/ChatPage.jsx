@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, use } f
 import Header from './components/Header';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
-import { apiFetch, logout } from './utils/apiClient';
+import { apiFetch, GATEWAY_URL, logout } from './utils/apiClient';
 import { imageLoader } from './utils/imageLoader';
 import photoViewer from './utils/photoViewer';
 import UserProfileModal from './components/UserProfileModal';
@@ -37,7 +37,7 @@ const modal = styled.div`
 
 `
 
-const API_BASE_URL = `http://${window.location.hostname}:8080`;
+const API_BASE_URL = ""
 
 function ChatPage() {
 

@@ -1,4 +1,3 @@
-// src/utils/photoViewer.js
 import { imageLoader } from './imageLoader';
 
 const photoViewer = (() => {
@@ -49,13 +48,17 @@ const photoViewer = (() => {
     };
 
     const init = (config) => {
-        if (!config || !config.apiBaseUrl) return;
+        if (!config || config.apiBaseUrl === undefined) return;
         localApiBaseUrl = config.apiBaseUrl;
         createViewerDOM();
     };
 
     const open = (imageId) => {
-        if (!viewerModal || !viewerImage || !localApiBaseUrl) return;
+        console.log(viewerModal + " " + viewerImage + " " + localApiBaseUrl)
+        if (!viewerModal || !viewerImage || localApiBaseUrl === null) {
+            console.warn("PhotoViewer not initialized properly");
+            return;
+        }
 
         if (viewerImage.src) imageLoader.revokeUrl(viewerImage.src);
         viewerImage.removeAttribute('src');
