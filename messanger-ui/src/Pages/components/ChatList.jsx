@@ -13,13 +13,12 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
     const fetchAndAddSingleChat = async (chatId) => {
         try {
             const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
-
             setChats(prev => {
                 if (prev.some(c => c.chatId === chatId)) return prev;
 
                 const pinnedChats = prev.filter(c => c.pinned);
                 const regularChats = prev.filter(c => !c.pinned);
-
+                fullChatDto.numberOfUnreadMessages = (fullChatDto.numberOfUnreadMessages || 0) + 1;
                 if (fullChatDto.pinned) {
                     return [fullChatDto, ...pinnedChats, ...regularChats];
                 } else {
@@ -151,7 +150,6 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
 
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-        // Подгружаем, когда осталось 100px до конца
         if (scrollHeight - scrollTop <= clientHeight + 100) {
             loadChats();
         }

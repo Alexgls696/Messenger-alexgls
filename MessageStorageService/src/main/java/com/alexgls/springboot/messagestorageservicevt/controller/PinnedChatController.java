@@ -37,7 +37,8 @@ public class PinnedChatController {
     @PostMapping("/delete/{chatId}")
     public ChatDto deletePinnedChat(@PathVariable("chatId") long chatId, Authentication authentication) {
         int currentUserId = getSenderId(authentication);
-        return pinnedChatService.deletePinnedChat(chatId, currentUserId);
+        String token = getToken(authentication);
+        return pinnedChatService.deletePinnedChat(chatId, currentUserId, token);
     }
 
 }

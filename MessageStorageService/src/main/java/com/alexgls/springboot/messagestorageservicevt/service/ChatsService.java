@@ -107,7 +107,7 @@ public class ChatsService {
                 .toList();
     }
 
-    public ChatDto findChatById(long chatId, int userId) {
+    public ChatDto findChatById(long chatId, int userId,String token) {
         Chat chat = chatsRepository.findById(chatId)
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат с заданным id не найден"));
         var chatDto = ChatMapper.toDto(chat);
@@ -116,14 +116,20 @@ public class ChatsService {
             Message message = messageOptional.get();
             setLastMessageToChatDto(message, chatDto);
         }
+        if(!chat.isGroup()){
+            Integer recipientId = participantsRepository.findRecipientByUserIdAndChatId(userId,chatId)
+                    .orElseThrow(()->new NoSuchParticipantException("Участник чата не найден"));
+            var recipient = authRestClient.findUserById(recipientId,token);
+            chatDto.setRecipient(recipient);
+        }
         return chatDto;
     }
 
     @Transactional
-    public ChatDto findPrivateChat(int senderId, int receiverId) {
+    public ChatDto findPrivateChat(int senderId, int receiverId, String token) {
         Optional<Long> existingChatId = chatsRepository.findChatIdByParticipantsIdForPrivateChats(senderId, receiverId);
         if (existingChatId.isPresent()) {
-            return findChatById(existingChatId.get(), senderId);
+            return findChatById(existingChatId.get(), senderId, token);
         }
         return createPrivateChat(senderId, receiverId);
     }

@@ -31,24 +31,24 @@ public class PinnedChatService {
     @Transactional
     public void savePinnedChat(long chatId, int userId) {
         boolean exists = chatsRepository.existsById(chatId);
-        if(!exists){
+        if (!exists) {
             throw new NoSuchUsersChatException("Чат не найден.");
         }
-        Participants participants = participantsRepository.findByChatIdAndUserId(chatId,userId)
-                .orElseThrow(()->new NoSuchParticipantException("Вы не состоите в это чате."));
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId, userId)
+                .orElseThrow(() -> new NoSuchParticipantException("Вы не состоите в это чате."));
 
         PinnedChat pinnedChat = new PinnedChat(new PinnedChatId(userId, chatId));
         pinnedChatsRepository.save(pinnedChat);
     }
 
     @Transactional
-    public ChatDto deletePinnedChat(long chatId, long userId) {
+    public ChatDto deletePinnedChat(long chatId, long userId, String token) {
         boolean exists = pinnedChatsRepository.existsById_ChatIdAndId_UserId(chatId, userId);
-        if(!exists){
+        if (!exists) {
             throw new NoSuchPinnedChatException("Закрепленный чат не найден");
         }
         pinnedChatsRepository.deleteById_ChatIdAndId_UserId(chatId, userId);
-        return chatsService.findChatById(chatId,(int)userId);
+        return chatsService.findChatById(chatId, (int) userId, token);
     }
 
     public List<PinnedChat> getPinnedChatsByUserId(long userId) {

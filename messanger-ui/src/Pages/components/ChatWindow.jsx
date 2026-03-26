@@ -81,7 +81,6 @@ function ChatWindow({
         const { signal } = controller;
 
         const initChat = async () => {
-            // 1. Мгновенный сброс состояний (React 18 объединит эти апдейты в один рендер)
             setMessages([]);
             setPage(0);
             setHasMore(true);
@@ -90,7 +89,6 @@ function ChatWindow({
             setInputText('');
             setIsLoading(true);
 
-            // Логика для нового чата (быстрый выход)
             if (activeChat.isNew) {
                 const fullName = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
                 setChatDetails({ title: fullName, isGroup: false });

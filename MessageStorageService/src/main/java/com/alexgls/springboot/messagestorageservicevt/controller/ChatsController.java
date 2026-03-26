@@ -38,13 +38,15 @@ public class ChatsController {
     @GetMapping("/{id}")
     public ChatDto getChatById(@PathVariable("id") int chatId, Authentication authentication) {
         int userId = getSenderId(authentication);
-        return chatsService.findChatById(chatId, userId);
+        String token = getToken(authentication);
+        return chatsService.findChatById(chatId, userId, token);
     }
 
     @GetMapping("/by-user/{id}")
     public ChatDto getChatByUserId(@PathVariable("id") int userId, Authentication authentication) {
         int senderId = getSenderId(authentication);
-        return chatsService.findPrivateChat(senderId, userId);
+        String token = getToken(authentication);
+        return chatsService.findPrivateChat(senderId, userId, token);
     }
 
     @GetMapping("/find-all/{page}")
@@ -71,7 +73,8 @@ public class ChatsController {
     public ChatDto createPrivateChat(@PathVariable("receiverId") int id, Authentication authentication) {
         log.info("Find or create private chat, receiver id: {}", id);
         Integer userId = getSenderId(authentication);
-        return chatsService.findPrivateChat(userId, id);
+        String token = getToken(authentication);
+        return chatsService.findPrivateChat(userId, id, token);
     }
 
     @GetMapping("/find-recipient-by-private-chat-id/{id}")
