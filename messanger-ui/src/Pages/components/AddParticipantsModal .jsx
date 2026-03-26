@@ -47,7 +47,6 @@ const AddParticipantsModal = ({ isOpen, onClose, chatId, onParticipantsAdded, pa
         try {
             const data = await apiFetch(`/api/search/users/by-username/${query}`);
             const filtered = data.filter((user) => !participantCache[user.id])
-                        console.log(filtered)
             setSearchResults(filtered || []);
         } catch (error) {
             console.error("Ошибка поиска участников:", error);
