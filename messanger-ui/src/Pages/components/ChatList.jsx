@@ -4,21 +4,24 @@ import { apiFetch } from '../utils/apiClient';
 
 import '../Styles/Chats.css'
 
-const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref) => {
+const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu, currentUserId }, ref) => {
     const [chats, setChats] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchAndAddSingleChat = async (chatId) => {
+    const fetchAndAddSingleChat = async (msg) => {
         try {
+            const chatId = msg.chatId;
             const fullChatDto = await apiFetch(`/api/chats/${chatId}`);
             setChats(prev => {
                 if (prev.some(c => c.chatId === chatId)) return prev;
 
                 const pinnedChats = prev.filter(c => c.pinned);
                 const regularChats = prev.filter(c => !c.pinned);
-                fullChatDto.numberOfUnreadMessages = (fullChatDto.numberOfUnreadMessages || 0) + 1;
+                if (msg.senderId !== currentUserId) {
+                    fullChatDto.numberOfUnreadMessages = (fullChatDto.numberOfUnreadMessages || 0) + 1;
+                }
                 if (fullChatDto.pinned) {
                     return [fullChatDto, ...pinnedChats, ...regularChats];
                 } else {
@@ -54,7 +57,7 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu }, ref)
                     return targetChat.pinned ? [targetChat, ...pinned, ...regular] : [...pinned, targetChat, ...regular];
                 } else {
                     setTimeout(() => {
-                        fetchAndAddSingleChat(newMsg.chatId);
+                        fetchAndAddSingleChat(newMsg);
                     }, 0);
                     return prev;
                 }

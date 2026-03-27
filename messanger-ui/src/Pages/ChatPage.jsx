@@ -497,6 +497,7 @@ function ChatPage() {
                     onChatSelect={handleChatSelect}
                     ref={chatListRef}
                     onContextMenu={handleChatContextMenu}
+                    currentUserId={user?.id}
                 />
 
                 <ChatWindow
