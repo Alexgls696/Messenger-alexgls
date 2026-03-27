@@ -106,7 +106,7 @@ public class ParticipantsService {
         }
         Participants participant = participantsRepository.findByChatIdAndUserId(chatId, actorId)
                 .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
-        boolean canRemoveMembers = SecurityUtils.determinateGroupAccess(participant.getRole()).canRemoveMembers();
+        boolean canRemoveMembers = SecurityUtils.determinateGroupAccess(participant).canRemoveMembers();
         if (!canRemoveMembers) {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }
@@ -156,12 +156,24 @@ public class ParticipantsService {
             throw new NoSuchParticipantException("Не найдена связь между чатом и пользователем");
         }
         ServiceMessage message = generateLeaveUserMessageContent(userId, token);
-        messagesService.saveServiceMessage(message,chatId,userId);
+        messagesService.saveServiceMessage(message, chatId, userId);
         participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId);
     }
 
+    @Transactional
+    public void enterGroup(int chatId, int userId){
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId,userId)
+                .orElseThrow(()->new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
+        if(participants.isRemoved()){
+            throw new AccessDeniedException("У вас нет доступа на выполнение данной операции");
+        }
+        participants.setLeave(false);
+    }
+
+
     /**
      * Возвращает id пользователей, с которыми у данного пользователя есть чат.
+     *
      * @param userId Id текущего пользователя
      * @return Iterable с id пользователей.
      */
@@ -175,7 +187,7 @@ public class ParticipantsService {
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат для добавления пользователей не найден"));
         Participants participants = participantsRepository.findByChatIdAndUserId(addParticipantsToGroupDto.chatId(), userId)
                 .orElseThrow(() -> new NoSuchParticipantException("Вы не состоите в этом чате, действие невозможно"));
-        var access = SecurityUtils.determinateGroupAccess(participants.getRole());
+        var access = SecurityUtils.determinateGroupAccess(participants);
         if (!access.canRemoveMembers()) {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }

@@ -19,6 +19,7 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
     @Query("from Participants where chat.id = :chatId and removed = true or leave = true ")
     List<Participants> findAllRemovedParticipants(@Param("chatId") long chatId);
 
+
     @Query("from Participants " +
             "where chat.id = :currentChatId and removed is false " +
             "and leave is false")
@@ -99,11 +100,11 @@ public interface ParticipantsRepository extends CrudRepository<Participants, Lon
 
 
     @Query(nativeQuery = true, value = """
-    select p.chat_id as chatId, p.user_id as userId
-    from participants p
-    join chats c on p.chat_id = c.chat_id
-    where p.user_id != :userId and c.is_group = false
-    and c.chat_id in (:chatIds)
-    """)
+            select p.chat_id as chatId, p.user_id as userId
+            from participants p
+            join chats c on p.chat_id = c.chat_id
+            where p.user_id != :userId and c.is_group = false
+            and c.chat_id in (:chatIds)
+            """)
     List<RecipientProjection> findRecipientsProjections(int userId, List<Long> chatIds);
 }

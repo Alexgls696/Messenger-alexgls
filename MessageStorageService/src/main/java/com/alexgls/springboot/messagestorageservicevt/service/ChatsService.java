@@ -244,7 +244,7 @@ public class ChatsService {
     public GroupAccessDto getUserRightsByGroupId(long groupId, int userId) {
         Participants participants = participantsRepository.findByChatIdAndUserId(groupId, userId)
                 .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
-        return SecurityUtils.determinateGroupAccess(participants.getRole());
+        return SecurityUtils.determinateGroupAccess(participants);
     }
 
 }

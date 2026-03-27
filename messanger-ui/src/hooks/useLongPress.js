@@ -5,7 +5,6 @@ export const useLongPress = (onLongPress, onClick, { delay = 500 } = {}) => {
     const isLongPressActive = useRef(false);
 
     const start = useCallback((event) => {
-        // Запоминаем координаты тача для контекстного меню
         const touch = event.touches ? event.touches[0] : event;
         const coords = { clientX: touch.clientX, clientY: touch.clientY };
 
@@ -15,7 +14,7 @@ export const useLongPress = (onLongPress, onClick, { delay = 500 } = {}) => {
             onLongPress(coords, event);
             isLongPressActive.current = true;
             if (window.navigator.vibrate) {
-                window.navigator.vibrate(50); // Легкая вибрация при срабатывании
+                window.navigator.vibrate(50); 
             }
         }, delay);
     }, [onLongPress, delay]);
@@ -24,7 +23,6 @@ export const useLongPress = (onLongPress, onClick, { delay = 500 } = {}) => {
         if (timeout.current) {
             clearTimeout(timeout.current);
         }
-        // Если это был короткий клик — можно вызвать обычный onClick
         if (!isLongPressActive.current && onClick) {
             // onClick(event); 
         }

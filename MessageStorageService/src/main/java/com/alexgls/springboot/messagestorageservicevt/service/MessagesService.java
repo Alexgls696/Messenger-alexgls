@@ -77,9 +77,7 @@ public class MessagesService {
             var attachments = attachmentsMap.getOrDefault(message.getId(), Collections.emptyList());
             message.setAttachments(attachments);
             if (!Objects.isNull(participants.getLastReadMessageId())) {
-                if (message.getSenderId() == currentUserId) {
-                    message.setRead(true);
-                } else {
+                if (message.getSenderId() != currentUserId) {
                     boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
                     message.setRead(isReadByCurrentUser);
                 }

@@ -20,7 +20,6 @@ const ChatWindow = forwardRef(({
     onOpenSearch,
     onMessageContextMenu,
     socketUpdates,
-    readEvent,
     deleteEvent,
     onChatCreated,
     messageUpdateEvent,
@@ -38,7 +37,9 @@ const ChatWindow = forwardRef(({
     forwardingMessages,
     setForwardingMessages,
     userOnlineChanged,
-    clearSocketUpdates
+    clearSocketUpdates,
+    isForbidden,
+    setIsForbidden
 }, ref) => {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
@@ -51,7 +52,7 @@ const ChatWindow = forwardRef(({
     const [user, setUser] = useState(null);
 
     const [inputText, setInputText] = useState('');
-    const [pendingFiles, setPendingFiles] = useState([]); // [{ file, tempId, isAnalysed }]
+    const [pendingFiles, setPendingFiles] = useState([]);
 
     const fileInputRef = useRef(null);
     const scrollContainerRef = useRef(null);
@@ -59,8 +60,6 @@ const ChatWindow = forwardRef(({
     const isInitialLoad = useRef(true);
 
     const inputTextRef = useRef(null);
-
-    const [isForbidden, setIsForbidden] = useState(false);
 
     const [selectedMessages, setSelectedMessages] = useState([]);
 
@@ -89,12 +88,22 @@ const ChatWindow = forwardRef(({
                 return [...prev, newMsg];
             });
 
-            // Скролл вниз
             setTimeout(() => {
                 if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
                 }
             }, 50);
+        },
+        readMessageEvent(readMsg) {
+            const idsToUpdate = new Set(readMsg.messageIds);
+
+            setMessages(prev => prev.map(m => {
+                if (idsToUpdate.has(m.id)) {
+                    return { ...m, read: true };
+                }
+                // 3. Если не совпало, возвращаем старое сообщение без изменений
+                return m;
+            }));
         }
     }));
 
@@ -151,7 +160,6 @@ const ChatWindow = forwardRef(({
 
                 if (participantsDto.removed) {
                     setIsForbidden(true);
-                    setInputText('Вы не состоите в этой группе❗ ');
                 }
 
                 setMessages(msgData.fetchedMessages);
@@ -191,7 +199,6 @@ const ChatWindow = forwardRef(({
             isInitialLoad.current = false;
         });
     }, [messages]);
-
 
     // Редактирование
     useEffect(() => {
@@ -280,17 +287,6 @@ const ChatWindow = forwardRef(({
             }));
         }
     }, [messageUpdateEvent, activeChat?.chatId]);
-
-    useEffect(() => {
-        if (!activeChat || !readEvent) return;
-
-        if (readEvent.chatId === activeChat.chatId) {
-            setMessages(prev => prev.map(m =>
-                readEvent.messageIds.includes(m.id) ? { ...m, read: true } : m
-            ));
-        }
-    }, [readEvent, activeChat]);
-
 
     useEffect(() => {
         if (!activeChat || !deleteEvent) return;
@@ -494,17 +490,35 @@ const ChatWindow = forwardRef(({
                     const request = {
                         chatMessage: messagePayload,
                         forwardedMessagesIds: forwardedMessagesIds,
-                    }
-                    await apiFetch(`/api/messages/forward`, {
+                    };
+
+                    const responseData = await apiFetch(`/api/messages/forward`, {
                         method: 'POST',
                         body: JSON.stringify(request)
-                    })
-                    setForwardingMessages([])
+                    });
+
+                    setMessages(prev => {
+                        const optimisticIndex = prev.findIndex(m => m.tempId === tempId);
+
+                        if (optimisticIndex !== -1) {
+                            const newMessages = [...prev];
+                            newMessages.splice(optimisticIndex, 1, ...responseData);
+                            return newMessages;
+                        }
+
+                        return [...prev, ...responseData];
+                    });
+
+                    setForwardingMessages([]);
                 } else {
-                    await apiFetch('/api/messages', {
+                    const messageResponse = await apiFetch('/api/messages', {
                         method: 'POST',
                         body: JSON.stringify(messagePayload)
                     });
+
+                    setMessages(prev => prev.map(m =>
+                        m.tempId === tempId ? messageResponse : m
+                    ));
                 }
                 setReplyingTo(null)
 
@@ -577,6 +591,8 @@ const ChatWindow = forwardRef(({
                 if (id) {
                     imageLoader.getImageSrc(id)
                         .then(setAvatar)
+                } else {
+                    setAvatar(defaultProfileImage)
                 }
             }).catch(() => {
             });
@@ -827,11 +843,10 @@ const ChatWindow = forwardRef(({
                     </>
                 )}
 
-                <textarea ref={inputTextRef}
+
+                {!isForbidden ? (<textarea ref={inputTextRef}
                     className="message-input"
                     value={inputText}
-                    readOnly={isForbidden}
-                    disabled={isForbidden}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -843,7 +858,16 @@ const ChatWindow = forwardRef(({
                         }
                     }}
                     placeholder="Введите сообщение..."
-                />
+                />) : (
+                    <div className="forbidden-plaque">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>У вас нет доступа к этому чату</span>
+                    </div>
+                )}
+
 
                 {!isForbidden && (
                     <button

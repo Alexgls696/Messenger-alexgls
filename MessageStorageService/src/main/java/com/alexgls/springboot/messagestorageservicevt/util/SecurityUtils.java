@@ -3,6 +3,7 @@ package com.alexgls.springboot.messagestorageservicevt.util;
 
 import com.alexgls.springboot.messagestorageservicevt.dto.chats.GroupAccessDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
+import com.alexgls.springboot.messagestorageservicevt.entity.Participants;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -18,13 +19,15 @@ public class SecurityUtils {
         return jwt.getTokenValue();
     }
 
-    public static GroupAccessDto determinateGroupAccess(ChatRole chatRole) {
+    public static GroupAccessDto determinateGroupAccess(Participants participants) {
+        ChatRole chatRole = participants.getRole();
+        boolean canEdit = false, canRemoveMembers = false, canRemoveMessages = false;
         if (chatRole == ChatRole.OWNER || chatRole == ChatRole.ADMIN) {
-            return new GroupAccessDto(true, true, true);
+            canEdit = true; canRemoveMembers = true; canRemoveMessages = true;
         }
         if (chatRole == ChatRole.MODERATOR || chatRole.equals(ChatRole.MEMBER)) {
-            return new GroupAccessDto(false, false, true);
+            canEdit = false; canRemoveMembers = false; canRemoveMessages = true;
         }
-        return new GroupAccessDto(false, true, false);
+        return new GroupAccessDto(canEdit,canRemoveMembers, canRemoveMessages, participants.isLeave(), participants.isRemoved());
     }
 }

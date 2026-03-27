@@ -1,27 +1,31 @@
 .chat-wrapper {
     display: flex;
     flex-grow: 1;
-    gap: 20px;
+    gap: 16px;
+    /* Немного уменьшил для компактности */
     min-height: 0;
     height: 0;
     flex-basis: 100%;
+    width: 100%;
 }
-
-/* --- 2. СПИСОК ЧАТОВ (Слева) --- */
 
 .chat-list {
     list-style: none;
     padding: 0;
-    width: 320px;
-    flex-shrink: 0;
+    margin: 0;
+
+    flex: 0 3 400px;
+    min-width: 280px;
+    max-width: 420px;
+
     background: var(--surface-primary);
     border-radius: 24px;
     box-shadow: 0 4px 10px var(--shadow-primary);
     overflow-y: auto;
     border: 1px solid var(--border-primary);
-    margin: 0;
     display: flex;
     flex-direction: column;
+    transition: flex-basis 0.2s ease;
 }
 
 .chat-list p {
@@ -221,15 +225,14 @@ li.active .online-status-dot {
 
 
 .chat-window {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    flex: 1 1 500px;
+    min-width: 350px;
+
     background: var(--surface-primary);
     border-radius: 24px;
     border: 1px solid var(--border-primary);
-    box-shadow: 0 4px 15px var(--shadow-primary);
-    height: 100%;
-    min-height: 0;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
 
@@ -416,7 +419,6 @@ li.active .online-status-dot {
         gap: 0;
     }
 
-    .chat-list,
     .chat-window {
         position: absolute;
         top: 0;
@@ -428,21 +430,28 @@ li.active .online-status-dot {
     }
 
     .chat-window {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+        flex: 1 1 100%;
+        max-width: none;
+        min-width: 0;
+        border-radius: 0;
+        border: none;
+    }
+
+    .chat-list {
+        flex: 1 1 100%;
+        max-width: none;
+        min-width: 0;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
 
     body.chat-active .chat-list {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+        display: none;
     }
 
-    body.chat-active .chat-window {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
+    body:not(.chat-active) .chat-window {
+        display: none;
     }
 
     .chat-window__header {

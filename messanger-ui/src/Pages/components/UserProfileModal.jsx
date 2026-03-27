@@ -115,7 +115,6 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                         </div>
                     ) : (
                         <>
-                            {/* Шапка профиля */}
                             <div className="profile-header">
                                 <AvatarImage avatarId={profileData?.avatarId} />
                                 <div className="profile-details">
@@ -124,18 +123,19 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                                 </div>
                             </div>
 
-                            {/* Фотографии */}
                             <div className="photos-section">
                                 <h3 className="profile-section-title">Фотографии</h3>
-                                <div className="photos-grid">
-                                    {profileData?.userImages?.length > 0 ? (
-                                        profileData.userImages.map(img => (
-                                            <div key={img.id} className="profile-image-item" onClick={() => photoViewer.open(img.imageId)}>
-                                                <ProfilePhoto imageId={img.imageId} />
-                                            </div>
-                                        ))
-                                    ) : <p className="placeholder">У пользователя нет фотографий.</p>}
-                                </div>
+                                {profileData?.userImages?.length > 0 ? (
+                                    <div className="photos-grid">
+                                        {
+                                            profileData.userImages.map(img => (
+                                                <div key={img.id} className="profile-image-item" onClick={() => photoViewer.open(img.imageId)}>
+                                                    <ProfilePhoto imageId={img.imageId} />
+                                                </div>
+                                            ))
+                                        }
+                                    </div>) : (<p className="placeholder">У пользователя нет фотографий.</p>)
+                                }
                             </div>
 
                             {/* Вложения чата */}

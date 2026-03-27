@@ -140,24 +140,37 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                         {isNotificationMenuOpen && (
                             <div className="notification-dropdown-menu">
                                 <div className="notification-dropdown-header">
-                                    <p>Уведомления</p>
-                                    <button className="header-icon-btn" title="Закрыть уведомления" onClick={() => setIsNotificationMenuOpen(false)}>
-                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <span>Уведомления</span>
+                                    <button className="close-btn-simple" onClick={() => setIsNotificationMenuOpen(false)}>
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
                                         </svg>
                                     </button>
                                 </div>
+
                                 <div className="notification-list-container">
                                     {notifications.length > 0 ? (
                                         notifications.map(n => <NotificationItem key={n.id} ntf={n} />)
                                     ) : (
-                                        <p className="placeholder">Уведомлений нет</p>
+                                        <div className="notification-empty-state">
+                                            <div className="empty-icon">
+                                                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                                </svg>
+                                            </div>
+                                            <p>У вас пока нет уведомлений</p>
+                                            <span>Здесь будут появляться важные события</span>
+                                        </div>
                                     )}
                                 </div>
+
                                 {notifications.length !== 0 && (
-                                    <div className='remove-all'>
-                                        <p onClick={onDeleteAllNotificationsClick}>Удалить все</p>
+                                    <div className="notification-dropdown-footer">
+                                        <button className="delete-all-btn" onClick={onDeleteAllNotificationsClick}>
+                                            Удалить все
+                                        </button>
                                     </div>
                                 )}
                             </div>
@@ -210,17 +223,37 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
 
                         {isNotificationMenuOpen && (
                             <div className="notification-dropdown-menu mobile-dropdown">
-                                <div className="notification-dropdown-header">Уведомления</div>
+                                <div className="notification-dropdown-header">
+                                    <span>Уведомления</span>
+                                    <button className="close-btn-simple" onClick={() => setIsNotificationMenuOpen(false)}>
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+
                                 <div className="notification-list-container">
                                     {notifications.length > 0 ? (
                                         notifications.map(n => <NotificationItem key={n.id} ntf={n} />)
                                     ) : (
-                                        <p className="placeholder" style={{ padding: '20px' }}>Уведомлений нет</p>
+                                        <div className="notification-empty-state">
+                                            <div className="empty-icon">
+                                                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                                </svg>
+                                            </div>
+                                            <p>Уведомлений нет</p>
+                                        </div>
                                     )}
                                 </div>
+
                                 {notifications.length !== 0 && (
-                                    <div className='remove-all'>
-                                        <p onClick={onDeleteAllNotificationsClick}>Удалить все</p>
+                                    <div className='notification-dropdown-footer'>
+                                        <button className="delete-all-btn" onClick={onDeleteAllNotificationsClick}>
+                                            Удалить все
+                                        </button>
                                     </div>
                                 )}
                             </div>

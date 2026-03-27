@@ -4,14 +4,15 @@ import { imageLoader } from '../utils/imageLoader';
 import AttachmentItem from './AttachmentItem';
 import AddParticipantsModal from './AddParticipantsModal ';
 
-import defaultGroupImage from '../images/group-default.png'
 import defaultProfileImage from '../images/profile-default.png'
 
-const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, currentUserId, imageObserver, onOpenUserProfile, onOpenConfirm, participantCache }) => {
+const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, currentUserId, imageObserver, onOpenUserProfile, onOpenConfirm, participantCache, setIsForbidden }) => {
     const [participants, setParticipants] = useState([]);
     const [groupDetails, setGroupDetails] = useState(null);
     const [canRemove, setCanRemove] = useState(false);
     const [canEdit, setCanEdit] = useState(false);
+    const [isRemoved, setIsRemoved] = useState(false);
+    const [isLeave, setIsLeave] = useState(false)
     const [activeTab, setActiveTab] = useState('IMAGE');
     const [attachments, setAttachments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +48,8 @@ const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, cur
                     const canEditRequest = access?.canEdit === true;
                     setCanEdit(canEditRequest);
                     setCanRemove(hasAccess);
+                    setIsRemoved(access.removed)
+                    setIsLeave(access.leave);
                 } catch (error) {
                     console.error("Ошибка загрузки группы:", error);
                 } finally {
@@ -153,6 +156,19 @@ const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, cur
         );
     }
 
+    const handleEnterGroup = async () => {
+        try {
+            await apiFetch(`/api/chats/groups/${chatId}/enter`, {
+                method: "POST"
+            })
+            setIsLeave(false)
+            setIsForbidden(false)
+            onClose();
+        } catch (error) {
+
+        }
+    }
+
     const refreshParticipants = async () => {
         try {
             const parts = await apiFetch(`/api/chats/${chatId}/participants`);
@@ -213,33 +229,47 @@ const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, cur
                                             </div>
                                             {/* КНОПКА РЕДАКТИРОВАНИЯ */}
                                             <div className="group-actions">
-                                                {canRemove && (
-                                                    <button
-                                                        className="header-icon-btn"
-                                                        onClick={() => setIsAddModalOpen(true)}
-                                                        title="Добавить участников"
-                                                    >
-                                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                {!isLeave ? <>
+                                                    {canRemove && (
+                                                        <button
+                                                            className="header-icon-btn"
+                                                            onClick={() => setIsAddModalOpen(true)}
+                                                            title="Добавить участников"
+                                                        >
+                                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                            </svg>
+                                                        </button>
+                                                    )}
+                                                    {canEdit && (
+                                                        <button className="header-icon-btn" onClick={handleOpenEditModal} title="Редактировать">
+                                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                            </svg>
+                                                        </button>
+                                                    )}
+                                                    {
+                                                        !isRemoved && <button className="header-icon-btn" onClick={handleLeaveGroup} title="Выйти из группы">
+                                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                                            </svg>
+                                                        </button>
+                                                    }
+                                                </> : (
+                                                    <button className="header-icon-btn" onClick={handleEnterGroup} title="Вернуться в группу">
+                                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            {/* Иконка входа (стрелка направлена внутрь проема) */}
+                                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                                            <polyline points="10 17 5 12 10 7"></polyline>
+                                                            <line x1="15" y1="12" x2="5" y2="12"></line>
                                                         </svg>
                                                     </button>
                                                 )}
-                                                {canEdit && (
-                                                    <button className="header-icon-btn" onClick={handleOpenEditModal} title="Редактировать">
-                                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                        </svg>
-                                                    </button>
-                                                )}
-                                                <button className="header-icon-btn" onClick={handleLeaveGroup} title="Выйти из группы">
-                                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                        <polyline points="16 17 21 12 16 7"></polyline>
-                                                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                                                    </svg>
-                                                </button>
+
                                             </div>
 
                                         </div>
@@ -250,21 +280,23 @@ const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, cur
                                     </div>
                                 </div>
 
-                                <div className="participants-section">
-                                    <h3 className="profile-section-title">Участники</h3>
-                                    <div className="participants-list">
-                                        {participants.map(p => (
-                                            <ParticipantItem
-                                                key={p.id}
-                                                user={p}
-                                                isMe={p.id === currentUserId}
-                                                canRemove={canRemove}
-                                                onRemove={() => handleRemoveMember(p)}
-                                                onOpenProfile={() => onOpenUserProfile(p)}
-                                            />
-                                        ))}
+                                {(!isLeave && !isRemoved) &&
+                                    <div className="participants-section">
+                                        <h3 className="profile-section-title">Участники</h3>
+                                        <div className="participants-list">
+                                            {participants.map(p => (
+                                                <ParticipantItem
+                                                    key={p.id}
+                                                    user={p}
+                                                    isMe={p.id === currentUserId}
+                                                    canRemove={canRemove}
+                                                    onRemove={() => handleRemoveMember(p)}
+                                                    onOpenProfile={() => onOpenUserProfile(p)}
+                                                />
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                }
 
                                 <div className="attachments-section">
                                     <div className="attachments-tabs">

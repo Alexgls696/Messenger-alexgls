@@ -4,10 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлен баг (отсутствие имени) при появлении нового чата в списке">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлена пересылка сообщений, отправка нескольких сообщений, долгое нажатие на сообщение на мобильном для вызова контекстного меню">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/AddParticipantsModal .jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/GroupAccessDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/chats/GroupAccessDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessageTokenRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/MessageTokenRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/ParticipantsRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/SecurityUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/SecurityUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Global.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Header.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/GroupProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/Message.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/components/UserProfileModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useChatWebSocket.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/hooks/useLongPress.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/hooks/useLongPress.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,17 +143,17 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Spring Boot.ApiGatewayServiceApplication.executor": "Debug",
+    "Spring Boot.ApiGatewayServiceApplication.executor": "Run",
     "Spring Boot.AuthServiceSpringBootApplication (1).executor": "Run",
     "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
-    "Spring Boot.ConnectionServiceApplication.executor": "Run",
+    "Spring Boot.ConnectionServiceApplication.executor": "Debug",
     "Spring Boot.ConnectionsServiceApplication.executor": "Run",
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -422,8 +442,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.ConnectionServiceApplication" />
+        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Docker.docker-compose.prod.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
@@ -572,23 +592,8 @@
       <workItem from="1774377171146" duration="794000" />
       <workItem from="1774417961453" duration="2158000" />
       <workItem from="1774508959870" duration="16972000" />
-      <workItem from="1774527567795" duration="1110000" />
-    </task>
-    <task id="LOCAL-00025" summary="Исправлены ошибки отправки файлов">
-      <option name="closed" value="true" />
-      <created>1765987511767</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1765987511767</updated>
-    </task>
-    <task id="LOCAL-00026" summary="Фиксы багов с отображением фотографий, обновлением профиля и отображением зашифрованного сообщения при первом его получении">
-      <option name="closed" value="true" />
-      <created>1768729243822</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1768729243822</updated>
+      <workItem from="1774527567795" duration="5285000" />
+      <workItem from="1774600172875" duration="10189000" />
     </task>
     <task id="LOCAL-00027" summary="Добавлен счетчик непрочитанных сообщений">
       <option name="closed" value="true" />
@@ -966,7 +971,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774526564524</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="Исправлены проблемы производительности, связанные с открытием соединений.">
+      <option name="closed" value="true" />
+      <created>1774529291106</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1774529291106</updated>
+    </task>
+    <task id="LOCAL-00075" summary="Исправлена пересылка сообщений, отправка нескольких сообщений, долгое нажатие на сообщение на мобильном для вызова контекстного меню">
+      <option name="closed" value="true" />
+      <created>1774532614392</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1774532614393</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -984,8 +1005,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Исправлен список пользователей, с которыми был чат. Исправлено отображение сообщений в процессе отправки" />
-    <MESSAGE value="Добавлены ответы на сообщения в одном чате. Синхронная отправка сообщений без участия WebSocket. WebSocket только для рассылки" />
     <MESSAGE value="Пофикшены баги при ответе на сообщение (при удалении исходного сообщения и подгрузке удаленного)" />
     <MESSAGE value="Добавлена логика пересланных сообщений на бекенд" />
     <MESSAGE value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
@@ -1009,7 +1028,9 @@
     <MESSAGE value="Улучшена конфигурация фронтенда" />
     <MESSAGE value="Оптимизация загрузки чата" />
     <MESSAGE value="Исправлен баг (отсутствие имени) при появлении нового чата в списке" />
-    <option name="LAST_COMMIT_MESSAGE" value="Исправлен баг (отсутствие имени) при появлении нового чата в списке" />
+    <MESSAGE value="Исправлены проблемы производительности, связанные с открытием соединений." />
+    <MESSAGE value="Исправлена пересылка сообщений, отправка нескольких сообщений, долгое нажатие на сообщение на мобильном для вызова контекстного меню" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлена пересылка сообщений, отправка нескольких сообщений, долгое нажатие на сообщение на мобильном для вызова контекстного меню" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

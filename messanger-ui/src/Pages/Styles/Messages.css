@@ -544,6 +544,28 @@ body[data-theme="dark"] .message-checkbox input[type="checkbox"]:checked {
     box-shadow: 0 0 5px var(--accent-negative);
 }
 
+.forbidden-plaque {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: var(--surface-secondary);
+    color: var(--text-placeholder);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    user-select: none;
+    min-height: 50px;
+}
+
+.forbidden-plaque svg {
+    opacity: 0.6;
+    color: var(--accent-negative);
+}
+
 @keyframes popIn {
     0% {
         transform: scale(0.5);
@@ -658,8 +680,11 @@ body[data-theme="dark"] .message-checkbox input[type="checkbox"]:checked {
 
 @media (max-width: 768px) {
     .message {
-        -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-        user-select: none; /* Стандарт */
+        -webkit-touch-callout: none;
+        /* iOS Safari */
+        -webkit-user-select: none;
+        /* Safari */
+        user-select: none;
+        /* Стандарт */
     }
 }

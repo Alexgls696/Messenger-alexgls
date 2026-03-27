@@ -7,6 +7,10 @@ public record GroupAccessDto(
         //Удаление участников группы или добавление участников
         boolean canRemoveMembers,
 
-        boolean canRemoveMessages
+        boolean canRemoveMessages,
+
+        boolean leave,
+
+        boolean removed
 ) {
 }

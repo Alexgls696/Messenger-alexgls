@@ -45,48 +45,49 @@
 }
 
 
-
-
 .notification-wrapper {
     position: relative;
     display: flex;
     align-items: center;
 }
 
+
 .notification-badge-header {
     position: absolute;
     top: -2px;
     right: -2px;
-    background-color: var(--accent-negative);
+    background: var(--accent-negative);
     color: white;
     font-size: 10px;
     font-weight: bold;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid var(--surface-primary);
-    pointer-events: none;
+    padding: 0 4px;
+    z-index: 10;
 }
 
-/* Стили самого выпадающего списка (если не было) */
 .notification-dropdown-menu {
     position: absolute;
-    top: 50px;
+    top: 55px;
     right: 0;
-    width: 480px;
-    max-height: 400px;
-    min-height: 400px;
+    width: 380px;
+    /* Немного уже, чтобы выглядело аккуратнее */
+    max-height: 500px;
     background: var(--surface-primary);
     border: 1px solid var(--border-primary);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px var(--shadow-primary);
+    border-radius: 16px;
+    /* Более мягкие углы */
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
     z-index: 2000;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    animation: fadeInScale 0.2s ease-out;
 }
 
 .remove-all {
@@ -109,16 +110,32 @@
 }
 
 .notification-dropdown-header {
-    padding: 10px 10px 10px 10px;
-    font-weight: bold;
-    border-bottom: 1px solid var(--border-secondary);
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
+    padding: 16px 20px;
     display: flex;
-    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    justify-items: center;
-    text-align: center;
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.notification-dropdown-header span {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.close-btn-simple {
+    background: none;
+    border: none;
+    color: var(--text-placeholder);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-btn-simple:hover {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
 }
 
 .notification-dropdown-header p {
@@ -130,18 +147,47 @@
     flex-grow: 1;
 }
 
-/* Стили элемента уведомления */
 .notification-item {
     display: flex;
     gap: 12px;
-    padding: 12px 15px;
+    padding: 14px 20px;
     border-bottom: 1px solid var(--border-secondary);
-    transition: background-color 0.2s;
-    cursor: default;
+    transition: background 0.2s;
+}
+
+.notification-item.unread {
+    background-color: var(--surface-secondary-alpha);
+    /* легкий оттенок */
 }
 
 .notification-item:hover {
     background-color: var(--surface-secondary);
+}
+
+.notification-empty-state {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.notification-empty-state .empty-icon {
+    margin-bottom: 16px;
+    color: var(--text-placeholder);
+}
+
+.notification-empty-state p {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-empty-state span {
+    font-size: 0.85em;
+    color: var(--text-placeholder);
+    margin-top: 4px;
 }
 
 .notification-avatar {
@@ -273,6 +319,42 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-wrap: break-word;
+}
+
+.notification-dropdown-footer {
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-secondary);
+    display: flex;
+    justify-content: center;
+}
+
+.delete-all-btn {
+    background: none;
+    border: none;
+    color: var(--accent-negative);
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.delete-all-btn:hover {
+    background: rgba(255, 77, 79, 0.1);
+    /* Легкий красный фон при наведении */
+    text-decoration: underline;
+}
+
+/* Скроллбар (опционально для красоты) */
+.notification-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-primary);
+    border-radius: 10px;
 }
 
 /* --- 2. МОБИЛЬНАЯ ШАПКА (.mobile-header) --- */
@@ -434,6 +516,30 @@
     }
 }
 
+@keyframes mobileMenuSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
 /* Адаптация под темную тему */
 body[data-theme="dark"] .connection-spinner {
     border-color: rgba(255, 255, 255, 0.1);
@@ -453,22 +559,56 @@ body[data-theme="dark"] .connection-spinner {
         /* Показываем мобильную */
     }
 
-    .notification-dropdown-menu.mobile-dropdown {
-        position: fixed;
-
-        top: 60px;
-        /* Сразу под мобильной шапкой */
-        left: 10px;
-        right: 10px;
-        width: calc(100vw - 20px);
-        /* Почти на всю ширину экрана */
-        max-height: 70vh;
-        z-index: 3000;
-    }
-
     /* Увеличим область клика аватара в уведомлении для мобилок */
     .notification-avatar {
         width: 45px;
         height: 45px;
+    }
+
+    .notification-dropdown-menu.mobile-dropdown {
+        position: fixed;
+        /* Фиксируем относительно экрана, а не кнопки */
+        top: 70px;
+        /* Отступ от шапки */
+        left: 5%;
+        right: 5%;
+        width: 90%;
+        /* Занимаем почти всю ширину */
+        max-height: 70vh;
+        /* Не больше 70% высоты экрана */
+        min-height: auto;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .notification-list-container {
+        max-height: 50vh;
+    }
+
+    .notification-item {
+        padding: 16px 20px;
+    }
+
+    .notification-title {
+        font-size: 1em;
+    }
+
+    .notification-text {
+        font-size: 0.9em;
+    }
+
+    .remove-all {
+        padding: 15px;
+        background: var(--surface-secondary);
+        border: none;
+        text-align: center;
+    }
+
+    .remove-all p {
+        text-align: center;
+        width: 100%;
+        display: block;
+        font-size: 14px;
+        color: var(--accent-negative);
     }
 }

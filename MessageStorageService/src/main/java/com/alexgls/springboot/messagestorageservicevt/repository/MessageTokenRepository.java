@@ -20,7 +20,11 @@ public interface MessageTokenRepository extends CrudRepository<MessageToken, Mes
 
     @Query(value = "SELECT t.message_id FROM message_tokens t " +
             "JOIN messages m ON t.message_id = m.message_id " +
-            "WHERE m.chat_id = :chatId AND t.token_hash IN (:hashes) " +
-            "AND (m.message_id NOT IN (SELECT dm.message_id from deleted_messages dm where user_id = :userId))", nativeQuery = true)
+            "JOIN participants p ON p.chat_id = m.chat_id AND p.user_id = :userId " +
+            "WHERE m.chat_id = :chatId " +
+            "AND t.token_hash IN (:hashes) " +
+            "AND m.created_at <= COALESCE(p.remove_at, CURRENT_TIMESTAMP) " +
+            "AND (m.message_id NOT IN (SELECT dm.message_id from deleted_messages dm where dm.user_id = :userId))",
+            nativeQuery = true)
     List<Long> findAllMessageIdsByTokenHashInChat(@Param("chatId") int chatId, @Param("userId") int userId, @Param("hashes") Collection<String> hashes);
 }

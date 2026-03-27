@@ -25,10 +25,10 @@ const Message = ({
     const [replyMsg, setReplyMsg] = useState(null);
     const [forwardFromName, setForwardFromName] = useState(null);
 
-    // --- Эффект для регистрации в Observer (прочтение сообщения) ---
     useEffect(() => {
         const element = msgRef.current;
         if (element && !isSentByMe && !msg.read && messageReadObserver) {
+            console.log("Reading...")
             messageReadObserver.observe(element);
             return () => messageReadObserver.unobserve(element);
         }

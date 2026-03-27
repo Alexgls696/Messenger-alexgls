@@ -29,18 +29,17 @@ public class MessagesController {
     private final KafkaSenderService kafkaSenderService;
 
     @PostMapping
-    public ResponseEntity<Void> createMessage(@RequestBody ChatMessage message, Authentication authentication) {
+    public ResponseEntity<MessageDto> createMessage(@RequestBody ChatMessage message, Authentication authentication) {
         var payload = getCreateMessagePayload(message, authentication);
         MessageDto savedMessageDto = messagesService.save(payload);
         log.info("Message has been successfully saved in database: {}", savedMessageDto);
         kafkaSenderService.sendMessage(savedMessageDto);
         return ResponseEntity
-                .ok()
-                .build();
+                .ok(savedMessageDto);
     }
 
     @PostMapping("/forward")
-    public ResponseEntity<Void> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
+    public ResponseEntity<List<MessageDto>> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
         var payload = getCreateMessagePayload(request.chatMessage(), authentication);
         var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds());
         log.info("Forwarded messages has been successfully saved in database: {}", savedMessages);
@@ -49,8 +48,7 @@ public class MessagesController {
             kafkaSenderService.sendMessage(msg);
         }
         return ResponseEntity
-                .ok()
-                .build();
+                .ok(savedMessages);
     }
 
     private CreateMessagePayload getCreateMessagePayload(ChatMessage message, Authentication authentication) {

@@ -73,7 +73,6 @@ function ChatPage() {
     // События WebSocket
     const [socketUpdates, setSocketUpdates] = useState([]);
 
-    const [readEvent, setReadEvent] = useState(null);
     const [deleteEvent, setDeleteEvent] = useState(null);
     const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
@@ -82,6 +81,8 @@ function ChatPage() {
     const activeChatRef = useRef(null);
 
     const [activeChatOnline, setActiveChatOnline] = useState(null);
+
+    const [isForbidden, setIsForbidden] = useState(false); // для групп
 
     const [playMessageSound] = useSound(messageSound, {
         volume: 0.5,
@@ -108,6 +109,14 @@ function ChatPage() {
             chatWindowRef.current?.addMessageFromSocket(newMsg);
         }
     }, [user, playMessageSound]);
+
+    const onMessageRead = useCallback((messageRead) => {
+        const curActive = activeChatRef.current;
+        const isMsgForActive = curActive && String(curActive.chatId) === String(messageRead.chatId);
+        if (isMsgForActive) {
+            chatWindowRef.current?.readMessageEvent(messageRead);
+        }
+    }, []);
 
     const onMessageUpdate = useCallback((updatedMsg) => {
         if (activeChatRef.current?.chatId === updatedMsg.chatId) {
@@ -168,7 +177,7 @@ function ChatPage() {
     useChatWebSocket(
         API_BASE_URL,
         onMessageReceived,
-        setReadEvent,
+        onMessageRead,
         onDeleteEvent,
         onNotificationReceived,
         onMessageUpdate,
@@ -179,7 +188,6 @@ function ChatPage() {
 
     const markMessagesAsRead = useCallback(async (messagesToRead) => {
         if (!messagesToRead.length) return;
-
         const chatId = messagesToRead[0].chatId;
         chatListRef.current?.decrementBadge(chatId, messagesToRead.length);
 
@@ -504,7 +512,6 @@ function ChatPage() {
                     onOpenGroupProfile={() => setIsGroupProfileOpen(true)}
                     onOpenSearch={() => setIsSearchOpen(true)}
                     socketUpdates={socketUpdates}
-                    readEvent={readEvent}
                     deleteEvent={deleteEvent}
                     apiBaseUrl={API_BASE_URL}
                     onMessageContextMenu={handleMessageContextMenu}
@@ -528,6 +535,9 @@ function ChatPage() {
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
                     clearSocketUpdates={clearSocketUpdates}
+
+                    isForbidden={isForbidden}
+                    setIsForbidden={setIsForbidden}
 
                 />
 
@@ -558,6 +568,7 @@ function ChatPage() {
                     onOpenUserProfile={(p) => setSelectedUserProfile({ id: p.id, chatId: null, name: `${p.name} ${p.surname}` })}
                     onOpenConfirm={openConfirm}
                     participantCache={participantCache}
+                    setIsForbidden={setIsForbidden}
                 />
 
                 <ChatSearchModal
