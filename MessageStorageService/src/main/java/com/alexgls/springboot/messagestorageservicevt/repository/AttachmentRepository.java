@@ -23,7 +23,7 @@ public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
     @Query("""
      select a from Attachment a
      join Message m on a.messageId = m.id
-     join Participants p on p.chat.id = m.chatId
+     join Participants p on p.chat.id = m.chatId AND p.userId = :userId
      where a.logicType = :messageType
      and a.chatId = :chatId
      and p.userId = :userId

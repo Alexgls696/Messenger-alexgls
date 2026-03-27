@@ -168,6 +168,7 @@ public class ParticipantsService {
             throw new AccessDeniedException("У вас нет доступа на выполнение данной операции");
         }
         participants.setLeave(false);
+        participants.setRemoveAt(null);
     }
 
 
@@ -198,6 +199,7 @@ public class ParticipantsService {
                 .peek(p -> {
                     p.setLeave(false);
                     p.setRemoved(false);
+                    p.setRemoveAt(null);
                     addParticipantsToGroupDto.participantsIds().remove(p.getUserId());
                 })
                 .toList();
