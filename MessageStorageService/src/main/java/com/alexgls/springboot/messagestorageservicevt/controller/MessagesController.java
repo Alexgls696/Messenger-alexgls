@@ -3,6 +3,7 @@ package com.alexgls.springboot.messagestorageservicevt.controller;
 import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
+import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,11 @@ public class MessagesController {
 
     private final KafkaSenderService kafkaSenderService;
 
+    private final MessageMapper messageMapper;
+
     @PostMapping
     public ResponseEntity<MessageDto> createMessage(@RequestBody ChatMessage message, Authentication authentication) {
-        var payload = getCreateMessagePayload(message, authentication);
+        var payload = messageMapper.getCreateMessagePayload(message, authentication);
         MessageDto savedMessageDto = messagesService.save(payload);
         log.info("Message has been successfully saved in database: {}", savedMessageDto);
         kafkaSenderService.sendMessage(savedMessageDto);
@@ -40,7 +43,7 @@ public class MessagesController {
 
     @PostMapping("/forward")
     public ResponseEntity<List<MessageDto>> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
-        var payload = getCreateMessagePayload(request.chatMessage(), authentication);
+        var payload = messageMapper.getCreateMessagePayload(request.chatMessage(), authentication);
         var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds());
         log.info("Forwarded messages has been successfully saved in database: {}", savedMessages);
 
@@ -49,20 +52,6 @@ public class MessagesController {
         }
         return ResponseEntity
                 .ok(savedMessages);
-    }
-
-    private CreateMessagePayload getCreateMessagePayload(ChatMessage message, Authentication authentication) {
-        Integer senderId = getSenderId(authentication);
-        List<CreateAttachmentPayload> attachments = message.getAttachments() != null ? message.getAttachments() : Collections.emptyList();
-
-        return new CreateMessagePayload(
-                message.getChatId(),
-                senderId,
-                message.getContent(),
-                attachments,
-                message.getTempId(),
-                message.getReplyMessageId()
-        );
     }
 
     @GetMapping

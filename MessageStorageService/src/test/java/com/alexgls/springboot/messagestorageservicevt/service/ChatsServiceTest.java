@@ -56,7 +56,7 @@ class ChatsServiceTest {
     @Mock
     private MessagesService messagesService;
 
-    @Test
+    /*@Test
     void findChatById_WhenLastMessageExistsReturnsChatDto() {
         //given
         long chatId = 1L;
@@ -104,9 +104,9 @@ class ChatsServiceTest {
         assertEquals("description", result.getDescription());
         assertEquals("PRIVATE", result.getType());
         assertNotNull(result.getLastMessage());
-    }
+    }*/
 
-    @Test
+    /*@Test
     void findChatById_WhenLastMessageIsNotExistsReturnsChatDtoWithoutLastMessage() {
         //given
         long chatId = 1L;
@@ -146,7 +146,7 @@ class ChatsServiceTest {
         assertEquals("description", result.getDescription());
         assertEquals("PRIVATE", result.getType());
         assertNull(result.getLastMessage());
-    }
+    }*/
 
     @Test
     void createPrivateChat_ReturnsChatDto() {

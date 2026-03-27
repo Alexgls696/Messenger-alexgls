@@ -54,6 +54,8 @@ public class ChatsService {
     private final AuthRestClient authRestClient;
     private final ConnectionsServiceRestClient connectionsServiceRestClient;
 
+    private final MessageMapper messageMapper;
+
     @Transactional(readOnly = true)
     public List<ChatDto> findAllChats(int userId, String token, Pageable pageable) {
         Page<ChatWithUnread> chatPage = chatsRepository.findChatsByUserId(userId, pageable);
@@ -160,7 +162,7 @@ public class ChatsService {
 
     private void setLastMessageToChatDto(Message message, ChatDto chatDto) {
         if (!Objects.isNull(message)) {
-            MessageDto lastMessageDto = MessageMapper.toMessageDto(message);
+            MessageDto lastMessageDto = messageMapper.toMessageDto(message);
             lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
             chatDto.setLastMessage(lastMessageDto);
         }

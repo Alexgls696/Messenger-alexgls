@@ -30,7 +30,6 @@ function SetupProfile() {
         }
     };
 
-    // ✅ Проверка токена через useEffect
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
 

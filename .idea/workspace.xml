@@ -4,8 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Визуальные правки. Улучшена логика поиска сообщений, вход/выход из группы">
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/repository/AttachmentRepository.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправлены баги при входе/выходе, исправлено отображение вложений">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/InDatabaseContentStorageServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/src/main/java/com/alexgls/springboot/indatabasecontentstorageservice/ContentStorageServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ChatMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/CreateMessagePayload.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/kafka/KafkaConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/security/MessageStorageSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/nginx.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/SetupProfile.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/messanger-ui/src/Pages/utils/apiClient.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,11 +39,11 @@
         <option value="CSS File" />
         <option value="JavaScript File" />
         <option value="Enum" />
-        <option value="JUnit5 Test Class" />
         <option value="Exception" />
         <option value="Interface" />
         <option value="Class" />
         <option value="Record" />
+        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -97,6 +115,11 @@
     "JUnit.ChatsServiceTest.updateGroup_UpdatesChatAndReturnsDto_WhenUserIsAdmin.executor": "Run",
     "JUnit.MessageStorageServiceVtApplicationTests.createPrivateChat.executor": "Run",
     "JUnit.MessageStorageServiceVtApplicationTests.executor": "Run",
+    "JUnit.MessagesControllerTest.createForwardMessage_ShouldBuildPayloadAndReturnsSavedMessages.executor": "Run",
+    "JUnit.MessagesControllerTest.createForwardMessage_ShouldCallServiceSendKafkaAndReturnResponse.executor": "Run",
+    "JUnit.MessagesControllerTest.createMessage_ReturnsResponseEntityWithMessageDto.executor": "Run",
+    "JUnit.MessagesControllerTest.createMessage_ShouldBuildPayloadAndReturnSavedMessage.executor": "Run",
+    "JUnit.MessagesControllerTest.simpleTest.executor": "Run",
     "JUnit.ParticipantsServiceTest.executor": "Coverage",
     "JUnit.ParticipantsServiceTest.findAllByChatId_WhenParticipantsISEmpty.executor": "Coverage",
     "Maven.ApiGatewayService [clean,install,-U].executor": "Run",
@@ -125,13 +148,14 @@
     "Spring Boot.AuthServiceSpringBootApplication (1).executor": "Run",
     "Spring Boot.AuthServiceSpringBootApplication.executor": "Run",
     "Spring Boot.ChatClientSpringBootApplication.executor": "Run",
-    "Spring Boot.ConnectionServiceApplication.executor": "Debug",
+    "Spring Boot.ConnectionServiceApplication.executor": "Run",
     "Spring Boot.ConnectionsServiceApplication.executor": "Run",
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
+    "Spring Boot.ContentStorageServiceApplication.executor": "Run",
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -204,6 +228,7 @@
       <recent name="com.alexgls.springboot.messagestorageservicevt" />
     </key>
     <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.alexgls.springboot.messagestorageservicevt.controller" />
       <recent name="com.alexgls.springboot.messagestorageservicevt.service" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -248,7 +273,23 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.MessageStorageServiceVtApplication">
+  <component name="RunManager" selected="Spring Boot.ContentStorageServiceApplication">
+    <configuration name="MessagesControllerTest.createForwardMessage_ShouldCallServiceSendKafkaAndReturnResponse" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MessageStorageService" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt.controller" />
+      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.controller.MessagesControllerTest" />
+      <option name="METHOD_NAME" value="createForwardMessage_ShouldCallServiceSendKafkaAndReturnResponse" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
@@ -295,14 +336,14 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="InDatabaseContentStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+    <configuration name="ContentStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <envs>
         <env name="AWS_BUCKET_NAME" value="alexgls-messenger-media" />
         <env name="AWS_ACCESS_KEY" value="xdarYrmyYcFA6AqfRLT86r" />
         <env name="AWS_SECRET_ACCESS_KEY" value="2t1u2HLgj75PfKg2FiEBKjLXX26E3vxuAWketKkXiytP" />
       </envs>
       <module name="ContentStorageService" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.indatabasecontentstorageservice.InDatabaseContentStorageServiceApplication" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.indatabasecontentstorageservice.ContentStorageServiceApplication" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.alexgls.springboot.indatabasecontentstorageservice.*" />
@@ -377,19 +418,6 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="docker-compose.prod.yaml.auth-service: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="services">
-            <list>
-              <option value="auth-service" />
-            </list>
-          </option>
-          <option name="sourceFilePath" value="docker-compose.prod.yaml" />
-        </settings>
-      </deployment>
-      <method v="2" />
-    </configuration>
     <configuration name="docker-compose.prod.yaml.frontend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
@@ -405,7 +433,7 @@
     </configuration>
     <list>
       <item itemvalue="Docker.docker-compose.prod.yaml.frontend: Compose Deployment" />
-      <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
+      <item itemvalue="JUnit.MessagesControllerTest.createForwardMessage_ShouldCallServiceSendKafkaAndReturnResponse" />
       <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
@@ -416,15 +444,15 @@
       <item itemvalue="Spring Boot.RegistrationServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       <item itemvalue="Spring Boot.ConnectionServiceApplication" />
-      <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
+      <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.ConnectionServiceApplication" />
-        <item itemvalue="Spring Boot.InDatabaseContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Docker.docker-compose.prod.yaml.frontend: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose.prod.yaml.auth-service: Compose Deployment" />
+        <item itemvalue="JUnit.MessagesControllerTest.createForwardMessage_ShouldCallServiceSendKafkaAndReturnResponse" />
       </list>
     </recent_temporary>
   </component>
@@ -571,23 +599,12 @@
       <workItem from="1774417961453" duration="2158000" />
       <workItem from="1774508959870" duration="16972000" />
       <workItem from="1774527567795" duration="5285000" />
-      <workItem from="1774600172875" duration="11243000" />
-    </task>
-    <task id="LOCAL-00028" summary="TODO исправить прочтение сообщений ниже в диалоге. Доделать группы">
-      <option name="closed" value="true" />
-      <created>1768747515234</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1768747515234</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Добавлены группы пользователей, полностью исправлен счетчик непрочитанных сообщений для групп. Добавить функционал ролям пользователей в группах, назначение ролей">
-      <option name="closed" value="true" />
-      <created>1768838535012</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1768838535012</updated>
+      <workItem from="1774600172875" duration="14431000" />
+      <workItem from="1774616590054" duration="17000" />
+      <workItem from="1774616621323" duration="5923000" />
+      <workItem from="1774624179618" duration="717000" />
+      <workItem from="1774628180338" duration="2546000" />
+      <workItem from="1774631590666" duration="1138000" />
     </task>
     <task id="LOCAL-00030" summary="Добавлена возможность создавать группы">
       <option name="closed" value="true" />
@@ -965,7 +982,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774612999839</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="Исправлены баги при входе/выходе, исправлено отображение вложений">
+      <option name="closed" value="true" />
+      <created>1774613784068</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1774613784068</updated>
+    </task>
+    <task id="LOCAL-00078" summary="Исправлены баги при входе/выходе, исправлено отображение вложений">
+      <option name="closed" value="true" />
+      <created>1774615086882</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1774615086882</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -983,7 +1016,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлена логика пересланных сообщений на бекенд" />
     <MESSAGE value="Добавлена логика пересланных сообщений, отображение пересланных сообщений" />
     <MESSAGE value="Удалены ssl сертификаты." />
     <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
@@ -1008,15 +1040,16 @@
     <MESSAGE value="Исправлены проблемы производительности, связанные с открытием соединений." />
     <MESSAGE value="Исправлена пересылка сообщений, отправка нескольких сообщений, долгое нажатие на сообщение на мобильном для вызова контекстного меню" />
     <MESSAGE value="Визуальные правки. Улучшена логика поиска сообщений, вход/выход из группы" />
-    <option name="LAST_COMMIT_MESSAGE" value="Визуальные правки. Улучшена логика поиска сообщений, вход/выход из группы" />
+    <MESSAGE value="Исправлены баги при входе/выходе, исправлено отображение вложений" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправлены баги при входе/выходе, исправлено отображение вложений" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/AttachmentServiceImpl.java</url>
-          <line>24</line>
-          <option name="timeStamp" value="19" />
+          <url>file://$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/controller/MessagesControllerTest.java</url>
+          <line>52</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

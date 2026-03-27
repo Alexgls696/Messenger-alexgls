@@ -1,4 +1,6 @@
-export const GATEWAY_URL = ""; 
+export const GATEWAY_URL = process.env.NODE_ENV === 'production' 
+    ? 'http://alexgls-messenger.ru'   
+    : 'http://localhost:8080';          
 
 const REFRESH_API_URL = "/auth/refresh"; 
 

@@ -2,10 +2,7 @@ package com.alexgls.springboot.messagestorageservicevt.dto.messages;
 
 import com.alexgls.springboot.messagestorageservicevt.entity.Attachment;
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MessageDto {
     private long id;
 

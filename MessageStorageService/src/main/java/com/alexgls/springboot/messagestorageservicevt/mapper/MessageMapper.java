@@ -1,17 +1,26 @@
 package com.alexgls.springboot.messagestorageservicevt.mapper;
 
 
+import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.ChatMessage;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.CreateMessagePayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.MessageDto;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.entity.MessageType;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
+import static com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils.getSenderId;
+
+@Component
 public class MessageMapper {
 
-    public static MessageDto toMessageDto(Message message) {
+    public  MessageDto toMessageDto(Message message) {
         MessageDto messageDto = new MessageDto();
         messageDto.setId(message.getId());
         messageDto.setType(message.getType());
@@ -31,7 +40,7 @@ public class MessageMapper {
         return messageDto;
     }
 
-    public static Message toMessageFromCreateMessagePayload(CreateMessagePayload payload) {
+    public  Message toMessageFromCreateMessagePayload(CreateMessagePayload payload) {
         Message message = new Message();
         message.setCreatedAt(Timestamp.from(Instant.now()));
         message.setContent(payload.content());
@@ -46,6 +55,20 @@ public class MessageMapper {
         boolean isService = payload.tempId().equals("service");
         message.setService(isService);
         return message;
+    }
+
+    public  CreateMessagePayload getCreateMessagePayload(ChatMessage message, Authentication authentication) {
+        Integer senderId = getSenderId(authentication);
+        List<CreateAttachmentPayload> attachments = message.getAttachments() != null ? message.getAttachments() : Collections.emptyList();
+
+        return new CreateMessagePayload(
+                message.getChatId(),
+                senderId,
+                message.getContent(),
+                attachments,
+                message.getTempId(),
+                message.getReplyMessageId()
+        );
     }
 
 

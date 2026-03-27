@@ -3,20 +3,16 @@ package com.alexgls.springboot.messagestorageservicevt.service;
 import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.*;
-import com.alexgls.springboot.messagestorageservicevt.exceptions.DeleteMessageAccessDeniedException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchRecipientException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.repository.*;
 import com.alexgls.springboot.messagestorageservicevt.repository.projection.AttachmentsByMessagesListProjection;
-import com.alexgls.springboot.messagestorageservicevt.repository.projection.UserIdWhenDeletedMessageProjection;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
 import com.alexgls.springboot.messagestorageservicevt.service.transactional.MessagesServiceTransactional;
 import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.NoSuchMessageException;
@@ -26,8 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -51,6 +45,7 @@ public class MessagesService {
     private final MessagesServiceTransactional messagesServiceTransactional;
     private final LexicalAnalyserService lexicalAnalyserService;
 
+    private final MessageMapper messageMapper;
 
     public record ReadMessageDatabaseRequest
             (
@@ -84,7 +79,7 @@ public class MessagesService {
             }
         }
         return messages.stream()
-                .map(MessageMapper::toMessageDto)
+                .map(messageMapper::toMessageDto)
                 .sorted(Comparator.comparing(MessageDto::getCreatedAt))
                 .toList();
 
@@ -94,7 +89,7 @@ public class MessagesService {
         Participants participants = participantsRepository.findByChatIdAndUserId(chatId, sender)
                 .orElseThrow(() -> new NoSuchParticipantException("Вы не принадлежите этому чату"));
         return messagesRepository.findById(messageId)
-                .map(MessageMapper::toMessageDto)
+                .map(messageMapper::toMessageDto)
                 .map(msq -> {
                     msq.setContent(encryptUtils.decrypt(msq.getContent()));
                     return msq;
@@ -112,7 +107,7 @@ public class MessagesService {
             return messagesRepository.findAllByIdInOrderById(messageIds)
                     .stream()
                     .map(message -> {
-                        MessageDto messageDto = MessageMapper.toMessageDto(message);
+                        MessageDto messageDto = messageMapper.toMessageDto(message);
                         messageDto.setContent(encryptUtils.decrypt(message.getContent()));
                         return messageDto;
                     })
@@ -153,7 +148,7 @@ public class MessagesService {
         messageTokenRepository.deleteAllByMessageId(messageId);
         lexicalAnalyserService.saveMessageTokens(savedMessage);
 
-        var messageDto = MessageMapper.toMessageDto(message);
+        var messageDto = messageMapper.toMessageDto(message);
         messageDto.setContent(encryptUtils.decrypt(message.getContent()));
         messageDto.setAttachments(message.getAttachments());
 
@@ -195,7 +190,7 @@ public class MessagesService {
         }
         Chat chat = chatsRepository.findById(participants.getChat().getId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат с указанным id: %d не найден".formatted(participants.getChat().getId())));
-        Message message = MessageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
+        Message message = messageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
         Message encryptedMessage = processAndEncryptMessage(message);
         Message savedMessage = messagesRepository.save(encryptedMessage);
         chat.setLastMessage(savedMessage);
@@ -253,7 +248,7 @@ public class MessagesService {
 
             List<Attachment> clonedAttachments = copyAttachmentsForNewMessage(original.getId(), savedForwardedMsg.getId(), chat.getId());
 
-            MessageDto forwardedDto = MessageMapper.toMessageDto(savedForwardedMsg);
+            MessageDto forwardedDto = messageMapper.toMessageDto(savedForwardedMsg);
             forwardedDto.setAttachments(clonedAttachments);
             forwardedDto.setContent(encryptUtils.decrypt(savedForwardedMsg.getContent()));
             forwardedDto.setRecipientId(recipientId);
@@ -324,7 +319,7 @@ public class MessagesService {
 
     private MessageDto createMessageDto(CreateMessagePayload createMessagePayload, Message savedMessage) {
         List<Attachment> savedAttachments = saveAttachmentsPayloadsToDatabase(createMessagePayload.attachments(), savedMessage.getId(), createMessagePayload.chatId());
-        MessageDto dto = MessageMapper.toMessageDto(savedMessage);
+        MessageDto dto = messageMapper.toMessageDto(savedMessage);
         dto.setAttachments(savedAttachments);
         dto.setTempId(createMessagePayload.tempId());
         dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));

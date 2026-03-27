@@ -294,3 +294,16 @@ services:
       - kafka
     networks:
       - app-network
+
+  frontend:
+    build:
+      context: ./messanger-ui
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+    depends_on:
+      - api-gateway-service
+    networks:
+      - app-network
