@@ -78,23 +78,23 @@ public class MessagesController {
     }
 
     @PatchMapping("/{id}")
-    public MessageDto updateMessage(@PathVariable("id") long messageId, @RequestBody EditMessageRequest editMessageRequest, Authentication authentication) {
+    public ResponseEntity<MessageDto> updateMessage(@PathVariable("id") long messageId, @RequestBody EditMessageRequest editMessageRequest, Authentication authentication) {
         log.info("Edit message with id: {}", messageId);
         int userId = getSenderId(authentication);
         var updatedMessageDto = messagesService.updateMessage(messageId, userId, editMessageRequest);
         kafkaSenderService.sendUpdatedMessage(updatedMessageDto);
-        return updatedMessageDto;
+        return ResponseEntity.ok(updatedMessageDto);
     }
 
     @PostMapping("/find-by-content-in-chat")
-    public List<MessageDto> findMessagesByChatId(@RequestBody SearchMessageInChatRequest request, Authentication authentication) {
+    public List<MessageDto> findMessagesByContent(@RequestBody SearchMessageInChatRequest request, Authentication authentication) {
         log.info("find messages by content in the chat : {}", request);
         int userId = getSenderId(authentication);
         return messagesService.findMessagesByContent(request, userId);
     }
 
     @PostMapping("/read-messages")
-    public void readMessagesList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
+    public void readMessagesByIdsList(@RequestBody List<ReadMessagePayload> messages, Authentication authentication) {
         int currentUserId = getSenderId(authentication);
         final List<ReadMessagePayload> filteredMessages = messages
                 .stream()

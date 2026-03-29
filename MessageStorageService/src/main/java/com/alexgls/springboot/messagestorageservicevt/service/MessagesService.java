@@ -47,16 +47,6 @@ public class MessagesService {
 
     private final MessageMapper messageMapper;
 
-    public record ReadMessageDatabaseRequest
-            (
-                    List<Long> messageIds,
-                    int chatId,
-                    int readerId,
-                    long lastReadMessageId,
-                    int countMessagesRead
-            ) {
-    }
-
     public List<MessageDto> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Message> messages = messagesRepository.findAllMessagesByChatId(chatId, currentUserId, pageable);
@@ -118,6 +108,7 @@ public class MessagesService {
 
     @Transactional
     public void readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
+
         if (messages == null || messages.isEmpty()) {
             return;
         }
@@ -128,7 +119,7 @@ public class MessagesService {
 
         long lastReadMessageId = Collections.max(messageIds);
         int countMessagesRead = messageIds.size();
-        readMessages(new ReadMessageDatabaseRequest(messageIds, chatId, readerId, lastReadMessageId, countMessagesRead));
+        messagesServiceTransactional.readMessages(new ReadMessageDatabaseRequest(messageIds, chatId, readerId, lastReadMessageId, countMessagesRead));
     }
 
     @Transactional
@@ -161,24 +152,6 @@ public class MessagesService {
             messageDto.setRecipientId(recipientId);
         }
         return messageDto;
-    }
-
-    @Transactional
-    protected void readMessages(final ReadMessageDatabaseRequest request) {
-        messagesRepository.markMessagesAsRead(request.messageIds, Timestamp.from(Instant.now()));
-        participantsRepository.updateUnreadCountAndLastMessageId(
-                request.chatId,
-                request.readerId,
-                request.lastReadMessageId,
-                request.countMessagesRead
-        );
-
-        var participants = participantsRepository.findByChatIdAndUserId(request.chatId, request.readerId)
-                .orElseThrow(() -> new NoSuchParticipantException("Связь чата с пользователе не найдена."));
-        if (participants.getLastReadMessageId() == request.lastReadMessageId) {
-            participants.setUnreadCount(0);
-        }
-        participantsRepository.save(participants);
     }
 
     @Transactional
@@ -302,7 +275,8 @@ public class MessagesService {
         return save(createMessagePayload);
     }
 
-    private MessageDto savePublicGroupMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
+    @Transactional
+    public MessageDto savePublicGroupMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
         MessageDto dto = createMessageDto(createMessagePayload, savedMessage);
         List<Integer> participants = participantsRepository.findUserIdsByChatIdWhenUsersNotDeleted(dto.getChatId());
         dto.setRecipientIds(participants);
@@ -310,7 +284,7 @@ public class MessagesService {
     }
 
     @Transactional
-    protected MessageDto savePrivateChatMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
+    public MessageDto savePrivateChatMessage(CreateMessagePayload createMessagePayload, Message savedMessage) {
         Integer recipientId = chatsRepository.findRecipientIdByChatId(createMessagePayload.chatId(), createMessagePayload.senderId())
                 .orElseThrow(() -> new NoSuchRecipientException("Участник чата не найден " + createMessagePayload.chatId()));
         savedMessage.setRecipientId(recipientId);
@@ -365,11 +339,7 @@ public class MessagesService {
 
     @Transactional
     public DeleteMessageResponse deleteMessages(DeleteMessageRequest deleteMessageRequest, int currentUserId) {
-        Iterable<Message> messagesIterable = messagesRepository.findAllById(deleteMessageRequest.messagesId());
-        List<Message> messages = new ArrayList<>();
-        for (Message message : messagesIterable) {
-            messages.add(message);
-        }
+        Iterable<Message> messages = messagesRepository.findAllById(deleteMessageRequest.messagesId());
         if (deleteMessageRequest.forAll()) {
             return messagesServiceTransactional.deleteMessageForAll(deleteMessageRequest, messages, currentUserId);
         } else {

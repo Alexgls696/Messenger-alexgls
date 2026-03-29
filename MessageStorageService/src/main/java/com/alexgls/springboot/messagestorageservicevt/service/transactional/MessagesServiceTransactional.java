@@ -3,20 +3,26 @@ package com.alexgls.springboot.messagestorageservicevt.service.transactional;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.CreateMessagePayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.DeleteMessageRequest;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.DeleteMessageResponse;
+import com.alexgls.springboot.messagestorageservicevt.dto.messages.ReadMessageDatabaseRequest;
 import com.alexgls.springboot.messagestorageservicevt.entity.DeletedMessage;
 import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.DeleteMessageAccessDeniedException;
+import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservicevt.repository.AttachmentRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.DeletedMessagesRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.MessagesRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.projection.UserIdWhenDeletedMessageProjection;
+import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +34,9 @@ public class MessagesServiceTransactional {
     private final ParticipantsRepository participantsRepository;
 
 
+
     @Transactional
-    public DeleteMessageResponse deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
+    public DeleteMessageResponse deleteMessageForAll(DeleteMessageRequest deleteMessageRequest, Iterable<Message> messagesList, int currentUserId) {
         List<Long> messagesIdsToDeleteList = new ArrayList<>();
         for (var message : messagesList) {
             if (message.getSenderId() == currentUserId) {
@@ -47,8 +54,9 @@ public class MessagesServiceTransactional {
     }
 
     @Transactional
-    public DeleteMessageResponse deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, List<Message> messagesList, int currentUserId) {
-        List<DeletedMessage> deletedMessages = messagesList.stream()
+    public DeleteMessageResponse deleteMessageForCurrentUser(DeleteMessageRequest deleteMessageRequest, Iterable<Message> messagesList, int currentUserId) {
+
+        List<DeletedMessage> deletedMessages = StreamSupport.stream(messagesList.spliterator(), false)
                 .map(message -> new DeletedMessage(null, message.getId(), currentUserId))
                 .toList();
 
@@ -89,6 +97,24 @@ public class MessagesServiceTransactional {
                 deleteMessageRequest.senderId(),
                 deleteMessageRequest.chatId(),
                 deleteMessageRequest.forAll());
+    }
+
+    @Transactional
+    public void readMessages(final ReadMessageDatabaseRequest request) {
+        messagesRepository.markMessagesAsRead(request.messageIds(), Timestamp.from(Instant.now()));
+        participantsRepository.updateUnreadCountAndLastMessageId(
+                request.chatId(),
+                request.readerId(),
+                request.lastReadMessageId(),
+                request.countMessagesRead()
+        );
+
+        var participants = participantsRepository.findByChatIdAndUserId(request.chatId(), request.readerId())
+                .orElseThrow(() -> new NoSuchParticipantException("Связь чата с пользователе не найдена."));
+        if (participants.getLastReadMessageId() == request.lastReadMessageId()) {
+            participants.setUnreadCount(0);
+        }
+        participantsRepository.save(participants);
     }
 
     //Удаляет метку удаленного чата для пользователя, который удалил его для себя

@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
@@ -79,6 +81,5 @@ public class ChatsControllerIntegrationTest {
         //then
         assertEquals(expectedDto, responseDto);
         assertEquals(responseDto, responseDto2);
-    }
-*/
+    }*/
 }

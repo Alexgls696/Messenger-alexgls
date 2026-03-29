@@ -297,13 +297,15 @@ services:
 
   frontend:
     build:
-      context: ./messanger-ui
+      context: messenger-ui
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "3001:80"
+      - "80:80"
     restart: unless-stopped
     depends_on:
       - api-gateway-service
+    volumes:
+      - ./messenger-ui/cert:/etc/nginx/ssl:ro
     networks:
       - app-network
