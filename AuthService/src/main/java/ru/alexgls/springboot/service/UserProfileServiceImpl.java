@@ -27,7 +27,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserAvatarsRepository userAvatarsRepository;
     private final UserImagesRepository userImagesRepository;
 
-
     @Override
     public UserProfileResponse findUserProfileByUserId(int userId) {
         UserDetails details = userDetailsRepository.findByUserId(userId)

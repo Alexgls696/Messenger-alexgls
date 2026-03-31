@@ -41,6 +41,8 @@ const API_BASE_URL = ""
 
 function ChatPage() {
 
+    const [isMobile, setIsMobile] = useState(false);
+
     // --- Состояние ---
     const [profile, setProfile] = useState(null);
     const [user, setUser] = useState(null);
@@ -93,6 +95,18 @@ function ChatPage() {
     useEffect(() => {
         activeChatRef.current = activeChat;
     }, [activeChat])
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const userAgentMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const isSmallScreen = window.innerWidth <= 768;
+            setIsMobile(userAgentMobile || isSmallScreen);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile); 
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
@@ -539,6 +553,7 @@ function ChatPage() {
 
                     isForbidden={isForbidden}
                     setIsForbidden={setIsForbidden}
+                    isMobile={isMobile}
 
                 />
 

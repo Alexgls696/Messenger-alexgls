@@ -39,7 +39,8 @@ const ChatWindow = forwardRef(({
     userOnlineChanged,
     clearSocketUpdates,
     isForbidden,
-    setIsForbidden
+    setIsForbidden,
+    isMobile
 }, ref) => {
     const [messages, setMessages] = useState([]);
     const [page, setPage] = useState(0);
@@ -106,6 +107,34 @@ const ChatWindow = forwardRef(({
             }));
         }
     }));
+
+    useEffect(() => {
+        if (!window.visualViewport) return;
+
+        const handleResize = () => {
+            const viewport = window.visualViewport;
+            // Устанавливаем высоту всего приложения равной видимой части
+            document.documentElement.style.setProperty('--vv-height', `${viewport.height}px`);
+
+            // Автоматическая прокрутка вниз при открытии клавиатуры (опционально)
+            if (document.activeElement.tagName === 'TEXTAREA') {
+                setTimeout(() => {
+                    scrollContainerRef.current?.scrollTo({
+                        top: scrollContainerRef.current.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            }
+        };
+
+        window.visualViewport.addEventListener('resize', handleResize);
+        window.visualViewport.addEventListener('scroll', handleResize); // Для iOS
+
+        return () => {
+            window.visualViewport.removeEventListener('resize', handleResize);
+            window.visualViewport.removeEventListener('scroll', handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         if (!activeChat) return;
@@ -599,6 +628,15 @@ const ChatWindow = forwardRef(({
         }
     }, [user])
 
+    const handleOnButtonClickEvent = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            if (!isMobile) {
+                event.preventDefault();
+                handleFormSubmit(event);
+            }
+        }
+    }
+
     if (!activeChat) return <section className="chat-window hidden" />;
 
     return (
@@ -715,6 +753,7 @@ const ChatWindow = forwardRef(({
                         isSelected={selectedMessages.some(m => m.id === msg.id)}
                         selectionMode={isSelectionMode}
                         onSelect={() => toggleMessageSelection(msg)}
+                        setReplyingTo={setReplyingTo}
                     />
                 ))}
             </div>
@@ -848,15 +887,7 @@ const ChatWindow = forwardRef(({
                     className="message-input"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleFormSubmit(e);
-                        }
-                        if (e.key === 'Escape' && editingMessage) {
-                            cancelEdit();
-                        }
-                    }}
+                    onKeyDown={handleOnButtonClickEvent}
                     placeholder="Введите сообщение..."
                 />) : (
                     <div className="forbidden-plaque">

@@ -64,15 +64,6 @@ body[data-theme="dark"] {
     -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body,
-#root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-primary);
@@ -80,16 +71,51 @@ body {
     transition: background-color 0.2s, color 0.2s;
 }
 
+/* 
+   Запрещаем системный скролл и "резину" на самом верхнем уровне.
+   overscroll-behavior: none — современный способ отключить bounce-эффект.
+*/
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
 /* Главный контейнер */
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    width: 100%;
+    height: 100dvh;
     max-width: 1920px;
-
+    margin: 0 auto;
+    position: relative;
     padding: 0 80px 20px 80px;
-    /* Отступы для десктопа */
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+.messages,
+.chat-list,
+.modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Плавный скролл для iOS */
+    touch-action: pan-y;
 }
 
 /* Универсальный скроллбар */
@@ -372,10 +398,9 @@ body {
 @media (max-width: 768px) {
     .container {
         padding: 0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        /* Контейнер остается колонкой */
+        height: 100dvh;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
-
 }

@@ -17,13 +17,84 @@ const Message = ({
     replyCache,
     isSelected,
     selectionMode,
-    onSelect
+    onSelect,
+    setReplyingTo
 }) => {
     const msgRef = useRef(null);
     const isService = msg.service || msg.isService;
 
     const [replyMsg, setReplyMsg] = useState(null);
     const [forwardFromName, setForwardFromName] = useState(null);
+
+    const longPressHandlers = useLongPress(
+        (coords, event) => {
+            const fakeEvent = {
+                preventDefault: () => { },
+                stopPropagation: () => { },
+                clientX: coords.clientX,
+                clientY: coords.clientY
+            };
+            onContextMenu(fakeEvent, msg);
+        },
+        () => { },
+        { delay: 600 }
+    );
+
+    // --- Логика жестов свайпа ---
+    const [touchStart, setTouchStart] = useState(null);
+    const [swipeOffset, setSwipeOffset] = useState(0);
+    const [isSwiping, setIsSwiping] = useState(false);
+    const SWIPE_LIMIT = -100;
+    const TRIGGER_THRESHOLD = -65;
+
+    // ОБЪЕДИНЕННЫЙ Start
+    const handleTouchStart = (e) => {
+        if (selectionMode) return;
+
+        // Для свайпа
+        setTouchStart(e.touches[0].clientX);
+        setIsSwiping(true);
+
+        // Для лонг-пресса (вызываем функцию из хука)
+        longPressHandlers.onTouchStart(e);
+    };
+
+    // ОБЪЕДИНЕННЫЙ Move
+    const handleTouchMove = (e) => {
+        // Для лонг-пресса: если палец двинулся, отменяем таймер меню
+        longPressHandlers.onTouchMove(e);
+
+        if (!touchStart || !isSwiping) return;
+        const diff = e.touches[0].clientX - touchStart;
+
+        if (diff < 0) {
+            const offset = Math.max(diff, SWIPE_LIMIT);
+            setSwipeOffset(offset);
+
+            // Если свайп пошел активно, можно прервать лонг-пресс совсем
+            if (Math.abs(diff) > 10) {
+                longPressHandlers.onTouchEnd(e);
+            }
+
+            if (diff <= TRIGGER_THRESHOLD && swipeOffset > TRIGGER_THRESHOLD) {
+                if (window.navigator.vibrate) window.navigator.vibrate(10);
+            }
+        }
+    };
+
+    // ОБЪЕДИНЕННЫЙ End
+    const handleTouchEnd = (e) => {
+        // Для лонг-пресса
+        longPressHandlers.onTouchEnd(e);
+
+        // Для свайпа
+        if (swipeOffset <= TRIGGER_THRESHOLD && setReplyingTo) {
+            setReplyingTo(msg);
+        }
+        setSwipeOffset(0);
+        setIsSwiping(false);
+        setTouchStart(null);
+    };
 
     useEffect(() => {
         const element = msgRef.current;
@@ -50,21 +121,6 @@ const Message = ({
             }
         }
     }, [msg.forwarded, msg.forwardFromUserId, participantCache]);
-
-
-    const longPressHandlers = useLongPress(
-        (coords, event) => {
-            const fakeEvent = {
-                preventDefault: () => { },
-                stopPropagation: () => { },
-                clientX: coords.clientX,
-                clientY: coords.clientY
-            };
-            onContextMenu(fakeEvent, msg);
-        },
-        () => { },
-        { delay: 600 }
-    );
 
     const handleNameClick = (e) => {
         if (selectionMode) {
@@ -174,65 +230,115 @@ const Message = ({
 
     return (
         <div
-            ref={msgRef}
-            className={`message ${isSentByMe ? 'sent' : 'received'} ${selectionMode ? 'message--selection-mode' : ''} ${isSelected ? 'message--selected' : ''}`}
-            data-message-id={msg.id}
-            data-sender-id={msg.senderId}
-            onClick={handleMessageClick}
-            {...longPressHandlers}
-            onContextMenu={(e) => {
-                if (selectionMode) return;
-                onContextMenu(e, msg);
+            className={`message-wrapper ${isSentByMe ? 'is-me' : 'is-other'} ${selectionMode ? 'selection-active' : ''}`}
+            style={{
+                display: 'flex',
+                width: '100%',
+                position: 'relative',
+                justifyContent: isSentByMe ? 'flex-end' : 'flex-start',
+                alignItems: 'center',
+                marginBottom: '4px'
             }}
         >
-            {selectionMode && (
-                <div className="message-checkbox">
-                    <input type="checkbox" checked={isSelected} readOnly />
-                </div>
-            )}
+            <div
+                className="swipe-indicator"
+                style={{
+                    position: 'absolute',
+                    right: '10px',
+                    opacity: Math.min(Math.abs(swipeOffset) / 60, 1),
+                    transform: `scale(${Math.min(Math.abs(swipeOffset) / 60, 1)})`,
+                    color: 'var(--accent-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none'
+                }}
+            >
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 17L4 12L9 7" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M20 18V15C20 13.3431 18.6569 12 17 12H4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </div>
 
-            <div className="message-inner">
-                {senderName && (
-                    <div
-                        className="message-sender"
-                        style={{ cursor: selectionMode ? 'inherit' : 'pointer' }}
-                        onClick={handleNameClick}
-                    >
-                        {senderName}
+            <div
+                ref={msgRef}
+                className={`message ${isSentByMe ? 'sent' : 'received'} ${selectionMode ? 'message--selection-mode' : ''} ${isSelected ? 'message--selected' : ''}`}
+                data-message-id={msg.id}
+                data-sender-id={msg.senderId}
+                onClick={handleMessageClick}
+
+                // Используем объединенные обработчики вместо spread {...longPressHandlers}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+
+                // Для десктопа оставляем как есть в хуке
+                onMouseDown={longPressHandlers.onMouseDown}
+                onMouseUp={longPressHandlers.onMouseUp}
+                onMouseLeave={longPressHandlers.onMouseLeave}
+
+                style={{
+                    transform: `translateX(${swipeOffset}px)`,
+                    transition: isSwiping ? 'none' : 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    willChange: 'transform',
+                    zIndex: 1,
+                    cursor: selectionMode ? 'default' : 'pointer',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none'
+                }}
+                onContextMenu={(e) => {
+                    if (selectionMode) return;
+                    onContextMenu(e, msg);
+                }}
+            >
+                {selectionMode && (
+                    <div className="message-checkbox">
+                        <input type="checkbox" checked={isSelected} readOnly />
                     </div>
                 )}
 
-                {msg.forwarded && (
-                    <div className="message-forwarded" onClick={handleForwardNameClick}>
-                        <span className="forward-icon">↪</span> Переслано от: <span className="forward-name">{forwardFromName || 'Загрузка...'}</span>
+                <div className="message-inner">
+                    {senderName && (
+                        <div
+                            className="message-sender"
+                            style={{ cursor: selectionMode ? 'inherit' : 'pointer' }}
+                            onClick={handleNameClick}
+                        >
+                            {senderName}
+                        </div>
+                    )}
+
+                    {msg.forwarded && (
+                        <div className="message-forwarded" onClick={handleForwardNameClick}>
+                            <span className="forward-icon">↪</span> Переслано от: <span className="forward-name">{forwardFromName || 'Загрузка...'}</span>
+                        </div>
+                    )}
+
+                    {msg.replyToId && !msg.forwarded && (
+                        <div className="message-reply-preview" onClick={(e) => {
+                            if (selectionMode) e.preventDefault();
+                        }}>
+                            <span className="reply-sender">
+                                {replyMsg ? participantCache[replyMsg.senderId] : "..."}
+                            </span>
+                            <p className="reply-content">
+                                {replyMsg ? replyMsg.content : "Загрузка..."}
+                            </p>
+                        </div>
+                    )}
+
+                    {renderAttachments()}
+
+                    {msg.content && (
+                        <div className="message-content">{msg.content}</div>
+                    )}
+
+                    <div className="message-meta">
+                        {isEdited && <span className="message-edited-label">изменено</span>}
+                        <span>{formatDate(msg.createdAt)}</span>
+                        <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
                     </div>
-                )}
-
-                {/* Блок ответа (Reply) */}
-                {msg.replyToId && !msg.forwarded && (
-                    <div className="message-reply-preview" onClick={(e) => {
-                        if (selectionMode) e.preventDefault();
-                        else /*  прокрутка к оригиналу */ { }
-                    }}>
-                        <span className="reply-sender">
-                            {replyMsg ? participantCache[replyMsg.senderId] : "..."}
-                        </span>
-                        <p className="reply-content">
-                            {replyMsg ? replyMsg.content : "Загрузка..."}
-                        </p>
-                    </div>
-                )}
-
-                {renderAttachments()}
-
-                {msg.content && (
-                    <div className="message-content">{msg.content}</div>
-                )}
-
-                <div className="message-meta">
-                    {isEdited && <span className="message-edited-label">изменено</span>}
-                    <span>{formatDate(msg.createdAt)}</span>
-                    <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
                 </div>
             </div>
         </div>

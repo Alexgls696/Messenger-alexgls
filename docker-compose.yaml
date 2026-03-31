@@ -117,7 +117,7 @@ services:
 
   connections-redis:
     image: redis:6.2.6-alpine
-    container_name: redis
+    container_name: redis_dev
     ports:
       - "6379:6379"
     command: [ "redis-server", "--requirepass", "AS04SERa1", "--notify-keyspace-events", "Ex" ]
