@@ -48,7 +48,6 @@ public class ChatsService {
     private final PinnedChatsRepository pinnedChatsRepository;
 
     private final KafkaSenderService kafkaSenderService;
-    private final EncryptUtils encryptUtils;
     private final MessagesService messagesService;
 
     private final AuthRestClient authRestClient;
@@ -163,7 +162,6 @@ public class ChatsService {
     private void setLastMessageToChatDto(Message message, ChatDto chatDto) {
         if (!Objects.isNull(message)) {
             MessageDto lastMessageDto = messageMapper.toMessageDto(message);
-            lastMessageDto.setContent(encryptUtils.decrypt(lastMessageDto.getContent()));
             chatDto.setLastMessage(lastMessageDto);
         }
     }

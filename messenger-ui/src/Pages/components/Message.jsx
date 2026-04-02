@@ -13,8 +13,6 @@ const Message = ({
     imageObserver,
     photoViewer,
     onOpenProfile,
-    allMessages,
-    replyCache,
     isSelected,
     selectionMode,
     onSelect,
@@ -23,7 +21,6 @@ const Message = ({
     const msgRef = useRef(null);
     const isService = msg.service || msg.isService;
 
-    const [replyMsg, setReplyMsg] = useState(null);
     const [forwardFromName, setForwardFromName] = useState(null);
 
     const longPressHandlers = useLongPress(
@@ -204,29 +201,7 @@ const Message = ({
 
     const isEdited = msg.updatedAt !== null && !msg.forwarded;
 
-    //Ответы на сообщения
-    useEffect(() => {
-        if (!msg.replyToId) return;
-
-        const found = allMessages.find(m => m.id === msg.replyToId);
-        if (found) {
-            setReplyMsg(found);
-            return;
-        }
-
-        if (replyCache.has(msg.replyToId)) {
-            setReplyMsg(replyCache.get(msg.replyToId));
-            return;
-        }
-        console.log('123')
-        apiFetch(`/api/messages/by-id?messageId=${msg.replyToId}&chatId=${msg.chatId}`)
-            .then(data => {
-                replyCache.set(msg.replyToId, data);
-                setReplyMsg(data);
-            })
-            .catch(() => setReplyMsg({ content: "Сообщение удалено", senderId: null }));
-
-    }, [msg.replyToId, allMessages, replyCache]);
+    const replyMsg = msg.replyMessageContent;
 
     return (
         <div
@@ -315,15 +290,23 @@ const Message = ({
                         </div>
                     )}
 
-                    {msg.replyToId && !msg.forwarded && (
-                        <div className="message-reply-preview" onClick={(e) => {
-                            if (selectionMode) e.preventDefault();
-                        }}>
+                    {msg.replyMessageContent && !msg.forwarded && (
+                        <div
+                            className="message-reply-preview"
+                            onClick={(e) => {
+                                if (selectionMode) {
+                                    e.preventDefault();
+                                } else {
+                                    const originalMsg = document.querySelector(`[data-message-id="${msg.replyMessageContent.messageId}"]`);
+                                    originalMsg?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }}
+                        >
                             <span className="reply-sender">
-                                {replyMsg ? participantCache[replyMsg.senderId] : "..."}
+                                {participantCache[msg.replyMessageContent.senderId] || `Пользователь #${msg.replyMessageContent.senderId}`}
                             </span>
                             <p className="reply-content">
-                                {replyMsg ? replyMsg.content : "Загрузка..."}
+                                {msg.replyMessageContent.content}
                             </p>
                         </div>
                     )}

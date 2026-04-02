@@ -50,8 +50,9 @@ public class Message {
     @Column(name = "is_service")
     private boolean isService;
 
-    @Column(name = "reply_to_message_id")
-    private Long replyToMessageId;
+    @JoinColumn(name = "reply_to_message_id")
+    @OneToOne(fetch = FetchType.EAGER)
+    private Message replyToMessage;
 
     @Column(name = "forward_from_user_id")
     private Integer forwardFromUserId;
@@ -59,14 +60,15 @@ public class Message {
     @Column(name = "is_forwarded", nullable = false)
     private boolean forwarded;
 
+    @OneToMany(mappedBy = "message")
+    private List<Attachment> attachments;
+
     @Transient
     private int recipientId;
 
     @Transient
     private Set<String> tokenHashes;
 
-    @Transient
-    private List<Attachment> attachments;
 
     //При пересылке
     public Message(Message source) {

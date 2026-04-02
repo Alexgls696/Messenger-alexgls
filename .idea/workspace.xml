@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправление визуальных багов на мобильных устройствах">
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/EnterGroupServiceMessage.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены уведомления входа/выхода из группы.">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ReplyMessageContent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Attachment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -27,9 +32,9 @@
         <option value="Enum" />
         <option value="Exception" />
         <option value="Interface" />
-        <option value="Record" />
         <option value="JUnit5 Test Class" />
         <option value="Class" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -152,7 +157,7 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -257,18 +262,6 @@
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
     </option>
-    <option name="hiddenConfigurations">
-      <map>
-        <entry key="SpringBootApplicationConfigurationType">
-          <value>
-            <set>
-              <option value="MediaContentStorageServiceApplication" />
-              <option value="RegistrationServiceApplication" />
-            </set>
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
   <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
     <configuration name="MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
@@ -351,16 +344,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MediaContentStorageServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <envs>
-        <env name="YANDEX_OAUTH" value="y0__xDP35vDBRjblgMg1_6ogBSr4lVFEiYk8u0pvxDtIO93JeN9-Q" />
-      </envs>
-      <module name="MediaContentStorageService" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.MediaContentStorageServiceApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="MessageStorageServiceVtApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="MessageStorageService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.messagestorageservicevt.MessageStorageServiceVtApplication" />
@@ -381,17 +364,6 @@
     <configuration name="NotificationsServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="NotificationsService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.notificationsservice.NotificationsServiceApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="RegistrationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <envs>
-        <env name="GMAIL_USERNAME" value="glualex066@gmail.com" />
-        <env name="GMAIL_PASSWORD" value="tahs jbia lmmt dshf" />
-      </envs>
-      <module name="RegistrationService" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.registrationservice.RegistrationServiceApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -435,10 +407,8 @@
       <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
-      <item itemvalue="Spring Boot.MediaContentStorageServiceApplication" />
       <item itemvalue="Spring Boot.MetadataStorageServiceApplication" />
       <item itemvalue="Spring Boot.NotificationsServiceApplication" />
-      <item itemvalue="Spring Boot.RegistrationServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       <item itemvalue="Spring Boot.ConnectionServiceApplication" />
       <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
@@ -608,6 +578,7 @@
       <workItem from="1774772041258" duration="7168000" />
       <workItem from="1774958242198" duration="5703000" />
       <workItem from="1775113538996" duration="2251000" />
+      <workItem from="1775150552113" duration="2424000" />
     </task>
     <task id="LOCAL-00033" summary="Пересоздан сервис сообщений,реализация в императивном стиле. Написаны тесты для некоторых сервисов в нем.">
       <option name="closed" value="true" />

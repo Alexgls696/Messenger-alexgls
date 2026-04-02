@@ -427,6 +427,7 @@ body[data-theme="dark"] .message-checkbox input[type="checkbox"]:checked {
     min-height: 44px;
     max-height: 40vh;
     padding: 10px 15px;
+    margin-bottom: 10px;
     border: 1px solid var(--border-primary);
     border-radius: 20px;
     background-color: var(--surface-primary);

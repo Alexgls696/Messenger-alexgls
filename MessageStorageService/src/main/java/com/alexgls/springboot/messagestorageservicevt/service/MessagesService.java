@@ -50,17 +50,10 @@ public class MessagesService {
     public List<MessageDto> getMessagesByChatId(int chatId, int page, int pageSize, int currentUserId) {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Message> messages = messagesRepository.findAllMessagesByChatId(chatId, currentUserId, pageable);
-        List<Long> messagesIds = messages.stream().map(Message::getId).toList();
         Participants participants = participantsRepository.findByChatIdAndUserId(chatId, currentUserId)
                 .orElseThrow(() -> new NoSuchParticipantException("Вы не состоите в этом чате или чат не существует"));
-        Map<Long, List<Attachment>> attachmentsMap = attachmentRepository.findAllByMessageIds(messagesIds)
-                .stream()
-                .collect(Collectors.groupingBy(AttachmentsByMessagesListProjection::getMessageId, Collectors.mapping(AttachmentsByMessagesListProjection::getAttachment, Collectors.toList())));
 
         for (var message : messages) {
-            message.setContent(encryptUtils.decrypt(message.getContent()));
-            var attachments = attachmentsMap.getOrDefault(message.getId(), Collections.emptyList());
-            message.setAttachments(attachments);
             if (!Objects.isNull(participants.getLastReadMessageId())) {
                 if (message.getSenderId() != currentUserId) {
                     boolean isReadByCurrentUser = message.getId() <= participants.getLastReadMessageId();
@@ -68,11 +61,11 @@ public class MessagesService {
                 }
             }
         }
+
         return messages.stream()
                 .map(messageMapper::toMessageDto)
                 .sorted(Comparator.comparing(MessageDto::getCreatedAt))
                 .toList();
-
     }
 
     public MessageDto findById(long messageId, long chatId, int sender) {
@@ -80,10 +73,6 @@ public class MessagesService {
                 .orElseThrow(() -> new NoSuchParticipantException("Вы не принадлежите этому чату"));
         return messagesRepository.findById(messageId)
                 .map(messageMapper::toMessageDto)
-                .map(msq -> {
-                    msq.setContent(encryptUtils.decrypt(msq.getContent()));
-                    return msq;
-                })
                 .orElseThrow(() -> new NoSuchMessageException("Сообщение не найдено"));
     }
 
@@ -96,11 +85,7 @@ public class MessagesService {
             List<Long> messageIds = messageTokenRepository.findAllMessageIdsByTokenHashInChat(request.chatId(), userId, hashes);
             return messagesRepository.findAllByIdInOrderById(messageIds)
                     .stream()
-                    .map(message -> {
-                        MessageDto messageDto = messageMapper.toMessageDto(message);
-                        messageDto.setContent(encryptUtils.decrypt(message.getContent()));
-                        return messageDto;
-                    })
+                    .map(messageMapper::toMessageDto)
                     .toList();
         }
         return List.of();
@@ -140,7 +125,6 @@ public class MessagesService {
         lexicalAnalyserService.saveMessageTokens(savedMessage);
 
         var messageDto = messageMapper.toMessageDto(message);
-        messageDto.setContent(encryptUtils.decrypt(message.getContent()));
         messageDto.setAttachments(message.getAttachments());
 
         if (chat.isGroup()) {
@@ -165,6 +149,11 @@ public class MessagesService {
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат с указанным id: %d не найден".formatted(participants.getChat().getId())));
         Message message = messageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
         Message encryptedMessage = processAndEncryptMessage(message);
+        if(!Objects.isNull(createMessagePayload.replyMessageId())){
+            var replyMessage = messagesRepository.findById(createMessagePayload.replyMessageId())
+                    .orElse(null);
+            encryptedMessage.setReplyToMessage(replyMessage);
+        }
         Message savedMessage = messagesRepository.save(encryptedMessage);
         chat.setLastMessage(savedMessage);
         lexicalAnalyserService.saveMessageTokens(savedMessage);
@@ -223,7 +212,6 @@ public class MessagesService {
 
             MessageDto forwardedDto = messageMapper.toMessageDto(savedForwardedMsg);
             forwardedDto.setAttachments(clonedAttachments);
-            forwardedDto.setContent(encryptUtils.decrypt(savedForwardedMsg.getContent()));
             forwardedDto.setRecipientId(recipientId);
             forwardedDto.setRecipientIds(recipientsIds);
             resultDtos.add(forwardedDto);
@@ -296,7 +284,6 @@ public class MessagesService {
         MessageDto dto = messageMapper.toMessageDto(savedMessage);
         dto.setAttachments(savedAttachments);
         dto.setTempId(createMessagePayload.tempId());
-        dto.setContent(encryptUtils.decrypt(savedMessage.getContent()));
         return dto;
     }
 

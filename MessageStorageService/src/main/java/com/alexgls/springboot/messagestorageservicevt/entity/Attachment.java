@@ -1,6 +1,8 @@
 package com.alexgls.springboot.messagestorageservicevt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +13,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties(value = "message")
+@EqualsAndHashCode(exclude = "message")
 public class Attachment {
 
     @Id
@@ -39,5 +43,9 @@ public class Attachment {
 
     @Column(name = "has_analysis")
     private Boolean hasAnalysis;
+
+    @JoinColumn(name = "message_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Message message;
 
 }

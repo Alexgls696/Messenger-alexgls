@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useLayoutEffect } from 'react';
 import { apiFetch } from '../utils/apiClient';
 import Message from './Message';
 import { generateTempId, isDocumentType } from '../utils/messageUtils';
@@ -210,12 +210,20 @@ const ChatWindow = forwardRef(({
         return () => controller.abort();
     }, [activeChat, fetchMessages]);
 
-    // 2. ЕДИНЫЙ эффект для управления скроллом (useLayoutEffect)
-    useEffect(() => {
+    useLayoutEffect(() => {
         const container = scrollContainerRef.current;
-        if (!container || messages.length === 0 || !isInitialLoad.current) return;
+        if (!container || messages.length === 0) return;
 
-        requestAnimationFrame(() => {
+        if (prevScrollHeightRef.current > 0) {
+            const heightDifference = container.scrollHeight - prevScrollHeightRef.current;
+            // Корректируем скролл: старый скролл + разница в высоте
+            // Это удержит сообщение, на которое смотрел пользователь, на том же месте
+            container.scrollTop = heightDifference;
+            // Сбрасываем реф, чтобы эта логика не срабатывала при обычных новых сообщениях
+            prevScrollHeightRef.current = 0;
+        }
+        // Логика первого входа в чат (когда isInitialLoad = true)
+        else if (isInitialLoad.current) {
             const firstUnread = messages.find(m => !m.read && m.senderId !== currentUserId);
             if (firstUnread) {
                 const element = container.querySelector(`[data-message-id="${firstUnread.id}"]`);
@@ -226,8 +234,8 @@ const ChatWindow = forwardRef(({
                 container.scrollTop = container.scrollHeight;
             }
             isInitialLoad.current = false;
-        });
-    }, [messages]);
+        }
+    }, [messages, currentUserId]);
 
     // Редактирование
     useEffect(() => {
@@ -253,15 +261,13 @@ const ChatWindow = forwardRef(({
 
     const handleScroll = async (e) => {
         const container = e.currentTarget;
-        // Порог срабатывания (100px до верха), чтобы не ждать ровно 0
         if (container.scrollTop < 100 && hasMore && !isLoading && activeChat) {
-            prevScrollHeightRef.current = container.scrollHeight; // Запоминаем текущую высоту
+            prevScrollHeightRef.current = container.scrollHeight;
             setIsLoading(true);
 
             const { fetchedMessages, hasMoreData } = await fetchMessages(activeChat.chatId, page);
 
             if (fetchedMessages.length > 0) {
-                // Используем функциональное обновление, чтобы не зависеть от замыкания
                 setMessages(prev => [...fetchedMessages, ...prev]);
                 setPage(p => p + 1);
                 setHasMore(hasMoreData);

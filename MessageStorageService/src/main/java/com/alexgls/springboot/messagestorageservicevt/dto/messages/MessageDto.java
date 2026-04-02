@@ -41,7 +41,7 @@ public class MessageDto {
 
     private boolean isService;
 
-    private Long replyToId;
+    private ReplyMessageContent replyMessageContent;
 
     private Integer forwardFromUserId;
 
