@@ -11,6 +11,7 @@ import com.alexgls.springboot.messagestorageservicevt.dto.notifications.CreateNo
 import com.alexgls.springboot.messagestorageservicevt.dto.notifications.NotificationType;
 import com.alexgls.springboot.messagestorageservicevt.entity.Chat;
 import com.alexgls.springboot.messagestorageservicevt.entity.ChatRole;
+import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.entity.Participants;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchParticipantException;
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUserException;
@@ -18,10 +19,7 @@ import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChat
 import com.alexgls.springboot.messagestorageservicevt.repository.ChatsRepository;
 import com.alexgls.springboot.messagestorageservicevt.repository.ParticipantsRepository;
 import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
-import com.alexgls.springboot.messagestorageservicevt.util.groups.InviteGroupServiceMessage;
-import com.alexgls.springboot.messagestorageservicevt.util.groups.LeaveUserServiceMessage;
-import com.alexgls.springboot.messagestorageservicevt.util.groups.RemoveUserServiceMessage;
-import com.alexgls.springboot.messagestorageservicevt.util.groups.ServiceMessage;
+import com.alexgls.springboot.messagestorageservicevt.util.groups.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,6 +148,11 @@ public class ParticipantsService {
         return new LeaveUserServiceMessage(actor.getUsername());
     }
 
+    protected ServiceMessage generateEnterUserMessageContent(int actorId, String token) {
+        GetUserDto actor = authRestClient.findUserById(actorId, token);
+        return new EnterGroupServiceMessage(actor.getUsername());
+    }
+
     @Transactional
     public void leaveGroup(long chatId, int userId, String token) {
         boolean exists = participantsRepository.existsByChatIdAndUserId(chatId, userId);
@@ -156,19 +160,26 @@ public class ParticipantsService {
             throw new NoSuchParticipantException("Не найдена связь между чатом и пользователем");
         }
         ServiceMessage message = generateLeaveUserMessageContent(userId, token);
-        messagesService.saveServiceMessage(message, chatId, userId);
+        MessageDto serviceMessageDto = messagesService.saveServiceMessage(message, chatId, userId);
         participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId);
+        kafkaSenderService.sendMessage(serviceMessageDto);
     }
 
     @Transactional
-    public void enterGroup(int chatId, int userId){
-        Participants participants = participantsRepository.findByChatIdAndUserId(chatId,userId)
-                .orElseThrow(()->new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
-        if(participants.isRemoved()){
+    public void enterGroup(int chatId, int userId, String token) {
+        Participants participants = participantsRepository.findByChatIdAndUserId(chatId, userId)
+                .orElseThrow(() -> new NoSuchParticipantException("Не найдена связь между чатом и пользователем"));
+        if (participants.isRemoved()) {
             throw new AccessDeniedException("У вас нет доступа на выполнение данной операции");
         }
         participants.setLeave(false);
         participants.setRemoveAt(null);
+        participantsRepository.save(participants);
+        CompletableFuture.runAsync(() -> {
+            ServiceMessage serviceMessage = generateEnterUserMessageContent(userId, token);
+            var message = messagesService.saveServiceMessage(serviceMessage, chatId, userId);
+            kafkaSenderService.sendMessage(message);
+        });
     }
 
 

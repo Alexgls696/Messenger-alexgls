@@ -4,20 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Улучшен nginx.conf, добавлено немного тестов, добавлен фронтенд в docker compose">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Исправление визуальных багов на мобильных устройствах">
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/util/groups/EnterGroupServiceMessage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/src/main/java/ru/alexgls/springboot/service/UserProfileServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/test/java/com/alexgls/springboot/messagestorageservicevt/ChatsControllerIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Chats.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Chats.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Global.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Global.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/controller/GroupsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ParticipantsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/utils/apiClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/utils/apiClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,8 +28,8 @@
         <option value="Exception" />
         <option value="Interface" />
         <option value="Record" />
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -160,7 +152,7 @@
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
-    "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
+    "Spring Boot.MessageStorageServiceVtApplication.executor": "Debug",
     "Spring Boot.MetadataStorageServiceApplication.executor": "Run",
     "Spring Boot.NotificationsServiceApplication.executor": "Run",
     "Spring Boot.RegistrationServiceApplication.executor": "Run",
@@ -453,9 +445,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
-        <item itemvalue="Spring Boot.ConnectionServiceApplication" />
         <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
+        <item itemvalue="Spring Boot.ConnectionServiceApplication" />
+        <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
         <item itemvalue="Docker.docker-compose.yaml.connections-redis: Compose Deployment" />
         <item itemvalue="JUnit.MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" />
       </list>
@@ -614,15 +606,8 @@
       <workItem from="1774703861467" duration="10159000" />
       <workItem from="1774724894481" duration="181000" />
       <workItem from="1774772041258" duration="7168000" />
-      <workItem from="1774958242198" duration="4551000" />
-    </task>
-    <task id="LOCAL-00032" summary="Добавлена возможность удалять участников из группы, исправлен поиск по сообщениям, если чат был удален для пользователя. Рассылка сообщения об удалении пользователя всем участникам. Рефакторинг некоторых классов.">
-      <option name="closed" value="true" />
-      <created>1769115017501</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1769115017501</updated>
+      <workItem from="1774958242198" duration="5703000" />
+      <workItem from="1775113538996" duration="2251000" />
     </task>
     <task id="LOCAL-00033" summary="Пересоздан сервис сообщений,реализация в императивном стиле. Написаны тесты для некоторых сервисов в нем.">
       <option name="closed" value="true" />
@@ -1008,7 +993,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774779459696</updated>
     </task>
-    <option name="localTasksCounter" value="81" />
+    <task id="LOCAL-00081" summary="Исправление визуальных багов на мобильных устройствах">
+      <option name="closed" value="true" />
+      <created>1774964130747</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1774964130747</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1026,7 +1019,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Удалены ssl сертификаты." />
     <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
     <MESSAGE value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
     <MESSAGE value="Добавлены закрепленные чаты." />
@@ -1051,7 +1043,8 @@
     <MESSAGE value="Визуальные правки. Улучшена логика поиска сообщений, вход/выход из группы" />
     <MESSAGE value="Исправлены баги при входе/выходе, исправлено отображение вложений" />
     <MESSAGE value="Улучшен nginx.conf, добавлено немного тестов, добавлен фронтенд в docker compose" />
-    <option name="LAST_COMMIT_MESSAGE" value="Улучшен nginx.conf, добавлено немного тестов, добавлен фронтенд в docker compose" />
+    <MESSAGE value="Исправление визуальных багов на мобильных устройствах" />
+    <option name="LAST_COMMIT_MESSAGE" value="Исправление визуальных багов на мобильных устройствах" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

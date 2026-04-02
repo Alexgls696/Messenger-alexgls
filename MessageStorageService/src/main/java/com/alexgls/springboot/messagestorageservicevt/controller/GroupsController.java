@@ -71,9 +71,12 @@ public class GroupsController {
     @PostMapping("/{id}/enter")
     public ResponseEntity<Void> enterGroup(@PathVariable("id") int chatId, Authentication authentication) {
         Integer userId = SecurityUtils.getSenderId(authentication);
+        String token = SecurityUtils.getToken(authentication);
         log.info("Enter group chat, actor id: {}", userId);
-        participantsService.enterGroup(chatId, userId);
-        return ResponseEntity.noContent().build();
+        participantsService.enterGroup(chatId, userId, token);
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
 
