@@ -216,13 +216,13 @@ const ChatWindow = forwardRef(({
 
         if (prevScrollHeightRef.current > 0) {
             const heightDifference = container.scrollHeight - prevScrollHeightRef.current;
-            // Корректируем скролл: старый скролл + разница в высоте
-            // Это удержит сообщение, на которое смотрел пользователь, на том же месте
+            const originalOverflow = container.style.overflowY;
+
+            container.style.overflowY = 'hidden';
             container.scrollTop = heightDifference;
-            // Сбрасываем реф, чтобы эта логика не срабатывала при обычных новых сообщениях
+            container.style.overflowY = originalOverflow || 'auto';
             prevScrollHeightRef.current = 0;
         }
-        // Логика первого входа в чат (когда isInitialLoad = true)
         else if (isInitialLoad.current) {
             const firstUnread = messages.find(m => !m.read && m.senderId !== currentUserId);
             if (firstUnread) {
@@ -237,7 +237,7 @@ const ChatWindow = forwardRef(({
         }
     }, [messages, currentUserId]);
 
-    // Редактирование
+    // РедактированиеuseLayout
     useEffect(() => {
         if (editingMessage) {
             setInputText(editingMessage.content);
