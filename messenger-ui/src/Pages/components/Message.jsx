@@ -37,6 +37,34 @@ const Message = ({
         { delay: 600 }
     );
 
+    const renderTextWithLinks = (text) => {
+        if (!text) return null;
+
+        // Регулярное выражение для поиска URL (http, https, ftp)
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+        const parts = text.split(urlRegex);
+
+        return parts.map((part, index) => {
+            if (part.match(urlRegex)) {
+                return (
+                    <a
+                        key={index}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="message-link"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {part}
+                    </a>
+                );
+            }
+            // Если это обычный текст
+            return part;
+        });
+    };
+
     // --- Логика жестов свайпа ---
     const [touchStart, setTouchStart] = useState(null);
     const [swipeOffset, setSwipeOffset] = useState(0);
@@ -86,6 +114,7 @@ const Message = ({
 
         // Для свайпа
         if (swipeOffset <= TRIGGER_THRESHOLD && setReplyingTo) {
+            console.log(msg)
             setReplyingTo(msg);
         }
         setSwipeOffset(0);
@@ -201,8 +230,6 @@ const Message = ({
 
     const isEdited = msg.updatedAt !== null && !msg.forwarded;
 
-    const replyMsg = msg.replyMessageContent;
-
     return (
         <div
             className={`message-wrapper ${isSentByMe ? 'is-me' : 'is-other'} ${selectionMode ? 'selection-active' : ''}`}
@@ -314,7 +341,7 @@ const Message = ({
                     {renderAttachments()}
 
                     {msg.content && (
-                        <div className="message-content">{msg.content}</div>
+                        <div className="message-content"> {renderTextWithLinks(msg.content)}</div>
                     )}
 
                     <div className="message-meta">

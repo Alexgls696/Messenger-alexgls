@@ -8,7 +8,6 @@ import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchRecipient
 import com.alexgls.springboot.messagestorageservicevt.exceptions.NoSuchUsersChatException;
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.repository.*;
-import com.alexgls.springboot.messagestorageservicevt.repository.projection.AttachmentsByMessagesListProjection;
 import com.alexgls.springboot.messagestorageservicevt.service.encryption.EncryptUtils;
 import com.alexgls.springboot.messagestorageservicevt.service.nlp.LexicalAnalyzer;
 import com.alexgls.springboot.messagestorageservicevt.service.transactional.MessagesServiceTransactional;
@@ -25,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
-
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +90,6 @@ public class MessagesService {
 
     @Transactional
     public void readMessagesByList(List<ReadMessagePayload> messages, int readerId) {
-
         if (messages == null || messages.isEmpty()) {
             return;
         }

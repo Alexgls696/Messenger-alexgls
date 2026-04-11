@@ -44,7 +44,7 @@ public class MessageMapper {
         messageDto.setForwarded(message.isForwarded());
         messageDto.setForwardFromUserId(message.getForwardFromUserId());
         if(!Objects.isNull(message.getReplyToMessage())){
-            messageDto.setReplyMessageContent(new ReplyMessageContent(message.getReplyToMessage().getId(), message.getSenderId(), encryptUtils.decrypt(message.getReplyToMessage().getContent())));
+            messageDto.setReplyMessageContent(new ReplyMessageContent(message.getReplyToMessage().getId(), message.getReplyToMessage().getSenderId(), encryptUtils.decrypt(message.getReplyToMessage().getContent())));
         }
         return messageDto;
     }

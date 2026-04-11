@@ -29,11 +29,9 @@ public class ElasticSearchMetadataRepository implements MetadataRepository {
     @Override
     public List<FileMetadata> searchInChat(int chatId, String queryText) {
         var queryBuilder = NativeQuery.builder()
-                // 1. Жесткий фильтр по chatId
                 .withFilter(f -> f.term(t -> t.field("chatId").value(chatId)));
 
         if (queryText != null && !queryText.isBlank()) {
-            // 2. Multi-match поиск по полям
             queryBuilder.withQuery(q -> q
                     .multiMatch(m -> m
                             .fields("title^3", "summary", "topics", "keywords", "entities") //приоритет в названиях

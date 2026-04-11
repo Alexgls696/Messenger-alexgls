@@ -1,3 +1,13 @@
+# Сборка
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
@@ -16,6 +26,6 @@ RUN keytool -importcert -trustcacerts -file /usr/local/share/ca-certificates/roo
 # 3. Проверочная команда: выведет список установленных сертификатов в логи сборки
 RUN keytool -list -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit | grep russian
 
-COPY target/*.jar app.jar
+COPY --from=builder /build/target/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["java", "-jar", "app.jar"]

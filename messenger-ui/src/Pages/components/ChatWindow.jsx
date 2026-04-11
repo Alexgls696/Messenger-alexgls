@@ -414,9 +414,7 @@ const ChatWindow = forwardRef(({
             }
         } else {
             try {
-                // 1. ЛЕНИВОЕ СОЗДАНИЕ ЧАТА (если это первое сообщение)
                 if (isNewChat) {
-                    // Создаем чат в базе данных
                     const createdChat = await apiFetch(`/api/chats/private/${activeChat.recipient.id}`, {
                         method: 'POST'
                     });

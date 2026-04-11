@@ -134,6 +134,26 @@ body[data-theme="dark"] {
 .message-content {
     font-size: 1em;
     word-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.message-link {
+    color: #008cff;
+    text-decoration: underline;
+    cursor: pointer;
+    word-break: break-all;
+    transition: opacity 0.2s;
+}
+
+.message-link:hover {
+    opacity: 0.8;
+}
+
+.message.sent .message-link {
+    color: #ffffff;
+    text-decoration-color: rgba(255, 255, 255, 0.5);
 }
 
 .message.service {

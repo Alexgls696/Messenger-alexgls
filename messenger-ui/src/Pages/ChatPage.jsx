@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, use } from 'react';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Header from './components/Header';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
@@ -16,6 +19,7 @@ import ConfirmationModal from './components/ConfirmationModal';
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
 import ContextMenu from './components/ContextMenu';
+
 
 
 import useSound from 'use-sound';
@@ -104,12 +108,13 @@ function ChatPage() {
         };
 
         checkMobile();
-        window.addEventListener('resize', checkMobile); 
+        window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
+        console.log(newMsg)
         const curActive = activeChatRef.current;
         const isMsgForActive = curActive && String(curActive.chatId) === String(newMsg.chatId);
 
@@ -429,6 +434,20 @@ function ChatPage() {
         options.push({ label: 'Ответить', action: () => setReplyingTo(msg) });
         options.push({ label: 'Выделить', action: () => { setSelectionMode(true); setFirstSelectedMessage(msg) } });
 
+        if (msg.content) {
+            options.push({
+                label: 'Копировать текст',
+                action: () => {
+                    navigator.clipboard.writeText(msg.content)
+                        .then(() => {
+                            toast.success("Текст скопирован");
+                        })
+                        .catch(err => {
+                            toast.error("Ошибка при копировании текста");
+                        });
+                }
+            });
+        }
 
         if (isSentByMe && msg.type === 'TEXT') {
             options.push({
@@ -451,6 +470,8 @@ function ChatPage() {
                 action: () => deleteMessages([msg.id], true, 'Вы действительно хотите удалить это сообщение? Это действие необратимо.')
             });
         }
+
+
 
         setContextMenu({ x: e.clientX, y: e.clientY, options });
     }, [user, deleteMessages]);
@@ -629,6 +650,12 @@ function ChatPage() {
                     onConfirm={deleteMessagesConfirmConfig.onConfirm}
                     forAll={deleteMessagesConfirmConfig.canForAll}
                     onCancel={() => setDeleteMessagesConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                />
+
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    theme="colored"
                 />
             </main>
         </div>

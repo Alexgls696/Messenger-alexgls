@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 1. Создаем планировщик вручную
+
         ThreadPoolTaskScheduler timer = new ThreadPoolTaskScheduler();
         timer.setThreadNamePrefix("ws-heartbeat-thread-");
         timer.setPoolSize(1);
@@ -54,7 +54,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(corsAddressList)
                 .addInterceptors(new JwtHandshakeInterceptor(authServiceClient))
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();

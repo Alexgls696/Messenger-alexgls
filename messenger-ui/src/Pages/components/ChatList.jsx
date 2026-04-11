@@ -46,7 +46,7 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu, curren
                     targetChat.lastMessage = newMsg;
                     targetChat.updatedAt = newMsg.createdAt;
 
-                    if (!isCurrentActive) {
+                    if (!isCurrentActive && (currentUserId !== newMsg.senderId)) {
                         targetChat.numberOfUnreadMessages = (targetChat.numberOfUnreadMessages || 0) + 1;
                     }
 

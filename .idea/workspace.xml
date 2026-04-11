@@ -4,16 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Добавлены уведомления входа/выхода из группы.">
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/ReplyMessageContent.java" afterDir="false" />
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/dto/messages/MessageDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Attachment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/ChatsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/ElasticSearchMetadataRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/ElasticSearchMetadataRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -404,11 +407,11 @@
       <item itemvalue="Docker.docker-compose.yaml.connections-redis: Compose Deployment" />
       <item itemvalue="JUnit.MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" />
       <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
-      <item itemvalue="Spring Boot.SearchDataServiceApplication" />
-      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
+      <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
       <item itemvalue="Spring Boot.MetadataStorageServiceApplication" />
       <item itemvalue="Spring Boot.NotificationsServiceApplication" />
+      <item itemvalue="Spring Boot.SearchDataServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
       <item itemvalue="Spring Boot.ConnectionServiceApplication" />
       <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
@@ -578,23 +581,21 @@
       <workItem from="1774772041258" duration="7168000" />
       <workItem from="1774958242198" duration="5703000" />
       <workItem from="1775113538996" duration="2251000" />
-      <workItem from="1775150552113" duration="2424000" />
-    </task>
-    <task id="LOCAL-00033" summary="Пересоздан сервис сообщений,реализация в императивном стиле. Написаны тесты для некоторых сервисов в нем.">
-      <option name="closed" value="true" />
-      <created>1770729258071</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1770729258071</updated>
-    </task>
-    <task id="LOCAL-00034" summary="Исправлены баги при чтении сообщений">
-      <option name="closed" value="true" />
-      <created>1770750691762</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1770750691762</updated>
+      <workItem from="1775150552113" duration="4933000" />
+      <workItem from="1775372264649" duration="3187000" />
+      <workItem from="1775390706635" duration="1172000" />
+      <workItem from="1775398896810" duration="134000" />
+      <workItem from="1775399123180" duration="650000" />
+      <workItem from="1775459103394" duration="3214000" />
+      <workItem from="1775503978780" duration="506000" />
+      <workItem from="1775567945892" duration="511000" />
+      <workItem from="1775568811460" duration="167000" />
+      <workItem from="1775569029585" duration="1015000" />
+      <workItem from="1775574059692" duration="22000" />
+      <workItem from="1775574108769" duration="9000" />
+      <workItem from="1775574148222" duration="6000" />
+      <workItem from="1775590339852" duration="71000" />
+      <workItem from="1775906714265" duration="1446000" />
     </task>
     <task id="LOCAL-00035" summary="Удален сервис сообщений, использующий реактивные потоки. Добавлены тесты">
       <option name="closed" value="true" />
@@ -972,7 +973,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774964130747</updated>
     </task>
-    <option name="localTasksCounter" value="82" />
+    <task id="LOCAL-00082" summary="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате">
+      <option name="closed" value="true" />
+      <created>1775153361941</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1775153361941</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате">
+      <option name="closed" value="true" />
+      <created>1775153619804</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1775153619804</updated>
+    </task>
+    <option name="localTasksCounter" value="84" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -990,7 +1007,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Добавлены сертификаты в сервис анализа файлов" />
     <MESSAGE value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
     <MESSAGE value="Добавлены закрепленные чаты." />
     <MESSAGE value="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно" />
@@ -1015,7 +1031,8 @@
     <MESSAGE value="Исправлены баги при входе/выходе, исправлено отображение вложений" />
     <MESSAGE value="Улучшен nginx.conf, добавлено немного тестов, добавлен фронтенд в docker compose" />
     <MESSAGE value="Исправление визуальных багов на мобильных устройствах" />
-    <option name="LAST_COMMIT_MESSAGE" value="Исправление визуальных багов на мобильных устройствах" />
+    <MESSAGE value="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате" />
+    <option name="LAST_COMMIT_MESSAGE" value="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
