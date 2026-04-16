@@ -42,8 +42,6 @@
 ``CORS_ALLOWED_ORIGINS=Разрешенные_адреса ``
 ### 2. Backend & Инфраструктура
   Соберите исполняемые файлы и запустите контейнеры:\
-  `` # Сборка всех микросервисов ``\
-``mvn clean package -DskipTests``
 
 ``## Запуск инфраструктуры (БД, Kafka, Elastic) и сервисов``\
 ``docker compose -f docker-compose.prod.yaml up -d ``\
