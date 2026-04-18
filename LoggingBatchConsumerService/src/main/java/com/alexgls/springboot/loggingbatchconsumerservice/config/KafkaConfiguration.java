@@ -48,6 +48,11 @@ public class KafkaConfiguration {
         params.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         params.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 500);
 
+        params.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 50 * 1024);
+        params.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 5000);
+        params.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 5242880); // 5 МБ
+
+
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new JavaTimeModule()); // Вот это лечит вашу ошибку
         om.findAndRegisterModules(); // На всякий случай для других модулей

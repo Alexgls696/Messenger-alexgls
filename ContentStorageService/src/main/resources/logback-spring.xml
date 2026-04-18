@@ -14,10 +14,10 @@
                 <timestamp><fieldName>timestamp</fieldName></timestamp>
                 <logLevel><fieldName>level</fieldName></logLevel>
                 <message><fieldName>message</fieldName></message>
-                <contextName><fieldName>serviceName</fieldName></contextName>
+                <contextName><fieldName>content-storage-service</fieldName></contextName>
 
                 <globalCustomFields>
-                    {"serviceName":"message-storage-service"}
+                    {"serviceName":"content-storage-service"}
                 </globalCustomFields>
                 <mdc/>
             </providers>

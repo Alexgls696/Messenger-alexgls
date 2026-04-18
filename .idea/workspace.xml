@@ -5,23 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Multistage build в dockerfile, добавлена возможность копировать содержимое сообщений,улучшено отображение сообщений, переход по ссылкам из сообщений">
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/database/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/config/KafkaConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/dto/LogRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/service/LogBatchWriter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/application.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/db/changelog/changeset/initialize.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/logback-spring.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ConnectionsService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentAnalysisService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ContentStorageService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NotificationsService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SearchDataService/src/main/resources/logback-spring.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuthService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AuthService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConnectionsService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentAnalysisService/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ContentStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/config/KafkaConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/config/KafkaConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/resources/logback-spring.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetadataStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SearchDataService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SearchDataService/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,11 +176,11 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feature/log-service",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "jbr-17",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/messanger-ui/cert",
+    "last_opened_file_path": "C:/Users/Alexandr/Desktop/JavaProjects/MyChatProject/SearchDataService/src/main/resources",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -220,11 +220,11 @@
       <recent name="com.alexgls.springboot.contentanalysisservice.client" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\messanger-ui\cert" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\InDatabaseContentStorageService\src\main\java\com\alexgls\springboot\indatabasecontentstorageservice\client" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\InDatabaseContentStorageService\src\main\java\com\alexgls\springboot\indatabasecontentstorageservice\dto" />
-      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\ContentAnalysisService\gigachat_cert" />
-      <recent name="C:\Java Projects\Messenger-alexgls\UsersMessagingService" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\SearchDataService\src\main\resources" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\NotificationsService\src\main\resources" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\MetadataStorageService\src\main\resources" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\ContentStorageService\src\main\resources" />
+      <recent name="C:\Users\Alexandr\Desktop\JavaProjects\MyChatProject\ContentAnalysisService\src\main\resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Java Projects\Messenger-alexgls\Auth_Service" />
@@ -272,7 +272,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.yaml.logging-database: Compose Deployment">
+  <component name="RunManager" selected="Spring Boot.LoggingBatchConsumerServiceApplication">
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
