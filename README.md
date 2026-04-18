@@ -47,10 +47,8 @@
 ``docker compose -f docker-compose.prod.yaml up -d ``
 
 ### 3. Frontend
-``cd messenger-ui``\
-``npm install``\
-``npm run dev ``\
-Приложение будет доступно по адресу: http://localhost:5173
+Фронтенд поднимается вместе с другими сервисами.
+Приложение будет доступно по адресу: http://localhost:3000
 ## Архитектура системы
 ![Архитектурная схема](https://github.com/Alexgls696/Messenger-alexgls/blob/master/images/Architecture.png)
 
