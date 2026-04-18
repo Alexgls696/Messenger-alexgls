@@ -248,9 +248,9 @@ public class MessagesService {
                     copy.setHasAnalysis(oldAttr.getHasAnalysis());
                     return copy;
                 }).toList();
-
         return (List<Attachment>) attachmentRepository.saveAll(newAttachments);
     }
+
 
     @Transactional
     public MessageDto saveServiceMessage(ServiceMessage serviceMessage, long chatId, int senderId) {

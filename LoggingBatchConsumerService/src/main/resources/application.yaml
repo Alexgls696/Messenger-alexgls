@@ -1,0 +1,14 @@
+server:
+  port: 8096
+
+spring:
+  datasource:
+    url: ${LOGGING_DATABASE_URL:jdbc:postgresql://localhost:5432/logging_db?reWriteBatchedInserts=true}
+    username: ${SPRING_DATASOURCE_USERNAME:alexgls}
+    password: ${SPRING_DATASOURCE_PASSWORD:AS04SERa1}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+
+  application:
+    name: logging-consumer-service

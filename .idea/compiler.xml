@@ -16,6 +16,7 @@
         <module name="AuthService" />
         <module name="MetadataStorageService" />
         <module name="ContentAnalysisService" />
+        <module name="LoggingBatchConsumerService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -33,6 +34,7 @@
       <module name="ConnectionsService" options="-parameters" />
       <module name="ContentAnalysisService" options="-parameters" />
       <module name="ContentStorageService" options="-parameters" />
+      <module name="LoggingBatchConsumerService" options="-parameters" />
       <module name="MediaContentStorageService" options="-parameters" />
       <module name="MessageStorageService" options="-parameters" />
       <module name="MetadataStorageService" options="-parameters" />

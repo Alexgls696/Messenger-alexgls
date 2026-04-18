@@ -4,20 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате">
+    <list default="true" id="372d7f18-35f4-4ce3-a562-e57825999476" name="Changes" comment="Multistage build в dockerfile, добавлена возможность копировать содержимое сообщений,улучшено отображение сообщений, переход по ссылкам из сообщений">
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/database/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/config/KafkaConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/dto/LogRecord.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/java/com/alexgls/springboot/loggingbatchconsumerservice/service/LogBatchWriter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/application.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/db/changelog/changeset/initialize.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggingBatchConsumerService/src/main/resources/db/changelog/db.changelog-master.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MessageStorageService/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGatewayService/src/main/java/com/alexgls/springboot/apigatewayservice/security/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ConnectionsService/src/main/java/ru/alexgls/springboot/usersmessagingservice/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ContentStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ContentStorageService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/entity/Message.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MessageStorageService/src/main/java/com/alexgls/springboot/messagestorageservicevt/service/MessagesService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/ElasticSearchMetadataRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MetadataStorageService/src/main/java/com/alexgls/springboot/metadatastorageservice/repository/ElasticSearchMetadataRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/ChatPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/Styles/Messages.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatList.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/ChatWindow.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/messenger-ui/src/Pages/components/Message.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,8 +40,8 @@
         <option value="Exception" />
         <option value="Interface" />
         <option value="JUnit5 Test Class" />
-        <option value="Class" />
         <option value="Record" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -58,7 +62,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Alexgls696/PrivateChatSpringBoot&quot;,
-    &quot;accountId&quot;: &quot;d7d25a6e-b81e-4aa5-97a7-7347f85c6f3b&quot;
+    &quot;accountId&quot;: &quot;58d32dd8-42dd-42d1-8a87-6f9c4fa3f640&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -92,6 +96,7 @@
     "Docker.docker-compose.prod.yaml.content-analysis-service: Compose Deployment.executor": "Run",
     "Docker.docker-compose.prod.yaml.frontend: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.connections-redis: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yaml.logging-database: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.notifications-database: Compose Deployment.executor": "Run",
     "Docker.docker-compose.yaml.redis: Compose Deployment.executor": "Run",
     "HTTP Request.generated-requests | #1.executor": "Run",
@@ -158,6 +163,7 @@
     "Spring Boot.ContentAnalysisServiceApplication.executor": "Run",
     "Spring Boot.ContentStorageServiceApplication.executor": "Run",
     "Spring Boot.InDatabaseContentStorageServiceApplication.executor": "Run",
+    "Spring Boot.LoggingBatchConsumerServiceApplication.executor": "Run",
     "Spring Boot.MediaContentStorageServiceApplication.executor": "Run",
     "Spring Boot.MessageStorageServiceApplication.executor": "Debug",
     "Spring Boot.MessageStorageServiceVtApplication.executor": "Run",
@@ -266,23 +272,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.AuthServiceSpringBootApplication">
-    <configuration name="MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="MessageStorageService" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.alexgls.springboot.messagestorageservicevt.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.alexgls.springboot.messagestorageservicevt.service" />
-      <option name="MAIN_CLASS_NAME" value="com.alexgls.springboot.messagestorageservicevt.service.MessagesServiceTest" />
-      <option name="METHOD_NAME" value="deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Docker.docker-compose.yaml.logging-database: Compose Deployment">
     <configuration name="ApiGatewayServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="KEYSTORE_SECRET" value="hgtbTgnVxpn/b+7CFdZQtn6DIYI8Tvl5ORemrU8Z0pJkvyr2mp8knQ==" />
@@ -347,6 +337,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="LoggingBatchConsumerServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="LoggingBatchConsumerService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.loggingbatchconsumerservice.LoggingBatchConsumerServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MessageStorageServiceVtApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="MessageStorageService" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.alexgls.springboot.messagestorageservicevt.MessageStorageServiceVtApplication" />
@@ -403,9 +400,23 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration name="docker-compose.yaml.logging-database: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="logging-database" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <list>
+      <item itemvalue="Docker.docker-compose.yaml.logging-database: Compose Deployment" />
       <item itemvalue="Docker.docker-compose.yaml.connections-redis: Compose Deployment" />
-      <item itemvalue="JUnit.MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" />
+      <item itemvalue="Spring Boot.LoggingBatchConsumerServiceApplication" />
       <item itemvalue="Spring Boot.ApiGatewayServiceApplication" />
       <item itemvalue="Spring Boot.ContentAnalysisServiceApplication" />
       <item itemvalue="Spring Boot.MessageStorageServiceVtApplication" />
@@ -421,8 +432,8 @@
         <item itemvalue="Spring Boot.ContentStorageServiceApplication" />
         <item itemvalue="Spring Boot.ConnectionServiceApplication" />
         <item itemvalue="Spring Boot.AuthServiceSpringBootApplication" />
+        <item itemvalue="Docker.docker-compose.yaml.logging-database: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yaml.connections-redis: Compose Deployment" />
-        <item itemvalue="JUnit.MessagesServiceTest.deleteMessages_ShouldCallDeleteMessagesForAll_WhenForAllIsTrue" />
       </list>
     </recent_temporary>
   </component>
@@ -595,15 +606,12 @@
       <workItem from="1775574108769" duration="9000" />
       <workItem from="1775574148222" duration="6000" />
       <workItem from="1775590339852" duration="71000" />
-      <workItem from="1775906714265" duration="1446000" />
-    </task>
-    <task id="LOCAL-00035" summary="Удален сервис сообщений, использующий реактивные потоки. Добавлены тесты">
-      <option name="closed" value="true" />
-      <created>1770890959855</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1770890959855</updated>
+      <workItem from="1775906714265" duration="4444000" />
+      <workItem from="1776095608215" duration="61000" />
+      <workItem from="1776096350195" duration="33000" />
+      <workItem from="1776096906780" duration="247000" />
+      <workItem from="1776359548578" duration="1039000" />
+      <workItem from="1776507077261" duration="5693000" />
     </task>
     <task id="LOCAL-00036" summary="Полностью переписано на React клиентское приложение, временно убраны сертификаты SSL (HTTPS), добавлен список людей в поиске, с которыми пользователь когда-либо общался">
       <option name="closed" value="true" />
@@ -989,7 +997,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775153619804</updated>
     </task>
-    <option name="localTasksCounter" value="84" />
+    <task id="LOCAL-00084" summary="Multistage build в dockerfile, добавлена возможность копировать содержимое сообщений,улучшено отображение сообщений, переход по ссылкам из сообщений">
+      <option name="closed" value="true" />
+      <created>1775910014634</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1775910014634</updated>
+    </task>
+    <option name="localTasksCounter" value="85" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1007,7 +1023,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Объединены ветки, возможен запуск как в среде разработки, так и в контейнерах" />
     <MESSAGE value="Добавлены закрепленные чаты." />
     <MESSAGE value="Исправлено подключение к WebSocket. Соединение теперь восстанавливается правильно" />
     <MESSAGE value="Визуальные правки" />
@@ -1032,7 +1047,8 @@
     <MESSAGE value="Улучшен nginx.conf, добавлено немного тестов, добавлен фронтенд в docker compose" />
     <MESSAGE value="Исправление визуальных багов на мобильных устройствах" />
     <MESSAGE value="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате" />
-    <option name="LAST_COMMIT_MESSAGE" value="Оптимизация запроса списка сообщений, теперь все данные подгружаются одним запросом к бд, изменение логики ответов к сообщениям, исправлен скролл сообщений в чате" />
+    <MESSAGE value="Multistage build в dockerfile, добавлена возможность копировать содержимое сообщений,улучшено отображение сообщений, переход по ссылкам из сообщений" />
+    <option name="LAST_COMMIT_MESSAGE" value="Multistage build в dockerfile, добавлена возможность копировать содержимое сообщений,улучшено отображение сообщений, переход по ссылкам из сообщений" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

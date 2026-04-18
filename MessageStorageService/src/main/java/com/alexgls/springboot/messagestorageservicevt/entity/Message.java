@@ -69,7 +69,6 @@ public class Message {
     @Transient
     private Set<String> tokenHashes;
 
-
     //При пересылке
     public Message(Message source) {
         this.chatId = source.chatId;

@@ -4,6 +4,7 @@ volumes:
   images_db_data:
   user-details-data:
   notifications-data:
+  logs-data:
   redis-data:
   es_data:
     driver: local
@@ -73,6 +74,21 @@ services:
       - images_db_data:/var/lib/postgresql/data
     ports:
       - "5437:5432"
+
+  logging-database:
+    build: LoggingBatchConsumerService/database
+    container_name: postgres_logs
+    environment:
+      POSTGRES_DB: logging_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - logs-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: >
+      postgres 
+      -c shared_preload_libraries=pg_partman_bgw
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4

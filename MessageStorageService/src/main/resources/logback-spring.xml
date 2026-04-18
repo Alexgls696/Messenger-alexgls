@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp><fieldName>timestamp</fieldName></timestamp>
+                <logLevel><fieldName>level</fieldName></logLevel>
+                <message><fieldName>message</fieldName></message>
+                <contextName><fieldName>serviceName</fieldName></contextName>
+                <mdc/>
+            </providers>
+        </encoder>
+        <topic>logging-batch-consumer-topic</topic>
+        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
+        <producerConfig>bootstrap.servers=localhost:29092</producerConfig>
+
+        <!-- Ограничение на время ожидания при закрытии приложения -->
+        <producerConfig>max.block.ms=5000</producerConfig>
+    </appender>
+
+    <!-- ВАЖНО: Запрещаем Kafka-клиенту писать в самого себя -->
+    <logger name="org.apache.kafka" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <!-- Запрещаем самому аппендеру логировать в Kafka -->
+    <logger name="com.github.danielwegener.logback.kafka" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="KAFKA" />
+    </root>
+</configuration>
