@@ -9,4 +9,8 @@ public interface AuthRestClient {
     GetUserDto findUserById(int id, String token);
 
     List<GetUserDto> findAllUsers(Iterable<Integer> ids, String token);
+
+    boolean isBlocked(int targetUserId, String token);
+
+    boolean isBlockedChat(int targetUserId, String token);
 }

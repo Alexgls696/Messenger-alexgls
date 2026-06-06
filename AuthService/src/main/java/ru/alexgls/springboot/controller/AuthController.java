@@ -57,7 +57,7 @@ public class AuthController {
         boolean credentialsValid = usersService.checkCredentials(loginRequest.username, loginRequest.password);
         if (credentialsValid) {
             JwtResponse response = getLoginResponseByUsername(loginRequest.username);
-            kafkaSender.send(CreateNotificationRequest.builder()
+            kafkaSender.sendNotification(CreateNotificationRequest.builder()
                     .title("В ваш аккаунт был выполнен вход")
                     .content("В ваш аккаунт был выполнен вход, срочно смените пароль, если это были не вы.")
                     .users(List.of(response.getUserId()))
@@ -107,7 +107,7 @@ public class AuthController {
         GetUserDto dto = usersService.saveUser(userRegisterDto);
 
         var response = getLoginResponseByUsername(dto.username());
-        kafkaSender.send(CreateNotificationRequest.builder()
+        kafkaSender.sendNotification(CreateNotificationRequest.builder()
                 .title("Вы успешно зарегистрировались!")
                 .content("Никому не сообщайте данные от вашего аккаунта.")
                 .users(List.of(response.getUserId()))

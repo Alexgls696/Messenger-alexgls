@@ -18,11 +18,11 @@ public class AuthServiceRestClientImpl implements AuthServiceRestClient {
     private final ParameterizedTypeReference<List<GetUserDto>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {};
 
     @Override
-    public Iterable<GetUserDto> findAllByUsername(String username, String token) {
+    public Iterable<GetUserDto> findAllByKey(String key, String token) {
         try {
             return restClient
                     .get()
-                    .uri("/api/users/find-all-by-username/{username}", username)
+                    .uri("/api/users/find-all-by-username/{username}", key)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .retrieve()
                     .body(PARAMETERIZED_TYPE_REFERENCE);

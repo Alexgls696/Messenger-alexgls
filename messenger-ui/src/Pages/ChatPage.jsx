@@ -15,6 +15,7 @@ import ChatSearchModal from './components/ChatSearchModal';
 import UserSearchModal from './components/UserSearchModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import ConfirmationModal from './components/ConfirmationModal';
+import BlackListModal from './components/BlackListModal';
 
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
@@ -72,6 +73,7 @@ function ChatPage() {
     const [contextMenu, setContextMenu] = useState(null);
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null });
     const [deleteMessagesConfirmConfig, setDeleteMessagesConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null, canForAll: false });
+    const [isBlacklistOpen, setIsBlacklistOpen] = useState(false);
 
     const [isConnected, setIsConnected] = useState(false);
 
@@ -82,6 +84,7 @@ function ChatPage() {
     const [deleteEvent, setDeleteEvent] = useState(null);
     const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
+    const [blacklistUpdate, setBlacklistUpdate] = useState(null);
 
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
@@ -114,7 +117,6 @@ function ChatPage() {
 
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
-        console.log(newMsg)
         const curActive = activeChatRef.current;
         const isMsgForActive = curActive && String(curActive.chatId) === String(newMsg.chatId);
 
@@ -169,7 +171,6 @@ function ChatPage() {
         setUnreadNotificationsCount(prev => prev + 1);
     }, []);
 
-
     const markAllNotificationsAsRead = useCallback(async () => {
         if (unreadNotificationsCount === 0) return;
         try {
@@ -192,6 +193,11 @@ function ChatPage() {
         setActiveChatOnline(userOnlineDto);
     }, []);
 
+    const onBlackListChanged = useCallback((msg) => {
+        console.log("WebSocket blacklist event:", msg);
+        setBlacklistUpdate(msg);
+    }, []);
+
 
     useChatWebSocket(
         API_BASE_URL,
@@ -201,6 +207,7 @@ function ChatPage() {
         onNotificationReceived,
         onMessageUpdate,
         onUserOnlineChanged,
+        onBlackListChanged,
         isConnected,
         setIsConnected
     );
@@ -524,6 +531,7 @@ function ChatPage() {
                 onNotificationOpen={markAllNotificationsAsRead}
                 onDeleteAllNotificationsClick={handleRemoveAllNotifications}
                 isConnected={isConnected}
+                onBlacklistClick={() => setIsBlacklistOpen(true)}
             />
 
             <main className="chat-wrapper">
@@ -571,6 +579,7 @@ function ChatPage() {
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
                     clearSocketUpdates={clearSocketUpdates}
+                    blacklistUpdate={blacklistUpdate}
 
                     isForbidden={isForbidden}
                     setIsForbidden={setIsForbidden}
@@ -592,6 +601,8 @@ function ChatPage() {
                     onClose={handleUserProfileClose}
                     {...selectedUserProfile}
                     imageObserver={imageObserver}
+                    currentUserId={user?.id}
+                    blacklistUpdate={blacklistUpdate}
                 />
 
                 <GroupProfileModal
@@ -650,6 +661,16 @@ function ChatPage() {
                     onConfirm={deleteMessagesConfirmConfig.onConfirm}
                     forAll={deleteMessagesConfirmConfig.canForAll}
                     onCancel={() => setDeleteMessagesConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                />
+
+                <BlackListModal
+                    isOpen={isBlacklistOpen}
+                    onClose={() => setIsBlacklistOpen(false)}
+                    currentUserId={user?.id}
+                    onUserSelect={(blockedUser) => {
+                        setIsBlacklistOpen(false);
+                        handleStartChat(blockedUser);
+                    }}
                 />
 
                 <ToastContainer

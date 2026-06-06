@@ -132,4 +132,27 @@ public class KafkaConfig {
                 .name("user-online-status-topic")
                 .build();
     }
+
+
+    @Bean
+    public ConsumerFactory<String, BlacklistKafkaMessage> blacklistConsumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        JsonDeserializer<BlacklistKafkaMessage> deserializer = new JsonDeserializer<>(BlacklistKafkaMessage.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("/**");
+        deserializer.setUseTypeMapperForKey(true);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, BlacklistKafkaMessage> kafkaBlacklistConsumerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, BlacklistKafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(blacklistConsumerFactory());
+        return factory;
+    }
+
+
 }

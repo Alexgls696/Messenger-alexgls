@@ -17,4 +17,5 @@ public class GetUserDto {
     private String role;
     private Date lastSeenAt;
     private Boolean online;
+    private boolean blockedForUser;
 }

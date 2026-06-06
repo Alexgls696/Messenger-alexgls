@@ -81,3 +81,13 @@ CREATE TABLE oauth2_registered_client (
                                           token_settings varchar(2000) NOT NULL,
                                           PRIMARY KEY (id)
 );
+
+
+--changeset alexgls:add_black_list_table
+--comment Добавляем таблицу для реализации черного списка у пользователей
+CREATE TABLE IF NOT EXISTS user_blacklist
+(
+    user_id integer,
+    blocked_user_id integer,
+    primary key (user_id, blocked_user_id)
+);

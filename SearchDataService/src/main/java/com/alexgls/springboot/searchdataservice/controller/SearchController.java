@@ -18,11 +18,11 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    @GetMapping("/users/by-username/{username}")
-    public Iterable<GetUserDto> findAllUsersByUsername(Authentication authentication, @PathVariable String username) {
+    @GetMapping("/users/by-key/{key}")
+    public Iterable<GetUserDto> findAllUsersByUsername(Authentication authentication, @PathVariable String key) {
         String token = getToken(authentication);
-        log.info("find users by username {}", username);
-        return searchService.findAllUsersByUsername(username, token);
+        log.info("find users by username {}", key);
+        return searchService.findAllUsersByKey(key, token);
     }
 
     @GetMapping("/users/from-chats")

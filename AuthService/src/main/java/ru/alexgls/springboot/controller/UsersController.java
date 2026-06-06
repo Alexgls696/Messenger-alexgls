@@ -11,6 +11,8 @@ import ru.alexgls.springboot.dto.ExistsUserRequest;
 import ru.alexgls.springboot.dto.GetUserDto;
 import ru.alexgls.springboot.dto.UpdateUserRequest;
 import ru.alexgls.springboot.dto.UserExistsResponse;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListRequest;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListResponse;
 import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.InvalidJwtException;
 import ru.alexgls.springboot.exceptions.NoSuchAuthException;
@@ -40,10 +42,10 @@ public class UsersController {
         return usersService.findAllUsers();
     }
 
-    @GetMapping("/find-all-by-username/{username}")
-    public Iterable<GetUserDto> findAllByUsername(@PathVariable("username") String username) {
-        log.info("Find all users by username {}", username);
-        return usersService.findAllByUsername(username);
+    @GetMapping("/find-all-by-username/{key}")
+    public Iterable<GetUserDto> findAllByKey(@PathVariable("key") String key) {
+        log.info("Find all users by username {}", key);
+        return usersService.findAllByKey(key);
     }
 
     @GetMapping("/{id}")
@@ -109,4 +111,5 @@ public class UsersController {
             throw new ExistsUserRequestException(exception.getMessage());
         }
     }
+
 }

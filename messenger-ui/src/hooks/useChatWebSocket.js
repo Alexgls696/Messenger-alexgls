@@ -3,7 +3,8 @@ import SockJS from 'sockjs-client';
 import Stomp, { client } from 'stompjs';
 import { handleTokenRefresh } from '../Pages/utils/apiClient';
 
-export const useChatWebSocket = (url, onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged, isConnected, setIsConnected) => {
+export const useChatWebSocket = (url, onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, 
+    onMessageUpdate, onUserOnlineChanged, onBlackListChanged, isConnected, setIsConnected) => {
     const stompClient = useRef(null);
     const socketRef = useRef(null);
     const pingIntervalRef = useRef(null);
@@ -11,9 +12,9 @@ export const useChatWebSocket = (url, onMessageReceived, onMessageRead, onDelete
     const connectionLock = useRef(false);
     const reconnectTimeoutRef = useRef(null);
 
-    const refs = useRef({ onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged });
+    const refs = useRef({ onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged, onBlackListChanged });
     useEffect(() => {
-        refs.current = { onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged };
+        refs.current = { onMessageReceived, onMessageRead, onDeleteEvent, onNotificationReceived, onMessageUpdate, onUserOnlineChanged, onBlackListChanged };
     });
 
     const disconnect = useCallback(() => {
@@ -84,7 +85,6 @@ export const useChatWebSocket = (url, onMessageReceived, onMessageRead, onDelete
                 });
 
                 client.subscribe('/user/queue/read-status', (m) => {
-                    console.log("[WS] Received read-status:", m.body); 
                     refs.current.onMessageRead?.(JSON.parse(m.body));
                 });
 
@@ -98,6 +98,10 @@ export const useChatWebSocket = (url, onMessageReceived, onMessageRead, onDelete
 
                 client.subscribe('/user/queue/online-changed', (m) => {
                     refs.current.onUserOnlineChanged?.(JSON.parse(m.body));
+                });
+
+                  client.subscribe('/user/queue/blacklist-message', (m) => {
+                    refs.current.onBlackListChanged?.(JSON.parse(m.body));
                 });
 
                 // Пинг

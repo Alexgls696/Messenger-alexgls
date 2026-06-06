@@ -20,8 +20,8 @@ public class SearchServiceImpl implements SearchService {
     private final MessageStorageServiceClient messageStorageServiceClient;
 
     @Override
-    public Iterable<GetUserDto> findAllUsersByUsername(String username, String token) {
-        return usersServiceRestClient.findAllByUsername(username, token);
+    public Iterable<GetUserDto> findAllUsersByKey(String key, String token) {
+        return usersServiceRestClient.findAllByKey(key, token);
     }
 
     @Override

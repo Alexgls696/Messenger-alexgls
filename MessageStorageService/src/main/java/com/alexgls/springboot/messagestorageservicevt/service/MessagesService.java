@@ -1,5 +1,6 @@
 package com.alexgls.springboot.messagestorageservicevt.service;
 
+import com.alexgls.springboot.messagestorageservicevt.client.AuthRestClient;
 import com.alexgls.springboot.messagestorageservicevt.dto.attachments.CreateAttachmentPayload;
 import com.alexgls.springboot.messagestorageservicevt.dto.messages.*;
 import com.alexgls.springboot.messagestorageservicevt.entity.*;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -38,6 +40,7 @@ public class MessagesService {
     private final MessageTokenRepository messageTokenRepository;
     private final EncryptUtils encryptUtils;
     private final LexicalAnalyzer lexicalAnalyzer;
+    private final AuthRestClient authRestClient;
 
     private final MessagesServiceTransactional messagesServiceTransactional;
     private final LexicalAnalyserService lexicalAnalyserService;
@@ -135,17 +138,29 @@ public class MessagesService {
     }
 
     @Transactional
-    public MessageDto save(CreateMessagePayload createMessagePayload) {
+    public MessageDto save(CreateMessagePayload createMessagePayload, String token) {
         Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
                 .orElseThrow(() -> new NoSuchParticipantException("Чат с указанным id: %d и участником: %d не найден".formatted(createMessagePayload.chatId(), createMessagePayload.senderId())));
+
         if (participants.isRemoved() || participants.isLeave()) {
             throw new AccessDeniedException("У вас нет доступа для выполнения данной операции.");
         }
+
         Chat chat = chatsRepository.findById(participants.getChat().getId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат с указанным id: %d не найден".formatted(participants.getChat().getId())));
+
+        if (!chat.isGroup()) {
+            Integer recipient = participantsRepository.findRecipientByUserIdAndChatId(createMessagePayload.senderId(),createMessagePayload.chatId())
+                    .orElseThrow(()->new NoSuchParticipantException("Участник чата не найден"));
+            boolean blocked = authRestClient.isBlockedChat(recipient, token);
+            if (blocked) {
+                throw new AccessDeniedException("Вы были заблокированы пользователем. Отправка сообщений невозможна");
+            }
+        }
+
         Message message = messageMapper.toMessageFromCreateMessagePayload(createMessagePayload);
         Message encryptedMessage = processAndEncryptMessage(message);
-        if(!Objects.isNull(createMessagePayload.replyMessageId())){
+        if (!Objects.isNull(createMessagePayload.replyMessageId())) {
             var replyMessage = messagesRepository.findById(createMessagePayload.replyMessageId())
                     .orElse(null);
             encryptedMessage.setReplyToMessage(replyMessage);
@@ -168,7 +183,7 @@ public class MessagesService {
 
     //TODO CRITICAL! N+1 SAVING
     @Transactional
-    public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds) {
+    public List<MessageDto> saveMessageWithForwardedMessages(CreateMessagePayload createMessagePayload, List<Long> forwardedMessageIds, String token) {
         Participants participants = participantsRepository.findByChatIdAndUserId(createMessagePayload.chatId(), createMessagePayload.senderId())
                 .orElseThrow(() -> new NoSuchParticipantException("Участник не найден"));
 
@@ -178,6 +193,15 @@ public class MessagesService {
 
         Chat chat = chatsRepository.findById(createMessagePayload.chatId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат не найден"));
+
+        if (!chat.isGroup()) {
+            Integer recipient = participantsRepository.findRecipientByUserIdAndChatId(createMessagePayload.senderId(),createMessagePayload.chatId())
+                    .orElseThrow(()->new NoSuchParticipantException("Участник чата не найден"));
+            boolean blocked = authRestClient.isBlockedChat(recipient, token);
+            if (blocked) {
+                throw new AccessDeniedException("Вы были заблокированы пользователем. Отправка сообщений невозможна");
+            }
+        }
 
         List<Message> originalMessages = messagesRepository.findAllByIdInOrderById(forwardedMessageIds);
         List<MessageDto> resultDtos = new ArrayList<>();
@@ -214,7 +238,7 @@ public class MessagesService {
         }
 
         if (createMessagePayload.content() != null && !createMessagePayload.content().isBlank()) {
-            MessageDto mainMessageDto = this.save(createMessagePayload);
+            MessageDto mainMessageDto = this.save(createMessagePayload, token);
             resultDtos.add(mainMessageDto);
         } else {
             if (!resultDtos.isEmpty()) {
@@ -253,10 +277,10 @@ public class MessagesService {
     }
 
     @Transactional
-    public MessageDto saveServiceMessage(ServiceMessage serviceMessage, long chatId, int senderId) {
+    public MessageDto saveServiceMessage(ServiceMessage serviceMessage, long chatId, int senderId, String token) {
         CreateMessagePayload createMessagePayload = new CreateMessagePayload(chatId, senderId, serviceMessage.getMessage(),
                 null, "service", null);
-        return save(createMessagePayload);
+        return save(createMessagePayload, token);
     }
 
     @Transactional

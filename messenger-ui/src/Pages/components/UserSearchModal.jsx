@@ -74,7 +74,7 @@ const UserSearchModal = ({ currentUserId,
         setResults([]); // Очищаем список только перед новым поиском
 
         try {
-            const data = await apiFetch(`/api/search/users/by-username/${query}`);
+            const data = await apiFetch(`/api/search/users/by-key/${query}`);
             const users = data.filter(user => user.id !== currentUserId);
             setResults(users || []);
         } catch (error) {
