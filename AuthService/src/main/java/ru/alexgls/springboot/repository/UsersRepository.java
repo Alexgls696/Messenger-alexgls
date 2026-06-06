@@ -25,5 +25,5 @@ public interface UsersRepository extends CrudRepository<User, Integer> {
 
     @Query("from User where id in :userIds " +
             "order by surname")
-    List<User> findAllById(@Param("userIds") List<Integer> userIds);
+    List<User> findAllById(@Param("userIds") Iterable<Integer> userIds);
 }

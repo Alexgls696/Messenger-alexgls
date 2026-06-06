@@ -141,6 +141,7 @@ public class MessagesService {
         if (participants.isRemoved() || participants.isLeave()) {
             throw new AccessDeniedException("У вас нет доступа для выполнения данной операции.");
         }
+
         Chat chat = chatsRepository.findById(participants.getChat().getId())
                 .orElseThrow(() -> new NoSuchUsersChatException("Чат с указанным id: %d не найден".formatted(participants.getChat().getId())));
         Message message = messageMapper.toMessageFromCreateMessagePayload(createMessagePayload);

@@ -15,6 +15,7 @@ import ChatSearchModal from './components/ChatSearchModal';
 import UserSearchModal from './components/UserSearchModal';
 import CreateGroupModal from './components/CreateGroupModal';
 import ConfirmationModal from './components/ConfirmationModal';
+import BlackListModal from './components/BlackListModal';
 
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
@@ -72,6 +73,7 @@ function ChatPage() {
     const [contextMenu, setContextMenu] = useState(null);
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null });
     const [deleteMessagesConfirmConfig, setDeleteMessagesConfirmConfig] = useState({ isOpen: false, message: '', onConfirm: null, canForAll: false });
+    const [isBlacklistOpen, setIsBlacklistOpen] = useState(false);
 
     const [isConnected, setIsConnected] = useState(false);
 
@@ -524,6 +526,7 @@ function ChatPage() {
                 onNotificationOpen={markAllNotificationsAsRead}
                 onDeleteAllNotificationsClick={handleRemoveAllNotifications}
                 isConnected={isConnected}
+                onBlacklistClick={() => setIsBlacklistOpen(true)}
             />
 
             <main className="chat-wrapper">
@@ -592,6 +595,7 @@ function ChatPage() {
                     onClose={handleUserProfileClose}
                     {...selectedUserProfile}
                     imageObserver={imageObserver}
+                    currentUserId={user?.id}
                 />
 
                 <GroupProfileModal
@@ -650,6 +654,16 @@ function ChatPage() {
                     onConfirm={deleteMessagesConfirmConfig.onConfirm}
                     forAll={deleteMessagesConfirmConfig.canForAll}
                     onCancel={() => setDeleteMessagesConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                />
+
+                <BlackListModal
+                    isOpen={isBlacklistOpen}
+                    onClose={() => setIsBlacklistOpen(false)}
+                    currentUserId={user?.id}
+                    onUserSelect={(blockedUser) => {
+                        setIsBlacklistOpen(false);
+                        handleStartChat(blockedUser);
+                    }}
                 />
 
                 <ToastContainer

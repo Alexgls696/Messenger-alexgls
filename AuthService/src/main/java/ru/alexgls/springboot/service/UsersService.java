@@ -11,12 +11,19 @@ import ru.alexgls.springboot.dto.GetUserDto;
 import ru.alexgls.springboot.dto.UpdateUserRequest;
 import ru.alexgls.springboot.dto.UserOnlineDto;
 import ru.alexgls.springboot.dto.UserRegisterDto;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListRequest;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListResponse;
+import ru.alexgls.springboot.dto.blacklist.DeleteUserFromBlackListRequest;
+import ru.alexgls.springboot.dto.blacklist.DeleteUserFromBlackListResponse;
 import ru.alexgls.springboot.entity.Role;
 import ru.alexgls.springboot.entity.User;
+import ru.alexgls.springboot.entity.UserBlacklist;
+import ru.alexgls.springboot.entity.UserBlacklistId;
 import ru.alexgls.springboot.exceptions.NoSuchUserException;
 import ru.alexgls.springboot.exceptions.NoSuchUserRoleException;
 import ru.alexgls.springboot.exceptions.UsernameExistsException;
 import ru.alexgls.springboot.mapper.UserMapper;
+import ru.alexgls.springboot.repository.UserBlacklistRepository;
 import ru.alexgls.springboot.repository.UserRolesRepository;
 import ru.alexgls.springboot.repository.UsersRepository;
 
@@ -26,6 +33,7 @@ import java.util.*;
 
 
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -35,6 +43,7 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
     private final UsersRepository usersRepository;
     private final UserRolesRepository userRolesRepository;
+    private final UserBlacklistRepository userBlacklistRepository;
 
     public Iterable<GetUserDto> findAllUsers() {
         List<GetUserDto> users = new ArrayList<>();
@@ -139,10 +148,31 @@ public class UsersService {
                 .stream().map(UserMapper::toDto).toList();
     }
 
-    public List<GetUserDto> findAllByUserIds(List<Integer> userIds) {
+    public List<GetUserDto> findAllByUserIds(Iterable<Integer> userIds) {
         return usersRepository.findAllById(userIds)
                 .stream()
                 .map(UserMapper::toDto)
                 .toList();
+    }
+
+
+    public AddUserToBlackListResponse addUserToBlackList(int userId, int blockedUserId) {
+        UserBlacklistId blacklistId = userBlacklistRepository.save(new UserBlacklist(new UserBlacklistId(userId, blockedUserId))).getId();
+        return new AddUserToBlackListResponse(blacklistId.getUserId(), blacklistId.getBlockedUserId(), "Пользователь был заблокирован");
+    }
+
+    public DeleteUserFromBlackListResponse deleteUserFromBlackList(int userId, int blockedUserId) {
+        userBlacklistRepository.deleteById(new UserBlacklistId(userId, blockedUserId));
+        return new DeleteUserFromBlackListResponse(userId, blockedUserId, "Пользователь успешно разблокирован.");
+    }
+
+    public List<GetUserDto> getBlockedUsersListByUserId(int userId) {
+        Iterable<Integer> blockedUserIds = userBlacklistRepository.findAllByUserId(userId);
+        return findAllByUserIds(blockedUserIds);
+    }
+
+    public boolean isBlocked(int userId, int blockedUserId) {
+        var userBlacklistId = new UserBlacklistId(userId, blockedUserId);
+        return userBlacklistRepository.existsById(userBlacklistId);
     }
 }

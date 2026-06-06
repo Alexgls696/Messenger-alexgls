@@ -11,6 +11,8 @@ import ru.alexgls.springboot.dto.ExistsUserRequest;
 import ru.alexgls.springboot.dto.GetUserDto;
 import ru.alexgls.springboot.dto.UpdateUserRequest;
 import ru.alexgls.springboot.dto.UserExistsResponse;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListRequest;
+import ru.alexgls.springboot.dto.blacklist.AddUserToBlackListResponse;
 import ru.alexgls.springboot.exceptions.ExistsUserRequestException;
 import ru.alexgls.springboot.exceptions.InvalidJwtException;
 import ru.alexgls.springboot.exceptions.NoSuchAuthException;
@@ -109,4 +111,5 @@ public class UsersController {
             throw new ExistsUserRequestException(exception.getMessage());
         }
     }
+
 }

@@ -4,18 +4,48 @@ import { imageLoader } from '../utils/imageLoader';
 import photoViewer from '../utils/photoViewer';
 import AttachmentItem from './AttachmentItem';
 
+import { toast } from 'react-toastify';
+import ConfirmationModal from './ConfirmationModal';
+
 import defaultProfileImage from '../images/profile-default.png'
 
-const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) => {
+const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, currentUserId }) => {
     const [profileData, setProfileData] = useState(null);
     const [activeTab, setActiveTab] = useState('IMAGE');
     const [attachments, setAttachments] = useState([]);
     const [isProfileLoading, setIsProfileLoading] = useState(false);
     const [isAttachmentsLoading, setIsAttachmentsLoading] = useState(false);
 
+    // Логика блокировки
+    const [isBlocked, setIsBlocked] = useState(false);
+    const [isConfirmBlockOpen, setIsConfirmBlockOpen] = useState(false);
+    const [isBlocking, setIsBlocking] = useState(false);
+
     const [tooltipData, setTooltipData] = useState({ visible: false, x: 0, y: 0, content: '' });
     const metadataCache = useRef(new Map());
 
+
+    useEffect(() => {
+        let isMounted = true;
+        if (isOpen && id && currentUserId && Number(id) !== Number(currentUserId)) {
+            const checkBlockStatus = async () => {
+                try {
+                    const response = await apiFetch(`/api/users/black-list/is_blocked?targetUserId=${id}`, {
+                        method: 'POST'
+                    });
+                    if (isMounted) {
+                        setIsBlocked(response?.isBlocked || false);
+                    }
+                } catch (error) {
+                    console.error("Ошибка при проверке статуса ЧС:", error);
+                }
+            };
+            checkBlockStatus();
+        }
+        return () => { isMounted = false; };
+    }, [isOpen, id, currentUserId]);
+
+    // Загрузка профиля
     useEffect(() => {
         if (isOpen && id) {
             const fetchProfile = async () => {
@@ -33,6 +63,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
         }
     }, [isOpen, id]);
 
+    // Обработка клавиши Escape
     useEffect(() => {
         if (!isOpen) return;
         const handleKeydown = (event) => {
@@ -48,6 +79,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
         }
     }, [isOpen, onClose])
 
+    // Загрузка вложений
     useEffect(() => {
         if (isOpen && chatId && activeTab) {
             const fetchAttachments = async () => {
@@ -90,22 +122,72 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
         }
     };
 
+    const handleToggleBlock = async () => {
+        if (!id) return;
+        setIsBlocking(true);
+
+        const url = isBlocked
+            ? `/api/users/black-list/black-list/delete?targetUserId=${id}`
+            : `/api/users/black-list/black-list?targetUserId=${id}`;
+
+        try {
+            await apiFetch(url, {
+                method: 'POST'
+            });
+
+            const newStatus = !isBlocked;
+            setIsBlocked(newStatus);
+            toast.success(newStatus ? "Пользователь добавлен в черный список" : "Пользователь удален из черного списка");
+            setIsConfirmBlockOpen(false);
+        } catch (error) {
+            console.error("Ошибка при изменении статуса блокировки:", error);
+            toast.error(isBlocked ? "Не удалось разблокировать пользователя" : "Не удалось заблокировать пользователя");
+        } finally {
+            setIsBlocking(false);
+        }
+    };
+
     const handleMouseOutAI = () => {
         setTooltipData(prev => ({ ...prev, visible: false }));
     };
 
     if (!isOpen) return null;
+
     return (
         <div className="modal" onClick={(e) => e.target.className === 'modal' && onClose()}>
             <div className="modal-content my-profile-modal-content">
                 <div className="modal-header">
                     <h2>Профиль: {name}</h2>
-                    <button className="header-icon-btn" onClick={onClose}>
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                    </button>
+                    <div className="header-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
+                        {/* Кнопка блокировки/разблокировки в виде SVG */}
+                        {id && Number(id) !== Number(currentUserId) && (
+                            <button
+                                className="header-icon-btn"
+                                onClick={() => setIsConfirmBlockOpen(true)}
+                                title={isBlocked ? "Разблокировать пользователя" : "Заблокировать пользователя"}
+                                style={{ color: isBlocked ? '#ff4d4f' : 'inherit' }}
+                                disabled={isBlocking}
+                            >
+                                {isBlocked ? (
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                ) : (
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                                    </svg>
+                                )}
+                            </button>
+                        )}
+                        <button className="header-icon-btn" onClick={onClose} title="Закрыть">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="modal-body user-profile-body">
@@ -193,6 +275,19 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver }) 
                     {tooltipData.content}
                 </div>
             )}
+
+            {/* Модальное окно подтверждения блокировки/разблокировки */}
+            <ConfirmationModal
+                isOpen={isConfirmBlockOpen}
+                title={isBlocked ? "Разблокировать пользователя?" : "Заблокировать пользователя?"}
+                message={
+                    isBlocked
+                        ? `Вы действительно хотите убрать пользователя ${name} из черного списка?`
+                        : `Вы действительно хотите добавить пользователя ${name} в черный список? Вы больше не будете получать от него сообщения.`
+                }
+                onConfirm={handleToggleBlock}
+                onCancel={() => setIsConfirmBlockOpen(false)}
+            />
         </div>
     );
 };

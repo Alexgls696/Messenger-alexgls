@@ -6,7 +6,9 @@ import '../Styles/Header.css';
 import defaultProfile from '../images/profile-default.png'
 
 
-function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick, onProfileClick, notifications, unreadCount, onNotificationOpen, onDeleteAllNotificationsClick, isConnected }) {
+function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClick,
+    onProfileClick, notifications, unreadCount, onNotificationOpen,
+    onDeleteAllNotificationsClick, isConnected, onBlacklistClick }) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
@@ -185,6 +187,9 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                                 <div className="dropdown-item" onClick={toggleTheme}>
                                     <span>{isDark ? '☀️' : '🌙'}</span> Сменить тему
                                 </div>
+                                <div className="dropdown-item" onClick={() => { onBlacklistClick(); setIsSettingsOpen(false); }}>
+                                    🚫 Черный список
+                                </div>
                                 <div className="dropdown-item danger" onClick={onLogout}>Выйти</div>
                             </div>
                         )}
@@ -280,6 +285,9 @@ function Header({ userData, avatarId, onLogout, onSearchClick, onCreateGroupClic
                                 </div>
                                 <div className="dropdown-item" onClick={toggleTheme}>
                                     <span>{isDark ? '☀️' : '🌙'}</span> Сменить тему
+                                </div>
+                                <div className="dropdown-item" onClick={() => { onBlacklistClick(); setIsMobileMenuOpen(false); }}>
+                                    🚫 Черный список
                                 </div>
                                 <div className="dropdown-item danger" onClick={onLogout}>Выйти</div>
                             </div>
