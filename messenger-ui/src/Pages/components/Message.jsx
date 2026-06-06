@@ -347,7 +347,39 @@ const Message = ({
                     <div className="message-meta">
                         {isEdited && <span className="message-edited-label">изменено</span>}
                         <span>{formatDate(msg.createdAt)}</span>
-                        <span className={`message-status ${statusClass}`}>{!msg.optimistic ? statusText : "Отправка...⏳"}</span>
+
+                        {msg.isError ? (
+                            <span
+                                className="message-error-indicator"
+                                title={msg.errorMessage || "Ошибка при отправке сообщения"}
+                                style={{
+                                    color: '#ff4d4f',
+                                    cursor: 'help',
+                                    marginLeft: '6px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    verticalAlign: 'middle'
+                                }}
+                            >
+                                <span style={{
+                                    display: 'inline-block',
+                                    background: '#ff4d4f',
+                                    color: '#fff',
+                                    borderRadius: '50%',
+                                    width: '16px',
+                                    height: '16px',
+                                    textAlign: 'center',
+                                    lineHeight: '16px',
+                                    fontSize: '11px',
+                                    fontWeight: 'bold'
+                                }}>!</span>
+                            </span>
+                        ) : (
+                            <span className={`message-status ${statusClass}`}>
+                                {!msg.optimistic ? statusText : "Отправка..."}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

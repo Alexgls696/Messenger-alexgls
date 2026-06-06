@@ -37,6 +37,7 @@ const ChatWindow = forwardRef(({
     forwardingMessages,
     setForwardingMessages,
     userOnlineChanged,
+    blacklistUpdate,
     clearSocketUpdates,
     isForbidden,
     setIsForbidden,
@@ -63,6 +64,8 @@ const ChatWindow = forwardRef(({
     const inputTextRef = useRef(null);
 
     const [selectedMessages, setSelectedMessages] = useState([]);
+
+    const [isBlockedByEither, setIsBlockedByEither] = useState(false);
 
     const fetchMessages = useCallback(async (chatId, pageNum, signal) => {
         try {
@@ -150,6 +153,8 @@ const ChatWindow = forwardRef(({
             setInputText('');
             setIsLoading(true);
 
+            setIsBlockedByEither(false);
+
             if (activeChat.isNew) {
                 const fullName = `${activeChat.recipient.name} ${activeChat.recipient.surname}`;
                 setChatDetails({ title: fullName, isGroup: false });
@@ -157,6 +162,19 @@ const ChatWindow = forwardRef(({
                 participantCache[activeChat.recipient.id] = fullName;
 
                 setHasMore(false);
+
+                try {
+                    const blockCheck = await apiFetch(`/api/users/black-list/is_blocked_chat?targetUserId=${activeChat.recipient.id}`, {
+                        method: 'POST',
+                        signal
+                    });
+                    if (!signal.aborted) {
+                        setIsBlockedByEither(blockCheck?.isBlocked || false);
+                    }
+                } catch (e) {
+                    if (!signal.aborted) console.error("Ошибка проверки ЧС для нового чата:", e);
+                }
+
                 setIsLoading(false);
                 return;
             }
@@ -194,6 +212,15 @@ const ChatWindow = forwardRef(({
                 setMessages(msgData.fetchedMessages);
                 setHasMore(msgData.hasMoreData);
                 setPage(1);
+
+                if (recipient?.id) {
+                    const blockCheck = await apiFetch(`/api/users/black-list/is_blocked_chat?targetUserId=${recipient.id}`, {
+                        signal
+                    });
+                    if (!signal.aborted) {
+                        setIsBlockedByEither(blockCheck?.isBlocked || false);
+                    }
+                }
 
             } catch (error) {
                 if (signal.aborted) return;
@@ -253,6 +280,48 @@ const ChatWindow = forwardRef(({
             textarea.style.height = `${textarea.scrollHeight}px`;
         }
     }, [inputText]);
+
+    useEffect(() => {
+        if (!blacklistUpdate || !activeChat) return;
+
+        // Определяем ID собеседника в текущем приватном чате
+        const targetId = activeChat.isNew ? activeChat.recipient?.id : recipientId;
+
+        if (targetId) {
+            const isCurrentUserInvolved = Number(blacklistUpdate.currentUser) === Number(currentUserId);
+            const isTargetUserInvolved = Number(blacklistUpdate.targetUser) === Number(currentUserId);
+            const isPeerInvolved = Number(blacklistUpdate.currentUser) === Number(targetId) || Number(blacklistUpdate.targetUser) === Number(targetId);
+
+            // Если пришедшее событие ЧС касается участников текущего чата
+            if ((isCurrentUserInvolved || isTargetUserInvolved) && isPeerInvolved) {
+                if (blacklistUpdate.lock) {
+                    // 1. Если произошло действие БЛОКИРОВКИ, то чат точно закрыт (запрос делать не нужно)
+                    setIsBlockedByEither(true);
+                } else {
+                    // 2. Если произошла РАЗБЛОКИРОВКА, запрашиваем у сервера актуальное состояние ЧС
+                    let isMounted = true;
+
+                    const checkChatBlockStatus = async () => {
+                        try {
+                            const response = await apiFetch(`/api/users/black-list/is_blocked_chat?targetUserId=${targetId}`);
+                            if (isMounted) {
+                                setIsBlockedByEither(response?.isBlocked || false);
+                            }
+                        } catch (error) {
+                            console.error("Ошибка при проверке ЧС после события разблокировки:", error);
+                        }
+                    };
+
+                    checkChatBlockStatus();
+
+                    // Очистка эффекта для предотвращения race conditions при быстрой отправке событий
+                    return () => {
+                        isMounted = false;
+                    };
+                }
+            }
+        }
+    }, [blacklistUpdate, activeChat, recipientId, currentUserId]);
 
     const cancelEdit = () => {
         setEditingMessage(null);
@@ -382,7 +451,7 @@ const ChatWindow = forwardRef(({
 
         e.preventDefault();
 
-        if (isForbidden) return;
+        if (isForbidden || isBlockedByEither) return;
 
         const content = inputText.trim();
         const filesToSend = [...pendingFiles];
@@ -556,9 +625,20 @@ const ChatWindow = forwardRef(({
                 setReplyingTo(null)
 
             } catch (err) {
-                console.error("Ошибка при выполнении отправки:", err);
+                let errorMsg = "Не удалось отправить сообщение";
+                if (err && typeof err === 'object') {
+
+                } else if (typeof err === 'string') {
+                    errorMsg = err;
+                }
+
                 setMessages(prev => prev.map(m =>
-                    m.tempId === tempId ? { ...m, isError: true, isPending: false } : m
+                    m.tempId === tempId ? {
+                        ...m,
+                        isError: true,
+                        isPending: false,
+                        errorMessage: errorMsg
+                    } : m
                 ));
             }
         }
@@ -763,7 +843,7 @@ const ChatWindow = forwardRef(({
             </div>
 
             {/* ПРЕВЬЮ ВЛОЖЕНИЙ */}
-            {!isForbidden && pendingFiles.length > 0 && (
+            {!isForbidden && !isBlockedByEither && pendingFiles.length > 0 && (
                 <div className="attachment-preview-container">
                     {pendingFiles.map(f => (
                         <div key={f.tempId}
@@ -854,46 +934,28 @@ const ChatWindow = forwardRef(({
             )}
 
             <form className="message-form" onSubmit={handleFormSubmit}>
-                {!isForbidden && (
+                {/* 1. Кнопка прикрепления файла */}
+                {!isForbidden && !isBlockedByEither && (
                     <>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            hidden
-                            multiple></input>
-                        <button
-                            type="button"
-                            className="attach-btn"
-                            onClick={() => fileInputRef.current.click()}
-                            disabled={isForbidden}
-                            title="Прикрепить файл"
-                        >
-                            <svg
-                                viewBox="0 0 24 24"
-                                width="24"
-                                height="24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path
-                                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        <input type="file" ref={fileInputRef} onChange={handleFileSelect} hidden multiple />
+                        <button type="button" className="attach-btn" onClick={() => fileInputRef.current.click()} disabled={isForbidden || isBlockedByEither} title="Прикрепить файл">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                             </svg>
                         </button>
                     </>
                 )}
 
-
-                {!isForbidden ? (<textarea ref={inputTextRef}
-                    className="message-input"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleOnButtonClickEvent}
-                    placeholder="Введите сообщение..."
-                />) : (
+                {/* 2. Текстовое поле или соответствующая заглушка */}
+                {!isForbidden && !isBlockedByEither ? (
+                    <textarea ref={inputTextRef}
+                        className="message-input"
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        onKeyDown={handleOnButtonClickEvent}
+                        placeholder="Введите сообщение..."
+                    />
+                ) : isForbidden ? (
                     <div className="forbidden-plaque">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -901,32 +963,31 @@ const ChatWindow = forwardRef(({
                         </svg>
                         <span>У вас нет доступа к этому чату</span>
                     </div>
+                ) : (
+                    // Новая плашка ЧС
+                    <div className="forbidden-plaque">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>У вас нет доступа к данному чату, пользователь добавил вас в черный список</span>
+                    </div>
                 )}
 
-
-                {!isForbidden && (
+                {/* 3. Кнопка отправки */}
+                {!isForbidden && !isBlockedByEither && (
                     <button
                         type="submit"
                         className="send-btn"
-                        disabled={isForbidden || (!inputText.trim() && pendingFiles.length === 0 && forwardingMessages.length === 0)}
+                        disabled={isForbidden || isBlockedByEither || (!inputText.trim() && pendingFiles.length === 0 && forwardingMessages.length === 0)}
                         title="Отправить"
                     >
-                        <svg
-                            viewBox="0 0 24 24"
-                            width="22"
-                            height="22"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"></line>
                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
                     </button>
                 )}
-
             </form>
         </section>
 

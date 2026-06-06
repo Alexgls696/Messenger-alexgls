@@ -44,11 +44,20 @@ public class BlackListController {
         return usersService.getBlockedUsersListByUserId(userId);
     }
 
-    @PostMapping("/is_blocked")
+    @GetMapping("/is_blocked")
     public ResponseEntity<Map<String, Object>> isBlocked(@RequestParam int targetUserId, Authentication authentication) {
         int userId = AuthUtil.getCurrentUserId(authentication);
         log.info("Is blocked user request: target_id: {}, current_id: {}", targetUserId, userId);
         boolean isBlocked = usersService.isBlocked(userId, targetUserId);
+        return ResponseEntity
+                .ok(Map.of("isBlocked", isBlocked));
+    }
+
+    @GetMapping("/is_blocked_chat")
+    public ResponseEntity<Map<String, Object>> isBlockedChat(@RequestParam int targetUserId, Authentication authentication) {
+        int userId = AuthUtil.getCurrentUserId(authentication);
+        log.info("Is blocked chat request: target_user_id: {}, current_user_id: {}", targetUserId, userId);
+        boolean isBlocked = usersService.isBlockedChat(userId, targetUserId);
         return ResponseEntity
                 .ok(Map.of("isBlocked", isBlocked));
     }

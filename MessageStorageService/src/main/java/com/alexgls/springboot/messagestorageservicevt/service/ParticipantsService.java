@@ -110,7 +110,7 @@ public class ParticipantsService {
             throw new AccessDeniedException("У вас нет доступа на выполнение этой операции");
         }
         var serviceMessage = generateRemovingMessageContent(removingUserId, actorId, token);
-        var savedMessageDto = messagesService.saveServiceMessage(serviceMessage, chatId, actorId);
+        var savedMessageDto = messagesService.saveServiceMessage(serviceMessage, chatId, actorId, token);
         if (participant.getRole() == ChatRole.OWNER) {
             validateAndRemove(chatId, removingUserId, false);
         } else {
@@ -160,7 +160,7 @@ public class ParticipantsService {
             throw new NoSuchParticipantException("Не найдена связь между чатом и пользователем");
         }
         ServiceMessage message = generateLeaveUserMessageContent(userId, token);
-        MessageDto serviceMessageDto = messagesService.saveServiceMessage(message, chatId, userId);
+        MessageDto serviceMessageDto = messagesService.saveServiceMessage(message, chatId, userId, token);
         participantsRepository.leavingFromGroupByChatIdAndUserId(chatId, userId);
         kafkaSenderService.sendMessage(serviceMessageDto);
     }
@@ -177,7 +177,7 @@ public class ParticipantsService {
         participantsRepository.save(participants);
         CompletableFuture.runAsync(() -> {
             ServiceMessage serviceMessage = generateEnterUserMessageContent(userId, token);
-            var message = messagesService.saveServiceMessage(serviceMessage, chatId, userId);
+            var message = messagesService.saveServiceMessage(serviceMessage, chatId, userId, token);
             kafkaSenderService.sendMessage(message);
         });
     }
@@ -244,7 +244,7 @@ public class ParticipantsService {
         var actor = authRestClient.findUserById(userId, token);
         var invitedUsers = authRestClient.findAllUsers(sendToUsersIds, token);
         for (var user : invitedUsers) {
-            MessageDto serviceInviteMessage = messagesService.saveServiceMessage(new InviteGroupServiceMessage(actor.getUsername(), user.getUsername()), (int) chat.getId(), userId);
+            MessageDto serviceInviteMessage = messagesService.saveServiceMessage(new InviteGroupServiceMessage(actor.getUsername(), user.getUsername()), (int) chat.getId(), userId, token);
             kafkaSenderService.sendMessage(serviceInviteMessage);
         }
     }

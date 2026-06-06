@@ -29,16 +29,16 @@ const BlockedUserItem = ({ user, onUnblock, onSelect }) => {
 
     return (
         <div className="user-item" onClick={() => onSelect(user)} style={{ cursor: 'pointer' }}>
-            <img 
-                src={avatar} 
-                alt="" 
-                style={{ 
-                    width: '40px', 
-                    height: '40px', 
-                    borderRadius: '50%', 
-                    marginRight: '12px', 
-                    objectFit: 'cover' 
-                }} 
+            <img
+                src={avatar}
+                alt=""
+                style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    marginRight: '12px',
+                    objectFit: 'cover'
+                }}
             />
             <div className="user-item-info">
                 <div className="user-item-name">{user.name} {user.surname || ''}</div>
@@ -82,7 +82,7 @@ const BlackListModal = ({ isOpen, onClose, currentUserId, onUserSelect }) => {
         }
     };
 
-     const handleUnblockConfirm = async () => {
+    const handleUnblockConfirm = async () => {
         if (!userToUnblock) return;
         try {
             await apiFetch(`/api/users/black-list/black-list/delete?targetUserId=${userToUnblock.id}`, {
@@ -116,6 +116,19 @@ const BlackListModal = ({ isOpen, onClose, currentUserId, onUserSelect }) => {
                     </div>
 
                     <div className="modal-body user-profile-body">
+                        <p
+                            className="blacklist-description"
+                            style={{
+                                fontSize: '14px',
+                                opacity: 0.7,
+                                marginBottom: '16px',
+                                lineHeight: '1.4'
+                            }}
+                        >
+                            Пользователи, добавленные вами в чёрный список, не смогут отправлять вам сообщения и приглашать вас в группы.
+                            Учтите, что вы также не сможете отправить сообщение пользователю, которого заблокировали.
+                        </p>
+
                         {isLoading ? (
                             <div style={{ textAlign: 'center', padding: '20px' }}>Загрузка...</div>
                         ) : blockedUsers.length === 0 ? (

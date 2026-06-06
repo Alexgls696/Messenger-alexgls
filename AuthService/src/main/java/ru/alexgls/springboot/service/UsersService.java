@@ -45,6 +45,8 @@ public class UsersService {
     private final UserRolesRepository userRolesRepository;
     private final UserBlacklistRepository userBlacklistRepository;
 
+    private final KafkaSender kafkaSender;
+
     public Iterable<GetUserDto> findAllUsers() {
         List<GetUserDto> users = new ArrayList<>();
         Iterable<User> usersFromDatabase = usersRepository.findAll();
@@ -58,7 +60,6 @@ public class UsersService {
                 .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
     }
-
 
     public User getUserByUsername(String username) {
         return usersRepository.findByUsername(username)
@@ -145,7 +146,16 @@ public class UsersService {
 
     public List<GetUserDto> findAllByUsername(String username) {
         return usersRepository.findAllByUsername(username)
-                .stream().map(UserMapper::toDto).toList();
+                .stream()
+                .map(UserMapper::toDto)
+                .toList();
+    }
+
+    public List<GetUserDto> findAllByKey(String key) {
+        return usersRepository.findAllByKeyword(key)
+                .stream()
+                .map(UserMapper::toDto)
+                .toList();
     }
 
     public List<GetUserDto> findAllByUserIds(Iterable<Integer> userIds) {
@@ -158,21 +168,45 @@ public class UsersService {
 
     public AddUserToBlackListResponse addUserToBlackList(int userId, int blockedUserId) {
         UserBlacklistId blacklistId = userBlacklistRepository.save(new UserBlacklist(new UserBlacklistId(userId, blockedUserId))).getId();
+        kafkaSender.sendBlacklistMessage(userId,blockedUserId,true);
         return new AddUserToBlackListResponse(blacklistId.getUserId(), blacklistId.getBlockedUserId(), "Пользователь был заблокирован");
     }
 
     public DeleteUserFromBlackListResponse deleteUserFromBlackList(int userId, int blockedUserId) {
         userBlacklistRepository.deleteById(new UserBlacklistId(userId, blockedUserId));
+        kafkaSender.sendBlacklistMessage(userId,blockedUserId,false);
         return new DeleteUserFromBlackListResponse(userId, blockedUserId, "Пользователь успешно разблокирован.");
     }
 
+
+    /**
+     * Получает список всех заблокированных пользователей для конкретного человека
+     * @param userId id Пользователя, отправляющего запрос
+     * @return Список заблокированных пользователей
+     */
     public List<GetUserDto> getBlockedUsersListByUserId(int userId) {
         Iterable<Integer> blockedUserIds = userBlacklistRepository.findAllByUserId(userId);
         return findAllByUserIds(blockedUserIds);
     }
 
+    /**
+     * Проверяет, заблокирован ли пользователь
+     * @param userId - пользователь, отправивший запрос
+     * @param blockedUserId - пользователь, который находится/не находится в черном списке у user
+     * @return boolean значение
+     */
     public boolean isBlocked(int userId, int blockedUserId) {
         var userBlacklistId = new UserBlacklistId(userId, blockedUserId);
         return userBlacklistRepository.existsById(userBlacklistId);
+    }
+
+    /**
+     * Проверяет, можно ли писать сообщения в чат, если один пользователь заблокировал другого и наоборот
+     * @param firstUser - пользователь, отправивший запрос
+     * @param secondUser - пользователь, который находится/не находится в черном списке у firstUser
+     * @return boolean значение
+     */
+    public boolean isBlockedChat(int firstUser, int secondUser) {
+        return userBlacklistRepository.existsById_blockedUserIdIn(List.of(firstUser, secondUser));
     }
 }

@@ -6,6 +6,7 @@ import com.alexgls.springboot.messagestorageservicevt.entity.Message;
 import com.alexgls.springboot.messagestorageservicevt.mapper.MessageMapper;
 import com.alexgls.springboot.messagestorageservicevt.service.KafkaSenderService;
 import com.alexgls.springboot.messagestorageservicevt.service.MessagesService;
+import com.alexgls.springboot.messagestorageservicevt.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,8 @@ public class MessagesController {
     @PostMapping
     public ResponseEntity<MessageDto> createMessage(@RequestBody ChatMessage message, Authentication authentication) {
         var payload = messageMapper.getCreateMessagePayload(message, authentication);
-        MessageDto savedMessageDto = messagesService.save(payload);
+        String token = SecurityUtils.getToken(authentication);
+        MessageDto savedMessageDto = messagesService.save(payload, token);
         log.info("Message has been successfully saved in database: {}", savedMessageDto);
         kafkaSenderService.sendMessage(savedMessageDto);
         return ResponseEntity
@@ -44,7 +46,8 @@ public class MessagesController {
     @PostMapping("/forward")
     public ResponseEntity<List<MessageDto>> createForwardMessage(@RequestBody ForwardMessageRequest request, Authentication authentication) {
         var payload = messageMapper.getCreateMessagePayload(request.chatMessage(), authentication);
-        var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds());
+        String token = SecurityUtils.getToken(authentication);
+        var savedMessages = messagesService.saveMessageWithForwardedMessages(payload, request.forwardedMessagesIds(), token);
         log.info("Forwarded messages has been successfully saved in database: {}", savedMessages);
 
         for (var msg : savedMessages) {

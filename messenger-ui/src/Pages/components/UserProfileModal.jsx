@@ -9,7 +9,7 @@ import ConfirmationModal from './ConfirmationModal';
 
 import defaultProfileImage from '../images/profile-default.png'
 
-const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, currentUserId }) => {
+const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, currentUserId, blacklistUpdate }) => {
     const [profileData, setProfileData] = useState(null);
     const [activeTab, setActiveTab] = useState('IMAGE');
     const [attachments, setAttachments] = useState([]);
@@ -30,9 +30,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, cu
         if (isOpen && id && currentUserId && Number(id) !== Number(currentUserId)) {
             const checkBlockStatus = async () => {
                 try {
-                    const response = await apiFetch(`/api/users/black-list/is_blocked?targetUserId=${id}`, {
-                        method: 'POST'
-                    });
+                    const response = await apiFetch(`/api/users/black-list/is_blocked?targetUserId=${id}`);
                     if (isMounted) {
                         setIsBlocked(response?.isBlocked || false);
                     }
@@ -97,6 +95,17 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, cu
         }
     }, [isOpen, chatId, activeTab]);
 
+    useEffect(() => {
+        if (blacklistUpdate && id) {
+            const isPeerInvolved = Number(blacklistUpdate.currentUser) === Number(id) || Number(blacklistUpdate.targetUser) === Number(id);
+
+            // Если пришедшее событие ЧС связано с просматриваемым пользователем
+            if (isPeerInvolved) {
+                setIsBlocked(blacklistUpdate.lock);
+            }
+        }
+    }, [blacklistUpdate, id]);
+
     const handleMouseOverAI = async (e, fileId) => {
         const iconRect = e.target.getBoundingClientRect();
 
@@ -157,7 +166,7 @@ const UserProfileModal = ({ isOpen, onClose, id, chatId, name, imageObserver, cu
         <div className="modal" onClick={(e) => e.target.className === 'modal' && onClose()}>
             <div className="modal-content my-profile-modal-content">
                 <div className="modal-header">
-                    <h2>Профиль: {name}</h2>
+                    <h3>Профиль: {name}</h3>
                     <div className="header-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
                         {/* Кнопка блокировки/разблокировки в виде SVG */}
                         {id && Number(id) !== Number(currentUserId) && (

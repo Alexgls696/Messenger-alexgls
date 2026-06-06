@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import ru.alexgls.springboot.usersmessagingservice.dto.BlacklistKafkaMessage;
 import ru.alexgls.springboot.usersmessagingservice.dto.DeleteMessageResponse;
 import ru.alexgls.springboot.usersmessagingservice.dto.DeleteMessageResponseToUser;
 import ru.alexgls.springboot.usersmessagingservice.dto.messages.MessageDto;
@@ -90,6 +91,12 @@ public class MessageStorageServiceKafkaListener {
         } else {
             messagingTemplate.convertAndSendToUser(String.valueOf(deleteMessageResponse.senderId()), "/queue/delete-event", deleteMessageResponseToUser);
         }
+    }
 
+    @KafkaListener(topics = "blacklist-topic", groupId = "blacklist-group", containerFactory = "kafkaBlacklistConsumerFactory")
+    public void listenBlacklistMessage(BlacklistKafkaMessage blacklistKafkaMessage) {
+        log.info("Received a blacklist message event: {}", blacklistKafkaMessage);
+        messagingTemplate.convertAndSendToUser(String.valueOf(blacklistKafkaMessage.targetUser()), "/queue/blacklist-message", blacklistKafkaMessage);
+        messagingTemplate.convertAndSendToUser(String.valueOf(blacklistKafkaMessage.currentUser()), "/queue/blacklist-message", blacklistKafkaMessage);
     }
 }

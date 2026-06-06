@@ -84,6 +84,7 @@ function ChatPage() {
     const [deleteEvent, setDeleteEvent] = useState(null);
     const [messageUpdateEvent, setMessageUpdateEvent] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
+    const [blacklistUpdate, setBlacklistUpdate] = useState(null);
 
     const chatListRef = useRef();
     const activeChatRef = useRef(null);
@@ -116,7 +117,6 @@ function ChatPage() {
 
     // --- Обработчики WebSocket ---
     const onMessageReceived = useCallback((newMsg) => {
-        console.log(newMsg)
         const curActive = activeChatRef.current;
         const isMsgForActive = curActive && String(curActive.chatId) === String(newMsg.chatId);
 
@@ -171,7 +171,6 @@ function ChatPage() {
         setUnreadNotificationsCount(prev => prev + 1);
     }, []);
 
-
     const markAllNotificationsAsRead = useCallback(async () => {
         if (unreadNotificationsCount === 0) return;
         try {
@@ -194,6 +193,11 @@ function ChatPage() {
         setActiveChatOnline(userOnlineDto);
     }, []);
 
+    const onBlackListChanged = useCallback((msg) => {
+        console.log("WebSocket blacklist event:", msg);
+        setBlacklistUpdate(msg);
+    }, []);
+
 
     useChatWebSocket(
         API_BASE_URL,
@@ -203,6 +207,7 @@ function ChatPage() {
         onNotificationReceived,
         onMessageUpdate,
         onUserOnlineChanged,
+        onBlackListChanged,
         isConnected,
         setIsConnected
     );
@@ -574,6 +579,7 @@ function ChatPage() {
                     onForwardMessages={handleForwardMessages}
                     userOnlineChanged={activeChatOnline}
                     clearSocketUpdates={clearSocketUpdates}
+                    blacklistUpdate={blacklistUpdate}
 
                     isForbidden={isForbidden}
                     setIsForbidden={setIsForbidden}
@@ -596,6 +602,7 @@ function ChatPage() {
                     {...selectedUserProfile}
                     imageObserver={imageObserver}
                     currentUserId={user?.id}
+                    blacklistUpdate={blacklistUpdate}
                 />
 
                 <GroupProfileModal

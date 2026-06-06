@@ -180,7 +180,7 @@ public class ChatsService {
         participantsRepository.saveAll(participants);
 
         var actor = authRestClient.findUserById(creatorId, token);
-        MessageDto messageDto = messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.getUsername(), chat.getName()), (int) chat.getId(), creatorId);
+        MessageDto messageDto = messagesService.saveServiceMessage(new CreateGroupServiceMessage(actor.getUsername(), chat.getName()), (int) chat.getId(), creatorId, token);
         ChatDto chatDto = ChatMapper.toDto(savedChat);
         chatDto.setLastMessage(messageDto);
 

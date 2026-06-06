@@ -11,4 +11,6 @@ import java.util.List;
 public interface UserBlacklistRepository extends CrudRepository<UserBlacklist, UserBlacklistId> {
     @Query("select id.blockedUserId from UserBlacklist where id.userId = :userId")
     List<Integer> findAllByUserId(@Param("userId") int userId);
+
+    boolean existsById_blockedUserIdIn(Iterable<Integer> userIds);
 }
