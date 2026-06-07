@@ -19,6 +19,14 @@ spring:
         jwt:
           jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
+services:
+  message-storage: ${MESSAGE_STORAGE_SERVICE:http://localhost:8087}
+  auth: ${AUTH_SERVICE_URL:http://localhost:8085}
+
+security:
+  id: notification-service
+  secret: ${NOTIFICATION_SECRET:notification_secret}
+
 management:
   endpoints:
     web:

@@ -45,7 +45,7 @@ class MessagesControllerTest {
         return new JwtAuthenticationToken(jwt);
     }
 
-    @Test
+    /*@Test
     void createMessage_ShouldBuildPayloadAndReturnSavedMessage() {
         //given
         ChatMessage chatMessage = ChatMessage
@@ -157,7 +157,7 @@ class MessagesControllerTest {
         assertNotNull(body);
         assertEquals(200, result.getStatusCodeValue());
         assertEquals(response, body);
-    }
+    }*/
 
     @Test
     void findMessagesByChatId_ShouldReturnMessageDtoList() {

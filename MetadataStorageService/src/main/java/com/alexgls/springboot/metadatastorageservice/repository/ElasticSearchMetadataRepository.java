@@ -19,11 +19,11 @@ public class ElasticSearchMetadataRepository implements MetadataRepository {
     private final ElasticsearchOperations elasticsearchOperations;
 
     @Override
-    public void saveAllMetadata(List<ElasticSearchStorageServiceRequest> records) {
+    public Iterable<FileMetadata> saveAllMetadata(List<ElasticSearchStorageServiceRequest> records) {
         List<FileMetadata> toSaveMetadataList = records.stream()
                 .map(FileMetadataMapper::requestToEntity)
                 .toList();
-        elasticsearchOperations.save(toSaveMetadataList);
+       return elasticsearchOperations.save(toSaveMetadataList);
     }
 
     @Override

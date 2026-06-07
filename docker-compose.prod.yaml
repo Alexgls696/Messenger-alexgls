@@ -187,6 +187,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - NOTIFICATION_SECRET=${NOTIFICATION_SECRET}
     depends_on:
       - users-auth-db
       - kafka
@@ -253,6 +254,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MESSAGE_STORAGE_SERVICE=http://messages-service:8087
+      - NOTIFICATION_SECRET=${NOTIFICATION_SECRET}
     depends_on:
       - notifications-db
       - kafka

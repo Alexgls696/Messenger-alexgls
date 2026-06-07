@@ -30,7 +30,6 @@ public class MetadataController {
                 .stream()
                 .map(ConsumerRecord::value)
                 .toList();
-
         try {
             metadataService.saveAllRecords(metadataList);
             ack.acknowledge();

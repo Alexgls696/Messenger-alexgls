@@ -123,7 +123,6 @@ public class ChatsController {
         return participantsService.findAllUsersWhoHadChatWith(userId);
     }
 
-
     //Удаление участника группы
     @DeleteMapping("/{chatId}/participants/{userId}")
     public void deleteParticipantFromGroup(@PathVariable("chatId") int chatId, @PathVariable("userId") int userId, Authentication authentication) {

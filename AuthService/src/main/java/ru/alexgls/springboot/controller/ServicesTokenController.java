@@ -13,6 +13,7 @@ import ru.alexgls.springboot.config.JwtUtil;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/auth/services")
@@ -22,31 +23,31 @@ public class ServicesTokenController {
 
     private final JwtUtil jwtUtil;
 
-    @Value("${services.register.id}")
-    private String registerClientId;
+    @Value("${services.ids}")
+    private Set<String> registerClientIds;
 
-    @Value("${services.register.secret}")
-    private String registerClientSecret;
+    @Value("${services.secrets}")
+    private Set<String> registerClientSecrets;
 
     @Value("${jwt.expiration.service}")
     private Long serviceTokenExpiration;
 
-
-
-    public record ServiceLoginRequest(String clientId, String clientSecret) {}
+    public record ServiceLoginRequest(String clientId, String clientSecret) {
+    }
 
     @PostMapping("/token")
     public ResponseEntity<?> getServiceToken(@RequestBody ServiceLoginRequest request) {
-        if (registerClientId.equals(request.clientId()) && registerClientSecret.equals(request.clientSecret())) {
+        log.info("Received token request: {}", request);
+        if (registerClientIds.contains(request.clientId) && registerClientSecrets.contains(request.clientSecret)) {
             String serviceToken = jwtUtil.generateTokenForService(
                     request.clientId(),
                     List.of("ROLE_SERVICE")
             );
 
             return ResponseEntity.ok(Map.of(
-                    "access_token", serviceToken,
-                    "token_type", "Bearer",
-                    "expires_in", serviceTokenExpiration / 1000
+                    "accessToken", serviceToken,
+                    "tokenType", "Bearer",
+                    "expiresIn", serviceTokenExpiration / 1000
             ));
         }
 
