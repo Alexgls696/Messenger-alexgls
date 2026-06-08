@@ -6,6 +6,6 @@ import com.alexgls.springboot.metadatastorageservice.entity.FileMetadata;
 import java.util.List;
 
 public interface MetadataRepository {
-    void saveAllMetadata(List<ElasticSearchStorageServiceRequest> records);
+    Iterable<FileMetadata> saveAllMetadata(List<ElasticSearchStorageServiceRequest> records);
     List<FileMetadata> searchInChat(int chatId, String queryText);
 }

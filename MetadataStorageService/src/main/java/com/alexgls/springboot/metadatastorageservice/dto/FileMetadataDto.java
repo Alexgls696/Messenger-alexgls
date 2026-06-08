@@ -9,7 +9,7 @@ public record FileMetadataDto(
         String title,
         String summary,
         List<String> topics,
-        List<String>keywords,
-        List<String>entities
+        List<String> keywords,
+        List<String> entities
 ) {
 }

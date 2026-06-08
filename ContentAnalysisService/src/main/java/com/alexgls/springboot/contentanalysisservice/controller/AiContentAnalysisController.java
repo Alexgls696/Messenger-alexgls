@@ -25,7 +25,7 @@ public class AiContentAnalysisController {
     private final AiContentAnalysisService aiContentAnalysisService;
 
     @PostMapping
-    public ResponseEntity<Void> loadAndAnalyseFileRequest(@RequestBody AnalyseFileRequest analyseFileRequest) throws IOException {
+    public ResponseEntity<Void> loadAndAnalyseFileRequest(@RequestBody AnalyseFileRequest analyseFileRequest) {
 
         aiContentAnalysisService.analyseFile(analyseFileRequest)
                 .exceptionally(ex -> {

@@ -96,10 +96,10 @@ public class KafkaConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "notification-consumers");
         JsonDeserializer<NotificationDto> deserializer = new JsonDeserializer<>(NotificationDto.class);
-        deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("/**");
-        deserializer.setUseTypeMapperForKey(true);
+        deserializer.setUseTypeHeaders(false);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
@@ -132,7 +132,6 @@ public class KafkaConfig {
                 .name("user-online-status-topic")
                 .build();
     }
-
 
     @Bean
     public ConsumerFactory<String, BlacklistKafkaMessage> blacklistConsumerFactory() {

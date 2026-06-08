@@ -167,6 +167,7 @@ function ChatPage() {
     }, []);
 
     const onNotificationReceived = useCallback((notification) => {
+        console.log(notification);
         setNotifications(prev => [notification, ...prev]);
         setUnreadNotificationsCount(prev => prev + 1);
     }, []);
