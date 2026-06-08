@@ -47,7 +47,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
 
         setIsSearching(true);
         try {
-            const data = await apiFetch(`/api/search/users/by-username/${query}`);
+            const data = await apiFetch(`/api/search/users/by-key/${query}`);
             setSearchResults(data || []);
         } catch (error) {
             console.error("Ошибка поиска участников:", error);
