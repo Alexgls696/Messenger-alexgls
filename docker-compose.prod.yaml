@@ -91,6 +91,13 @@ services:
     networks:
       - app-network
 
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s || exit 1" ]
+      interval: 5s       # Как часто проводить проверку
+      timeout: 5s        # Время ожидания ответа на проверку
+      retries: 20        # Сколько раз пытаться, прежде чем пометить контейнер как unhealthy
+      start_period: 15s  # Время "разгона" после старта, во время которого неудачи не считаются ошибками
+
   # --- INFRASTRUCTURE ---
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
@@ -292,9 +299,13 @@ services:
       - SPRING_ELASTICSEARCH_PASSWORD=elastic
       - AUTH_SERVICE_URL=http://auth-service:8085
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
     depends_on:
-      - metadata-elasticsearch-db
-      - kafka
+      metadata-elasticsearch-db:
+        condition: service_healthy  # Ждем, пока отработает healthcheck базы
+      kafka:
+        condition: service_started  # Для Kafka достаточно просто запуска контейнера
+
     networks:
       - app-network
 

@@ -115,6 +115,14 @@ services:
     networks:
       - elastic
 
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s || exit 1" ]
+      interval: 5s       # Как часто проводить проверку
+      timeout: 5s        # Время ожидания ответа на проверку
+      retries: 20        # Сколько раз пытаться, прежде чем пометить контейнер как unhealthy
+      start_period: 15s  # Время "разгона" после старта, во время которого неудачи не считаются ошибками
+
   connections-redis:
     image: redis:6.2.6-alpine
     container_name: redis_dev
