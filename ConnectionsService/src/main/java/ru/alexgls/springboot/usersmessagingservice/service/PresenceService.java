@@ -21,7 +21,6 @@ public class PresenceService {
 
     private final UserOnlineRepository userOnlineRepository;
 
-
     private final SimpMessagingTemplate messagingTemplate;
 
     private final MessagesStorageServiceRestClient messagesStorageServiceRestClient;

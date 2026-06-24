@@ -143,7 +143,8 @@ function ChatPage() {
         if (activeChatRef.current?.chatId === updatedMsg.chatId) {
             setMessageUpdateEvent({ ...updatedMsg, _ts: Date.now() });
         }
-        chatListRef.current?.updateChatFromSocket(updatedMsg, true);
+
+        chatListRef.current?.updateChatFromSocket(updatedMsg, true, true);
     }, []);
 
     const onDeleteEvent = useCallback((info) => {

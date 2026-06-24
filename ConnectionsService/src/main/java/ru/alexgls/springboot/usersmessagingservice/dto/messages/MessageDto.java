@@ -1,9 +1,6 @@
 package ru.alexgls.springboot.usersmessagingservice.dto.messages;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.alexgls.springboot.usersmessagingservice.dto.Attachment;
 
 import java.sql.Timestamp;
@@ -13,10 +10,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MessageDto {
     private long id;
 
-    private int chatId;
+    private long chatId;
 
     private int senderId;
 
@@ -42,7 +40,7 @@ public class MessageDto {
 
     private boolean isService;
 
-    private Long replyToId;
+    private ReplyMessageContent replyMessageContent;
 
     private Integer forwardFromUserId;
 
