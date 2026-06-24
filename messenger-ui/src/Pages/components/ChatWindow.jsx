@@ -242,6 +242,7 @@ const ChatWindow = forwardRef(({
         if (!container || messages.length === 0) return;
 
         if (prevScrollHeightRef.current > 0) {
+            // Загрузка старых сообщений - сохраняем позицию
             const heightDifference = container.scrollHeight - prevScrollHeightRef.current;
             const originalOverflow = container.style.overflowY;
 
@@ -251,16 +252,30 @@ const ChatWindow = forwardRef(({
             prevScrollHeightRef.current = 0;
         }
         else if (isInitialLoad.current) {
-            const firstUnread = messages.find(m => !m.read && m.senderId !== currentUserId);
-            if (firstUnread) {
-                const element = container.querySelector(`[data-message-id="${firstUnread.id}"]`);
-                if (element) {
-                    container.scrollTop = element.offsetTop - (container.clientHeight / 4);
+            // Первая загрузка чата - используем requestAnimationFrame для гарантии рендеринга
+            requestAnimationFrame(() => {
+                const firstUnread = messages.find(m => !m.read && m.senderId !== currentUserId);
+
+                if (firstUnread) {
+                    const element = container.querySelector(`[data-message-id="${firstUnread.id}"]`);
+                    if (element) {
+                        container.scrollTop = element.offsetTop - (container.clientHeight / 4);
+                    } else {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                } else {
+                    container.scrollTop = container.scrollHeight;
                 }
-            } else {
-                container.scrollTop = container.scrollHeight;
-            }
-            isInitialLoad.current = false;
+
+                isInitialLoad.current = false;
+
+                // Дополнительная прокрутка через 100мс на случай медленного рендеринга
+                setTimeout(() => {
+                    if (container.scrollTop < container.scrollHeight - container.clientHeight - 100) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                }, 100);
+            });
         }
     }, [messages, currentUserId]);
 

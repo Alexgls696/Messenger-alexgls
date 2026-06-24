@@ -37,24 +37,43 @@ const ChatList = forwardRef(({ activeChatId, onChatSelect, onContextMenu, curren
         removeChatFromList(chatId) {
             setChats(prev => prev.filter(c => c.chatId !== chatId));
         },
-        updateChatFromSocket(newMsg, isCurrentActive) {
+        updateChatFromSocket(newMsg, isCurrentActive, isUpdate = false) {
             setChats(prev => {
                 const chatIdx = prev.findIndex(c => String(c.chatId) === String(newMsg.chatId));
 
                 if (chatIdx > -1) {
                     const targetChat = { ...prev[chatIdx] };
+
+                    const isLastMessage = targetChat.lastMessage &&
+                        String(targetChat.lastMessage.id) === String(newMsg.id);
+
+                    if (isUpdate && !isLastMessage) {
+                        return prev;
+                    }
+
                     targetChat.lastMessage = newMsg;
                     targetChat.updatedAt = newMsg.createdAt;
 
-                    if (!isCurrentActive && (currentUserId !== newMsg.senderId)) {
+                    if (!isUpdate && !isCurrentActive && (currentUserId !== newMsg.senderId)) {
                         targetChat.numberOfUnreadMessages = (targetChat.numberOfUnreadMessages || 0) + 1;
                     }
 
-                    const filtered = prev.filter(c => String(c.chatId) !== String(newMsg.chatId));
-                    const pinned = filtered.filter(c => c.pinned);
-                    const regular = filtered.filter(c => !c.pinned);
+                    // Создаем новый массив с обновленным чатом
+                    const updatedChats = prev.map(c =>
+                        String(c.chatId) === String(newMsg.chatId) ? targetChat : c
+                    );
 
-                    return targetChat.pinned ? [targetChat, ...pinned, ...regular] : [...pinned, targetChat, ...regular];
+                    if (!isUpdate) {
+                        // Для новых сообщений — сортируем (перемещаем чат вверх)
+                        const filtered = updatedChats.filter(c => String(c.chatId) !== String(newMsg.chatId));
+                        const pinned = filtered.filter(c => c.pinned);
+                        const regular = filtered.filter(c => !c.pinned);
+
+                        return targetChat.pinned ? [targetChat, ...pinned, ...regular] : [...pinned, targetChat, ...regular];
+                    } else {
+                        // Для обновлений — просто возвращаем обновленный массив без сортировки
+                        return updatedChats;
+                    }
                 } else {
                     setTimeout(() => {
                         fetchAndAddSingleChat(newMsg);

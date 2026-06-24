@@ -4,7 +4,7 @@ import { imageLoader } from '../utils/imageLoader';
 import profileDefaultImage from '../images/profile-default.png'
 
 
-const AddParticipantsModal = ({ isOpen, onClose, chatId, onParticipantsAdded, participantCache }) => {
+const AddParticipantsModal = ({ isOpen, onClose, chatId, onParticipantsAdded, participants }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState(new Map());
@@ -45,8 +45,8 @@ const AddParticipantsModal = ({ isOpen, onClose, chatId, onParticipantsAdded, pa
 
         setIsSearching(true);
         try {
-            const data = await apiFetch(`/api/search/users/by-username/${query}`);
-            const filtered = data.filter((user) => !participantCache[user.id])
+            const data = await apiFetch(`/api/search/users/by-key/${query}`);
+            const filtered = data.filter((user) => !participants.some(p => p.id === user.id));
             setSearchResults(filtered || []);
         } catch (error) {
             console.error("Ошибка поиска участников:", error);

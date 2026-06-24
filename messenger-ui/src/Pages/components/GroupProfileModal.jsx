@@ -393,7 +393,8 @@ const GroupProfileModal = ({ isOpen, onClose, onCloseChat, chatId, chatName, cur
                 onClose={handleCloseAddModal}
                 chatId={chatId}
                 onParticipantsAdded={refreshParticipants}
-                participantCache={participantCache}
+                participants={participants}
+                
             />
         </>
     );
