@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -144,7 +148,9 @@ public class AiContentAnalysisService {
                 request.getKey(),
                 request.getFileName(),
                 error.getClass().getName(),
-                error.getMessage()
+                error.getMessage(),
+                request.getDlqRetryCount(),
+                System.currentTimeMillis()
         );
 
         CompletableFuture<SendResult<String, DeadLetterRequest>> future =

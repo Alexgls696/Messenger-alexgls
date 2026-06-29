@@ -78,7 +78,6 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
         // Таймаут сессии
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 300_000);
 
         // Максимальное время между poll (защита от зависания)

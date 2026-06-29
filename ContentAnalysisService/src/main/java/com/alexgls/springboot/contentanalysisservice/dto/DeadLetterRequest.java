@@ -6,5 +6,7 @@ public record DeadLetterRequest(
     String s3Key,
     String fileName,
     String errorType,
-    String errorMessage
+    String errorMessage,
+    int retryCount,
+    long firstFailureTime
 ) {}

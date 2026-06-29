@@ -18,6 +18,24 @@ spring:
         jwt:
           jwk-set-uri: ${AUTH_SERVICE_URL:http://localhost:8085}/.well-known/jwks.json
 
+
+dlq:
+  retry:
+    # Максимальное количество попыток повторной обработки файла из DLQ.
+    # После исчерпания лимита файл помечается как "permanent failure"
+    # и удаляется из цикла retry.
+    max-attempts: 5
+
+    # Максимальный возраст сообщения в часах.
+    # Если файл находится в DLQ дольше указанного времени,
+    # он помечается как "permanent failure" и удаляется из цикла retry.
+    max-age-hours: 24
+
+    # Интервал между запусками scheduler для чтения DLQ (в миллисекундах).
+    # По умолчанию 60 секунд.
+    interval-ms: 60000
+
+
 ai-services:
   countRequestsToAi: 1
   gigachat:

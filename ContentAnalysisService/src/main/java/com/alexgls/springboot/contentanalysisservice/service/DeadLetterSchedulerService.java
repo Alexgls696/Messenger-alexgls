@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -25,25 +24,20 @@ public class DeadLetterSchedulerService {
 
     private final ConsumerFactory<String, DeadLetterRequest> dlqConsumerFactory;
     private final AiContentAnalysisService aiContentAnalysisService;
+    private final KafkaTemplate<String, DeadLetterRequest> permanentFailureKafkaTemplate;
 
-    private final ScheduledExecutorService heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
+    @Value("${dlq.retry.max-attempts:5}")
+    private int maxRetryAttempts;
 
-    // Переиспользуемый Consumer
+    @Value("${dlq.retry.max-age-hours:24}")
+    private int maxAgeHours;
+
     private Consumer<String, DeadLetterRequest> consumer;
 
     @PostConstruct
     public void init() {
         consumer = dlqConsumerFactory.createConsumer();
         consumer.subscribe(Collections.singletonList("analysis-dlq-topic"));
-
-        heartbeatExecutor.scheduleAtFixedRate(() -> {
-            try {
-                consumer.poll(Duration.ZERO);
-            } catch (Exception e) {
-                log.warn("Heartbeat failed", e);
-            }
-        }, 0, 20, TimeUnit.SECONDS);
-
         log.info("DLQ Consumer инициализирован и подписан на топик");
     }
 
@@ -59,7 +53,6 @@ public class DeadLetterSchedulerService {
     @Scheduled(fixedDelayString = "${dlq.retry.interval-ms:60000}")
     public void retryOneRequestFromDlq() {
         try {
-            // Читаем максимум 1 сообщение
             ConsumerRecords<String, DeadLetterRequest> records = consumer.poll(Duration.ofSeconds(2));
 
             if (records.isEmpty()) {
@@ -76,15 +69,36 @@ public class DeadLetterSchedulerService {
 
             DeadLetterRequest dlqRequest = record.value();
 
+            // Проверка 1: Лимит попыток
+            if (dlqRequest.retryCount() >= maxRetryAttempts) {
+                log.error("Файл {} исчерпал лимит retry ({} попыток). Помечаем как 'permanent failure'.",
+                        dlqRequest.fileId(), maxRetryAttempts);
+                moveToPermanentFailure(dlqRequest);
+                consumer.commitSync();
+                return;
+            }
+
+            // Проверка 2: Возраст сообщения
+            long ageHours = (System.currentTimeMillis() - dlqRequest.firstFailureTime()) / (1000 * 60 * 60);
+            if (ageHours > maxAgeHours) {
+                log.error("Файл {} слишком старый ({} часов). Помечаем как 'permanent failure'.",
+                        dlqRequest.fileId(), ageHours);
+                moveToPermanentFailure(dlqRequest);
+                consumer.commitSync();
+                return;
+            }
+
             try {
-                log.info("Ретрай файла {} из DLQ. Причина: {}",
-                        dlqRequest.fileId(), dlqRequest.errorMessage());
+                log.info("Ретрай файла {} из DLQ (попытка {}/{}). Причина: {}",
+                        dlqRequest.fileId(), dlqRequest.retryCount() + 1, maxRetryAttempts,
+                        dlqRequest.errorMessage());
 
                 AnalyseFileRequest originalRequest = new AnalyseFileRequest(
                         dlqRequest.s3Key(),
                         dlqRequest.chatId(),
                         dlqRequest.fileId(),
-                        dlqRequest.fileName()
+                        dlqRequest.fileName(),
+                        dlqRequest.retryCount() + 1
                 );
 
                 aiContentAnalysisService.analyseFile(originalRequest);
@@ -109,5 +123,10 @@ public class DeadLetterSchedulerService {
                 log.error("Не удалось пересоздать DLQ Consumer", ex);
             }
         }
+    }
+
+    private void moveToPermanentFailure(DeadLetterRequest request) {
+        log.warn("Файл {} помечен как permanent failure", request.fileId());
+        permanentFailureKafkaTemplate.send("permanent-failure-topic", request);
     }
 }
