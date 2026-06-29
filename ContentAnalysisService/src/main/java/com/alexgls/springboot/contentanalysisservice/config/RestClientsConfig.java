@@ -4,6 +4,7 @@ import com.alexgls.springboot.contentanalysisservice.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -23,6 +24,10 @@ public class RestClientsConfig {
                 .builder()
                 .baseUrl(AIUrl)
                 .requestInterceptor(authInterceptor)
+                .requestFactory(new HttpComponentsClientHttpRequestFactory() {{
+                    setConnectTimeout(5000);
+                    setReadTimeout(30000);
+                }})
                 .build());
     }
 }

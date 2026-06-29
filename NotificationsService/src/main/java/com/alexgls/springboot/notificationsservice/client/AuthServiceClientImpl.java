@@ -17,8 +17,6 @@ public class AuthServiceClientImpl implements AuthServiceClient {
 
     private final RestClient restClient;
 
-    private final ParameterizedTypeReference<Map<String, String>> PARAMETERIZED_TYPE_REF = new ParameterizedTypeReference<Map<String, String>>() {
-    };
 
     @Value("${security.id}")
     private String registerClientId;

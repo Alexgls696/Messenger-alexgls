@@ -60,7 +60,8 @@ public class ChatsService {
         Page<ChatWithUnread> chatPage = chatsRepository.findChatsByUserId(userId, pageable);
         List<ChatWithUnread> content = chatPage.getContent();
         List<Long> chatIds = content.stream()
-                .map(c -> c.chat().getId()).toList();
+                .map(c -> c.chat().getId())
+                .toList();
 
         Map<Long, Message> lastMessagesMap = messagesRepository.findLastMessagesByChatIds(chatIds, userId)
                 .stream().collect(Collectors.toMap(Message::getChatId, m -> m));

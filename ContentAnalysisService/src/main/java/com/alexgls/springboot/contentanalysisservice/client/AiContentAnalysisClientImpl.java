@@ -9,13 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
-
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,8 +37,10 @@ public class AiContentAnalysisClientImpl implements AiContentAnalysisClient {
                     .body(AnalysisResponse.class);
         } catch (HttpClientErrorException.Unauthorized unauthorized) {
             throw unauthorized;
-        } catch (HttpClientErrorException exception) {
+        } catch (HttpClientErrorException | HttpServerErrorException exception) {
             throw new GetOauthTokenFailedException("Не удалось проанализировать заданный файл. error: " + exception.getResponseBodyAsString());
+        } catch (ResourceAccessException exception) {
+            throw new GetOauthTokenFailedException("Сетевая ошибка при анализе файла: " + exception.getMessage());
         }
     }
 
@@ -57,8 +58,10 @@ public class AiContentAnalysisClientImpl implements AiContentAnalysisClient {
                     .body(body)
                     .retrieve()
                     .body(LoadFileResponse.class);
-        } catch (HttpClientErrorException exception) {
+        } catch (HttpClientErrorException | HttpServerErrorException exception) {
             throw new LoadFileToAiException("Не удалось загрузить файл: " + exception.getResponseBodyAsString());
+        } catch (ResourceAccessException exception) {
+            throw new LoadFileToAiException("Сетевая ошибка при загрузке файла: " + exception.getMessage());
         }
     }
 }
